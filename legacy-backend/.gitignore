@@ -1,0 +1,68 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# build
+dist/
+storybook-static/
+tsconfig.tsbuildinfo
+
+# env
+.env
+.env.*
+!.env.example
+
+# testing
+coverage/
+htmlcov/
+test-results/
+playwright-report/
+.pw-deps/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# prisma
+prisma/*.db
+prisma/*.db-journal
+
+# audit & design-check screenshots
+*.png
+!public/**/*.png
+!src/**/*.png
+design-check/
+
+# serena
+.serena/
+
+# claude plans
+.claude/plans/
+
+# misc
+*.log
+*.tsbuildinfo
+.tmp_biome_*.json
+biome-*.json
+tmp_biome_*
+tmp-biome-*
+scripts/*.pid
+scripts/*.health.json
+scripts/.playwright-run.lock
+scripts/codex-safe-exec.result.json
+scripts/codex-safe-exec.log
+scripts/codex-output-*.log
+scripts/codex-history/
+scripts/codex-pipeline-report.md
+scripts/codex-pipeline-report.json
+scripts/ab-results/
+.codex-running.lock
+.codex-dev.log
+scripts/bg-5agents.state.json

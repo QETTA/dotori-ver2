@@ -1,0 +1,535 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════
+// Auth & Users
+// ═══════════════════════════════════
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  avatar        String?
+  phone         String?
+  provider      String    @default("email")
+  plan          String    @default("free")
+  isOnboarded   Boolean   @default(false)
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  children     Child[]
+  favorites    Favorite[]
+  firstChoices UserFirstChoice[]
+  toAlertSubscriptions ToAlertSubscription[]
+  waitlist     WaitlistEntry[]
+  alerts       Alert[]
+  consults     Consult[]
+  payments     Payment[]
+  accounts     Account[]
+  sessions     Session[]
+  deviceTokens DeviceToken[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ═══════════════════════════════════
+// Children
+// ═══════════════════════════════════
+
+model Child {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  name      String
+  birthDate DateTime
+  gender    String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  waitlist  WaitlistEntry[]
+
+  @@map("children")
+}
+
+// ═══════════════════════════════════
+// Daycare Preferences & Alert Subscriptions
+// ═══════════════════════════════════
+
+model Daycare {
+  id        String   @id @map("_id")
+  name      String
+  district  String
+  dong      String?
+  type      String?
+  address   String?
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  firstChoices         UserFirstChoice[]
+  toAlertSubscriptions ToAlertSubscription[]
+  toAlertEvents        ToAlertEvent[]
+
+  @@index([district, dong])
+  @@map("daycares")
+}
+
+model UserFirstChoice {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  daycareId String
+  age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  daycare Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  @@index([daycareId])
+  @@map("user_first_choices")
+}
+
+model ToAlertSubscription {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  daycareId  String
+  age        Int
+  enabled    Boolean  @default(true)
+  enabledAt  DateTime @default(now())
+  disabledAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  daycare Daycare @relation(fields: [daycareId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, daycareId, age])
+  @@index([userId, enabled, updatedAt])
+  @@map("to_alert_subscriptions")
+}
+
+model ToAlertEvent {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  daycareId  String
+  age        Int
+  detectedAt DateTime @default(now())
+  message    String?
+  source     String?  @default("debug")
+
+  daycare Daycare @relation(fields: [daycareId], references: [id], onDelete: Restrict)
+
+  @@index([daycareId, age, detectedAt])
+  @@map("to_alert_events")
+}
+
+// ═══════════════════════════════════
+// Facilities
+// ═══════════════════════════════════
+
+model Facility {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  type            String
+  address         String
+  addressDetail   String?
+  city            String
+  district        String
+  dong            String?
+  lat             Float
+  lng             Float
+  phone           String?
+  capacity        Int      @default(0)
+  currentEnroll   Int      @default(0)
+  monthlyCost     Int      @default(0)
+  rating          Float    @default(0)
+  reviewCount     Int      @default(0)
+  operatingHours  String?
+  establishedYear Int?
+  features        String[]
+  images          String[]
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  ageClasses       AgeClass[]
+  favorites        Favorite[]
+  waitlist         WaitlistEntry[]
+  alerts           Alert[]
+  toHistory        TOEvent[]
+  probabilityCache ProbabilityCache[]
+
+  @@index([city, district])
+  @@index([lat, lng])
+  @@index([type])
+  @@map("facilities")
+}
+
+model AgeClass {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  facilityId   String @db.ObjectId
+  ageGroup     String
+  capacity     Int    @default(0)
+  currentCount Int    @default(0)
+  waitlistCount Int   @default(0)
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([facilityId, ageGroup])
+  @@map("age_classes")
+}
+
+// ═══════════════════════════════════
+// Waitlist & TO
+// ═══════════════════════════════════
+
+model WaitlistEntry {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  childId      String   @db.ObjectId
+  facilityId   String   @db.ObjectId
+  ageGroup     String
+  priority     Int      @default(0)
+  status       String   @default("waiting")
+  queueNumber  Int?
+  appliedAt    DateTime @default(now())
+  admittedAt   DateTime?
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  child    Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, facilityId, childId])
+  @@index([facilityId, ageGroup, status])
+  @@map("waitlist_entries")
+}
+
+model TOEvent {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  facilityId String   @db.ObjectId
+  ageGroup   String
+  slots      Int      @default(1)
+  reason     String?
+  occurredAt DateTime @default(now())
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@index([facilityId, occurredAt])
+  @@map("to_events")
+}
+
+// ═══════════════════════════════════
+// Favorites
+// ═══════════════════════════════════
+
+model Favorite {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  facilityId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, facilityId])
+  @@map("favorites")
+}
+
+// ═══════════════════════════════════
+// Alerts / Notifications
+// ═══════════════════════════════════
+
+model Alert {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  type       String
+  title      String
+  body       String
+  facilityId String?  @db.ObjectId
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  actionUrl  String?
+  createdAt  DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility Facility? @relation(fields: [facilityId], references: [id])
+
+  @@index([userId, isRead, createdAt])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("alerts")
+}
+
+// ═══════════════════════════════════
+// Consult
+// ═══════════════════════════════════
+
+model Consult {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  type       String
+  status     String   @default("pending")
+  facilityId String?
+  summary    String?
+  report     Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ConsultMessage[]
+
+  @@index([userId, status])
+  @@map("consults")
+}
+
+model ConsultMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  consultId String   @db.ObjectId
+  role      String
+  content   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  consult Consult @relation(fields: [consultId], references: [id], onDelete: Cascade)
+
+  @@map("consult_messages")
+}
+
+// ═══════════════════════════════════
+// Payments
+// ═══════════════════════════════════
+
+model Payment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  plan        String
+  amount      Int
+  currency    String   @default("KRW")
+  method      String?
+  status      String   @default("pending")
+  orderId     String   @unique
+  paymentKey  String?
+  receiptUrl  String?
+  failReason  String?
+  paidAt      DateTime?
+  refundedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@map("payments")
+}
+
+// ═══════════════════════════════════
+// Probability Cache
+// ═══════════════════════════════════
+
+model ProbabilityCache {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  facilityId String   @db.ObjectId
+  ageGroup   String
+  probability Float
+  grade      String
+  factors    Json?
+  calculatedAt DateTime @default(now())
+
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([facilityId, ageGroup])
+  @@index([facilityId])
+  @@map("probability_cache")
+}
+
+// ═══════════════════════════════════
+// Community
+// ═══════════════════════════════════
+
+model Neighborhood {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  city      String   @default("서울")
+  district  String
+  dong      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     CommunityPost[]
+
+  @@unique([city, district, dong])
+  @@index([district, dong])
+}
+
+model CommunityPost {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  neighborhoodId String   @db.ObjectId
+  authorId       String   @db.ObjectId
+  title          String?
+  body           String
+  likeCount      Int      @default(0)
+  commentCount   Int      @default(0)
+  reportCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  neighborhood   Neighborhood @relation(fields: [neighborhoodId], references: [id])
+  comments       CommunityComment[]
+  aliases        ThreadAlias[]
+  likes          PostLike[]
+  reports        PostReport[]
+
+  @@index([neighborhoodId, createdAt(sort: Desc)])
+}
+
+model CommunityComment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId      String   @db.ObjectId
+  authorId    String   @db.ObjectId
+  body        String
+  likeCount   Int      @default(0)
+  reportCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  post        CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  likes       CommentLike[]
+  reports     CommentReport[]
+
+  @@index([postId, createdAt(sort: Desc)])
+}
+
+model ThreadAlias {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  aliasNo   Int
+  createdAt DateTime @default(now())
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model PostLike {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model CommentLike {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  commentId String   @db.ObjectId
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  comment   CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model PostReport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  reason    String?
+  createdAt DateTime @default(now())
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model CommentReport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  commentId String   @db.ObjectId
+  userId    String   @db.ObjectId
+  reason    String?
+  createdAt DateTime @default(now())
+  comment   CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  action    String
+  entity    String
+  entityId  String?
+  userId    String?  @db.ObjectId
+  userName  String?
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
+
+// ═══════════════════════════════════
+// Web Push (VAPID)
+// ═══════════════════════════════════
+
+model DeviceToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  endpoint  String
+  p256dh    String
+  auth      String
+  platform  String   @default("web")
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+  @@map("device_tokens")
+}

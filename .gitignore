@@ -1,0 +1,85 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# dotori-ver2 Root .gitignore
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ── Environment & Secrets ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.secret
+
+# ── Dependencies ──
+node_modules/
+.pnp.*
+.yarn/install-state.gz
+
+# ── Next.js ──
+.next/
+out/
+dist/
+build/
+
+# ── Turbopack / Bundler ──
+.turbo/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# ── Testing ──
+coverage/
+htmlcov/
+test-results/
+playwright-report/
+.pw-deps/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ── Serena ──
+.serena/cache/
+.serena/logs/
+
+# ── Claude Code ──
+.claude/memory.json
+.claude/plans/
+.claude/settings.local.json
+
+# ── Codex ──
+.codex-running.lock
+.codex-dev.log
+
+# ── Prisma ──
+prisma/*.db
+prisma/*.db-journal
+
+# ── Logs ──
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Storybook ──
+storybook-static/
+
+# ── Biome temp ──
+.tmp_biome_*.json
+biome-*.json
+tmp_biome_*
+tmp-biome-*
+
+# ── Misc ──
+*.pid
+*.seed
+*.gz
+*.tgz

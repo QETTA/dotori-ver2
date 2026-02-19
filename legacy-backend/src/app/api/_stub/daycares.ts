@@ -1,0 +1,143 @@
+export type StubDaycare = {
+  id: string
+  name: string
+  district: string
+  dong?: string
+  type?: '국공립' | '민간' | '가정' | '직장' | '기타'
+  address?: string
+  geo?: { lat: number; lng: number }
+}
+
+export const DAYCARES: StubDaycare[] = [
+  {
+    id: 'dc_seocho_001',
+    name: '반포아이숲어린이집',
+    district: '서초구',
+    dong: '반포동',
+    type: '국공립',
+    address: '서울 서초구 반포동 000-0',
+    geo: { lat: 37.5031, lng: 127.0112 },
+  },
+  {
+    id: 'dc_seocho_002',
+    name: '서초꿈나무어린이집',
+    district: '서초구',
+    dong: '서초동',
+    type: '민간',
+    address: '서울 서초구 서초동 000-0',
+    geo: { lat: 37.4912, lng: 127.0123 },
+  },
+  {
+    id: 'dc_seocho_003',
+    name: '잠원햇살어린이집',
+    district: '서초구',
+    dong: '잠원동',
+    type: '국공립',
+    address: '서울 서초구 잠원동 000-0',
+    geo: { lat: 37.5123, lng: 127.0129 },
+  },
+  {
+    id: 'dc_gangnam_001',
+    name: '대치스마트어린이집',
+    district: '강남구',
+    dong: '대치동',
+    type: '민간',
+    address: '서울 강남구 대치동 000-0',
+    geo: { lat: 37.4965, lng: 127.0622 },
+  },
+  {
+    id: 'dc_gangnam_002',
+    name: '역삼봄어린이집',
+    district: '강남구',
+    dong: '역삼동',
+    type: '국공립',
+    address: '서울 강남구 역삼동 000-0',
+    geo: { lat: 37.5009, lng: 127.0374 },
+  },
+  {
+    id: 'dc_songpa_001',
+    name: '잠실새싹어린이집',
+    district: '송파구',
+    dong: '잠실동',
+    type: '국공립',
+    address: '서울 송파구 잠실동 000-0',
+    geo: { lat: 37.5145, lng: 127.1058 },
+  },
+  {
+    id: 'dc_songpa_002',
+    name: '송파숲속어린이집',
+    district: '송파구',
+    dong: '가락동',
+    type: '민간',
+    address: '서울 송파구 가락동 000-0',
+    geo: { lat: 37.4951, lng: 127.1186 },
+  },
+  {
+    id: 'dc_mapo_001',
+    name: '망원하늘어린이집',
+    district: '마포구',
+    dong: '망원동',
+    type: '민간',
+    address: '서울 마포구 망원동 000-0',
+    geo: { lat: 37.5563, lng: 126.8991 },
+  },
+  {
+    id: 'dc_mapo_002',
+    name: '합정예쁜어린이집',
+    district: '마포구',
+    dong: '합정동',
+    type: '국공립',
+    address: '서울 마포구 합정동 000-0',
+    geo: { lat: 37.5496, lng: 126.9147 },
+  },
+  {
+    id: 'dc_yongsan_001',
+    name: '이촌푸른어린이집',
+    district: '용산구',
+    dong: '이촌동',
+    type: '국공립',
+    address: '서울 용산구 이촌동 000-0',
+    geo: { lat: 37.5214, lng: 126.9712 },
+  },
+  {
+    id: 'dc_yongsan_002',
+    name: '한남별빛어린이집',
+    district: '용산구',
+    dong: '한남동',
+    type: '민간',
+    address: '서울 용산구 한남동 000-0',
+    geo: { lat: 37.5348, lng: 127.0018 },
+  },
+  {
+    id: 'dc_seocho_010',
+    name: '아이숲어린이집',
+    district: '서초구',
+    dong: '양재동',
+    type: '민간',
+    address: '서울 서초구 양재동 000-0',
+  },
+  {
+    id: 'dc_mapo_010',
+    name: '아이숲어린이집',
+    district: '마포구',
+    dong: '연남동',
+    type: '민간',
+    address: '서울 마포구 연남동 000-0',
+  },
+  {
+    id: 'dc_seocho_020',
+    name: '해맑은 어린이집',
+    district: '서초구',
+    dong: '서초동',
+    type: '국공립',
+    address: '서울 서초구 서초동 000-1',
+  },
+  {
+    id: 'dc_gangnam_020',
+    name: '해맑은 어린이집',
+    district: '강남구',
+    dong: '역삼동',
+    type: '민간',
+    address: '서울 강남구 역삼동 000-1',
+  },
+]
