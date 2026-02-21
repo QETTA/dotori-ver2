@@ -324,16 +324,13 @@ export function generateTransferReasons({
 		});
 	}
 
-	if (facility.distance && Number(facility.distance.replace(/[^0-9.]/g, "")) {
-		const distance = Number.parseFloat(facility.distance.replace(/[^0-9.]/g, ""));
-		if (!Number.isNaN(distance) && distance >= 2) {
-			addIfMissing({
-				category: "relocation",
-				text: "현재 거주시설 대비 이동 거리 이슈가 있어요",
-				sentiment: "neutral",
-				source: "거리 데이터",
-			});
-		}
+	if (typeof facility.distance === "number" && facility.distance >= 2000) {
+		addIfMissing({
+			category: "relocation",
+			text: "현재 거주지 기준 이동 거리가 2km 이상이에요",
+			sentiment: "neutral",
+			source: "거리 데이터",
+		});
 	}
 
 	if (facility.status === "waiting" && facility.capacity.waiting >= 10 && facility.type !== "국공립") {

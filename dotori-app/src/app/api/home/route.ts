@@ -67,7 +67,7 @@ export const GET = withApiHandler(
 		let regionFilter: Record<string, unknown> = {};
 
 		if (userId) {
-			const userDoc = await safeQuery(User.findById(userId).lean());
+			const userDoc = await User.findById(userId).lean().catch(() => null);
 			const rawUser = userDoc as UserLean | null;
 			if (rawUser) {
 				const region = rawUser.region || {};
