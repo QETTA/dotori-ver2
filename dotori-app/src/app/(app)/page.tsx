@@ -2,15 +2,13 @@
 
 import {
 	BellAlertIcon,
-	ArrowPathIcon,
 	MagnifyingGlassIcon,
-	ScaleIcon,
 	SparklesIcon,
 	XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
@@ -24,11 +22,40 @@ import { generateNBAs, type NBAItem } from "@/lib/engine/nba-engine";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
 const quickActions = [
-	{ label: "이동 고민", prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 어떻게 시작해야 할까요?", href: "/chat", Icon: ArrowPathIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
-	{ label: "반편성 비교", prompt: "아이 나이와 반편성 기준으로 다음 입소 가능 시설을 비교해줘", href: "/chat", Icon: ScaleIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
-	{ label: "빈자리 탐색", href: "/explore", Icon: MagnifyingGlassIcon, bg: "bg-dotori-50", iconColor: "text-dotori-500" },
-	{ label: "TO 알림", href: "/my/settings", Icon: BellAlertIcon, bg: "bg-red-50", iconColor: "text-red-400" },
+	{ icon: "🔍", label: "내 주변 탐색", href: "/explore", bg: "bg-dotori-100" },
+	{ icon: "💬", label: "토리에게 물어보기", href: "/chat", bg: "bg-forest-100" },
+	{
+		icon: "📋",
+		label: "입소 체크리스트",
+		href: "/chat",
+		prompt: "체크리스트",
+		bg: "bg-dotori-100",
+	},
+	{ icon: "🔔", label: "대기 현황", href: "/my/waitlist", bg: "bg-dotori-100" },
 ];
+
+const sectionStagger: Variants = {
+	hidden: { opacity: 1 },
+	show: {
+		opacity: 1,
+		transition: {
+			staggerChildren: 0.08,
+			delayChildren: 0.04,
+		},
+	},
+};
+
+const cardReveal: Variants = {
+	hidden: { opacity: 0, y: 18 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			duration: 0.42,
+			ease: "easeOut",
+		},
+	},
+};
 
 interface HomeData {
 	user: UserProfile | null;
@@ -92,15 +119,35 @@ export default function HomePage() {
 			f.status === "available" &&
 			!data.interestFacilities.some((i) => i.id === f.id),
 	);
+	const realtimeAvailableFacilities = useMemo(() => {
+		if (!data) return [];
+		const available = [...data.nearbyFacilities, ...data.interestFacilities].filter(
+			(f) => f.status === "available",
+		);
+		const seen = new Set<string>();
+		return available.filter((facility) => {
+			if (seen.has(facility.id)) return false;
+			seen.add(facility.id);
+			return true;
+		});
+	}, [data]);
 
 	const hotPost = data?.hotPosts[0] ?? null;
 	const nearbyFacilities = data?.nearbyFacilities ?? [];
+	const greetingTitle = user?.nickname
+		? `${user.nickname}님, 어린이집 찾고 계세요?`
+		: "안녕하세요! 어린이집 쉽게 찾아드릴게요";
 	const hasAiBriefingContent = Boolean(
 		data &&
 			(data.interestFacilities.length > 0 ||
 				data.alertCount > 0 ||
 				data.waitlistCount > 0),
 	);
+	const aiUpdatedAt =
+		data?.sources?.isalang?.updatedAt ?? new Date().toISOString();
+	const waitingInterests = data?.interestFacilities.filter(
+		(f) => f.status === "waiting",
+	) ?? [];
 	const todayTip = (() => {
 		const month = new Date().getMonth() + 1;
 		if (month === 2 || month === 3) {
@@ -222,64 +269,140 @@ export default function HomePage() {
 				</header>
 
 			<div className="px-5">
-				{/* ── AI 오늘의 브리핑 ── */}
-				<section
-					className={cn(
-						"mt-5",
-						"space-y-3",
-						"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 duration-500",
-					)}
+				{/* ── HERO ── */}
+				<motion.section
+					className="mt-5 space-y-1"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
 				>
-					<h2 className="text-[17px] font-bold">오늘의 할 일</h2>
-					{hasAiBriefingContent ? (
-						<AiBriefingCard
-							source="아이사랑"
-							updatedAt={
-								data?.sources?.isalang?.updatedAt ??
-								new Date().toISOString()
-							}
-						>
-							{data?.interestFacilities.some(
-								(f) => f.status === "available",
-							) ? (
-								<ul className="space-y-1.5 text-[15px] text-dotori-800">
-									{data.interestFacilities
-										.filter((f) => f.status === "available")
-										.slice(0, 2)
-										.map((f) => {
-											const toCount =
-												f.capacity.total - f.capacity.current;
-											return (
-												<li
-													key={f.id}
-													className="flex items-start gap-1.5"
-												>
-													<span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" />
-													<span>
-														{f.name}{" "}
-														<strong className="text-forest-700">
-															TO {toCount}석
-														</strong>
-														<span className="ml-1 text-[13px] text-dotori-400">
-															(정원 {f.capacity.total}명)
-														</span>
-													</span>
-												</li>
-											);
-										})}
-								</ul>
-							) : data?.interestFacilities.some(
-									(f) => f.capacity.waiting > 0,
-								) ? (
-								<p className="text-[15px] text-dotori-800">
-									관심 시설 {data.interestFacilities.length}곳 모두 대기 중이에요.
-									{data.waitlistCount > 0 &&
-										` 나의 대기 ${data.waitlistCount}건 진행 중`}
-								</p>
+					<motion.h1
+						variants={cardReveal}
+						className="text-[26px] font-extrabold leading-tight text-dotori-900"
+					>
+						{greetingTitle}
+					</motion.h1>
+					<motion.p
+						variants={cardReveal}
+						className="text-[14px] text-dotori-500"
+					>
+						도토리와 함께 우리 아이에게 딱 맞는 어린이집을
+					</motion.p>
+				</motion.section>
+
+				{/* ── 빠른 액션 카드 ── */}
+				<section className="mt-6">
+					<motion.div
+						ref={scrollRef}
+						className="hide-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						{quickActions.map((action, i) => {
+							const href = action.prompt
+								? `${action.href}?prompt=${encodeURIComponent(
+										action.prompt,
+								  )}`
+								: action.href;
+							return (
+								<motion.div key={action.label} variants={cardReveal} style={{ animationDelay: `${i * 40}ms` }}>
+									<Link
+										href={href}
+										className={cn(
+											"min-h-[124px] w-[180px] shrink-0 rounded-3xl px-4 py-4 shadow-sm",
+											"ring-1 ring-dotori-100 transition-all",
+											"bg-white/85 backdrop-blur-sm hover:bg-dotori-50",
+											"active:scale-[0.98]",
+										)}
+									>
+										<div
+											className={cn(
+												"grid h-11 w-11 place-items-center rounded-2xl text-[20px]",
+												action.bg,
+											)}
+										>
+											{action.icon}
+										</div>
+										<p className="mt-3 text-[16px] font-bold leading-snug text-dotori-900">
+											{action.label}
+										</p>
+									</Link>
+								</motion.div>
+							);
+						})}
+						<div className="w-2 shrink-0" />
+					</motion.div>
+				</section>
+
+				{/* ── AI 브리핑 카드 ── */}
+				<motion.section
+					className="mt-6 space-y-3"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<h2 className="text-[17px] font-bold">AI 브리핑</h2>
+					<motion.div variants={cardReveal}>
+						<AiBriefingCard source="아이사랑" updatedAt={aiUpdatedAt}>
+							{hasAiBriefingContent ? (
+								<div className="space-y-2 text-dotori-900">
+									<p className="text-[18px] font-semibold leading-snug text-dotori-900">
+										{data?.interestFacilities.some(
+											(f) => f.status === "available",
+										)
+											? "입소 가능 시설이 있어요"
+											: waitingInterests.length > 0
+												? "입소 대기 시설을 실시간으로 모니터링 중입니다"
+												: "토리에게 지금 바로 물어볼 수 있어요"}
+									</p>
+									{data?.interestFacilities.some((f) => f.status === "available") ? (
+										<ul className="space-y-1.5 text-[15px] leading-relaxed text-dotori-800">
+											{data.interestFacilities
+												.filter((f) => f.status === "available")
+												.slice(0, 3)
+												.map((f) => {
+													const toCount =
+														f.capacity.total - f.capacity.current;
+													return (
+														<li
+															key={f.id}
+															className="flex items-start gap-1.5 rounded-xl bg-dotori-50/70 px-3 py-2"
+														>
+															<span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" />
+															<span>
+																<strong className="text-forest-700">{f.name}</strong> 현재 TO {toCount}석
+															</span>
+														</li>
+													);
+												})}
+										</ul>
+									) : waitingInterests.length > 0 ? (
+										<p className="text-[15px] leading-relaxed text-dotori-700">
+											관심 시설 {data?.interestFacilities.length}곳 모두 대기 중이에요.
+											{(data?.waitlistCount ?? 0) > 0 &&
+												` 나의 대기 ${(data?.waitlistCount ?? 0)}건 진행 중`}
+										</p>
+									) : (
+										<div className="space-y-2">
+											<p className="text-[15px] leading-relaxed text-dotori-700">
+												토리에게 조건을 말해주면 입소 가능 시설을 바로 추천해드려요.
+											</p>
+											<Skeleton variant="text" />
+										</div>
+									)}
+								</div>
 							) : (
-								<p className="text-[15px] text-dotori-800">
-									현재 관심 시설에 새로운 변동은 없어요
-								</p>
+								<div className="space-y-2">
+									<p className="text-[17px] font-bold text-dotori-900">
+										AI 브리핑을 준비 중이에요
+									</p>
+									<p className="text-[15px] leading-relaxed text-dotori-700">
+										우리 아이에 맞는 브리핑을 실시간으로 만들고 있어요.
+									</p>
+									<Skeleton variant="text" />
+									<Skeleton variant="text" />
+								</div>
 							)}
 							<Link
 								href="/chat"
@@ -289,67 +412,80 @@ export default function HomePage() {
 								토리에게 자세히 물어보기
 							</Link>
 						</AiBriefingCard>
-					) : (
-						<div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-dotori-200/20">
-							<p className="text-[15px] text-dotori-700">
-								오늘의 브리핑을 준비 중이에요
-							</p>
+					</motion.div>
+				</motion.section>
+
+				{/* ── 실시간 시설 현황 ── */}
+				{data && (
+					<motion.section
+						className="mt-8"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						<div className="mb-3 flex items-center justify-between">
+							<h2 className="text-[17px] font-bold">현재 입소 가능한 시설</h2>
+							<Link
+								href="/explore"
+								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
+							>
+								실시간 확인
+								<ChevronRightIcon className="h-4 w-4" />
+							</Link>
 						</div>
-					)}
-				</section>
+						{realtimeAvailableFacilities.length > 0 ? (
+							<div className="space-y-3">
+								{realtimeAvailableFacilities.slice(0, 3).map((facility) => (
+									<motion.div
+										key={facility.id}
+										variants={cardReveal}
+										className="rounded-2xl"
+									>
+										<Link href={`/facility/${facility.id}`}>
+											<FacilityCard facility={facility} compact />
+										</Link>
+									</motion.div>
+								))}
+							</div>
+						) : (
+							<motion.div
+								variants={cardReveal}
+								className="rounded-3xl bg-white p-5 ring-1 ring-dotori-100"
+							>
+								<p className="text-[15px] leading-relaxed text-dotori-800">
+									현재 입소 가능한 시설이 없어요.
+								</p>
+								<p className="mt-1 text-[13px] text-dotori-500">
+									{data.interestFacilities.length > 0
+										? `관심 ${data.interestFacilities.length}곳은 지금 대기 중이에요`
+										: "주변 시설에서 다시 확인해보세요"}
+								</p>
+								<Link
+									href="/my/waitlist"
+									className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-dotori-500 px-4 py-2 text-[14px] font-semibold text-white transition-all active:scale-[0.97]"
+								>
+									대기 현황 확인
+								</Link>
+							</motion.div>
+						)}
+					</motion.section>
+				)}
 
 				{/* ── NBA 카드 ── */}
 				{nbas.length > 0 && (
-					<section className="mt-5 space-y-2">
+					<motion.section
+						className="mt-5 space-y-2"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
 						{nbas.map((nba) => (
-							<NBACard
-								key={nba.id}
-								nba={nba}
-								onDismiss={handleDismiss}
-							/>
+							<motion.div key={nba.id} variants={cardReveal}>
+								<NBACard nba={nba} onDismiss={handleDismiss} />
+							</motion.div>
 						))}
-					</section>
+					</motion.section>
 				)}
-
-				{/* ── 빠른 액션 칩 ── */}
-				<section className="mt-6">
-					<div className="relative">
-						<div
-							ref={scrollRef}
-							className="hide-scrollbar -mx-5 flex gap-2.5 overflow-x-auto px-5"
-						>
-							{quickActions.map((action, i) => (
-								<Link
-									key={action.label}
-									href={
-										action.prompt
-											? `${action.href}?prompt=${encodeURIComponent(
-													action.prompt,
-											  )}`
-											: action.href
-									}
-									className={cn(
-										"flex shrink-0 items-center gap-2.5 rounded-full bg-white px-5 py-3.5 shadow-sm",
-										"text-[15px] font-medium text-dotori-700 transition-all",
-										"active:scale-[0.97] hover:bg-dotori-100",
-										"motion-safe:animate-in motion-safe:fade-in duration-300",
-									)}
-									style={{
-										animationDelay: `${i * 60}ms`,
-										animationFillMode: "both",
-									}}
-								>
-									<span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full", action.bg)}>
-										<action.Icon className={cn("h-4.5 w-4.5", action.iconColor)} />
-									</span>
-									{action.label}
-								</Link>
-							))}
-							<div className="w-2 shrink-0" />
-						</div>
-						<div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-dotori-50 via-dotori-50/80 to-transparent" />
-					</div>
-				</section>
 
 				{/* ── 관심 시설 변동 ── */}
 				{data && data.interestFacilities.length > 0 && (
