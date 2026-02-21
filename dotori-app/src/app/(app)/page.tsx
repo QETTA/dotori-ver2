@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
@@ -50,6 +51,8 @@ export default function HomePage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [dismissedNBAs, setDismissedNBAs] = useState<Set<string>>(new Set());
+	const [locationError, setLocationError] = useState<string | null>(null);
+	const [isRequestingLocation, setIsRequestingLocation] = useState(false);
 
 	const fetchHome = useCallback(async () => {
 		setIsLoading(true);
@@ -93,10 +96,39 @@ export default function HomePage() {
 
 	const hotPost = data?.hotPosts[0] ?? null;
 	const nearbyFacilities = data?.nearbyFacilities ?? [];
+	const hasAiBriefingContent = Boolean(
+		data &&
+			(data.interestFacilities.length > 0 ||
+				data.alertCount > 0 ||
+				data.waitlistCount > 0),
+	);
 
 	function dismissNBA(id: string) {
 		setDismissedNBAs((prev) => new Set(prev).add(id));
 	}
+
+	const requestLocationAccess = useCallback(() => {
+		if (typeof navigator === "undefined" || !navigator.geolocation) {
+			setLocationError("이 브라우저에서는 위치 권한을 요청할 수 없어요.");
+			return;
+		}
+
+		setIsRequestingLocation(true);
+		setLocationError(null);
+		navigator.geolocation.getCurrentPosition(
+			() => {
+				void fetchHome().finally(() => {
+					setIsRequestingLocation(false);
+				});
+			},
+			() => {
+				setIsRequestingLocation(false);
+				setLocationError(
+					"위치 권한이 아직 허용되지 않았어요. 브라우저 설정에서 허용 후 다시 시도해 주세요.",
+				);
+			},
+		);
+	}, [fetchHome]);
 
 	if (isLoading) {
 		return (
@@ -186,60 +218,71 @@ export default function HomePage() {
 					)}
 				>
 					<h2 className="text-[17px] font-bold">오늘의 할 일</h2>
-					<AiBriefingCard
-						source="아이사랑"
-						updatedAt={data?.sources?.isalang?.updatedAt ?? new Date().toISOString()}
-					>
-						{data?.interestFacilities.some(
-							(f) => f.status === "available",
-						) ? (
-							<ul className="space-y-1.5 text-[15px] text-dotori-800">
-								{data.interestFacilities
-									.filter((f) => f.status === "available")
-									.slice(0, 2)
-									.map((f) => {
-										const toCount =
-											f.capacity.total - f.capacity.current;
-										return (
-											<li
-												key={f.id}
-												className="flex items-start gap-1.5"
-											>
-												<span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" />
-												<span>
-													{f.name}{" "}
-													<strong className="text-forest-700">
-														TO {toCount}석
-													</strong>
-													<span className="ml-1 text-[13px] text-dotori-400">
-														(정원 {f.capacity.total}명)
-													</span>
-												</span>
-											</li>
-										);
-									})}
-							</ul>
-						) : data?.interestFacilities.some(
-								(f) => f.capacity.waiting > 0,
-							) ? (
-							<p className="text-[15px] text-dotori-800">
-								관심 시설 {data.interestFacilities.length}곳 모두 대기 중이에요.
-								{data.waitlistCount > 0 &&
-									` 나의 대기 ${data.waitlistCount}건 진행 중`}
-							</p>
-						) : (
-							<p className="text-[15px] text-dotori-800">
-								현재 관심 시설에 새로운 변동은 없어요
-							</p>
-						)}
-						<Link
-							href="/chat"
-							className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-dotori-600 transition-colors hover:text-dotori-700"
+					{hasAiBriefingContent ? (
+						<AiBriefingCard
+							source="아이사랑"
+							updatedAt={
+								data?.sources?.isalang?.updatedAt ??
+								new Date().toISOString()
+							}
 						>
-							<SparklesIcon className="h-3.5 w-3.5" />
-							토리에게 자세히 물어보기
-						</Link>
-					</AiBriefingCard>
+							{data?.interestFacilities.some(
+								(f) => f.status === "available",
+							) ? (
+								<ul className="space-y-1.5 text-[15px] text-dotori-800">
+									{data.interestFacilities
+										.filter((f) => f.status === "available")
+										.slice(0, 2)
+										.map((f) => {
+											const toCount =
+												f.capacity.total - f.capacity.current;
+											return (
+												<li
+													key={f.id}
+													className="flex items-start gap-1.5"
+												>
+													<span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" />
+													<span>
+														{f.name}{" "}
+														<strong className="text-forest-700">
+															TO {toCount}석
+														</strong>
+														<span className="ml-1 text-[13px] text-dotori-400">
+															(정원 {f.capacity.total}명)
+														</span>
+													</span>
+												</li>
+											);
+										})}
+								</ul>
+							) : data?.interestFacilities.some(
+									(f) => f.capacity.waiting > 0,
+								) ? (
+								<p className="text-[15px] text-dotori-800">
+									관심 시설 {data.interestFacilities.length}곳 모두 대기 중이에요.
+									{data.waitlistCount > 0 &&
+										` 나의 대기 ${data.waitlistCount}건 진행 중`}
+								</p>
+							) : (
+								<p className="text-[15px] text-dotori-800">
+									현재 관심 시설에 새로운 변동은 없어요
+								</p>
+							)}
+							<Link
+								href="/chat"
+								className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-dotori-600 transition-colors hover:text-dotori-700"
+							>
+								<SparklesIcon className="h-3.5 w-3.5" />
+								토리에게 자세히 물어보기
+							</Link>
+						</AiBriefingCard>
+					) : (
+						<div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-dotori-200/20">
+							<p className="text-[15px] text-dotori-700">
+								오늘의 브리핑을 준비 중이에요
+							</p>
+						</div>
+					)}
 				</section>
 
 				{/* ── NBA 카드 ── */}
@@ -296,9 +339,9 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">관심 시설</h2>
 							<Link
 								href="/explore"
-								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
 							>
-								전체보기
+								더보기
 								<ChevronRightIcon className="h-4 w-4" />
 							</Link>
 						</div>
@@ -347,7 +390,7 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">커뮤니티 소식</h2>
 							<Link
 								href="/community"
-								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
 							>
 								더보기
 								<ChevronRightIcon className="h-4 w-4" />
@@ -408,9 +451,9 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">근처 어린이집</h2>
 							<Link
 								href="/explore"
-								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
 							>
-								전체보기
+								더보기
 								<ChevronRightIcon className="h-4 w-4" />
 							</Link>
 						</div>
@@ -430,11 +473,28 @@ export default function HomePage() {
 									</Link>
 								))}
 							</div>
-							) : (
-								<Skeleton variant="facility-card" count={3} />
-							)}
-						</section>
-					)}
+						) : (
+							<div className="rounded-2xl bg-white p-5 ring-1 ring-dotori-100">
+								<p className="text-[15px] leading-relaxed text-dotori-800">
+									위치 권한 허용 후 주변 시설을 볼 수 있어요
+								</p>
+								<button
+									type="button"
+									onClick={requestLocationAccess}
+									disabled={isRequestingLocation}
+									className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-dotori-500 px-4 py-2 text-[14px] font-semibold text-white transition-all active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-dotori-300"
+								>
+									{isRequestingLocation ? "요청 중..." : "위치 허용"}
+								</button>
+								{locationError ? (
+									<p className="mt-2 text-[13px] text-dotori-600">
+										{locationError}
+									</p>
+								) : null}
+							</div>
+						)}
+					</section>
+				)}
 
 				{/* ── 오늘의 팁 ── */}
 				<section
@@ -464,47 +524,39 @@ export default function HomePage() {
 
 				{/* ── 빠른 시작 (비로그인) ── */}
 				{!user && (
-					<section
+					<motion.section
+						initial={{ opacity: 0, x: 16 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.35 }}
 						className={cn(
 							"mt-8",
-							"motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 duration-400",
+							"motion-safe:animate-in motion-safe:fade-in duration-400",
 						)}
 					>
-						<div className="relative overflow-hidden rounded-3xl bg-dotori-900 p-6 text-white">
-							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img src={BRAND.watermark} alt="" className="absolute right-2 bottom-2 h-16 w-16 opacity-10" />
-							<h3 className="relative text-[17px] font-bold">
-								도토리와 함께 시작하세요
-							</h3>
-							<p className="relative mt-1.5 text-[14px] text-white/60">
-								우리 아이 어린이집, 더 이상 혼자 고민하지 마세요
-							</p>
-							<ul className="mt-4 space-y-2.5 text-[14px] text-white/80">
-								<li className="flex items-center gap-2.5">
-									<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-dotori-400" />
-									실시간 빈자리 알림
-								</li>
-								<li className="flex items-center gap-2.5">
-									<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-forest-400" />
-									AI 맞춤 시설 추천
-								</li>
-								<li className="flex items-center gap-2.5">
-									<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
-									대기 순번 실시간 추적
-								</li>
-								<li className="flex items-center gap-2.5">
-									<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/40" />
-									이웃 학부모 커뮤니티
-								</li>
-							</ul>
-							<Link
-								href="/login"
-								className="mt-5 inline-block rounded-xl bg-[#FEE500] px-6 py-3 text-[15px] font-semibold text-[#191919] transition-all active:scale-[0.97]"
-							>
-								카카오로 시작하기
-							</Link>
+						<div className="rounded-2xl bg-dotori-900 p-5">
+							<div className="flex items-center justify-between gap-4">
+								<div className="flex min-w-0 items-center gap-3">
+									{/* eslint-disable-next-line @next/next/no-img-element */}
+									<img
+										src={BRAND.symbol}
+										alt=""
+										className="h-8 w-8 shrink-0"
+									/>
+									<p className="text-[15px] leading-snug font-semibold">
+										토리와 함께라면
+										<br />
+										어린이집 찾기가 쉬워요
+									</p>
+								</div>
+								<Link
+									href="/login"
+									className="inline-flex shrink-0 rounded-xl bg-dotori-400 px-4 py-2 text-[14px] font-semibold text-white transition-all active:scale-[0.97]"
+								>
+									시작하기 →
+								</Link>
+							</div>
 						</div>
-					</section>
+					</motion.section>
 				)}
 
 				{/* ── 온보딩 미완료시 CTA (로그인 CTA는 NBA 카드에서 처리) ── */}
