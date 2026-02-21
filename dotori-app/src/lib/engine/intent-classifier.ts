@@ -1,5 +1,6 @@
 export type ChatIntent =
 	| "recommend"
+	| "transfer"
 	| "compare"
 	| "explain"
 	| "status"
@@ -28,6 +29,23 @@ const keywords: Record<ChatIntent, WeightedKeyword[]> = {
 		{ word: "주변", weight: 1 },
 		{ word: "알아보", weight: 1 },
 		{ word: "알려주", weight: 1 },
+	],
+	transfer: [
+		{ word: "이동", weight: 3 },
+		{ word: "옮기고", weight: 3 },
+		{ word: "옮기고 싶", weight: 3 },
+		{ word: "다른 어린이집", weight: 3 },
+		{ word: "바꾸고", weight: 2 },
+		{ word: "반편성", weight: 3 },
+		{ word: "교사가 자꾸", weight: 2 },
+		{ word: "선생님이 바뀌", weight: 2 },
+		{ word: "이동 방법", weight: 3 },
+		{ word: "퇴소", weight: 2 },
+		{ word: "입소 이동", weight: 3 },
+		{ word: "이동 가능", weight: 2 },
+		{ word: "더 좋은 곳", weight: 1 },
+		{ word: "원장이", weight: 1 },
+		{ word: "불만이에요", weight: 1 },
 	],
 	compare: [
 		{ word: "비교", weight: 2 },
@@ -122,6 +140,7 @@ export function classifyIntent(
 ): ChatIntent {
 	const scores: Record<ChatIntent, number> = {
 		recommend: 0,
+		transfer: 0,
 		compare: 0,
 		explain: 0,
 		status: 0,
@@ -155,6 +174,7 @@ export function classifyIntent(
 	// Tie-breaking priority (higher = wins ties over generic recommend)
 	const tieBreakPriority: Record<ChatIntent, number> = {
 		checklist: 5,
+		transfer: 4,
 		compare: 4,
 		knowledge: 3,
 		status: 3,

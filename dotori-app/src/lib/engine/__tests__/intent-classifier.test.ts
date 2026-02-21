@@ -13,6 +13,13 @@ describe("classifyIntent", () => {
     expect(classifyIntent("어디가 더 좋아?")).toBe("compare");
   });
 
+  it("classifies transfer queries", () => {
+    expect(classifyIntent("지금 다니는 어린이집 이동하고 싶어요")).toBe("transfer");
+    expect(classifyIntent("반편성 결과 마음에 안 들어요")).toBe("transfer");
+    expect(classifyIntent("선생님이 또 바뀌어서 다른 곳 알아보고 있어요")).toBe("transfer");
+    expect(classifyIntent("옮기고 싶은데 어디가 좋아요")).toBe("transfer");
+  });
+
   it("classifies explanation queries", () => {
     expect(classifyIntent("이 어린이집 뭐야")).toBe("explain");
     expect(classifyIntent("해오름 어린이집 설명해줘")).toBe("explain");

@@ -264,6 +264,13 @@ export async function buildResponse(
 				conversationContext,
 			);
 
+		case "transfer":
+			return buildTransferResponse(
+				message,
+				userProfile,
+				conversationContext,
+			);
+
 		case "compare":
 			return buildCompareResponse(
 				message,
@@ -305,6 +312,38 @@ export async function buildResponse(
 		default:
 			return buildGeneralResponse(message, userProfile, conversationContext);
 	}
+}
+
+async function buildTransferResponse(
+	message: string,
+	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
+): Promise<{ content: string; blocks: ChatBlock[] }> {
+	const aiResponse = await generateChatResponse(
+		`사용자 상황: ${message}
+다음 톤과 순서로 상담해주세요:
+1. 이동 이유(반편성/교사 변경/시설 불만/거리 등) 먼저 공감적으로 파악
+2. 현재 거주 지역 기반 이동 가능 시설 탐색 가이드를 제안
+3. 퇴소 통보(최소 1개월 전)와 새 시설 입소 신청 절차를 안내
+4. 필요한 서류 체크리스트를 자연스럽게 제시
+
+항상 엄마 말투로 공감 → 해결 순으로 답변해 주세요.`,
+		{
+			userProfile,
+			intent: "transfer",
+			previousMessages: conversationContext?.previousMessages,
+		},
+	);
+
+	const content =
+		aiResponse.success && aiResponse.content
+			? aiResponse.content
+			: "이사 고민이 크시겠어요. 이유를 먼저 정리하고, 지역/우선순위/시기까지 같이 확인해 다음 단계를 같이 잡아드릴게요.";
+
+	return {
+		content,
+		blocks: [{ type: "text", content }],
+	};
 }
 
 async function buildRecommendResponse(
