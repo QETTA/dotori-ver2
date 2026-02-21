@@ -165,12 +165,121 @@ TaskCreate로 등록, 의존관계 설정.
 | `ㅂ` | 빌드만 (Phase 1 + 4만 실행) |
 | `ㅅ` | 스크린샷 캡처 (`npm run screenshot`) |
 
-## Current State (2026-02-20 업데이트)
+## Claude 지휘 체계 (자율 개선 원칙)
 
-- **22 pages** (21 static + 1 dynamic): /, /chat, /explore, /community, /community/[id], /community/write, /facility/[id], /my, /my/interests, /my/waitlist, /my/waitlist/[id], /my/notifications, /my/settings, /my/import, /my/notices, /my/terms, /my/support, /my/app-info, /onboarding, /landing, /login, /not-found
+> Claude Code가 세션 시작 시 반드시 이 섹션을 따라 환경을 셋업하고,
+> 세션 종료 시 개선 사항을 이 파일에 직접 반영한다.
+
+### Claude의 역할 정의
+| 역할 | 책임 |
+|------|------|
+| **지휘관** | 전체 태스크 분석 → 에이전트 분배 → 결과 검증 → 커밋 |
+| **코드 분석** | Serena MCP로 심볼 검색, 참조 추적, 타입 확인 |
+| **품질 보증** | 빌드 0에러 확인, TypeScript 에러 직접 수정 |
+| **메모리 관리** | `.serena/memories/*.md` 업데이트, CLAUDE.md 개선 |
+
+### 세션 시작 루틴 (자동 실행)
+```bash
+# 1. 상태 확인
+git log --oneline -3                          # 최근 커밋
+git status --short                             # 미커밋 파일
+ps aux | grep codex | grep -v grep             # 좀비 프로세스
+
+# 2. Serena 메모리 로드 (자동 — mcp__serena__list_memories)
+# project_overview, agent_task_registry 필수 확인
+
+# 3. 포트 정리
+ss -tlnp | grep -E "3000|3001"                # dev server 상태
+```
+
+### Serena 프리분석 → Codex 주입 패턴 (★ 핵심)
+
+> Serena MCP는 Claude Code 전용. Codex는 MCP 못 씀.
+> 해결책: Claude가 Serena로 분석 → 결과를 Codex 프롬프트에 직접 포함.
+
+```
+[단계 1] Claude → Serena MCP로 대상 파일 심볼 추출
+  mcp__serena__find_symbol("TargetFunction", include_body=True)
+  mcp__serena__find_referencing_symbols("TargetFunction")
+  → 정확한 현재 코드 + 라인 번호 + 타입 획득
+
+[단계 2] Claude → 추출 결과를 Codex 프롬프트에 주입
+  "현재 코드 (Serena 추출):
+   [라인 45-78 실제 코드]
+
+   참조 파일:
+   [참조하는 컴포넌트 목록]
+
+   수정 요청: ..."
+
+[단계 3] Codex → 탐색 없이 즉시 정확한 코드 생성
+```
+
+**효과**: Codex 파일탐색 시간 제거, 타입 오류 감소, 빌드 성공률 향상
+
+### Codex 워크트리 파이프라인
+```bash
+# 워크트리 생성 + 에이전트 실행
+WT="/home/sihu2129/dotori-ver2/dotori-app/.worktrees/wt-NAME"
+git -C /home/sihu2129/dotori-ver2/dotori-app worktree add "$WT/dotori-app" -b codex/TASK
+mkdir -p /tmp/wt-results /tmp/wt-logs
+# [Claude가 Serena로 프리분석 후 CONTEXT 변수에 저장]
+codex exec -s workspace-write \
+  -m gpt-5.3-codex-spark \
+  --cd "$WT/dotori-app" \
+  -o /tmp/wt-results/NAME.txt \
+  "# 현재 코드 컨텍스트 (Claude가 Serena로 추출):
+$CONTEXT
+
+# memories:
+$(cat .serena/memories/project_overview.md)
+$(cat .serena/memories/code_style_and_conventions.md)
+
+# 작업:
+[작업 내용]" \
+  > /tmp/wt-logs/NAME.log 2>&1 &
+
+# 완료 후: 커밋 → squash merge → 빌드검증 → 정리
+git -C "$WT/dotori-app" add -A && git -C "$WT/dotori-app" commit -m "feat: ..."
+git -C /home/sihu2129/dotori-ver2/dotori-app merge --squash codex/TASK
+npm run build   # 반드시 0 에러 확인
+git worktree remove --force "$WT/dotori-app"
+```
+
+### 도구 사용 원칙
+| 작업 | 도구 | 이유 |
+|------|------|------|
+| 심볼 검색/수정 | **Serena MCP** | LSP 정확도 |
+| 대량 코드 생성 | **Codex CLI** (worktree) | 토큰 절약 |
+| 파일 읽기/grep | Claude 직접 | 빠름 |
+| DB 작업 | mongosh bash | 직접 실행 |
+| git/배포 | Bash 직접 | CLI 도구 |
+
+### 세션 종료 루틴
+```
+1. npm run build → 0 에러 확인
+2. git add -A && git commit (변경사항 있을 때)
+3. Serena project_overview.md 빌드 상태 업데이트
+4. agent_task_registry.md 완료 작업 기록
+5. CLAUDE.md Current State 날짜/내용 갱신
+6. 좀비 프로세스/임시파일 정리
+```
+
+### 자율 개선 원칙
+- **빌드 에러 발생 시**: 즉시 직접 수정 (에이전트 재실행보다 빠름)
+- **패턴 발견 시**: 이 파일에 즉시 기록
+- **새 도구/방법 효과 검증 시**: Current State 섹션에 날짜와 함께 추가
+- **사용자 지시 없어도**: 세션 중 발견한 개선점은 자율 반영
+
+---
+
+## Current State (2026-02-22 업데이트)
+
+- **45 pages**: /, /chat, /explore, /community, /community/[id], /community/write, /facility/[id], /my, /my/interests, /my/waitlist, /my/waitlist/[id], /my/notifications, /my/settings, /my/import, /my/notices, /my/terms, /my/support, /my/app-info, /onboarding, /landing, /login, /not-found + 23 API routes
 - **30 API routes**: facilities, regions, geocode, alerts, chat, community, waitlist, users, auth, notifications, ocr, og, analytics, cron, health, actions
 - **12 Mongoose models**: User, Facility, Waitlist, Alert, ChatHistory, Post, Comment, ActionIntent, ActionExecution, FacilitySnapshot, AlimtalkLog, SystemConfig
 - **62 components**: 27 Catalyst + 31 dotori + 3 shared + 1 landing
 - **실 데이터**: MongoDB Atlas 20,027 시설 (17개 시도), mock 데이터 없음
 - Brand design system v2.2, Pretendard Variable CDN, 21 SVG assets
-- Build: 44 generated pages, 0 TypeScript errors
+- **Build**: 45 generated pages, 0 TypeScript errors
+- **최근 완료**: 10-agent worktree 라운드 (실시간 스트리밍, 대기 UX, 타입 강화 등)
