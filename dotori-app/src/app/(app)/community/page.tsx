@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
@@ -15,55 +14,155 @@ import {
 	HeartIcon,
 	EyeIcon,
 	MapPinIcon,
-	PencilSquareIcon,
+	PlusIcon,
 	SparklesIcon,
+	UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { HeartIcon as HeartSolidIcon, FireIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const tabs = ["전체", "정보공유", "질문", "후기", "이동고민", "모임"];
+const tabs = [
+	"전체",
+	"어린이집 이동",
+	"입소 고민",
+	"정보 공유",
+	"자유 토론",
+] as const;
+type TabLabel = (typeof tabs)[number];
 
-const categoryLabel: Record<string, string> = {
-	feedback: "모임",
-	question: "질문",
-	review: "후기",
-	transition: "이동고민",
-	info: "정보공유",
-};
-
-const categoryStyle: Record<string, string> = {
-	feedback: "bg-dotori-100 text-dotori-600",
-	question: "bg-blue-50 text-blue-600",
-	review: "bg-forest-50 text-forest-600",
-	transition: "bg-emerald-50 text-emerald-600",
-	info: "bg-dotori-100 text-dotori-600",
-};
-
-const tabToCategoryParam: Record<string, string> = {
+const tabToCategoryParam: Record<
+	TabLabel,
+	CommunityPost["category"] | ""
+> = {
 	전체: "",
-	정보공유: "info",
-	질문: "question",
-	후기: "review",
-	이동고민: "transition",
-	모임: "feedback",
+	"어린이집 이동": "question",
+	"입소 고민": "review",
+	"정보 공유": "info",
+	"자유 토론": "feedback",
 };
 
-const tabEmptyMessages: Record<string, string> = {
-	전체: "아직 이웃 글이 없어요. 첫 글을 작성해보세요!",
-	질문: "궁금한 점을 이웃에게 물어보세요",
-	후기: "어린이집 후기를 공유해보세요",
+const categoryLabel: Record<CommunityPost["category"], string> = {
+	feedback: "자유 토론",
+	info: "정보 공유",
+	review: "입소 고민",
+	question: "어린이집 이동",
 };
 
-type CommunityPostWithViews = CommunityPost & { viewCount?: number };
+const categoryStyle: Record<CommunityPost["category"], string> = {
+	feedback: "bg-forest-50 text-forest-700",
+	info: "bg-dotori-100 text-dotori-700",
+	review: "bg-forest-100 text-forest-700",
+	question: "bg-dotori-100 text-dotori-700",
+};
 
 const facilityTypes = new Set(["국공립", "민간", "가정", "직장", "협동", "사회복지"]);
+const HOT_POST_THRESHOLD = 24;
+const ANONYMOUS_BANNER_STYLES = [
+	{
+		bg: "bg-dotori-100",
+		ring: "ring-dotori-200",
+		icon: "text-dotori-700",
+	},
+	{
+		bg: "bg-forest-100",
+		ring: "ring-forest-200",
+		icon: "text-forest-700",
+	},
+	{
+		bg: "bg-dotori-200",
+		ring: "ring-dotori-300",
+		icon: "text-dotori-800",
+	},
+	{
+		bg: "bg-forest-200",
+		ring: "ring-forest-300",
+		icon: "text-forest-800",
+	},
+] as const;
+
+function hashSeed(value: string): number {
+	let hash = 5381;
+	for (let i = 0; i < value.length; i += 1) {
+		hash = (hash * 33 + value.charCodeAt(i)) >>> 0;
+	}
+	return hash;
+}
+
+function getAnonymousStyle(seed: string) {
+	const idx = hashSeed(seed) % ANONYMOUS_BANNER_STYLES.length;
+	return ANONYMOUS_BANNER_STYLES[idx] ?? ANONYMOUS_BANNER_STYLES[0];
+}
+
+function isHotPost(post: CommunityPostWithViews): boolean {
+	return post.likes + post.commentCount >= HOT_POST_THRESHOLD;
+}
 
 function tagStyle(tag: string): string {
-	if (facilityTypes.has(tag)) return "bg-purple-50 text-purple-600";
-	return "bg-sky-50 text-sky-600"; // 지역명
+	if (facilityTypes.has(tag)) return "bg-forest-50 text-forest-700";
+	return "bg-dotori-50 text-dotori-700";
 }
+
+function CommunityEmptyState({ message }: { message: string }) {
+	return (
+		<div className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-dotori-50 to-white px-4 py-6 text-center">
+			<div className="mx-auto mb-5 h-44 w-44 rounded-[2rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(253,242,232,0.7))] p-4">
+				<svg
+					viewBox="0 0 180 180"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+					className="h-full w-full"
+					aria-hidden
+				>
+					<rect
+						x="35"
+						y="90"
+						width="110"
+						height="60"
+						rx="16"
+						fill="#FFF3E9"
+					/>
+					<path
+						d="M70 85c0 6 4.5 11 10 11h20c5.5 0 10-5 10-11V64.5C100 58.5 95.5 54 90 54h-20c-5.5 0-10 4.5-10 10.5V85Z"
+						fill="#F0D8BF"
+					/>
+					<path d="M68 82h22v-14a2 2 0 00-2-2h-18a2 2 0 00-2 2v14Z" fill="#D9A679" />
+					<circle cx="66" cy="82" r="3" fill="#3B5569" />
+					<circle cx="104" cy="82" r="3" fill="#3B5569" />
+					<rect x="76" y="95" width="28" height="4" rx="2" fill="#3B5569" />
+					<path
+						d="M52 128c10-12 25-12 35 0"
+						stroke="#3B5569"
+						strokeWidth="4"
+						strokeLinecap="round"
+					/>
+					<circle cx="90" cy="30" r="13" fill="#DB6A4F" />
+					<path
+						d="M82 52c5.5-11 17-11 22 0"
+						stroke="#DB6A4F"
+						strokeWidth="4"
+						strokeLinecap="round"
+					/>
+					<circle cx="32" cy="64" r="10" fill="#4D7C63" />
+					<circle cx="148" cy="74" r="10" fill="#F6A14A" />
+					<circle cx="45" cy="126" r="8" fill="#A8D3C0" />
+					<circle cx="147" cy="126" r="8" fill="#F5D5A7" />
+				</svg>
+			</div>
+			<h3 className="text-base font-semibold text-dotori-900">이웃 글이 아직 없어요</h3>
+			<p className="mt-2 text-sm text-dotori-600">{message}</p>
+			<Link
+				href="/community/write"
+				className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-[15px] font-semibold text-white transition-all active:scale-[0.98]"
+			>
+				첫 번째 이웃 이야기를 올려보세요
+			</Link>
+		</div>
+	);
+}
+
+type CommunityPostWithViews = CommunityPost & { viewCount?: number };
 
 interface PostsResponse {
 	data: CommunityPostWithViews[];
@@ -90,7 +189,7 @@ export default function CommunityPage() {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const { addToast } = useToast();
-	const [activeTab, setActiveTab] = useState("전체");
+	const [activeTab, setActiveTab] = useState<TabLabel>("전체");
 	const [showAiSummary, setShowAiSummary] = useState<Record<string, boolean>>(
 		{},
 	);
@@ -108,11 +207,17 @@ export default function CommunityPage() {
 	const isTransitionMonth = new Date().getMonth() <= 2;
 	const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
-	// GPS verification state
 	const [gpsVerified, setGpsVerified] = useState<boolean | null>(null);
 	const [isVerifying, setIsVerifying] = useState(false);
 
-	// Fetch user GPS verification status
+	const tabEmptyMessages: Record<TabLabel, string> = {
+		전체: "이웃들과 이야기를 나눌 첫 글을 함께 시작해보세요",
+		"어린이집 이동": "입주 이전 고민을 먼저 공유해볼까요?",
+		"입소 고민": "입소 고민을 이야기해주시면 좋은 조언이 모여요",
+		"정보 공유": "현장 체험이 담긴 유익한 정보를 올려주세요",
+		"자유 토론": "편하게 고민, 생각을 나눠보세요",
+	};
+
 	useEffect(() => {
 		if (!userId) return;
 		apiFetch<UserMeResponse>("/api/users/me")
@@ -124,7 +229,6 @@ export default function CommunityPage() {
 			});
 	}, [userId]);
 
-	// Check browser geolocation permission to avoid showing banner unnecessarily
 	useEffect(() => {
 		if (!userId || typeof navigator === "undefined") return;
 
@@ -159,32 +263,25 @@ export default function CommunityPage() {
 
 		return () => {
 			isMounted = false;
-			if (permission) {
-				permission.onchange = null;
-			}
+			if (permission) permission.onchange = null;
 		};
 	}, [userId]);
 
 	const fetchPosts = useCallback(
 		async (pageNum: number, append = false) => {
-			if (append) {
-				setIsLoadingMore(true);
-			} else {
-				setIsLoading(true);
-			}
+			if (append) setIsLoadingMore(true);
+			else setIsLoading(true);
+
 			setError(null);
 
 			try {
 				const params = new URLSearchParams();
 				params.set("page", String(pageNum));
 				params.set("limit", "20");
-
 				params.set("sort", "createdAt");
 
 				const category = tabToCategoryParam[activeTab];
-				if (category) {
-					params.set("category", category);
-				}
+				if (category) params.set("category", category);
 
 				const res = await apiFetch<PostsResponse>(
 					`/api/community/posts?${params.toString()}`,
@@ -195,13 +292,11 @@ export default function CommunityPage() {
 				} else {
 					setPosts(res.data);
 				}
-				// Initialize liked state from server data
+
 				if (userId) {
 					const liked = new Set<string>();
 					for (const post of res.data) {
-						if (post.likedBy?.includes(userId)) {
-							liked.add(post.id);
-						}
+						if (post.likedBy?.includes(userId)) liked.add(post.id);
 					}
 					if (append) {
 						setLikedPosts((prev) => {
@@ -213,6 +308,7 @@ export default function CommunityPage() {
 						setLikedPosts(liked);
 					}
 				}
+
 				setTotalPages(res.pagination.totalPages);
 			} catch {
 				setError("게시물을 불러오지 못했어요");
@@ -264,7 +360,6 @@ export default function CommunityPage() {
 				);
 			}
 		} catch {
-			// Revert: refetch to get true state
 			fetchPosts(1);
 		} finally {
 			setLikingPosts((prev) => {
@@ -273,7 +368,7 @@ export default function CommunityPage() {
 				return next;
 			});
 		}
-	}, [likingPosts, likedPosts, fetchPosts]);
+	}, [fetchPosts, likedPosts, likingPosts]);
 
 	const loadMore = useCallback(() => {
 		if (isLoading || isLoadingMore || page >= totalPages) return;
@@ -290,9 +385,7 @@ export default function CommunityPage() {
 
 		const observer = new IntersectionObserver(
 			(entries) => {
-				if (entries[0]?.isIntersecting) {
-					loadMore();
-				}
+				if (entries[0]?.isIntersecting) loadMore();
 			},
 			{ rootMargin: "0px 0px 200px 0px", threshold: 0.1 },
 		);
@@ -312,26 +405,20 @@ export default function CommunityPage() {
 		setIsVerifying(true);
 
 		try {
-			// 1. Get current position
-			const position = await new Promise<GeolocationPosition>(
-				(resolve, reject) => {
-					navigator.geolocation.getCurrentPosition(resolve, reject, {
-						enableHighAccuracy: true,
-						timeout: 10000,
-						maximumAge: 0,
-					});
-				},
-			);
+			const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+				navigator.geolocation.getCurrentPosition(resolve, reject, {
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 0,
+				});
+			});
 
 			const { latitude, longitude } = position.coords;
-
-			// 2. Reverse geocode via server API
 			const geocodeRes = await apiFetch<ReverseGeocodeResponse>(
 				`/api/geocode/reverse?lat=${latitude}&lng=${longitude}`,
 			);
 			const { sido, sigungu, dong } = geocodeRes.data;
 
-			// 3. Update user profile with GPS verification + region
 			await apiFetch("/api/users/me", {
 				method: "PATCH",
 				body: JSON.stringify({
@@ -340,7 +427,6 @@ export default function CommunityPage() {
 				}),
 			});
 
-			// 4. Update local state & show success toast
 			setGpsVerified(true);
 			setHasGeolocationPermission(true);
 			addToast({ type: "success", message: "동네 인증이 완료되었어요" });
@@ -384,80 +470,86 @@ export default function CommunityPage() {
 
 	return (
 		<div className="relative pb-16">
-			{/* -- 헤더 -- */}
 			<header className="sticky top-0 z-20 bg-white/80 px-5 pb-0 pt-4 backdrop-blur-xl">
 				<div className="relative flex items-center justify-between pb-3">
 					<h1 className="text-xl font-bold">이웃</h1>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img src={BRAND.socialCream} alt="" aria-hidden="true" className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 opacity-[0.06]" />
+					<img
+						src={BRAND.socialCream}
+						alt=""
+						aria-hidden="true"
+						className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 opacity-[0.06]"
+					/>
 				</div>
 
-				{/* 탭 -- 밑줄 스타일 */}
-				<div className="flex border-b border-dotori-100/40" role="tablist" aria-label="커뮤니티 탭">
-					{tabs.map((tab) => (
-						<button
-							key={tab}
-							role="tab"
-							aria-selected={activeTab === tab}
-							onClick={() => setActiveTab(tab)}
-							className={cn(
-								"flex-1 flex items-center justify-center gap-1.5 py-3 text-center text-[15px] font-medium transition-all",
-								activeTab === tab
-									? "border-b-2 border-dotori-900 text-dotori-900"
-									: "text-dotori-500",
-							)}
-						>
-							{tab === "이동고민" ? <ArrowPathIcon className="h-4 w-4" /> : null}
-							{tab}
-						</button>
-					))}
+				<div className="overflow-x-auto" role="tablist" aria-label="커뮤니티 탭">
+					<div className="flex min-w-max gap-2 pb-3">
+						{tabs.map((tab) => {
+							const isActive = activeTab === tab;
+							return (
+								<button
+									key={tab}
+									role="tab"
+									aria-selected={isActive}
+									onClick={() => setActiveTab(tab)}
+									className={cn(
+										"min-h-[56px] min-w-max rounded-full px-4 py-3 text-[14px] font-semibold transition-all",
+										isActive
+											? "bg-dotori-900 text-white shadow-sm shadow-dotori-200"
+											: "border border-dotori-100 bg-dotori-50/80 text-dotori-700 hover:bg-dotori-100/80",
+									)}
+								>
+									{tab}
+								</button>
+							);
+						})}
+					</div>
 				</div>
 			</header>
 
-			{/* -- 피드 -- */}
 			<div className="px-5 pt-4">
 				{isTransitionMonth ? (
 					<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-[14px] text-forest-700">
-						<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과 나눠보세요.
+						<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
+						나눠보세요.
 					</div>
 				) : null}
 
-				{/* GPS 인증 배너 — 로그인 + 미인증 시에만 표시 */}
 				{userId &&
 					gpsVerified === false &&
 					hasGeolocationPermission !== true && (
-					<button
-						onClick={handleGpsVerify}
-						disabled={isVerifying}
-						className={cn(
-							"mb-4 flex w-full items-center gap-3 rounded-2xl bg-forest-50 p-4 text-left transition-all active:scale-[0.98]",
-							isVerifying && "opacity-70",
-						)}
-					>
-						<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest-100">
-							{isVerifying ? (
-								<div className="h-5 w-5 animate-spin rounded-full border-2 border-forest-300 border-t-forest-600" />
-							) : (
-								<MapPinIcon className="h-5 w-5 text-forest-600" />
+						<button
+							onClick={handleGpsVerify}
+							disabled={isVerifying}
+							className={cn(
+								"mb-4 flex w-full items-center gap-3 rounded-2xl bg-forest-50 p-4 text-left transition-all active:scale-[0.98]",
+								isVerifying && "opacity-70",
 							)}
-						</div>
-						<div className="min-w-0 flex-1">
-							<p className="text-[15px] font-semibold text-forest-800">
-								{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
-							</p>
-							<p className="text-[13px] text-forest-600">
-								{isVerifying
-									? "GPS로 현재 위치를 확인하고 있어요"
-									: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
-							</p>
-						</div>
-						{!isVerifying && (
-							<Badge color="forest" className="shrink-0 text-[11px] font-medium">
-								인증
-							</Badge>
-						)}
-					</button>
-				)}
+						>
+							<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest-100">
+								{isVerifying ? (
+									<div className="h-5 w-5 animate-spin rounded-full border-2 border-forest-300 border-t-forest-600" />
+								) : (
+									<MapPinIcon className="h-5 w-5 text-forest-600" />
+								)}
+							</div>
+							<div className="min-w-0 flex-1">
+								<p className="text-[15px] font-semibold text-forest-800">
+									{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
+								</p>
+								<p className="text-[13px] text-forest-600">
+									{isVerifying
+										? "GPS로 현재 위치를 확인하고 있어요"
+										: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
+								</p>
+							</div>
+							{!isVerifying && (
+								<Badge color="forest" className="shrink-0 text-[11px] font-medium">
+									인증
+								</Badge>
+							)}
+						</button>
+					)}
 
 				{isLoading ? (
 					<Skeleton variant="community-post" count={3} />
@@ -473,13 +565,16 @@ export default function CommunityPage() {
 						}}
 					/>
 				) : posts.length > 0 ? (
-					<>
-						<div className="space-y-3">
-							{posts.map((post, index) => (
+					<div className="space-y-3">
+						{posts.map((post, index) => {
+							const anonStyle = getAnonymousStyle(post.id);
+							const postHot = isHotPost(post);
+
+							return (
 								<article
 									key={post.id}
 									className={cn(
-										"rounded-3xl bg-white p-5 shadow-sm transition-shadow hover:shadow-md",
+										"rounded-3xl bg-white p-5 shadow-sm",
 										"motion-safe:animate-in motion-safe:fade-in duration-300",
 									)}
 									style={{
@@ -487,107 +582,121 @@ export default function CommunityPage() {
 										animationFillMode: "both",
 									}}
 								>
-							{/* 작성자 + 카테고리 */}
-							<div className="flex items-center gap-2.5">
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-[13px] font-bold text-dotori-700">
-									?
-								</div>
-								<div className="min-w-0 flex-1">
-									<div className="flex items-center gap-1.5">
-										<span className="text-[15px] font-semibold text-dotori-900">
-											익명 이웃
-										</span>
-												{post.author.verified && (
-													<Badge
-														color="forest"
-														className="text-[11px] font-medium"
-													>
-														인증
-													</Badge>
-												)}
-												{post.category && categoryLabel[post.category] && (
-													<span className={cn(
-														"rounded px-1.5 py-0.5 text-[11px] font-medium",
-														categoryStyle[post.category] || "bg-dotori-50 text-dotori-500"
-													)}>
-														{categoryLabel[post.category]}
-													</span>
-												)}
+									<div className="relative rounded-2xl bg-dotori-50/40 p-4">
+										<div className="mb-2 flex items-start justify-between gap-2">
+											<div className="flex min-w-0 items-start gap-2.5">
+												<div
+													className={cn(
+														"mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full ring-2",
+														anonStyle.bg,
+														anonStyle.ring,
+													)}
+												>
+													<UserCircleIcon className={cn("h-5 w-5", anonStyle.icon)} />
+												</div>
+												<div className="min-w-0 flex-1">
+													<p className="text-[15px] font-semibold text-dotori-900">
+														익명 부모
+													</p>
+													<div className="mt-1 flex flex-wrap items-center gap-1.5">
+														{post.author.verified ? (
+															<Badge color="forest" className="text-[11px] font-medium">
+																인증
+															</Badge>
+														) : null}
+														{post.category && categoryLabel[post.category] ? (
+															<span
+																className={cn(
+																	"rounded-full px-2 py-0.5 text-[11px] font-medium",
+																	categoryStyle[post.category],
+																)}
+															>
+																{categoryLabel[post.category]}
+															</span>
+														) : null}
+													</div>
+												</div>
 											</div>
-											<span
-												className="text-[13px] text-dotori-500"
+											<p
+												className="shrink-0 text-[13px] text-dotori-500"
 												suppressHydrationWarning
 											>
 												{formatRelativeTime(post.createdAt)}
-											</span>
+											</p>
 										</div>
+
+										{postHot ? (
+											<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-[11px] font-semibold text-forest-700">
+												<FireIcon className="h-4 w-4" />
+												인기
+											</div>
+										) : null}
+
+										<Link href={`/community/${post.id}`} className="block">
+											<p className="min-h-[56px] text-[15px] leading-relaxed text-dotori-800">
+												{post.content}
+											</p>
+										</Link>
+
+										{post.facilityTags && post.facilityTags.length > 0 ? (
+											<div className="mt-2.5 flex flex-wrap gap-2">
+												{post.facilityTags.map((tag) => (
+													<Link
+														key={tag}
+														href={`/explore?q=${encodeURIComponent(tag)}`}
+														className={cn(
+															"rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors active:scale-[0.97]",
+															tagStyle(tag),
+														)}
+													>
+														{tag}
+													</Link>
+												))}
+											</div>
+										) : null}
+
+										{post.aiSummary ? (
+											<div className="mt-2.5">
+												<button
+													type="button"
+													onClick={() =>
+														setShowAiSummary((prev) => ({
+															...prev,
+															[post.id]: !prev[post.id],
+														}))
+													}
+													className={cn(
+														"flex min-h-[56px] items-center gap-1.5 py-2 text-[13px] font-medium transition-colors",
+														showAiSummary[post.id]
+															? "text-dotori-700"
+															: "text-dotori-500",
+													)}
+												>
+													<SparklesIcon className="h-4 w-4" />
+													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
+												</button>
+												{showAiSummary[post.id] ? (
+													<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in duration-200">
+														<p className="text-[13px] leading-relaxed text-dotori-600">
+															{post.aiSummary}
+														</p>
+													</div>
+												) : null}
+											</div>
+										) : null}
 									</div>
 
-									{/* 본문 -- 클릭시 상세 */}
-									<Link href={`/community/${post.id}`} className="mt-3 block">
-										<p className="text-[15px] leading-relaxed text-dotori-800 line-clamp-4">
-											{post.content}
-										</p>
-									</Link>
-
-									{/* 시설 태그 -- 클릭 가능 */}
-									{post.facilityTags && post.facilityTags.length > 0 && (
-										<div className="mt-2 flex flex-wrap gap-2">
-											{post.facilityTags.map((tag) => (
-												<Link
-													key={tag}
-													href={`/explore?q=${encodeURIComponent(tag)}`}
-													className={cn("rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors active:scale-[0.97]", tagStyle(tag))}
-												>
-													{tag}
-												</Link>
-											))}
-										</div>
-									)}
-
-									{/* AI 요약 -- 카드 스타일 */}
-									{post.aiSummary && (
-										<div className="mt-2.5">
-											<button
-												onClick={() =>
-													setShowAiSummary((prev) => ({
-														...prev,
-														[post.id]: !prev[post.id],
-													}))
-												}
-												className={cn(
-													"flex items-center gap-1.5 py-1 text-[13px] font-medium transition-colors",
-													showAiSummary[post.id]
-														? "text-dotori-600"
-														: "text-dotori-500",
-												)}
-											>
-												<SparklesIcon className="h-4 w-4" />
-												{showAiSummary[post.id]
-													? "AI 요약 접기"
-													: "AI 요약"}
-											</button>
-											{showAiSummary[post.id] && (
-												<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1 duration-200">
-													<p className="text-[13px] leading-relaxed text-dotori-600">
-														{post.aiSummary}
-													</p>
-												</div>
-											)}
-										</div>
-									)}
-
-									{/* 액션 바 */}
-									<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-500">
+									<div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
 										<button
+											type="button"
 											onClick={() => toggleLike(post.id)}
 											disabled={likingPosts.has(post.id)}
 											aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
 											className={cn(
-												"flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 transition-colors active:scale-[0.97]",
+												"flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl transition-colors active:scale-[0.97]",
 												likedPosts.has(post.id)
-													? "text-red-500 hover:bg-red-50"
-													: "hover:bg-dotori-50 hover:text-dotori-600",
+													? "bg-forest-50 text-forest-700"
+													: "bg-dotori-50/70 text-dotori-600 hover:bg-dotori-100/70",
 											)}
 										>
 											{likedPosts.has(post.id) ? (
@@ -600,50 +709,42 @@ export default function CommunityPage() {
 										<Link
 											href={`/community/${post.id}`}
 											aria-label="댓글"
-											className="flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
+											className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 transition-colors hover:bg-dotori-100/70"
 										>
 											<ChatBubbleLeftIcon className="h-5 w-5" />
 											{post.commentCount}
 										</Link>
-										<div className="flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 text-dotori-500">
+										<div className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-500">
 											<EyeIcon className="h-5 w-5" />
 											조회 {post.viewCount ?? 0}
 										</div>
 									</div>
 								</article>
-							))}
-						</div>
+							);
+						})}
 
-						{/* 더 보기 */}
-						{isLoadingMore && (
-							<div className="mt-4 flex justify-center py-2">
-								<div
-									className="h-5 w-5 rounded-full border-2 border-dotori-100 border-t-dotori-500 animate-spin"
-									aria-hidden
-								/>
+						{isLoadingMore ? (
+							<div className="mt-4 flex flex-col items-center py-4">
+								<div className="h-6 w-6 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-700" />
+								<p className="mt-2 text-sm text-dotori-500">다음 글을 불러오는 중...</p>
 							</div>
-						)}
-						<div ref={loadMoreTriggerRef} className="mt-4 h-2" />
-					</>
+						) : null}
+						<div ref={loadMoreTriggerRef} className="h-2" />
+					</div>
 				) : (
-					<EmptyState
-						title={tabEmptyMessages[activeTab] || "아직 게시물이 없어요"}
-						actionLabel="글 작성하기"
-						actionHref="/community/write"
-						secondaryLabel="탐색 페이지 가기"
-						secondaryHref="/explore"
-					/>
+					<CommunityEmptyState message={tabEmptyMessages[activeTab]} />
 				)}
 			</div>
 
-			{/* -- FAB with label -- */}
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-24 right-5 z-50 mb-[env(safe-area-inset-bottom)] flex items-center gap-2 rounded-full bg-dotori-500 px-5 py-4 text-white shadow-lg transition-all hover:bg-dotori-600 hover:shadow-xl active:scale-[0.97]"
+				className="fixed bottom-24 right-5 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
+				style={{ width: "56px", height: "56px" }}
 			>
-				<PencilSquareIcon className="h-5 w-5" />
-				<span className="text-[14px] font-medium">글쓰기</span>
+				<div className="grid h-full w-full place-items-center text-white">
+					<PlusIcon className="h-6 w-6" />
+				</div>
 			</Link>
 		</div>
 	);
