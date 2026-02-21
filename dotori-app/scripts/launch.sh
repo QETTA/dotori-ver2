@@ -1,19 +1,19 @@
 #!/bin/bash
-# ㄱ 파이프라인 v2 — 11 Codex 병렬 실행 (비즈니스 플랜 중심)
-# Usage: ./scripts/launch.sh [ROUND=r6]
+# ㄱ 파이프라인 v2 — Codex 병렬 실행 (2026 AI UX + 비즈니스 플랜)
+# Usage: ./scripts/launch.sh [ROUND=r10]
 
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r6}
+ROUND=${1:-r10}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
 WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(eslint-fix premium-model admin-api unit-tests explore-ux landing-upgrade home-dashboard chat-engine e2e-chat e2e-explore e2e-onboarding)
-MERGE_ORDER=(eslint-fix premium-model admin-api unit-tests explore-ux home-dashboard chat-engine landing-upgrade e2e-onboarding e2e-explore e2e-chat)
+AGENTS=(home-redesign chat-upgrade landing-2026 explore-2026 motion-upgrade engine-tests premium-backend)
+MERGE_ORDER=(premium-backend engine-tests home-redesign chat-upgrade landing-2026 explore-2026 motion-upgrade)
 PIDS=()
 PASS=()
 FAIL=()
@@ -30,235 +30,186 @@ info() { echo "     $1"; }
 get_task() {
   local agent=$1
   case $agent in
-    eslint-fix)
-      echo "ESLint 에러를 모두 제거해라. 먼저 npx eslint src --ext ts,tsx 실행해서 에러 목록 확인.
+    home-redesign)
+      echo "src/app/(app)/page.tsx 를 2026 글로벌 AI 서비스 UX 트렌드에 맞게 리디자인해라.
 
-주요 패턴:
-- 'any' 타입 → 명시적 타입으로 교체
-- impure function during render → useEffect/useCallback 내부로 이동
-- unused variables → 제거 또는 _prefix 사용
-- missing deps in useEffect/useCallback → deps 배열 보완
+현재 문제:
+- 섹션 8개 스택 → 정보 과부하
+- 인터랙티브 위젯 없음
+- AI 채팅 진입점이 작고 묻혀있음
 
-담당 파일: ESLint가 리포트하는 에러 파일만 수정. npm run build도 에러 없어야 함."
+목표 (이 파일만 수정):
+1) 히어로 섹션 개선:
+   - '어린이집 이동 고민, 도토리가 해결해드려요' → 더 임팩트 있게
+   - 副headline: 반편성/교사교체/국공립당첨 3개 시나리오 pill 형태로 애니메이션 전환
+   - 배경: dotori-50 그라디언트 (from-dotori-50 to-white)
+
+2) 빠른 액션 개선:
+   - 기존 4개 박스형 → 수평 스크롤 pill 버튼
+   - 각 pill: emoji + label, bg-white border border-dotori-100 shadow-sm rounded-full
+   - px-4 py-2.5 text-sm font-medium
+
+3) AI 진입 위젯 추가 (홈 상단 눈에 띄게):
+   - 큰 카드형: '토리에게 물어보세요' placeholder
+   - 실제 클릭 시 /chat 이동 (Link 컴포넌트)
+   - 카드: bg-dotori-900 text-white rounded-3xl px-5 py-4 (다크 카드)
+   - 하단에 suggestPrompts 3개 (반편성/교사교체/국공립당첨) inline chips
+
+4) 불필요 섹션 축소:
+   - 커뮤니티 소식 → 최대 1줄 요약 링크로 대체 (섹션 제거)
+   - 로그인 배너 → 최하단 단일 line (not full section)
+   - NBA 아이템 → 이동 고민 NBA만 상단 유지, 나머지 최하단
+
+5) 서비스 통계:
+   - 시설 수(SERVICE_FACILITY_COUNT) 를 큰 숫자로 강조
+   - 가로 스크롤 stat chip 3개: '20,027개 시설', '17개 시도', '실시간 업데이트'
+
+motion/react 애니메이션 유지 (cardReveal, sectionStagger 패턴 이미 있음).
+Catalyst Heading, Text, Button, Badge 컴포넌트 사용.
+color='dotori' CTA, color='forest' 성공."
       ;;
-    premium-model)
-      echo "PREMIUM_SPEC.md Task 1-3을 구현해라 (B2B 시설 프리미엄 기반):
+    chat-upgrade)
+      echo "토리챗 UI를 2026 AI 서비스 트렌드에 맞게 업그레이드해라:
 
-1) src/models/Facility.ts 수정 — premium 서브스키마 추가:
-   premium?: {
-     isActive: boolean;        // default: false
-     plan: 'basic' | 'pro';
-     startDate: Date;
-     endDate: Date;
-     features: string[];
-     sortBoost: number;        // default: 0, 검색 정렬 가중치
-     verifiedAt?: Date;
-     contactPerson?: string;
-     contactPhone?: string;
-     contactEmail?: string;
-   }
-   주의: 기존 필드 변경 금지. optional 서브스키마로 추가.
+담당 파일: src/app/(app)/chat/page.tsx 만 수정.
 
-2) src/types/dotori.ts 수정 — FacilityPremium 인터페이스 추가:
-   export interface FacilityPremium {
-     isActive: boolean;
-     plan: 'basic' | 'pro';
-     features: string[];
-     sortBoost: number;
-     verifiedAt?: string;
-   }
-   기존 Facility 인터페이스에 premium?: FacilityPremium; 추가
+1) AI 아이덴티티 강화:
+   - 채팅 상단: 토리 avatar 이미지(BRAND.TORI_ICON) + '토리 · 온라인' 상태 표시
+   - status dot: animate-pulse bg-forest-500 w-2 h-2 rounded-full
+   - 헤더 더 시각적으로: 토리 이름 font-semibold, 온라인 상태 badge
 
-3) src/lib/dto.ts 수정 — toFacilityDTO에서 premium 매핑:
-   premium.isActive === true 인 경우에만 DTO에 premium 포함.
-   false이거나 없으면 DTO에 premium 미포함 (프론트에 노출 안 됨)"
+2) 사용량 표시 개선:
+   - 기존 '이번 달 X/3회 사용' 텍스트 → 프로그레스 바 + 숫자 조합
+   - 컨테이너: flex items-center gap-2 text-sm
+   - progress bar: w-24 h-1.5 bg-dotori-100 rounded-full + inner bg-dotori-400
+   - 게스트(3회)와 일반 유저(5회) 각각 처리
+
+3) 제안 칩 애니메이션:
+   - suggestedPrompts 렌더링 시 motion.div로 stagger 진입 애니메이션 추가
+   - initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }
+   - transition.staggerChildren: 0.06
+
+4) 빈 상태 개선:
+   - 채팅 히스토리 비었을 때: 토리 아이콘 + '이동 고민이라면 뭐든 물어보세요' 메시지
+   - 이동 시나리오 칩 3개 항상 보이도록 (스크롤 없이)"
       ;;
-    admin-api)
-      echo "PREMIUM_SPEC.md Task 4+6을 구현해라 (시설 정렬 + Admin API):
+    landing-2026)
+      echo "랜딩 페이지를 2026 AI 서비스 비주얼 트렌드로 업그레이드해라:
 
-1) src/app/api/facilities/route.ts 수정 — sortBoost 정렬:
-   검색/필터 결과에서 premium.isActive=true && premium.sortBoost>0 인 시설을 상단 노출.
-   MongoDB aggregate 또는 sort 활용. 동일 조건 시 sortBoost 내림차순.
+담당 파일: src/app/(landing)/landing/page.tsx 만 수정.
 
-2) src/app/api/admin/facility/[id]/premium/route.ts 신규:
-   PUT 엔드포인트:
-   - Authorization: Bearer ${process.env.CRON_SECRET} 검증 (없으면 401)
-   - body: { isActive: boolean, plan: 'basic'|'pro', sortBoost: number, features?: string[] }
-   - Facility 모델 premium 필드 업데이트 (upsert)
-   - 응답: { success: true, facilityId, premium: { isActive, plan, sortBoost } }"
+1) 히어로 섹션 임팩트 강화:
+   - 헤드라인: '반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에' (기존 유지)
+   - 서브헤드: '이동 수요 특화 AI — 전국 20,000+ 어린이집 실시간 연결'
+   - 배지 추가: '무료로 시작' green badge + '월 1,900원' text
+   - 통계 숫자 3개 수평 배치: 20,027 시설 / 17개 시도 / AI 매칭
+
+2) 기능 카드 섹션 개선:
+   - 아이콘 + 한 줄 헤드라인 + 한 줄 설명 구조로 명확화
+   - 이동 시나리오별 기능: 반편성 탐색 / 교사교체 대응 / 국공립 당첨 비교
+   - 각 카드: rounded-2xl bg-dotori-50 p-4, 좌측 컬러 아이콘
+
+3) 후기 섹션 추가 (기존에 없으면 추가):
+   - 3개 후기 카드: 강남맘/성동맘/서초맘 이동 성공 사례
+   - rounded-2xl border border-dotori-100 bg-white p-4
+
+4) FAQ 아코디언 추가 (기존에 없으면 추가):
+   - useState로 열림/닫힘 토글
+   - Q: '이동하려면 어떻게 하나요?' / '반편성 후 이동 가능한가요?' 등 3-4개"
       ;;
-    unit-tests)
-      echo "핵심 엔진 유닛 테스트를 작성해라 (Jest):
+    explore-2026)
+      echo "탐색 페이지를 2026 AI UX로 업그레이드해라:
 
-먼저 src/lib/engine/ 디렉토리의 파일들을 읽어서 실제 함수 시그니처 파악.
+담당 파일: src/app/(app)/explore/page.tsx 만 수정.
 
-1) src/__tests__/engine/intent-classifier.test.ts 신규:
-   이동 수요 시나리오 인텐트 분류 테스트:
-   - '이동하고 싶어요' → 이동/전원 관련 인텐트
-   - '반편성이 맘에 안들어요' → 반편성 관련
-   - '선생님이 또 바뀌었어요' → 교사 교체 관련
-   - '국공립 대기 당첨됐어요' → 국공립 당첨 관련
-   - '강남구 어린이집 추천해줘' → 시설 탐색 관련
-   실제 함수를 import해서 테스트. mock은 최소화.
+1) 검색창 placeholder 확인 및 필요시 변경:
+   현재 placeholder 확인 후 '이동 고민? 내 주변 빈자리 먼저 확인해요'로 유지
 
-2) src/__tests__/lib/dto.test.ts 신규 (있으면 보완):
-   - toFacilityDTO: premium.isActive=false → premium 필드 없음
-   - toFacilityDTO: premium.isActive=true → premium 필드 포함
-   - toFacilityDTO: premium 없는 시설 → premium 미포함
+2) 이동 수요 시나리오 칩 추가:
+   검색창 포커스 시 또는 상단 고정 영역에:
+   ['반편성 불만', '교사 교체', '국공립 당첨', '이사 예정'] 클릭 가능 칩
+   → 클릭 시 해당 키워드로 setSearch() 호출
 
-3) 파일이 없으면 src/__tests__/smoke.test.ts 에 기본 import 스모크 테스트 추가.
-   테스트 실행: npx jest --passWithNoTests"
+3) '이동 가능 시설' 필터 시각적 강조:
+   이동 가능 시설 필터 칩에 이미 forest 색상 있으면 더 강조 (font-semibold)
+   없으면 '이동 가능만' 토글을 hero 영역 바로 아래에 배치
+
+4) 빈 결과 상태 개선:
+   검색 결과 없을 때: AI 추천 받기 버튼 강조
+   '토리에게 물어보기' button color='dotori' → /chat?prompt={검색어} 링크"
       ;;
-    explore-ux)
-      echo "탐색 페이지를 이동 수요 포지셔닝으로 개선해라:
+    motion-upgrade)
+      echo "motion/react 미세 인터랙션을 앱 전반에 추가해라 (2026 AI UX 트렌드):
 
-src/app/(app)/explore/page.tsx 수정:
+담당 파일: src/components/dotori/ 내 컴포넌트들 (FacilityCard.tsx, ActionCard.tsx, FilterChip.tsx 등)
 
-1) 검색창 placeholder 변경:
-   현재: '이동할 시설 검색 (이름, 지역)'
-   변경: '이동 고민? 내 주변 빈자리 먼저 확인해요'
+1) FacilityCard.tsx 카드 hover/press 효과:
+   motion.div whileHover={{ scale: 1.01, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+   whileTap={{ scale: 0.98 }}
+   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
 
-2) 이동 수요 프롬프트 칩 추가 (POPULAR_SEARCHES 배열 개선):
-   현재 칩들 유지하되 앞에 추가:
-   ['반편성 불만', '교사 교체', '국공립 당첨', '이사 예정']
-   → 클릭 시 해당 키워드로 검색
+2) FilterChip.tsx 선택 애니메이션:
+   선택 시 scale: [1, 1.08, 1] spring 바운스
+   배경색 전환 layout transition 추가
 
-3) 이동 가능 시설 필터 버튼 강조:
-   '이동 가능 시설' 필터 칩에 forest 색상 강조 (현재보다 눈에 띄게)
-   또는 상단에 '이동 가능 시설만 보기' 토글 추가
+3) EmptyState.tsx 진입 애니메이션:
+   motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+   transition={{ duration: 0.4, ease: 'easeOut' }}
 
-4) 빈 결과 EmptyState 메시지 개선:
-   '해당 조건의 시설이 없어요' → '이 조건의 이동 가능 시설이 없어요. 조건을 바꿔보세요'"
+4) Skeleton.tsx 로딩 pulse 개선:
+   animate-pulse 대신 motion/react gradient shimmer 효과
+   (CSS 변수 활용: bg-gradient-to-r from-dotori-50 via-dotori-100 to-dotori-50)
+
+주의: framer-motion import 절대 금지. motion/react 만 사용."
       ;;
-    landing-upgrade)
-      echo "랜딩 페이지 FAQ + 후기 섹션을 추가해라 (reference/template-components 참고):
+    engine-tests)
+      echo "엔진 테스트를 확장하고 커버리지를 높여라 (최우선 과제):
 
-src/app/(landing)/landing/page.tsx 수정:
+담당 파일: src/__tests__/engine/, src/lib/engine/__tests__/
 
-1) FAQ 아코디언 섹션 추가 (페이지 하단 CTA 위):
-   이동 수요 타겟 FAQ:
-   Q: '지금 다니는 어린이집에서 이동하려면 어떻게 해야 하나요?'
-   A: '도토리 탐색에서 빈자리 시설을 찾고, 관심 등록 후 연락해보세요. 이동 절차 가이드도 제공해요.'
-   Q: '반편성 결과가 맘에 안들면 이동할 수 있나요?'
-   A: '가능해요. 3월 초가 이동 최적 시기이며, 도토리가 인근 빈자리 시설을 바로 보여드려요.'
-   Q: '국공립 대기번호가 당첨됐는데 현재 민간 어린이집과 어떻게 비교하나요?'
-   A: '토리챗에 물어보면 AI가 두 시설을 비교 분석해드려요.'
-   UI: details/summary 또는 useState로 토글. Tailwind만 사용.
+1) intent-classifier 추가 테스트 (있으면 보완, 없으면 신규):
+   다양한 이동 시나리오 문장 → 올바른 intent 매핑 확인
+   - '반편성 결과가 너무 실망스러워요' → transfer 또는 반편성 intent
+   - '교사가 또 바뀌었어요 너무 불안해' → transfer 또는 교사교체 intent
+   - '강남구 국공립 빈자리 있어요?' → recommend/search intent
+   - '입소 서류 어떻게 준비하나요?' → general/checklist intent
+   실제 함수 import. mock 최소화.
 
-2) 사용자 후기 섹션 추가 (FAQ 위):
-   후기 카드 3개 (mock 데이터 OK):
-   - 강남맘: '반편성 불만으로 이동 고민하다 도토리로 3일 만에 새 시설 찾았어요'
-   - 성동맘: '국공립 당첨됐는데 현재 민간이랑 토리챗으로 비교해보니 답이 나오더라고요'
-   - 서초맘: '교사 교체 후 불안했는데 빈자리 알림 걸어두고 기다렸다가 이동했어요'
-   card 스타일: rounded-3xl bg-white border border-dotori-100 p-4, Avatar(이니셜), Text(dotori)"
+2) response-builder 추가 테스트:
+   - transfer intent + 반편성 시나리오 → 공감 응답 포함 확인
+   - recommend intent → 시설 목록 응답 구조 확인
+
+3) nba-engine 테스트 (있으면 보완):
+   - 미등록 사용자 → '아이 등록' NBA 최우선 반환
+   - 이동 의향 있는 사용자 → '빈자리 알림' NBA 포함
+
+4) why-engine 추가 테스트:
+   - 국공립 시설 + 대기 많음 → public_waitlist reason 포함
+   - 교사 교체 이력 시설 → 교사 관련 reason 포함
+
+테스트 실행 확인: npx jest --testPathPattern='engine' --passWithNoTests"
       ;;
-    home-dashboard)
-      echo "홈 대시보드를 실제 데이터와 연동해라:
+    premium-backend)
+      echo "B2B 프리미엄 백엔드를 완성해라 (PREMIUM_SPEC.md 미완성 태스크):
 
-src/app/(app)/page.tsx 수정:
+먼저 현재 상태 확인:
+- cat src/models/Facility.ts | grep -A20 'premium'
+- cat src/types/dotori.ts | grep -A10 'Premium'
+- cat src/lib/dto.ts | grep -A15 'premium'
+- cat src/app/api/admin/facility/'[id]'/premium/route.ts
 
-1) 관심 시설 섹션 실제 데이터 연동:
-   현재 관심 시설이 있으면 각 시설의 최신 status 표시
-   /api/facilities?ids=xxx 로 관심 시설 현황 fetch
-   status='available'이면 '빈자리 있어요!' Toast/Badge 강조
+이미 구현된 부분은 건드리지 말고 누락된 부분만 보완.
 
-2) 서비스 통계 카드 실제 숫자:
-   시설 수: 20,027 (하드코딩 OK, DB 쿼리 비용 아낌)
-   '실시간 AI 분석 중' 뱃지 추가
+확인/보완 대상:
+1) Facility.ts: premium 서브스키마 (isActive, plan, sortBoost, features)
+2) types/dotori.ts: FacilityPremium 인터페이스 + Facility에 premium?: FacilityPremium
+3) dto.ts: premium.isActive=true 일 때만 DTO에 premium 포함
+4) admin API: PUT /api/admin/facility/[id]/premium
+   - Bearer CRON_SECRET 인증
+   - isActive, plan, sortBoost, features 업데이트
+5) facilities/route.ts: sortBoost 기반 정렬 (premium 시설 상단)
 
-3) 이동 수요 NBA 카드:
-   기존 NBA 카드 중 '이동 고민이라면?' 우선 노출:
-   ActionCard title='이동 고민 중이세요?'
-   description='AI 토리가 인근 빈자리 시설을 바로 찾아드려요'
-   href='/explore' or href='/chat?prompt=이동'
-
-4) 홈 헤더 인사말:
-   비로그인: '어린이집 이동 고민, 도토리가 해결해드려요'
-   로그인: '○○맘, 관심 시설 현황을 확인해보세요'"
-      ;;
-    chat-engine)
-      echo "토리챗 이동 수요 엔진을 강화해라:
-
-1) src/lib/engine/intent-classifier.ts 수정 (있으면):
-   이동 수요 인텐트 추가/강화:
-   - 반편성 키워드: '반편성', '반 배정', '같은 반', '친한 친구'
-   - 교사교체 키워드: '선생님 바뀌', '교사 교체', '담임 바뀌'
-   - 설명회실망 키워드: '설명회', '원장 태도', '시설이 낡'
-   - 국공립당첨 키워드: '국공립 당첨', '대기 당첨', '연락 왔'
-   - 이사예정 키워드: '이사', '이사 예정', '통원 거리'
-
-2) src/lib/engine/response-builder.ts 수정 (있으면):
-   이동 시나리오별 공감 응답 추가:
-   - 반편성: '반편성 결과가 실망스러우셨군요. 이동 골든타임은 3월 초예요...'
-   - 교사교체: '교사 교체 후 불안한 마음이 드실 수 있어요...'
-   - 국공립당첨: '국공립 당첨 축하해요! 현재 시설과 비교해볼게요...'
-
-3) 파일이 없으면 분석 결과만 docs로 정리 (수정 대상 없음으로 처리)"
-      ;;
-    e2e-chat)
-      echo "토리챗 E2E 테스트를 작성해라 (Playwright):
-
-src/__tests__/e2e/chat.spec.ts 신규:
-
-import { test, expect } from '@playwright/test'
-const BASE = process.env.BASE_URL || 'http://localhost:3000'
-
-1) 게스트 채팅 쿼터 테스트:
-   - /chat 접속
-   - 입력창에 '강남구 국공립 추천해줘' 입력 후 전송
-   - 응답 수신 또는 에러 메시지 확인
-   - UsageCounter 또는 쿼터 표시 요소 확인
-
-2) 채팅 UI 렌더 테스트:
-   - 채팅 입력창 존재 확인 (textarea or input)
-   - 전송 버튼 존재 확인
-   - BottomTabBar 존재 확인
-
-playwright.config.ts 없으면 신규 생성:
-  testDir: 'src/__tests__/e2e'
-  use: { baseURL: 'http://localhost:3000', headless: true }"
-      ;;
-    e2e-explore)
-      echo "탐색 페이지 E2E 테스트를 작성해라 (Playwright):
-
-src/__tests__/e2e/explore.spec.ts 신규:
-
-1) 탐색 페이지 렌더 테스트:
-   - /explore 접속 (waitUntil: 'load', timeout: 30000)
-   - 검색창 존재 확인
-   - 필터 칩 존재 확인 (국공립, 민간 등)
-
-2) 검색 플로우 테스트:
-   - 검색창에 '강남' 입력
-   - debounce 대기 (500ms)
-   - 시설 카드 또는 EmptyState 렌더링 확인
-
-3) 탐색→상세 네비게이션 테스트:
-   - 시설 카드가 있으면 클릭
-   - URL이 /facility/로 시작하는지 확인
-
-playwright.config.ts 활용 (e2e-chat 에이전트가 만든 것 사용)"
-      ;;
-    e2e-onboarding)
-      echo "온보딩 플로우 E2E 테스트를 작성해라 (Playwright):
-
-src/__tests__/e2e/onboarding.spec.ts 신규:
-
-1) 온보딩 페이지 렌더 테스트:
-   - /onboarding 접속
-   - 온보딩 콘텐츠 렌더링 확인 (슬라이드 또는 스텝)
-   - '시작하기' 또는 CTA 버튼 존재 확인
-
-2) 온보딩 완주 테스트:
-   - 슬라이더가 있으면 next 버튼 클릭 반복
-   - 마지막 CTA 클릭
-   - / 또는 /login으로 이동하는지 확인
-
-3) 건너뛰기 테스트:
-   - 건너뛰기 버튼이 있으면 클릭
-   - 홈 또는 로그인으로 이동 확인
-
-playwright.config.ts 활용"
+누락된 것만 추가. 이미 있는 건 변경 금지."
       ;;
     *)
       echo "agent_task_registry.md 에서 $agent 담당 작업을 확인해라."
@@ -270,7 +221,7 @@ playwright.config.ts 활용"
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ㄱ 파이프라인 v2 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  목표: 테스트 완전성 + B2B 프리미엄 기반        ║${NC}"
+echo -e "${BLUE}║  목표: 2026 AI UX 트렌드 + 엔진 테스트 풀가동   ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
