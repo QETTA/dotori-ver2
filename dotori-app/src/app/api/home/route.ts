@@ -30,14 +30,6 @@ type UserLean = {
 	onboardingCompleted?: boolean;
 };
 
-const safeQuery = async <T>(query: Promise<T>): Promise<T | null> => {
-	try {
-		return await query;
-	} catch {
-		return null;
-	}
-};
-
 export const GET = withApiHandler(
 	async (_req, { userId }) => {
 		const INTEREST_FACILITY_LIMIT = 3;
@@ -50,23 +42,24 @@ export const GET = withApiHandler(
 		let bestWaitlistPosition: number | undefined;
 		let waitlistFacilityName: string | undefined;
 
-		const [hotPostsRaw, lastFacilityDoc] = await Promise.all([
-			safeQuery(
-				Post.find()
-					.select("content category likes commentCount createdAt authorId")
-					.sort({ likes: -1 })
-					.limit(3)
-					.lean(),
-			),
-			safeQuery(
-				Facility.findOne()
-					.sort({ lastSyncedAt: -1 })
-					.select("lastSyncedAt")
-					.lean(),
-			),
+		const [hotPostsRawResult, lastFacilityResult] = await Promise.allSettled([
+			Post.find()
+				.select("content category likes commentCount createdAt authorId")
+				.sort({ likes: -1 })
+				.limit(3)
+				.lean()
+				.exec(),
+			Facility.findOne()
+				.sort({ lastSyncedAt: -1 })
+				.select("lastSyncedAt")
+				.lean()
+				.exec(),
 		]);
 
-		const hotPostDocs = hotPostsRaw ?? [];
+		const hotPostDocs =
+			hotPostsRawResult.status === "fulfilled" ? hotPostsRawResult.value : [];
+		const lastFacilityDoc =
+			lastFacilityResult.status === "fulfilled" ? lastFacilityResult.value : null;
 		const hotPosts = (hotPostDocs as PostLean[]).map((post) =>
 			toPostDTO(post as PostLean),
 		);
@@ -104,61 +97,62 @@ export const GET = withApiHandler(
 					regionFilter = { "region.sido": user.region.sido };
 				}
 
-				const [countsRaw, activeWaitlistsRaw] = await Promise.all([
-					safeQuery(
+				const userInterestSlice = userInterests.slice(0, INTEREST_FACILITY_LIMIT);
+				const [countsRawResult, activeWaitlistsResult, interestDocsResult] =
+					await Promise.allSettled([
 						Promise.all([
 							Alert.countDocuments({ userId, active: true }),
 							Waitlist.countDocuments({ userId, status: { $ne: "cancelled" } }),
 						]),
-					),
-					safeQuery(
 						Waitlist.find({ userId, status: "pending" })
 							.populate("facilityId", "name")
 							.sort({ position: 1 })
 							.limit(1)
-							.lean(),
-					),
-				]);
-
-				const interestDocsRaw = userInterests.length > 0
-					? await safeQuery(
-						Facility.find({
-							_id: { $in: userInterests.slice(0, INTEREST_FACILITY_LIMIT) },
-						})
-							.limit(INTEREST_FACILITY_LIMIT)
 							.lean()
 							.exec(),
-					)
-					: null;
+						userInterestSlice.length > 0
+							? Facility.find({ _id: { $in: userInterestSlice } })
+								.limit(INTEREST_FACILITY_LIMIT)
+								.lean()
+								.exec()
+							: Promise.resolve([]),
+					]);
 
-				const interestDocs = interestDocsRaw ?? [];
-				interestFacilities = interestDocs.map((facility) =>
-					toFacilityDTO(facility as FacilityLean),
-				);
-
-				const counts = countsRaw ?? [0, 0];
+				const counts = countsRawResult.status === "fulfilled"
+					? countsRawResult.value
+					: [0, 0];
 				alertCount = counts[0] ?? 0;
 				waitlistCount = counts[1] ?? 0;
 
-				const activeWaitlists = activeWaitlistsRaw ?? [];
+				const activeWaitlists = activeWaitlistsResult.status === "fulfilled"
+					? activeWaitlistsResult.value
+					: [];
 				if (activeWaitlists.length > 0) {
 					const best = activeWaitlists[0] as WaitlistLean;
 					bestWaitlistPosition = best?.position;
 					waitlistFacilityName = best?.facilityId?.name;
 				}
+
+				const interestDocs = interestDocsResult.status === "fulfilled"
+					? interestDocsResult.value
+					: [];
+				interestFacilities = interestDocs.map((facility) =>
+					toFacilityDTO(facility as FacilityLean),
+				);
 			}
 		}
 
-		const nearbyDocsRaw = await safeQuery(
+		const [nearbyDocsResult] = await Promise.allSettled([
 			Facility.find(regionFilter)
 				.select("name type status address location capacity features rating lastSyncedAt")
 				.sort({ updatedAt: -1 })
 				.limit(NEARBY_FACILITY_LIMIT)
-				.lean(),
-		);
-		const nearbyFacilities = (nearbyDocsRaw ?? []).map((facility) =>
-			toFacilityDTO(facility as FacilityLean),
-		);
+				.lean()
+				.exec(),
+		]);
+		const nearbyFacilities = (
+			nearbyDocsResult.status === "fulfilled" ? nearbyDocsResult.value : []
+		).map((facility) => toFacilityDTO(facility as FacilityLean));
 
 		const sources = {
 			isalang: {

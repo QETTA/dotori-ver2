@@ -19,10 +19,34 @@ import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/db";
 import { log } from "@/lib/logger";
-import { parseBody } from "@/lib/validations";
 import type { z } from "zod";
 
 const isDev = process.env.NODE_ENV !== "production";
+type ApiErrorCode =
+	| "BAD_REQUEST"
+	| "UNAUTHORIZED"
+	| "FORBIDDEN"
+	| "NOT_FOUND"
+	| "CONFLICT"
+	| "INTERNAL_ERROR";
+
+function getApiErrorCode(status: number): ApiErrorCode {
+	switch (status) {
+		case 400:
+			return "BAD_REQUEST";
+		case 401:
+			return "UNAUTHORIZED";
+		case 403:
+			return "FORBIDDEN";
+		case 404:
+			return "NOT_FOUND";
+		case 409:
+			return "CONFLICT";
+		case 500:
+		default:
+			return "INTERNAL_ERROR";
+	}
+}
 
 /**
  * Generate a weak ETag from a response body string using Web Crypto API.
@@ -123,7 +147,7 @@ export function withApiHandler<T = unknown>(
 			if (!session?.user?.id) {
 				return addRequestIdHeader(
 					NextResponse.json(
-						{ error: "인증이 필요합니다" },
+						{ error: "인증이 필요합니다", code: "UNAUTHORIZED" },
 						{ status: 401 },
 					),
 					requestId,
@@ -159,14 +183,27 @@ export function withApiHandler<T = unknown>(
 				} catch {
 					return addRequestIdHeader(
 						NextResponse.json(
-							{ error: "유효하지 않은 JSON입니다" },
+							{ error: "유효하지 않은 JSON입니다", code: "BAD_REQUEST" },
 							{ status: 400 },
 						),
 						requestId,
 					);
 				}
-				const parsed = parseBody(schema, rawBody);
-				if (!parsed.success) return parsed.response;
+
+				const parsed = schema.safeParse(rawBody);
+				if (!parsed.success) {
+					const firstError = parsed.error.issues[0];
+					return addRequestIdHeader(
+						NextResponse.json(
+							{
+								error: firstError?.message || "입력값이 올바르지 않습니다",
+								code: "BAD_REQUEST",
+							},
+							{ status: 400 },
+						),
+						requestId,
+					);
+				}
 				body = parsed.data;
 			}
 
@@ -247,7 +284,7 @@ export function withApiHandler<T = unknown>(
 				});
 				return addRequestIdHeader(
 					NextResponse.json(
-						{ error: err.message },
+						{ error: err.message, code: getApiErrorCode(err.status) },
 						{ status: err.status },
 					),
 					requestId,
@@ -264,7 +301,7 @@ export function withApiHandler<T = unknown>(
 			// Never expose internal error details to client
 			return addRequestIdHeader(
 				NextResponse.json(
-					{ error: "요청 처리에 실패했습니다" },
+					{ error: "요청 처리에 실패했습니다", code: "INTERNAL_ERROR" },
 					{ status: 500 },
 				),
 				requestId,

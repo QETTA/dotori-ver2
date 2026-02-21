@@ -280,6 +280,10 @@ export const POST = async (req: NextRequest) => {
 					type: "error",
 					error: "채팅을 생성하지 못했어요. 잠시 후 다시 시도해주세요.",
 				});
+				emitEvent(controller, encoder, {
+					type: "done",
+					timestamp: new Date().toISOString(),
+				});
 				controller.close();
 			}
 		},
