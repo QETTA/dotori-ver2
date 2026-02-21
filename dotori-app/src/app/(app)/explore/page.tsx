@@ -44,6 +44,7 @@ const sortOptions: { key: SortKey; label: string }[] = [
 const RECENT_SEARCHES_KEY = "dotori_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
 const SEARCH_DEBOUNCE_MS = 300;
+const FACILITY_LOAD_TIMEOUT_MS = 8000;
 const POPULAR_SEARCHES = [
 	"국공립",
 	"강남구",
@@ -313,6 +314,7 @@ function ExploreContent() {
 	});
 
 	const toCount = facilities.filter((f) => f.status === "available").length;
+	const [isTimeout, setIsTimeout] = useState(false);
 	const resultLabel = useMemo(
 		() =>
 			buildResultLabel({
@@ -326,6 +328,8 @@ function ExploreContent() {
 	);
 	const activeFilterCount =
 		selectedTypes.length + (toOnly ? 1 : 0) + (selectedSigungu ? 1 : 0) + (selectedSido ? 1 : 0);
+	const hasSearchInput = debouncedSearch.trim().length > 0;
+	const hasFilterApplied = activeFilterCount > 0;
 
 	const toggleType = useCallback((type: string) => {
 		setSelectedTypes((prev) =>
@@ -355,12 +359,22 @@ function ExploreContent() {
 		setRecentSearches([]);
 	}, []);
 
+	const handleResetSearch = useCallback(() => {
+		setSearchInput("");
+		setDebouncedSearch("");
+	}, []);
+
 	const handleChipClick = useCallback(
 		(term: string) => {
 			handleSearchSubmit(term);
 		},
 		[handleSearchSubmit],
 	);
+
+	const retry = useCallback(() => {
+		setIsTimeout(false);
+		refresh();
+	}, [refresh]);
 
 	const handleResetFilters = useCallback(() => {
 		setSearchInput("");
@@ -379,6 +393,19 @@ function ExploreContent() {
 
 	// Show suggestion panel when focused and search is empty
 	const showSuggestionPanel = isSearchFocused && !searchInput;
+
+	useEffect(() => {
+		if (!isLoading || facilities.length > 0 || error) {
+			setIsTimeout(false);
+			return;
+		}
+
+		const timeoutId = setTimeout(() => {
+			setIsTimeout(true);
+		}, FACILITY_LOAD_TIMEOUT_MS);
+
+		return () => clearTimeout(timeoutId);
+	}, [isLoading, facilities.length, error]);
 
 	return (
 		<div className="flex h-[calc(100dvh-8rem)] flex-col">
@@ -657,27 +684,32 @@ function ExploreContent() {
 				</div>
 			)}
 
-			{/* ── 시설 리스트 ── */}
-			<div className="flex-1 overflow-y-auto px-5 pt-3">
-				{/* 로딩 스켈레톤 */}
-				{isLoading && (
-					<div className="pb-4">
-						<Skeleton variant="facility-card" count={6} />
-					</div>
-				)}
+				{/* ── 시설 리스트 ── */}
+				<div className="flex-1 overflow-y-auto px-5 pt-3">
+					{/* 로딩 스켈레톤 */}
+					{isLoading && !isTimeout && (
+						<div className="pb-4">
+							<Skeleton variant="facility-card" count={6} />
+						</div>
+					)}
 
-				{/* 에러 상태 */}
-				{!isLoading && error && (
-					<div className="motion-safe:animate-in motion-safe:fade-in duration-300">
-						<ErrorState
-							message="시설 목록을 불러올 수 없습니다"
-							action={{
-								label: "다시 시도",
-								onClick: refresh,
-							}}
-						/>
-					</div>
-				)}
+					{/* 에러 상태 */}
+					{((!isLoading && error) || isTimeout) && (
+						<div className="motion-safe:animate-in motion-safe:fade-in duration-300">
+							<ErrorState
+								variant="network"
+								message={
+									isTimeout
+										? "시설 목록을 불러오지 못했어요"
+										: "시설 목록을 불러올 수 없습니다"
+								}
+								action={{
+									label: "다시 시도",
+									onClick: retry,
+								}}
+							/>
+						</div>
+					)}
 
 				{/* 추가 로딩 스켈레톤 */}
 				{isLoadingMore && (
@@ -876,13 +908,31 @@ function ExploreContent() {
 				)}
 
 				{/* 빈 결과 */}
-				{!isLoading && !error && facilities.length === 0 && (
+				{!isLoading && !error && !isTimeout && facilities.length === 0 && (
 					<EmptyState
-						title="이 지역에 시설이 없어요"
-						description="다른 지역이나 검색어를 바꿔서 다시 찾아보세요."
-						actionLabel="필터 초기화"
-						onAction={handleResetFilters}
-						secondaryLabel="AI에게 추천받기"
+						title={
+							hasSearchInput
+								? `"${debouncedSearch}"로 찾은 결과가 없어요`
+								: hasFilterApplied
+									? "필터 조건에 맞는 시설이 없어요"
+									: "조건에 맞는 시설이 없어요"
+						}
+						description={
+							hasSearchInput
+								? "검색어를 바꾸거나 검색 초기화를 해보세요."
+								: "검색 조건을 수정해서 다시 찾아보세요."
+						}
+						actionLabel={
+							hasSearchInput
+								? "검색 초기화"
+								: hasFilterApplied
+									? "필터 초기화"
+									: "검색 초기화"
+						}
+						onAction={
+							hasSearchInput ? handleResetSearch : hasFilterApplied ? handleResetFilters : handleResetSearch
+						}
+						secondaryLabel="AI 토리에게 추천받기"
 						secondaryHref="/chat?prompt=추천"
 					/>
 				)}
