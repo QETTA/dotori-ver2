@@ -1,0 +1,123 @@
+/* ═══════════════════════════════════════════════════
+   도토리 스플래시 애니메이션 — Production CSS
+   v2.0 · February 2026
+   ═══════════════════════════════════════════════════ */
+
+/* 1. 컨테이너 */
+.dotori-splash {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	min-height: 100dvh;
+	background: linear-gradient(180deg, #faf7f2 0%, #f0ebe2 100%);
+	overflow: hidden;
+}
+
+/* 2. 심볼 등장 — bounce in */
+.dotori-splash__symbol {
+	opacity: 0;
+	transform: scale(0.4) translateY(20px);
+	animation: dotori-symbol-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms
+		forwards;
+}
+
+@keyframes dotori-symbol-in {
+	0% {
+		opacity: 0;
+		transform: scale(0.4) translateY(20px);
+	}
+	60% {
+		opacity: 1;
+		transform: scale(1.05) translateY(-2px);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+}
+
+/* 3. 얼굴 요소 순차 등장 */
+.dotori-splash__eyes {
+	opacity: 0;
+	animation: dotori-fade-in 300ms ease-out 500ms forwards;
+}
+
+.dotori-splash__smile {
+	opacity: 0;
+	animation: dotori-fade-in 300ms ease-out 650ms forwards;
+}
+
+.dotori-splash__blush {
+	opacity: 0;
+	animation: dotori-fade-in 400ms ease-out 750ms forwards;
+}
+
+@keyframes dotori-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* 4. 워드마크 slide up */
+.dotori-splash__wordmark {
+	opacity: 0;
+	transform: translateY(12px);
+	animation: dotori-word-in 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 900ms
+		forwards;
+}
+
+@keyframes dotori-word-in {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* 5. 로딩 대기 — 심볼 미세 호흡 */
+.dotori-splash__symbol--breathing {
+	animation: dotori-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes dotori-breathe {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-3px);
+	}
+}
+
+/* 6. 퇴장 — 전체 fade out */
+.dotori-splash--exit {
+	animation: dotori-exit 400ms ease-in forwards;
+}
+
+@keyframes dotori-exit {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+/* ═══════ 타이밍 요약 ═══════
+   0ms      — 크림 배경 즉시
+   200ms    — 심볼 bounce in (심볼 전체, 얼굴 제외)
+   500ms    — 눈 fade in
+   650ms    — 미소 fade in
+   750ms    — 볼터치 fade in
+   900ms    — 워드마크 slide up
+   1200ms   — 완성. breathing 시작 (로딩 중일 때)
+   ~3000ms  — exit fade out (앱 준비 완료 시)
+   ═══════════════════════════ */

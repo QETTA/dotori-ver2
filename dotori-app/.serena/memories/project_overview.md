@@ -1,0 +1,1 @@
+Dotori V2 is a Korean childcare facility finder MVP built with Next.js App Router. Main app lives in dotori-app. Stack includes Next.js 16, React 19, TypeScript strict, Tailwind CSS 4, Mongoose + MongoDB Atlas, NextAuth v5 beta with Kakao OAuth. Mobile-first UI with Korean copy and brand design system.

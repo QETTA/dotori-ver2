@@ -1,0 +1,40 @@
+# ── Repo root .dockerignore ──
+# 빌드 컨텍스트 = repo root (app.yaml dockerfile_path: dotori-app/Dockerfile)
+
+# Dependencies (각 서브디렉토리)
+**/node_modules
+npm-debug.log*
+
+# Next.js build output
+**/.next
+**/out
+
+# Environment files (secrets — NEVER include in image)
+**/.env*
+!**/.env.example
+
+# Version control
+.git
+**/.gitignore
+
+# IDE
+.vscode
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Workspace directories not needed for build
+brand/
+docs/
+reference/
+.claude/
+.serena/
+.do/
+.github/
+
+# Testing & dev tools
+**/coverage
+**/tmp
+*.png.bak

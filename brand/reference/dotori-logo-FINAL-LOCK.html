@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도토리 — FINAL LOCK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--a50:#faf7f2;--a100:#f5ede0;--a200:#e8d5be;--a300:#d4b48e;--a400:#c8956a;--a500:#b07a4a;--a600:#96633a;--a700:#7a4e30;--a800:#5a3a24;--a900:#2d2418;--cap-l:#aa8462;--cap-d:#7a5438;--eye:#4a3018;--blush:#d4907a;--forest:#4a7a42;--g:#8a7a6a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:#eae5de;color:var(--a900);-webkit-font-smoothing:antialiased;}
+.w{max-width:880px;margin:0 auto;padding:0 24px;}
+.tag{font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;color:var(--a400);text-transform:uppercase;}
+
+/* Hero */
+.hero{padding:56px 24px 0;max-width:880px;margin:0 auto;text-align:center;}
+.hero h1{font-size:13px;font-weight:900;color:var(--a400);letter-spacing:2px;text-transform:uppercase;}
+.hero-logo{margin:40px auto 32px;position:relative;}
+.hero p{font-size:13px;color:var(--g);line-height:1.8;max-width:400px;margin:0 auto;word-break:keep-all;}
+
+/* Journey */
+.journey{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:32px;padding:20px 0;flex-wrap:wrap;}
+.j-step{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.j-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:1px;color:var(--g);opacity:0.5;}
+.j-label.final{opacity:1;color:var(--a400);}
+.j-arrow{color:var(--a300);font-size:16px;margin:0 2px;margin-top:16px;}
+
+/* Card system */
+.card{background:white;border-radius:20px;margin-top:20px;overflow:hidden;box-shadow:0 1px 2px rgba(45,36,24,0.03),0 8px 32px rgba(45,36,24,0.025);}
+.card-head{padding:20px 24px 12px;}
+.card-head h3{font-size:15px;font-weight:800;}
+.card-head p{font-size:11px;color:var(--g);margin-top:4px;line-height:1.6;word-break:keep-all;}
+
+/* Master display */
+.master{background:var(--a50);padding:48px 32px;display:flex;align-items:center;justify-content:center;position:relative;}
+.master::after{content:'MASTER LOCKUP — 수평형';position:absolute;top:12px;left:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;font-weight:600;letter-spacing:2px;color:var(--a300);}
+.master-dark{background:var(--a900);padding:40px 32px;display:flex;align-items:center;justify-content:center;position:relative;border-top:1px solid rgba(255,255,255,0.05);}
+.master-dark::after{content:'DARK MODE';position:absolute;top:12px;left:16px;font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,0.15);}
+
+/* Stacked lockup */
+.stacked{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #f0ebe2;}
+.stacked-cell{padding:36px 24px;display:flex;align-items:center;justify-content:center;position:relative;}
+.stacked-cell+.stacked-cell{border-left:1px solid #f0ebe2;}
+.stacked-cell.dk{background:var(--a900);}
+.stacked-cell .sl{position:absolute;top:10px;left:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:7px;font-weight:600;letter-spacing:2px;color:var(--a300);}
+.stacked-cell.dk .sl{color:rgba(255,255,255,0.12);}
+
+/* Icon grid */
+.icons{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #f0ebe2;}
+.ic{aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;}
+.ic+.ic{border-left:1px solid #f0ebe2;}
+.ic.dk{background:var(--a900);}
+.ic.br{background:var(--a400);}
+.ic.fo{background:var(--forest);}
+.ic .il{position:absolute;bottom:6px;font-family:'Plus Jakarta Sans',sans-serif;font-size:7px;font-weight:600;opacity:0.3;}
+.ic.dk .il,.ic.br .il,.ic.fo .il{color:white;}
+
+/* Size test */
+.sizes{display:flex;align-items:end;gap:20px;flex-wrap:wrap;padding:24px;}
+.sz{text-align:center;}
+.sz span{display:block;font-size:9px;color:var(--g);margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* Context */
+.ctx{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;}
+.ctx-item{background:white;border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(45,36,24,0.03);}
+.ctx-vis{aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+.ctx-lbl{padding:8px 10px;border-top:1px solid #f0ebe2;font-size:9px;font-weight:600;text-align:center;color:var(--a800);}
+
+/* Spec */
+.spec{background:var(--a900);border-radius:20px;padding:28px;margin-top:20px;}
+.spec h3{color:white;font-size:14px;font-weight:800;margin-bottom:14px;}
+.spec-g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.spec-i{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px;}
+.spec-i h5{font-size:9px;font-weight:700;color:var(--a400);letter-spacing:1px;margin-bottom:5px;text-transform:uppercase;}
+.spec-i p{font-size:10px;color:#7a6a5a;line-height:1.65;word-break:keep-all;}
+.spec-i code{font-size:9px;color:var(--a400);background:rgba(200,149,106,0.08);padding:1px 4px;border-radius:3px;}
+
+/* SVG Export */
+.export{background:white;border-radius:16px;margin-top:20px;overflow:hidden;box-shadow:0 1px 2px rgba(45,36,24,0.03);}
+.export-head{padding:16px 20px;border-bottom:1px solid #f0ebe2;}
+.export-head h4{font-size:13px;font-weight:800;}
+.export-head p{font-size:10px;color:var(--g);margin-top:3px;}
+.export-code{padding:16px 20px;background:#faf8f5;max-height:200px;overflow-y:auto;}
+.export-code pre{font-family:'SF Mono','Fira Code',monospace;font-size:9px;line-height:1.6;color:var(--a700);white-space:pre-wrap;word-break:break-all;}
+
+/* Colors */
+.colors{display:flex;gap:3px;margin-top:20px;border-radius:14px;overflow:hidden;}
+.csw{flex:1;padding:16px 8px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:500;}
+.csw .hex{opacity:0.6;margin-top:2px;font-size:8px;}
+
+.footer{text-align:center;padding:40px 0 56px;font-size:11px;color:var(--g);}
+
+@media(max-width:768px){
+  .stacked{grid-template-columns:1fr;}
+  .icons{grid-template-columns:repeat(2,1fr);}
+  .ctx{grid-template-columns:1fr 1fr;}
+  .spec-g{grid-template-columns:1fr;}
+  .journey{gap:4px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ -->
+<!--            HERO + JOURNEY          -->
+<!-- ═══════════════════════════════════ -->
+<div class="hero">
+  <h1>Dotori — Identity Locked</h1>
+  <div class="hero-logo">
+    <svg width="280" height="88" viewBox="0 0 280 88">
+      <defs>
+        <radialGradient id="B" cx="0.40" cy="0.32" r="0.60">
+          <stop offset="0%" stop-color="#dab080"/>
+          <stop offset="55%" stop-color="#c8956a"/>
+          <stop offset="100%" stop-color="#a87848"/>
+        </radialGradient>
+        <linearGradient id="C" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+          <stop offset="0%" stop-color="#aa8462"/>
+          <stop offset="100%" stop-color="#7a5438"/>
+        </linearGradient>
+        <linearGradient id="IG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#d8ad78"/>
+          <stop offset="100%" stop-color="#a87848"/>
+        </linearGradient>
+      </defs>
+      <!-- Symbol -->
+      <g transform="translate(42,44)">
+        <ellipse cx="0" cy="6" rx="33" ry="31" fill="url(#B)"/>
+        <ellipse cx="-10" cy="-4" rx="10" ry="14" fill="white" opacity="0.06" transform="rotate(-10 -10 -4)"/>
+        <path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/>
+        <path d="M-23,-22 Q-10,-18 0,-18 Q10,-18 23,-22" stroke="#8a6440" stroke-width="0.55" fill="none" opacity="0.25"/>
+        <path d="M-26,-27 Q-12,-22 0,-22 Q12,-22 26,-27" stroke="#8a6440" stroke-width="0.4" fill="none" opacity="0.15"/>
+        <path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/>
+        <path d="M-0.5,-50 Q0,-47 0.5,-43" stroke="#96704a" stroke-width="0.4" fill="none" opacity="0.25"/>
+        <circle cx="-9" cy="6" r="2.7" fill="#4a3018"/>
+        <circle cx="9" cy="6" r="2.7" fill="#4a3018"/>
+        <circle cx="-10" cy="4.5" r="0.9" fill="white" opacity="0.45"/>
+        <circle cx="8" cy="4.5" r="0.9" fill="white" opacity="0.45"/>
+        <path d="M-7,14 Q0,20.5 7,14" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        <ellipse cx="-16" cy="10.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/>
+        <ellipse cx="16" cy="10.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/>
+      </g>
+      <!-- Wordmark -->
+      <text x="90" y="40" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="36" fill="#2d2418" letter-spacing="-1.2">dotori</text>
+      <text x="92" y="60" font-family="'Noto Sans KR',sans-serif" font-weight="400" font-size="12" fill="#a08060" letter-spacing="1.5">AI 어린이집 입소 전략</text>
+    </svg>
+  </div>
+  <p>4라운드 정제를 거쳐 확정된 단 하나의 로고.<br>이 페이지가 도토리의 최종 브랜드 사양서입니다.</p>
+
+  <!-- Evolution journey -->
+  <div class="journey">
+    <div class="j-step">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <ellipse cx="14" cy="16" rx="8" ry="8" fill="#F4A44A" stroke="#222" stroke-width="2.5"/>
+        <path d="M7 11 Q7 5 14 5 Q21 5 21 11 Q17 13 14 13 Q11 13 7 11Z" fill="#F4A44A" stroke="#222" stroke-width="2.5"/>
+      </svg>
+      <div class="j-label">R1 · 원본</div>
+    </div>
+    <div class="j-arrow">→</div>
+    <div class="j-step">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <ellipse cx="14" cy="16" rx="9" ry="9" fill="#c8956a"/>
+        <path d="M6 10 Q6 3 14 2 Q22 3 22 10 Q18 13 14 13 Q10 13 6 10Z" fill="#a07050"/>
+        <circle cx="11" cy="16" r="1" fill="#5a3a20"/>
+        <circle cx="17" cy="16" r="1" fill="#5a3a20"/>
+      </svg>
+      <div class="j-label">R2 · 5→2</div>
+    </div>
+    <div class="j-arrow">→</div>
+    <div class="j-step">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <defs>
+          <radialGradient id="jB3" cx="0.42" cy="0.35" r="0.62"><stop offset="0%" stop-color="#d4a878"/><stop offset="100%" stop-color="#a87848"/></radialGradient>
+          <linearGradient id="jC3" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0%" stop-color="#a88060"/><stop offset="100%" stop-color="#7a5438"/></linearGradient>
+        </defs>
+        <ellipse cx="14" cy="16" rx="9" ry="9" fill="url(#jB3)"/>
+        <path d="M6 10 Q6 3 14 2 Q22 3 22 10 Q18 13 14 13 Q10 13 6 10Z" fill="url(#jC3)"/>
+        <circle cx="11" cy="16" r="1" fill="#5a3a20"/>
+        <circle cx="17" cy="16" r="1" fill="#5a3a20"/>
+        <path d="M12 19 Q14 21 16 19" stroke="#5a3a20" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="j-label">R3 · A확정 β선택</div>
+    </div>
+    <div class="j-arrow">→</div>
+    <div class="j-step">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <defs>
+          <radialGradient id="jB4" cx="0.40" cy="0.32" r="0.60"><stop offset="0%" stop-color="#dab080"/><stop offset="55%" stop-color="#c8956a"/><stop offset="100%" stop-color="#a87848"/></radialGradient>
+          <linearGradient id="jC4" x1="0.1" y1="0.1" x2="0.9" y2="0.9"><stop offset="0%" stop-color="#aa8462"/><stop offset="100%" stop-color="#7a5438"/></linearGradient>
+        </defs>
+        <ellipse cx="16" cy="18.5" rx="10.5" ry="10" fill="url(#jB4)"/>
+        <path d="M7,12 Q7,3.5 16,2.5 Q25,3.5 25,12 Q21,15.5 16,15.5 Q11,15.5 7,12Z" fill="url(#jC4)"/>
+        <path d="M14.5,2.5 Q13.5,-1 14.5,-2.5 Q16,-3.5 17.5,-2.5 Q18.5,-1 17.5,2.5" fill="#7a5438"/>
+        <circle cx="12.5" cy="18.5" r="1.4" fill="#4a3018"/>
+        <circle cx="19.5" cy="18.5" r="1.4" fill="#4a3018"/>
+        <circle cx="12" cy="17.7" r="0.5" fill="white" opacity="0.45"/>
+        <circle cx="19" cy="17.7" r="0.5" fill="white" opacity="0.45"/>
+        <path d="M13.5,22 Q16,25 18.5,22" stroke="#4a3018" stroke-width="1" stroke-linecap="round" fill="none"/>
+        <ellipse cx="9.5" cy="20.5" rx="2.8" ry="1.4" fill="#d4907a" opacity="0.16"/>
+        <ellipse cx="22.5" cy="20.5" rx="2.8" ry="1.4" fill="#d4907a" opacity="0.16"/>
+      </svg>
+      <div class="j-label final">R4 · LOCKED ✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!--          MASTER LOCKUPS            -->
+<!-- ═══════════════════════════════════ -->
+<div class="w" style="margin-top:36px;">
+  <div class="tag">01 — Lockups</div>
+  <div class="card" style="margin-top:10px;">
+    <!-- Light horizontal -->
+    <div class="master">
+      <svg width="320" height="76" viewBox="0 0 320 76">
+        <g transform="translate(36,38)">
+          <ellipse cx="0" cy="4" rx="27" ry="25.5" fill="url(#B)"/>
+          <ellipse cx="-8" cy="-4" rx="8" ry="11" fill="white" opacity="0.05" transform="rotate(-10 -8 -4)"/>
+          <path d="M-25.5,-13 Q-25.5,-33 0,-35 Q25.5,-33 25.5,-13 Q15,-6 0,-6 Q-15,-6 -25.5,-13Z" fill="url(#C)"/>
+          <path d="M-19,-19 Q-8,-15.5 0,-15.5 Q8,-15.5 19,-19" stroke="#8a6440" stroke-width="0.45" fill="none" opacity="0.25"/>
+          <path d="M-2.5,-35 Q-3.8,-42 -2,-45 Q0,-46.5 2,-45 Q3.8,-42 2.5,-35" fill="#7a5438"/>
+          <circle cx="-7.5" cy="4" r="2.2" fill="#4a3018"/>
+          <circle cx="7.5" cy="4" r="2.2" fill="#4a3018"/>
+          <circle cx="-8.3" cy="2.7" r="0.75" fill="white" opacity="0.45"/>
+          <circle cx="6.7" cy="2.7" r="0.75" fill="white" opacity="0.45"/>
+          <path d="M-5.5,11 Q0,16.5 5.5,11" stroke="#4a3018" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="-13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.15"/>
+          <ellipse cx="13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.15"/>
+        </g>
+        <text x="76" y="33" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="30" fill="#2d2418" letter-spacing="-1">dotori</text>
+        <text x="78" y="52" font-family="'Noto Sans KR',sans-serif" font-weight="400" font-size="11" fill="#a08060" letter-spacing="1.2">AI 어린이집 입소 전략</text>
+      </svg>
+    </div>
+    <!-- Dark horizontal -->
+    <div class="master-dark">
+      <svg width="320" height="76" viewBox="0 0 320 76">
+        <g transform="translate(36,38)">
+          <ellipse cx="0" cy="4" rx="27" ry="25.5" fill="url(#B)"/>
+          <path d="M-25.5,-13 Q-25.5,-33 0,-35 Q25.5,-33 25.5,-13 Q15,-6 0,-6 Q-15,-6 -25.5,-13Z" fill="url(#C)"/>
+          <path d="M-2.5,-35 Q-3.8,-42 -2,-45 Q0,-46.5 2,-45 Q3.8,-42 2.5,-35" fill="#7a5438"/>
+          <circle cx="-7.5" cy="4" r="2.2" fill="#4a3018"/>
+          <circle cx="7.5" cy="4" r="2.2" fill="#4a3018"/>
+          <circle cx="-8.3" cy="2.7" r="0.75" fill="white" opacity="0.35"/>
+          <circle cx="6.7" cy="2.7" r="0.75" fill="white" opacity="0.35"/>
+          <path d="M-5.5,11 Q0,16.5 5.5,11" stroke="#4a3018" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="-13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.12"/>
+          <ellipse cx="13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.12"/>
+        </g>
+        <text x="76" y="33" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="30" fill="#f5ede0" letter-spacing="-1">dotori</text>
+        <text x="78" y="52" font-family="'Noto Sans KR',sans-serif" font-weight="400" font-size="11" fill="#c8956a" letter-spacing="1.2">AI 어린이집 입소 전략</text>
+      </svg>
+    </div>
+    <!-- Stacked lockups -->
+    <div class="stacked">
+      <div class="stacked-cell">
+        <span class="sl">STACKED · LIGHT</span>
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <g transform="translate(60,48)">
+            <ellipse cx="0" cy="4" rx="27" ry="25.5" fill="url(#B)"/>
+            <ellipse cx="-8" cy="-4" rx="8" ry="11" fill="white" opacity="0.05" transform="rotate(-10 -8 -4)"/>
+            <path d="M-25.5,-13 Q-25.5,-33 0,-35 Q25.5,-33 25.5,-13 Q15,-6 0,-6 Q-15,-6 -25.5,-13Z" fill="url(#C)"/>
+            <path d="M-19,-19 Q-8,-15.5 0,-15.5 Q8,-15.5 19,-19" stroke="#8a6440" stroke-width="0.45" fill="none" opacity="0.25"/>
+            <path d="M-2.5,-35 Q-3.8,-42 -2,-45 Q0,-46.5 2,-45 Q3.8,-42 2.5,-35" fill="#7a5438"/>
+            <circle cx="-7.5" cy="4" r="2.2" fill="#4a3018"/>
+            <circle cx="7.5" cy="4" r="2.2" fill="#4a3018"/>
+            <circle cx="-8.3" cy="2.7" r="0.75" fill="white" opacity="0.45"/>
+            <circle cx="6.7" cy="2.7" r="0.75" fill="white" opacity="0.45"/>
+            <path d="M-5.5,11 Q0,16.5 5.5,11" stroke="#4a3018" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="-13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.15"/>
+            <ellipse cx="13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.15"/>
+          </g>
+          <text x="60" y="90" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="18" fill="#2d2418" letter-spacing="-0.6">dotori</text>
+          <text x="60" y="106" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-weight="400" font-size="8.5" fill="#a08060" letter-spacing="1">AI 어린이집 입소 전략</text>
+        </svg>
+      </div>
+      <div class="stacked-cell dk">
+        <span class="sl">STACKED · DARK</span>
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <g transform="translate(60,48)">
+            <ellipse cx="0" cy="4" rx="27" ry="25.5" fill="url(#B)"/>
+            <path d="M-25.5,-13 Q-25.5,-33 0,-35 Q25.5,-33 25.5,-13 Q15,-6 0,-6 Q-15,-6 -25.5,-13Z" fill="url(#C)"/>
+            <path d="M-2.5,-35 Q-3.8,-42 -2,-45 Q0,-46.5 2,-45 Q3.8,-42 2.5,-35" fill="#7a5438"/>
+            <circle cx="-7.5" cy="4" r="2.2" fill="#4a3018"/>
+            <circle cx="7.5" cy="4" r="2.2" fill="#4a3018"/>
+            <circle cx="-8.3" cy="2.7" r="0.75" fill="white" opacity="0.35"/>
+            <circle cx="6.7" cy="2.7" r="0.75" fill="white" opacity="0.35"/>
+            <path d="M-5.5,11 Q0,16.5 5.5,11" stroke="#4a3018" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <ellipse cx="-13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.1"/>
+            <ellipse cx="13" cy="8" rx="4.5" ry="2.3" fill="#d4907a" opacity="0.1"/>
+          </g>
+          <text x="60" y="90" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="18" fill="#f5ede0" letter-spacing="-0.6">dotori</text>
+          <text x="60" y="106" text-anchor="middle" font-family="'Noto Sans KR',sans-serif" font-weight="400" font-size="8.5" fill="#c8956a" letter-spacing="1">AI 어린이집 입소 전략</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!--           APP ICONS                -->
+<!-- ═══════════════════════════════════ -->
+<div class="w" style="margin-top:28px;">
+  <div class="tag">02 — App Icons</div>
+  <div class="card" style="margin-top:10px;">
+    <div class="icons">
+      <div class="ic"><span class="il">Gradient</span>
+        <svg width="72" height="72" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-23,-22 Q-10,-18 0,-18 Q10,-18 23,-22" stroke="#d4b898" stroke-width="0.6" fill="none" opacity="0.3"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><circle cx="-10" cy="2.5" r="0.8" fill="white" opacity="0.3"/><circle cx="8" cy="2.5" r="0.8" fill="white" opacity="0.3"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+      </div>
+      <div class="ic dk"><span class="il">Dark</span>
+        <svg width="72" height="72" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="#2d2418"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="url(#B)"/><ellipse cx="-10" cy="-4" rx="8" ry="11" fill="white" opacity="0.04" transform="rotate(-10 -10 -4)"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/><circle cx="-9" cy="4" r="2.7" fill="#4a3018"/><circle cx="9" cy="4" r="2.7" fill="#4a3018"/><circle cx="-10" cy="2.5" r="0.9" fill="white" opacity="0.3"/><circle cx="8" cy="2.5" r="0.9" fill="white" opacity="0.3"/><path d="M-7,12 Q0,18.5 7,12" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/><ellipse cx="-16" cy="8.5" rx="5" ry="2.5" fill="#d4907a" opacity="0.12"/><ellipse cx="16" cy="8.5" rx="5" ry="2.5" fill="#d4907a" opacity="0.12"/></g></svg>
+      </div>
+      <div class="ic br"><span class="il">Brand</span>
+        <svg width="72" height="72" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="#c8956a"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+      </div>
+      <div class="ic fo"><span class="il">Forest</span>
+        <svg width="72" height="72" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="#4a7a42"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8" opacity="0.95"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0" opacity="0.9"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+      </div>
+    </div>
+    <!-- Size test -->
+    <div class="sizes">
+      <div class="sz"><svg width="72" height="72" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><circle cx="-10" cy="2.5" r="0.8" fill="white" opacity="0.3"/><circle cx="8" cy="2.5" r="0.8" fill="white" opacity="0.3"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg><span>72</span></div>
+      <div class="sz"><svg width="56" height="56" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg><span>56</span></div>
+      <div class="sz"><svg width="40" height="40" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="3" fill="#a07858"/><circle cx="9" cy="4" r="3" fill="#a07858"/><path d="M-7,12 Q0,19 7,12" stroke="#a07858" stroke-width="2.2" stroke-linecap="round" fill="none"/></g></svg><span>40</span></div>
+      <div class="sz"><svg width="32" height="32" viewBox="0 0 80 80"><rect width="80" height="80" rx="20" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="3.5" fill="#a07858"/><circle cx="9" cy="4" r="3.5" fill="#a07858"/><path d="M-7,12 Q0,19.5 7,12" stroke="#a07858" stroke-width="2.8" stroke-linecap="round" fill="none"/></g></svg><span>32</span></div>
+      <div class="sz"><svg width="24" height="24" viewBox="0 0 80 80"><rect width="80" height="80" rx="22" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="4.5" fill="#a07858"/><circle cx="9" cy="4" r="4.5" fill="#a07858"/><path d="M-7,13 Q0,20 7,13" stroke="#a07858" stroke-width="3.5" stroke-linecap="round" fill="none"/></g></svg><span>24</span></div>
+      <div class="sz"><svg width="16" height="16" viewBox="0 0 80 80"><rect width="80" height="80" rx="24" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="5.5" fill="#a07858"/><circle cx="9" cy="4" r="5.5" fill="#a07858"/><path d="M-6,14 Q0,22 6,14" stroke="#a07858" stroke-width="4.5" stroke-linecap="round" fill="none"/></g></svg><span>16</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!--          CONTEXT MOCKUPS           -->
+<!-- ═══════════════════════════════════ -->
+<div class="w" style="margin-top:28px;">
+  <div class="tag">03 — In Situ</div>
+  <div class="ctx">
+    <div class="ctx-item"><div class="ctx-vis" style="background:#000;padding:14px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#5856D6,#AF52DE);"></div>
+        <svg width="36" height="36" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#34C759,#30D158);"></div>
+      </div>
+    </div><div class="ctx-lbl">iOS 홈</div></div>
+
+    <div class="ctx-item"><div class="ctx-vis" style="background:var(--a50);padding:12px;">
+      <div style="display:flex;gap:6px;align-items:flex-start;">
+        <svg width="24" height="24" viewBox="0 0 80 80" style="flex-shrink:0;"><rect width="80" height="80" rx="40" fill="url(#IG)"/><g transform="translate(40,43) scale(0.53)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        <div style="background:white;border-radius:0 8px 8px 8px;padding:6px 8px;font-size:8px;line-height:1.4;color:var(--a800);box-shadow:0 1px 2px rgba(0,0,0,0.03);">TO 3곳 찾았어요 🌰</div>
+      </div>
+    </div><div class="ctx-lbl">토리챗</div></div>
+
+    <div class="ctx-item"><div class="ctx-vis" style="background:linear-gradient(180deg,#faf7f2,#f0ebe2);gap:6px;flex-direction:column;">
+      <svg width="36" height="36" viewBox="0 0 80 80"><g transform="translate(40,43) scale(0.6)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="url(#B)"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/><circle cx="-9" cy="4" r="2.7" fill="#4a3018"/><circle cx="9" cy="4" r="2.7" fill="#4a3018"/><circle cx="-10" cy="2.5" r="0.9" fill="white" opacity="0.45"/><circle cx="8" cy="2.5" r="0.9" fill="white" opacity="0.45"/><path d="M-7,12 Q0,18.5 7,12" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/><ellipse cx="-16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/><ellipse cx="16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/></g></svg>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;color:#2d2418;letter-spacing:-0.4px;">dotori</div>
+    </div><div class="ctx-lbl">스플래시</div></div>
+
+    <div class="ctx-item"><div class="ctx-vis" style="background:#f2f2f7;padding:10px;">
+      <div style="background:white;border-radius:10px;padding:8px;box-shadow:0 1px 6px rgba(0,0,0,0.06);display:flex;gap:6px;align-items:center;width:100%;">
+        <svg width="24" height="24" viewBox="0 0 80 80" style="flex-shrink:0;border-radius:6px;"><rect width="80" height="80" rx="16" fill="url(#IG)"/><g transform="translate(40,43) scale(0.56)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        <div style="font-size:7px;color:#555;flex:1;">🌰 TO 발생!</div>
+      </div>
+    </div><div class="ctx-lbl">알림</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!--           COLOR PALETTE            -->
+<!-- ═══════════════════════════════════ -->
+<div class="w" style="margin-top:28px;">
+  <div class="tag">04 — Colors</div>
+  <div class="colors">
+    <div class="csw" style="background:#faf7f2;color:#5a3a24;">50<div class="hex">#faf7f2</div></div>
+    <div class="csw" style="background:#f5ede0;color:#5a3a24;">100<div class="hex">#f5ede0</div></div>
+    <div class="csw" style="background:#e8d5be;color:#5a3a24;">200<div class="hex">#e8d5be</div></div>
+    <div class="csw" style="background:#d4b48e;color:#5a3a24;">300<div class="hex">#d4b48e</div></div>
+    <div class="csw" style="background:#c8956a;color:white;">400<div class="hex">#c8956a</div></div>
+    <div class="csw" style="background:#b07a4a;color:white;">500<div class="hex">#b07a4a</div></div>
+    <div class="csw" style="background:#7a4e30;color:white;">700<div class="hex">#7a4e30</div></div>
+    <div class="csw" style="background:#2d2418;color:white;">900<div class="hex">#2d2418</div></div>
+    <div class="csw" style="background:#4a7a42;color:white;">Forest<div class="hex">#4a7a42</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!--          FINAL SPEC                -->
+<!-- ═══════════════════════════════════ -->
+<div class="w" style="margin-top:28px;">
+  <div class="tag">05 — Production Spec</div>
+  <div class="spec">
+    <h3>🌰 도토리 β — Locked Specification</h3>
+    <div class="spec-g">
+      <div class="spec-i">
+        <h5>Shape</h5>
+        <p>Body: <code>ellipse rx:33 ry:31</code> (1.065:1)<br>
+        Cap: Bézier <code>Q -31,-39 → 0,-41 → 31,-39</code><br>
+        Stem: curved path, width 5.5, <code>#7a5438</code></p>
+      </div>
+      <div class="spec-i">
+        <h5>Gradient</h5>
+        <p>Body: <code>radialGradient cx:0.40 cy:0.32 r:0.60</code><br>
+        → <code>#dab080</code> · <code>#c8956a @55%</code> · <code>#a87848</code><br>
+        Cap: <code>linear #aa8462 → #7a5438</code></p>
+      </div>
+      <div class="spec-i">
+        <h5>Face</h5>
+        <p>Eyes: <code>r=2.7 #4a3018</code> · highlight <code>r=0.9 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="780f10110c1d3848564c4d">[email&#160;protected]</a></code><br>
+        Smile: <code>Q곡률 6.5px sw=1.8 #4a3018</code><br>
+        Blush: <code>5.5×2.8 #<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aace9e939a9dcbea9a849b9c">[email&#160;protected]</a></code></p>
+      </div>
+      <div class="spec-i">
+        <h5>Typography</h5>
+        <p>EN: <code>Plus Jakarta Sans 800</code> ls:-0.8<br>
+        KR tag: <code>Noto Sans KR 400</code> ls:1.2<br>
+        KR alt: <code>Noto Sans KR 900</code> "도토리"</p>
+      </div>
+      <div class="spec-i">
+        <h5>App Icon</h5>
+        <p>BG: <code>linearGrad #d8ad78 → #a87848</code><br>
+        Symbol: inverted <code>#f5e8d8/#e8cdb0</code><br>
+        Eyes/mouth: <code>#a07858</code></p>
+      </div>
+      <div class="spec-i">
+        <h5>Size Adaptation</h5>
+        <p>≥48px: full detail (texture, blush, highlight)<br>
+        32–47: remove blush, thicken eyes 1.2×<br>
+        ≤31: strip texture/stem detail/highlight<br>
+        Safe zone: 25% of symbol height</p>
+      </d

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도토리 스플래시 모션 데모</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Pretendard+Variable:wght@100..900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#faf7f2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;font-family:'Pretendard',sans-serif;overflow:hidden;}
+
+.splash{display:flex;flex-direction:column;align-items:center;gap:16px;}
+
+/* Symbol container */
+.symbol{opacity:0;transform:scale(0.4) translateY(20px);animation:symbol-in 600ms cubic-bezier(0.34,1.56,0.64,1) 200ms forwards;}
+@keyframes symbol-in{
+  0%{opacity:0;transform:scale(0.4) translateY(20px);}
+  60%{opacity:1;transform:scale(1.05) translateY(-2px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+
+/* Eyes */
+.eyes{opacity:0;animation:fade-in 300ms ease-out 500ms forwards;}
+/* Smile */
+.smile{opacity:0;animation:fade-in 300ms ease-out 650ms forwards;}
+/* Blush */
+.blush{opacity:0;animation:fade-in 400ms ease-out 750ms forwards;}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+
+/* Breathing after load */
+.breathing{animation:breathe 1.8s ease-in-out infinite 1200ms;}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* Wordmark */
+.wordmark{opacity:0;transform:translateY(12px);animation:word-in 500ms cubic-bezier(0.25,0.46,0.45,0.94) 900ms forwards;}
+@keyframes word-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Replay button */
+.replay{position:fixed;bottom:32px;background:#2d2418;color:#c8956a;border:none;padding:10px 24px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer;opacity:0;animation:fade-in 300ms ease-out 1500ms forwards;}
+.replay:hover{background:#4a3a28;}
+</style>
+</head>
+<body>
+
+<div class="splash">
+  <div class="breathing">
+    <svg class="symbol" width="120" height="140" viewBox="-40 -60 80 100">
+      <defs>
+        <radialGradient id="B" cx="0.40" cy="0.32" r="0.60"><stop offset="0%" stop-color="#dab080"/><stop offset="55%" stop-color="#c8956a"/><stop offset="100%" stop-color="#a87848"/></radialGradient>
+        <linearGradient id="C" x1="0.1" y1="0.1" x2="0.9" y2="0.9"><stop offset="0%" stop-color="#aa8462"/><stop offset="100%" stop-color="#7a5438"/></linearGradient>
+      </defs>
+      <!-- Body -->
+      <ellipse cx="0" cy="6" rx="33" ry="31" fill="url(#B)"/>
+      <ellipse cx="-10" cy="-4" rx="10" ry="14" fill="white" opacity="0.06" transform="rotate(-10 -10 -4)"/>
+      <!-- Cap -->
+      <path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/>
+      <path d="M-23,-22 Q-10,-18 0,-18 Q10,-18 23,-22" stroke="#8a6440" stroke-width="0.55" fill="none" opacity="0.25"/>
+      <path d="M-26,-27 Q-12,-22 0,-22 Q12,-22 26,-27" stroke="#8a6440" stroke-width="0.4" fill="none" opacity="0.15"/>
+      <!-- Stem -->
+      <path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/>
+      <!-- Eyes -->
+      <g class="eyes">
+        <circle cx="-9" cy="6" r="2.7" fill="#4a3018"/>
+        <circle cx="9" cy="6" r="2.7" fill="#4a3018"/>
+        <circle cx="-10" cy="4.5" r="0.9" fill="white" opacity="0.45"/>
+        <circle cx="8" cy="4.5" r="0.9" fill="white" opacity="0.45"/>
+      </g>
+      <!-- Smile -->
+      <path class="smile" d="M-7,14 Q0,20.5 7,14" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      <!-- Blush -->
+      <g class="blush">
+        <ellipse cx="-16" cy="10.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/>
+        <ellipse cx="16" cy="10.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wordmark">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#2d2418;letter-spacing:-1px;text-align:center;">dotori</div>
+    <div style="font-size:12px;color:#a08060;letter-spacing:1.5px;text-align:center;margin-top:4px;">AI 어린이집 입소 전략</div>
+  </div>
+</div>
+
+<button class="replay" onclick="location.reload()">↻ REPLAY</button>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Error State: 오류, 404, 접속 실패 화면용 당황한 도토리 -->
+  <defs>
+    <radialGradient id="derr-body" cx="0.40" cy="0.32" r="0.60">
+      <stop offset="0%" stop-color="#dab080"/>
+      <stop offset="55%" stop-color="#c8956a"/>
+      <stop offset="100%" stop-color="#a87848"/>
+    </radialGradient>
+    <linearGradient id="derr-cap" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+      <stop offset="0%" stop-color="#aa8462"/>
+      <stop offset="100%" stop-color="#7a5438"/>
+    </linearGradient>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="120" cy="192" rx="48" ry="6" fill="#2d2418" opacity="0.04"/>
+  <g transform="translate(120,130)">
+    <ellipse cx="0" cy="6" rx="46" ry="43" fill="url(#derr-body)"/>
+    <ellipse cx="-14" cy="-6" rx="14" ry="20" fill="white" opacity="0.06" transform="rotate(-10 -14 -6)"/>
+    <path d="M-43,-21 Q-43,-56 0,-58 Q43,-56 43,-21 Q25,-10 0,-10 Q-25,-10 -43,-21Z" fill="url(#derr-cap)"/>
+    <path d="M-32,-32 Q-14,-25 0,-25 Q14,-25 32,-32" stroke="#8a6440" stroke-width="0.8" fill="none" opacity="0.25"/>
+    <path d="M-4,-58 Q-6.5,-70 -3.5,-76 Q0,-78 3.5,-76 Q6.5,-70 4,-58" fill="#7a5438"/>
+    <!-- Worried eyes (bigger, looking up) -->
+    <circle cx="-12" cy="5" r="4" fill="#4a3018"/>
+    <circle cx="12" cy="5" r="4" fill="#4a3018"/>
+    <circle cx="-13" cy="3" r="1.4" fill="white" opacity="0.5"/>
+    <circle cx="11" cy="3" r="1.4" fill="white" opacity="0.5"/>
+    <!-- Worried mouth (wavy line) -->
+    <path d="M-7,22 Q-3.5,19 0,22 Q3.5,25 7,22" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+    <!-- Blush (more prominent when embarrassed) -->
+    <ellipse cx="-22" cy="15" rx="8" ry="4" fill="#d4907a" opacity="0.2"/>
+    <ellipse cx="22" cy="15" rx="8" ry="4" fill="#d4907a" opacity="0.2"/>
+    <!-- Sweat drop -->
+    <path d="M30,-12 Q32,-20 34,-12 Q32,-9 30,-12Z" fill="#a0c8e0" opacity="0.4"/>
+  </g>
+  <!-- Question mark -->
+  <text x="176" y="72" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="36" fill="#c8956a" opacity="0.25">?</text>
+</svg>

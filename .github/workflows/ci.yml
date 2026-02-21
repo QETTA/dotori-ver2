@@ -1,0 +1,100 @@
+# ── Dotori CI/CD Pipeline ──
+# Build + Test on all pushes/PRs, Deploy to DigitalOcean on main push
+# GitHub Student Pack (Pro): 3000분/월, deployment environments 사용 가능
+# Ref: https://github.com/digitalocean/app_action
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'brand/**'
+      - 'reference/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'brand/**'
+      - 'reference/**'
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Job 1: Type Check + Build + Test ──
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dotori-app/package-lock.json
+
+      # Next.js 빌드 캐시 (CI 시간 단축, 3000분 예산 보존)
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: dotori-app/.next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('dotori-app/package-lock.json') }}-${{ hashFiles('dotori-app/src/**') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('dotori-app/package-lock.json') }}-
+            nextjs-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: dotori-app
+
+      - name: Type check
+        run: npx tsc --noEmit
+        working-directory: dotori-app
+
+      - name: Build
+        run: npm run build
+        working-directory: dotori-app
+        env:
+          NEXT_PUBLIC_KAKAO_JS_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_JS_KEY }}
+          NEXT_PUBLIC_KAKAO_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_KEY }}
+          NEXT_PUBLIC_KAKAO_MAP_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_MAP_KEY }}
+          NEXT_PUBLIC_KAKAO_CHANNEL_ID: ${{ vars.NEXT_PUBLIC_KAKAO_CHANNEL_ID }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ vars.NEXT_PUBLIC_MAPBOX_TOKEN }}
+          NEXT_PUBLIC_MAPBOX_STYLE: ${{ vars.NEXT_PUBLIC_MAPBOX_STYLE }}
+          NEXT_PUBLIC_TOSS_CLIENT_KEY: ${{ vars.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+
+      - name: Test
+        run: npm test
+        working-directory: dotori-app
+
+  # ── Job 2: Deploy to DigitalOcean (main only) ──
+  # GitHub Pro: deployment environment로 production 시크릿 스코핑
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.extract.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to DigitalOcean App Platform
+        id: deploy
+        uses: digitalocean/app_action/deploy@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Extract deployment URL
+        id: extract
+        if: success()
+        run: |
+          URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "")
+          echo "url=$URL" >> $GITHUB_OUTPUT

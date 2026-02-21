@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {}
+    },
+    "codex": {
+      "type": "stdio",
+      "command": "codex-mcp-server",
+      "args": [],
+      "env": {
+        "CODEX_DEFAULT_MODEL": "gpt-5.3-codex-spark",
+        "STRUCTURED_CONTENT_ENABLED": "1",
+        "OPENAI_API_KEY": ""
+      }
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server"
+      ],
+      "env": {
+        "SERENA_PROJECT_DIR": "/home/sihu2129/dotori-ver2"
+      }
+    }
+  }
+}

@@ -1,0 +1,129 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../styles/splash.css";
+@import "../styles/loading.css";
+
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+
+/* ──────────────────────────────────────
+   도토리 디자인 토큰
+   Oatmeal @theme 구조 참고, @tailwindplus/elements 의존 없음
+   ────────────────────────────────────── */
+
+@theme {
+  /* ── 폰트 ── */
+  --font-sans: 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-wordmark: 'Plus Jakarta Sans', 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Dotori Primary (Acorn) — Brand Kit v2.2 HEX ── */
+  --color-dotori-50:  #faf7f2;
+  --color-dotori-100: #f5ede0;
+  --color-dotori-200: #e8d5be;
+  --color-dotori-300: #d4b48e;
+  --color-dotori-400: #c8956a;  /* ★ 브랜드 메인 */
+  --color-dotori-500: #b07a4a;  /* 텍스트 안전 (WCAG AA) */
+  --color-dotori-600: #96633a;
+  --color-dotori-700: #7a4e30;
+  --color-dotori-800: #5a3a24;
+  --color-dotori-900: #2d2418;  /* ★ 다크 텍스트 */
+  --color-dotori-950: #1a1510;
+
+  /* ── Forest (성공/TO) ── */
+  --color-forest-50:  #e8f5e4;
+  --color-forest-100: #c8e4c0;
+  --color-forest-200: #a0d098;
+  --color-forest-300: #78bc70;
+  --color-forest-400: #6a9a60;
+  --color-forest-500: #4a7a42;  /* ★ 성공 메인 */
+  --color-forest-600: #3a6034;
+  --color-forest-700: #2e4c2a;
+  --color-forest-800: #223820;
+  --color-forest-900: #162416;
+
+  /* ── Semantic ── */
+  --color-success: var(--color-forest-500);
+  --color-warning: #d4a030;
+  --color-danger:  #c44040;
+  --color-info:    #4a80b0;
+  --color-blush:   #d4907a;
+
+  /* ── Shadows (2026: multi-layer, 도토리 브라운 기반) ── */
+  --shadow-xs:  0 1px 2px rgba(45, 36, 24, 0.02), 0 1px 3px rgba(45, 36, 24, 0.03);
+  --shadow-sm:  0 1px 2px rgba(45, 36, 24, 0.03), 0 2px 6px rgba(45, 36, 24, 0.04);
+  --shadow-md:  0 1px 3px rgba(45, 36, 24, 0.04), 0 4px 12px rgba(45, 36, 24, 0.06);
+  --shadow-lg:  0 2px 4px rgba(45, 36, 24, 0.04), 0 8px 24px rgba(45, 36, 24, 0.08);
+  --shadow-xl:  0 4px 8px rgba(45, 36, 24, 0.04), 0 16px 40px rgba(45, 36, 24, 0.10);
+  --shadow-2xl: 0 8px 16px rgba(45, 36, 24, 0.06), 0 24px 56px rgba(45, 36, 24, 0.12);
+
+  /* ── Border Radius ── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── 애니메이션 ── */
+  --animate-fade-in: fade-in 0.5s linear forwards;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ── 다크모드 토큰 (준비용, 비활성) ──
+   도토리의 크림 배경이 아이덴티티이므로 완전한 검정이 아닌 "다크 브라운" 기조
+   심볼은 어두운 배경 위에서 symbol-mono-white.svg 사용
+*/
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary:   #1a1510;
+    --color-bg-surface:   #2d2418;
+    --color-bg-elevated:  #3a3020;
+    --color-text-primary: #f5ede0;
+    --color-text-muted:   #d4b48e;
+    --color-brand:        var(--color-dotori-400);
+    --color-border:       #5a3a24;
+    --color-border-lt:    #3a3020;
+  }
+}
+*/
+
+/* ── 베이스 레이어 ── */
+@layer base {
+	html {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		-webkit-text-size-adjust: 100%;
+		background-color: var(--color-dotori-50);
+		color: var(--color-dotori-900);
+		word-break: keep-all;
+		overflow-wrap: break-word;
+		scroll-behavior: smooth;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+
+	body {
+		font-family: var(--font-sans);
+		padding-top: env(safe-area-inset-top);
+		padding-bottom: env(safe-area-inset-bottom);
+		min-height: 100dvh;
+	}
+
+	.hide-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.hide-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+}

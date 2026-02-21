@@ -1,0 +1,1 @@
+Follow existing TypeScript strict patterns and Next.js App Router conventions. Use motion/react (not framer-motion). Keep UI text Korean. Use brand color tokens (dotori/forest) and Catalyst component patterns. Prefer mobile-first layouts and minimum touch target 44px. API routes generally follow auth -> dbConnect -> NextResponse.json pattern.

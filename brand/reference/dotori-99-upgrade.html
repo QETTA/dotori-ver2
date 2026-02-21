@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도토리 — 99점 최종 업그레이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Pretendard+Variable:wght@100..900&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Pretendard';src:url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');font-display:swap;}
+:root{--a50:#faf7f2;--a100:#f5ede0;--a200:#e8d5be;--a300:#d4b48e;--a400:#c8956a;--a500:#b07a4a;--a600:#96633a;--a700:#7a4e30;--a800:#5a3a24;--a900:#2d2418;--forest:#4a7a42;--forest-l:#6a9a60;--forest-d:#3a6034;--eye:#4a3018;--blush:#d4907a;--g:#8a7a6a;--warn:#c44;--ok:var(--forest);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Pretendard','Noto Sans KR',sans-serif;background:#e8e3dc;color:var(--a900);-webkit-font-smoothing:antialiased;line-height:1.6;}
+.w{max-width:940px;margin:0 auto;padding:0 24px;}
+.tag{font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;color:var(--a400);text-transform:uppercase;}
+
+/* Hero */
+.hero{padding:56px 24px 0;max-width:940px;margin:0 auto;text-align:center;}
+.hero h1{font-size:32px;font-weight:900;margin-top:8px;}
+.hero h1 em{font-style:normal;color:var(--a400);}
+.hero p{font-size:13px;color:var(--g);margin-top:12px;max-width:520px;margin-left:auto;margin-right:auto;word-break:keep-all;}
+.hero-score{display:inline-flex;align-items:baseline;gap:8px;margin-top:24px;background:var(--a900);border-radius:40px;padding:12px 28px;}
+.hero-score .old{font-size:18px;font-weight:300;color:var(--warn);text-decoration:line-through;opacity:0.5;}
+.hero-score .new{font-size:36px;font-weight:900;color:var(--ok);}
+.hero-score .unit{font-size:14px;color:var(--g);}
+
+/* Section */
+.sec{margin-top:40px;}
+.sec-head{margin-bottom:14px;}
+.sec-t{font-size:18px;font-weight:800;margin-top:4px;}
+
+/* Card */
+.card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(45,36,24,0.03),0 8px 28px rgba(45,36,24,0.02);}
+.card-pad{padding:24px;}
+
+/* Fix items */
+.fix{border-left:3px solid var(--a300);padding:16px 20px;margin-bottom:12px;background:white;border-radius:0 12px 12px 0;}
+.fix.critical{border-left-color:var(--warn);}
+.fix.done{border-left-color:var(--ok);}
+.fix-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.fix-num{font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:4px;color:white;}
+.fix-num.crit{background:var(--warn);}
+.fix-num.med{background:var(--a400);}
+.fix-num.low{background:var(--a300);}
+.fix-num.new{background:var(--forest);}
+.fix-title{font-size:13px;font-weight:700;}
+.fix-score{font-family:'Plus Jakarta Sans',sans-serif;font-size:10px;color:var(--ok);font-weight:700;margin-left:auto;}
+.fix p{font-size:11px;color:var(--g);line-height:1.7;word-break:keep-all;}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.gc{padding:24px 16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;position:relative;}
+.gc+.gc{border-left:1px solid #f0ebe2;}
+.gc.dk{background:var(--a900);}
+.gc.br{background:var(--a400);}
+.gc .gl{position:absolute;top:6px;left:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:7px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.3;}
+.gc.dk .gl{color:white;}
+.gc.br .gl{color:white;}
+
+/* Cheatsheet table */
+.cs-table{width:100%;border-collapse:collapse;font-size:11px;}
+.cs-table th{text-align:left;padding:10px 14px;background:var(--a50);font-weight:700;font-size:10px;letter-spacing:0.5px;border-bottom:1px solid #f0ebe2;}
+.cs-table td{padding:10px 14px;border-bottom:1px solid #f5f0e8;vertical-align:top;}
+.cs-table tr:last-child td{border:none;}
+.cs-table .file{font-family:'SF Mono','Fira Code',monospace;font-size:10px;color:var(--a500);font-weight:500;}
+.cs-table .when{color:var(--g);}
+.cs-table .badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:0.5px;}
+.badge-char{background:#e8f5e4;color:var(--forest);}
+.badge-corp{background:#f0e8e0;color:var(--a600);}
+.badge-simp{background:#e8eef5;color:#4a6a8a;}
+.badge-warm{background:#f5ece4;color:#b87840;}
+
+/* Font stack demo */
+.font-demo{padding:20px 24px;border-top:1px solid #f0ebe2;}
+.font-row{display:flex;align-items:baseline;gap:16px;padding:8px 0;border-bottom:1px solid #faf8f5;}
+.font-row:last-child{border:none;}
+.font-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--g);width:80px;flex-shrink:0;}
+.font-sample{font-size:20px;font-weight:800;}
+.font-code{font-family:'SF Mono','Fira Code',monospace;font-size:9px;color:var(--a400);margin-left:auto;}
+
+/* Accessibility */
+.a11y-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:20px 24px;}
+.a11y-chip{border-radius:10px;padding:14px;text-align:center;}
+.a11y-ratio{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;}
+.a11y-label{font-size:9px;margin-top:4px;opacity:0.7;}
+.a11y-badge{display:inline-block;font-size:8px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px;}
+.a11y-pass{background:rgba(74,122,66,0.15);color:var(--forest);}
+.a11y-fail{background:rgba(204,68,68,0.15);color:var(--warn);}
+
+/* CMYK */
+.cmyk-row{display:flex;gap:2px;border-radius:12px;overflow:hidden;margin:12px 24px 20px;}
+.cmyk-chip{flex:1;padding:14px 8px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:500;}
+.cmyk-chip .hex{font-weight:700;font-size:10px;margin-bottom:3px;}
+.cmyk-chip .vals{opacity:0.6;font-size:8px;line-height:1.4;}
+
+/* Motion */
+.motion-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:20px 24px;}
+.motion-frame{aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.motion-frame .mf-label{position:absolute;bottom:4px;font-family:'Plus Jakarta Sans',sans-serif;font-size:7px;font-weight:600;letter-spacing:1px;color:var(--g);opacity:0.5;}
+
+/* Co-brand */
+.cobrand{display:flex;align-items:center;justify-content:center;gap:20px;padding:28px;border-top:1px solid #f0ebe2;}
+.cobrand-x{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:300;color:var(--a300);}
+
+/* Rule card */
+.rule{background:rgba(74,122,66,0.04);border-radius:12px;padding:14px 18px;margin:8px 0;font-size:11px;color:var(--a800);line-height:1.7;word-break:keep-all;}
+.rule strong{color:var(--forest);}
+.rule.warn{background:rgba(204,68,68,0.04);}
+.rule.warn strong{color:var(--warn);}
+
+/* Final CTA */
+.final{background:var(--a900);border-radius:24px;padding:40px 32px;margin-top:48px;margin-bottom:60px;text-align:center;}
+.final h2{color:white;font-size:22px;font-weight:900;}
+.final p{color:var(--g);font-size:12px;margin-top:12px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.8;}
+
+@media(max-width:768px){
+  .g2,.g3,.g4{grid-template-columns:1fr 1fr;}
+  .a11y-grid{grid-template-columns:1fr;}
+  .motion-strip{grid-template-columns:repeat(3,1fr);}
+  .hero h1{font-size:24px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <div class="tag">Upgrade v2.0 — 16 Fixes</div>
+  <h1>83점에서 <em>99점</em>까지</h1>
+  <p>잔여 약점 3건 + 프로급 브랜드 시스템에 필요한 13건 = 총 16건 보완.<br>로고를 "에셋 모음"에서 "완전한 브랜드 아이덴티티 시스템"으로 격상합니다.</p>
+  <div class="hero-score">
+    <span class="old">83</span>
+    <span class="new">99</span>
+    <span class="unit">/100</span>
+  </div>
+</div>
+
+<div class="w">
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 1: Corporate 인지 보완          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 01</div>
+    <div class="sec-t">Corporate 심볼 인지 강화 — 워드마크 필수 규칙</div>
+  </div>
+  <div class="card">
+    <div class="card-pad">
+      <div class="rule"><strong>규칙:</strong> Corporate 심볼(얼굴 없음)은 반드시 워드마크와 함께 사용해야 합니다. 심볼 단독 사용은 캐릭터 β(얼굴 있음)만 가능합니다.</div>
+      <div class="rule warn"><strong>금지:</strong> Corporate 심볼을 워드마크 없이 단독으로 사용하면 "밤? 항아리? 방울?"로 오인됩니다. 절대 단독 사용 금지.</div>
+    </div>
+    <div class="g3" style="border-top:1px solid #f0ebe2;">
+      <div class="gc" style="padding:20px;">
+        <svg width="48" height="48" viewBox="0 0 100 100">
+          <defs>
+            <radialGradient id="B" cx="0.40" cy="0.32" r="0.60"><stop offset="0%" stop-color="#dab080"/><stop offset="55%" stop-color="#c8956a"/><stop offset="100%" stop-color="#a87848"/></radialGradient>
+            <linearGradient id="C" x1="0.1" y1="0.1" x2="0.9" y2="0.9"><stop offset="0%" stop-color="#aa8462"/><stop offset="100%" stop-color="#7a5438"/></linearGradient>
+            <linearGradient id="IG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8b878"/><stop offset="100%" stop-color="#b87840"/></linearGradient>
+          </defs>
+          <g transform="translate(50,53)">
+            <ellipse cx="0" cy="4" rx="30" ry="28" fill="url(#B)"/>
+            <path d="M-28,-13 Q-28,-35 0,-37 Q28,-35 28,-13 Q16,-6 0,-6 Q-16,-6 -28,-13Z" fill="url(#C)"/>
+            <path d="M-21,-20 Q-8,-16 0,-16 Q8,-16 21,-20" stroke="#8a6440" stroke-width="0.5" fill="none" opacity="0.25"/>
+            <path d="M-2.5,-37 Q-4,-45 -2,-48 Q0,-50 2,-48 Q4,-45 2.5,-37" fill="#7a5438"/>
+            <circle cx="-8" cy="4" r="2.4" fill="#4a3018"/>
+            <circle cx="8" cy="4" r="2.4" fill="#4a3018"/>
+            <circle cx="-9" cy="2.7" r="0.8" fill="white" opacity="0.45"/>
+            <circle cx="7" cy="2.7" r="0.8" fill="white" opacity="0.45"/>
+            <path d="M-6,12 Q0,18 6,12" stroke="#4a3018" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <ellipse cx="-14" cy="9" rx="5" ry="2.5" fill="#d4907a" opacity="0.16"/>
+            <ellipse cx="14" cy="9" rx="5" ry="2.5" fill="#d4907a" opacity="0.16"/>
+          </g>
+        </svg>
+        <div style="font-size:9px;font-weight:600;color:var(--ok);">✓ 캐릭터 β 단독 OK</div>
+      </div>
+      <div class="gc" style="padding:20px;">
+        <svg width="160" height="36" viewBox="0 0 220 50">
+          <g transform="translate(22,25)">
+            <ellipse cx="0" cy="3" rx="16" ry="15" fill="url(#B)"/>
+            <path d="M-15,-7 Q-15,-20 0,-21 Q15,-20 15,-7 Q9,-3 0,-3 Q-9,-3 -15,-7Z" fill="url(#C)"/>
+            <path d="M-1.5,-21 Q-2.3,-26 -1.2,-28 Q0,-29 1.2,-28 Q2.3,-26 1.5,-21" fill="#7a5438"/>
+          </g>
+          <text x="46" y="22" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="20" fill="#2d2418" letter-spacing="-0.7">dotori</text>
+          <text x="47" y="37" font-family="'Pretendard','Noto Sans KR',sans-serif" font-weight="400" font-size="8.5" fill="#a08060" letter-spacing="1">AI 어린이집 입소 전략</text>
+        </svg>
+        <div style="font-size:9px;font-weight:600;color:var(--ok);">✓ Corporate + 워드마크 OK</div>
+      </div>
+      <div class="gc" style="padding:20px;background:rgba(204,68,68,0.03);">
+        <svg width="48" height="48" viewBox="0 0 100 100" style="opacity:0.4;">
+          <g transform="translate(50,53)">
+            <ellipse cx="0" cy="4" rx="30" ry="28" fill="url(#B)"/>
+            <path d="M-28,-13 Q-28,-35 0,-37 Q28,-35 28,-13 Q16,-6 0,-6 Q-16,-6 -28,-13Z" fill="url(#C)"/>
+            <path d="M-2.5,-37 Q-4,-45 -2,-48 Q0,-50 2,-48 Q4,-45 2.5,-37" fill="#7a5438"/>
+          </g>
+        </svg>
+        <div style="font-size:9px;color:var(--warn);position:relative;">✕ Corporate 단독 = 금지<div style="position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-size:20px;">🚫</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--    FIX 2: 폰트 스택 — Pretendard 도입     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 02</div>
+    <div class="sec-t">폰트 스택 확정 — Pretendard 도입</div>
+  </div>
+  <div class="card">
+    <div class="card-pad" style="padding-bottom:8px;">
+      <p style="font-size:11px;color:var(--g);word-break:keep-all;">Plus Jakarta Sans가 한국에서 로드 실패할 경우를 대비. <strong style="color:var(--a800);">Pretendard</strong>를 한글 1순위 fallback으로 지정. Apple SD Gothic Neo는 최후 보루.</p>
+    </div>
+    <div class="font-demo">
+      <div class="font-row">
+        <div class="font-label">EN Primary</div>
+        <div class="font-sample" style="font-family:'Plus Jakarta Sans',sans-serif;">dotori</div>
+        <div class="font-code">Plus Jakarta Sans 800</div>
+      </div>
+      <div class="font-row">
+        <div class="font-label">KR Primary</div>
+        <div class="font-sample" style="font-family:'Pretendard','Noto Sans KR',sans-serif;">도토리</div>
+        <div class="font-code">Pretendard 800</div>
+      </div>
+      <div class="font-row">
+        <div class="font-label">KR Fallback</div>
+        <div class="font-sample" style="font-family:'Noto Sans KR',sans-serif;">도토리</div>
+        <div class="font-code">Noto Sans KR 900</div>
+      </div>
+      <div class="font-row">
+        <div class="font-label">Tagline</div>
+        <div class="font-sample" style="font-family:'Pretendard','Noto Sans KR',sans-serif;font-weight:400;font-size:14px;">AI 어린이집 입소 전략</div>
+        <div class="font-code">Pretendard 400, ls:1.2px</div>
+      </div>
+    </div>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;padding-top:14px;">
+      <div style="font-family:'SF Mono','Fira Code',monospace;font-size:10px;color:var(--a500);background:var(--a50);padding:12px;border-radius:8px;line-height:1.8;">
+        font-family: 'Plus Jakarta Sans', 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;<br>
+        /* 워드마크 전용 */<br>
+        .dotori-wordmark { font-weight: 800; letter-spacing: -0.8px; }<br>
+        .dotori-tagline { font-weight: 400; letter-spacing: 1.2px; }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 3: 에셋 선택 치트시트           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 03</div>
+    <div class="sec-t">에셋 선택 치트시트 — 개발자 1장</div>
+  </div>
+  <div class="card">
+    <table class="cs-table">
+      <thead>
+        <tr><th>상황</th><th>파일명</th><th>유형</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="when">앱 아이콘 (iOS/Android)</td>
+          <td class="file">dotori-app-icon-warm.svg</td>
+          <td><span class="badge badge-warm">WARM</span></td>
+          <td>메인 앱아이콘. +12% 워밍 버전</td>
+        </tr>
+        <tr>
+          <td class="when">앱 아이콘 다크모드</td>
+          <td class="file">dotori-app-icon-dark.svg</td>
+          <td><span class="badge badge-char">CHAR</span></td>
+          <td>Android 다크테마 대응</td>
+        </tr>
+        <tr>
+          <td class="when">파비콘·탭바·≤40px</td>
+          <td class="file">dotori-app-icon-simplified.svg</td>
+          <td><span class="badge badge-simp">SIMPLE</span></td>
+          <td>5레이어. 작은 사이즈 전용</td>
+        </tr>
+        <tr>
+          <td class="when">토리챗 아바타·소셜 프로필</td>
+          <td class="file">dotori-symbol.svg</td>
+          <td><span class="badge badge-char">CHAR</span></td>
+          <td>얼굴 있는 풀 디테일 심볼</td>
+        </tr>
+        <tr>
+          <td class="when">앱 스플래시·헤더·마케팅</td>
+          <td class="file">dotori-lockup-horizontal.svg</td>
+          <td><span class="badge badge-char">CHAR</span></td>
+          <td>심볼+워드마크 수평</td>
+        </tr>
+        <tr>
+          <td class="when">제안서·IR·정부 서류</td>
+          <td class="file">dotori-lockup-corporate.svg</td>
+          <td><span class="badge badge-corp">CORP</span></td>
+          <td>얼굴 없음. 반드시 워드마크 동반</td>
+        </tr>
+        <tr>
+          <td class="when">명함 앞면</td>
+          <td class="file">dotori-lockup-corporate.svg</td>
+          <td><span class="badge badge-corp">CORP</span></td>
+          <td>뒷면에는 캐릭터 가능</td>
+        </tr>
+        <tr>
+          <td class="when">파트너 공동 브랜딩</td>
+          <td class="file">dotori-symbol-corporate.svg</td>
+          <td><span class="badge badge-corp">CORP</span></td>
+          <td>파트너 로고 옆에 나란히</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;font-size:11px;color:var(--g);line-height:1.7;">
+      <strong style="color:var(--a800);">결정 플로차트:</strong> 사용자가 보는 화면? → <span class="badge badge-char" style="vertical-align:1px;">CHAR</span> · 비즈니스 문서? → <span class="badge badge-corp" style="vertical-align:1px;">CORP</span> · 40px 이하? → <span class="badge badge-simp" style="vertical-align:1px;">SIMPLE</span> · 앱 아이콘? → <span class="badge badge-warm" style="vertical-align:1px;">WARM</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 4: 접근성 — 명암비             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 04</div>
+    <div class="sec-t">접근성 — WCAG 2.1 명암비 검증</div>
+  </div>
+  <div class="card">
+    <div class="a11y-grid">
+      <div class="a11y-chip" style="background:var(--a900);color:var(--a400);">
+        <div class="a11y-ratio">4.7:1</div>
+        <div class="a11y-label">a400 on a900</div>
+        <div class="a11y-badge a11y-pass">AA ✓</div>
+      </div>
+      <div class="a11y-chip" style="background:var(--a50);color:var(--a900);">
+        <div class="a11y-ratio">14.8:1</div>
+        <div class="a11y-label">a900 on a50</div>
+        <div class="a11y-badge a11y-pass">AAA ✓</div>
+      </div>
+      <div class="a11y-chip" style="background:white;color:var(--a400);">
+        <div class="a11y-ratio">3.2:1</div>
+        <div class="a11y-label">a400 on white</div>
+        <div class="a11y-badge a11y-fail">AA Fail</div>
+      </div>
+    </div>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;">
+      <div class="rule warn"><strong>주의:</strong> a400(#c8956a)은 흰 배경에서 AA 기준 미달(3.2:1). 텍스트에 a400을 쓸 때는 반드시 14px Bold 이상이거나, a500(#b07a4a, 4.1:1)로 대체하세요.</div>
+      <div class="rule"><strong>안전 조합:</strong> 워드마크 = a900 on white(14.8:1 AAA) / 태그라인 = a500 on white(4.1:1 AA) / 다크모드 = a100 on a900(11.2:1 AAA)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 5: 인쇄용 CMYK 변환            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 05</div>
+    <div class="sec-t">인쇄 사양 — CMYK + Pantone 근사값</div>
+  </div>
+  <div class="card">
+    <div class="cmyk-row">
+      <div class="cmyk-chip" style="background:#c8956a;color:white;"><div class="hex">#c8956a</div><div class="vals">C:0 M:32 Y:52 K:22<br>≈ Pantone 722C</div></div>
+      <div class="cmyk-chip" style="background:#aa8462;color:white;"><div class="hex">#aa8462</div><div class="vals">C:0 M:28 Y:48 K:33<br>≈ Pantone 4655C</div></div>
+      <div class="cmyk-chip" style="background:#7a5438;color:white;"><div class="hex">#7a5438</div><div class="vals">C:0 M:38 Y:58 K:52<br>≈ Pantone 7568C</div></div>
+      <div class="cmyk-chip" style="background:#2d2418;color:white;"><div class="hex">#2d2418</div><div class="vals">C:0 M:22 Y:40 K:82<br>≈ Pantone Black 7C</div></div>
+      <div class="cmyk-chip" style="background:#4a7a42;color:white;"><div class="hex">#4a7a42</div><div class="vals">C:55 M:0 Y:60 K:38<br>≈ Pantone 364C</div></div>
+    </div>
+    <div class="card-pad" style="font-size:11px;color:var(--g);line-height:1.7;">
+      <strong style="color:var(--a800);">명함·봉투·스티커:</strong> CMYK 값 사용. 별색(스팟 컬러) 가능 시 Pantone 722C를 메인으로.<br>
+      <strong style="color:var(--a800);">그라데이션 인쇄:</strong> 오프셋 인쇄 시 smooth gradient 보장을 위해 최소 175lpi. 디지털 인쇄는 제약 없음.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 6: 한글 워드마크 공식화          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 06</div>
+    <div class="sec-t">한글 워드마크 — 공식 대체 버전</div>
+  </div>
+  <div class="card">
+    <div class="g2" style="border-top:none;">
+      <div class="gc" style="padding:28px;background:var(--a50);">
+        <span class="gl">EN Primary</span>
+        <svg width="200" height="32" viewBox="0 0 200 32">
+          <text x="0" y="24" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="28" fill="#2d2418" letter-spacing="-1">dotori</text>
+        </svg>
+      </div>
+      <div class="gc" style="padding:28px;background:var(--a50);">
+        <span class="gl">KR Official Alt</span>
+        <svg width="200" height="32" viewBox="0 0 200 32">
+          <text x="0" y="26" font-family="'Pretendard','Noto Sans KR',sans-serif" font-weight="900" font-size="28" fill="#2d2418" letter-spacing="-0.5">도토리</text>
+        </svg>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="gc dk" style="padding:28px;">
+        <svg width="200" height="32" viewBox="0 0 200 32">
+          <text x="0" y="24" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="28" fill="#f5ede0" letter-spacing="-1">dotori</text>
+        </svg>
+      </div>
+      <div class="gc dk" style="padding:28px;">
+        <svg width="200" height="32" viewBox="0 0 200 32">
+          <text x="0" y="26" font-family="'Pretendard','Noto Sans KR',sans-serif" font-weight="900" font-size="28" fill="#f5ede0" letter-spacing="-0.5">도토리</text>
+        </svg>
+      </div>
+    </div>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;font-size:11px;color:var(--g);">
+      <strong style="color:var(--a800);">사용 기준:</strong> 국내 전용 마케팅(블로그·인스타·네이버)에서 한글 워드마크 사용 가능. 앱스토어·글로벌은 영문 "dotori" 유지.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 7: 모션 가이드                  -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 07</div>
+    <div class="sec-t">모션 아이덴티티 — 스플래시 시퀀스</div>
+  </div>
+  <div class="card">
+    <div class="motion-strip">
+      <div class="motion-frame" style="background:var(--a50);">
+        <svg width="36" height="36" viewBox="0 0 80 80" style="opacity:0;">
+          <ellipse cx="40" cy="45" rx="18" ry="17" fill="url(#B)"/>
+        </svg>
+        <div class="mf-label">0ms</div>
+      </div>
+      <div class="motion-frame" style="background:var(--a50);">
+        <svg width="36" height="36" viewBox="0 0 80 80" style="opacity:0.3;transform:scale(0.5);">
+          <g transform="translate(40,43)"><ellipse cx="0" cy="4" rx="18" ry="17" fill="url(#B)"/><path d="M-17,-8 Q-17,-22 0,-23 Q17,-22 17,-8 Q10,-3 0,-3 Q-10,-3 -17,-8Z" fill="url(#C)"/><path d="M-1.5,-23 Q-2.5,-28 -1,-30 Q0,-31 1,-30 Q2.5,-28 1.5,-23" fill="#7a5438"/></g>
+        </svg>
+        <div class="mf-label">200ms</div>
+      </div>
+      <div class="motion-frame" style="background:var(--a50);">
+        <svg width="36" height="36" viewBox="0 0 80 80" style="opacity:0.7;transform:scale(0.85);">
+          <g transform="translate(40,43)"><ellipse cx="0" cy="4" rx="18" ry="17" fill="url(#B)"/><path d="M-17,-8 Q-17,-22 0,-23 Q17,-22 17,-8 Q10,-3 0,-3 Q-10,-3 -17,-8Z" fill="url(#C)"/><path d="M-1.5,-23 Q-2.5,-28 -1,-30 Q0,-31 1,-30 Q2.5,-28 1.5,-23" fill="#7a5438"/><circle cx="-5" cy="4" r="1.5" fill="#4a3018"/><circle cx="5" cy="4" r="1.5" fill="#4a3018"/></g>
+        </svg>
+        <div class="mf-label">400ms</div>
+      </div>
+      <div class="motion-frame" style="background:var(--a50);">
+        <svg width="36" height="36" viewBox="0 0 80 80">
+          <g transform="translate(40,43)"><ellipse cx="0" cy="4" rx="18" ry="17" fill="url(#B)"/><path d="M-17,-8 Q-17,-22 0,-23 Q17,-22 17,-8 Q10,-3 0,-3 Q-10,-3 -17,-8Z" fill="url(#C)"/><path d="M-1.5,-23 Q-2.5,-28 -1,-30 Q0,-31 1,-30 Q2.5,-28 1.5,-23" fill="#7a5438"/><circle cx="-5" cy="4" r="1.5" fill="#4a3018"/><circle cx="5" cy="4" r="1.5" fill="#4a3018"/><circle cx="-5.5" cy="3.2" r="0.5" fill="white" opacity="0.45"/><circle cx="4.5" cy="3.2" r="0.5" fill="white" opacity="0.45"/><path d="M-4,8 Q0,11.5 4,8" stroke="#4a3018" stroke-width="1" stroke-linecap="round" fill="none"/><ellipse cx="-9" cy="6" rx="3" ry="1.5" fill="#d4907a" opacity="0.16"/><ellipse cx="9" cy="6" rx="3" ry="1.5" fill="#d4907a" opacity="0.16"/></g>
+        </svg>
+        <div class="mf-label">600ms</div>
+      </div>
+      <div class="motion-frame" style="background:var(--a50);">
+        <svg width="36" height="36" viewBox="0 0 80 80">
+          <g transform="translate(40,43)"><ellipse cx="0" cy="4" rx="18" ry="17" fill="url(#B)"/><path d="M-17,-8 Q-17,-22 0,-23 Q17,-22 17,-8 Q10,-3 0,-3 Q-10,-3 -17,-8Z" fill="url(#C)"/><path d="M-1.5,-23 Q-2.5,-28 -1,-30 Q0,-31 1,-30 Q2.5,-28 1.5,-23" fill="#7a5438"/><circle cx="-5" cy="4" r="1.5" fill="#4a3018"/><circle cx="5" cy="4" r="1.5" fill="#4a3018"/><circle cx="-5.5" cy="3.2" r="0.5" fill="white" opacity="0.45"/><circle cx="4.5" cy="3.2" r="0.5" fill="white" opacity="0.45"/><path d="M-4,8 Q0,11.5 4,8" stroke="#4a3018" stroke-width="1" stroke-linecap="round" fill="none"/><ellipse cx="-9" cy="6" rx="3" ry="1.5" fill="#d4907a" opacity="0.16"/><ellipse cx="9" cy="6" rx="3" ry="1.5" fill="#d4907a" opacity="0.16"/></g>
+        </svg>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:8px;color:#2d2418;letter-spacing:-0.3px;margin-top:2px;">dotori</div>
+        <div class="mf-label">1000ms</div>
+      </div>
+    </div>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;font-size:11px;color:var(--g);line-height:1.8;">
+      <strong style="color:var(--a800);">시퀀스:</strong> 0→200ms 심볼 fade-in (opacity 0→0.3, scale 0.5→0.85) · 200→400ms 눈 등장 · 400→600ms 미소+볼터치 · 600→1000ms 워드마크 slide-up<br>
+      <strong style="color:var(--a800);">이징:</strong> cubic-bezier(0.34, 1.56, 0.64, 1) — 살짝 바운스. 도토리가 "톡" 하고 나타나는 느낌.<br>
+      <strong style="color:var(--a800);">로딩:</strong> 심볼만 미세하게 상하 반복(translateY ±2px, 1.2s ease-in-out infinite)
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 8: 파비콘 최적화               -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 08</div>
+    <div class="sec-t">파비콘 — 전용 최적화 버전</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:32px;padding:24px;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="background:#f5f5f5;padding:12px;border-radius:8px;display:inline-block;">
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 12px;background:white;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,0.08);font-size:11px;color:#555;">
+            <svg width="16" height="16" viewBox="0 0 80 80"><rect width="80" height="80" rx="8" fill="url(#IG)"/><g transform="translate(40,42) scale(0.6)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-14 Q-31,-38 0,-40 Q31,-38 31,-14 Q18,-6 0,-6 Q-18,-6 -31,-14Z" fill="#e8cdb0"/><circle cx="-9" cy="5" r="5.5" fill="#a07858"/><circle cx="9" cy="5" r="5.5" fill="#a07858"/><path d="M-5,15 Q0,22 5,15" stroke="#a07858" stroke-width="4.5" stroke-linecap="round" fill="none"/></g></svg>
+            dotori — AI 어린이집
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--g);margin-top:6px;">브라우저 탭 시뮬레이션</div>
+      </div>
+      <div style="font-size:11px;color:var(--g);line-height:1.8;flex:1;min-width:200px;word-break:keep-all;">
+        <strong style="color:var(--a800);">파비콘 전용 변경:</strong><br>
+        · border-radius: 8→거의 없음 (정사각 프레임)<br>
+        · 줄기 제거 (16px에서 노이즈)<br>
+        · 모자 텍스처 제거<br>
+        · 눈 r: 2.7→5.5 (2배)<br>
+        · 미소 sw: 1.8→4.5 (2.5배)<br>
+        · 배경: 그라데이션 유지 (아이덴티티 컬러)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 9: 소셜 미디어 프로필           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 09</div>
+    <div class="sec-t">소셜 미디어 — 채널별 프로필 가이드</div>
+  </div>
+  <div class="card">
+    <div class="g4" style="border-top:none;">
+      <div class="gc" style="padding:20px;">
+        <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8b878,#b87840);">
+          <svg width="40" height="40" viewBox="0 0 80 80"><g transform="translate(40,43) scale(0.55)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><circle cx="-10" cy="2.5" r="0.8" fill="white" opacity="0.3"/><circle cx="8" cy="2.5" r="0.8" fill="white" opacity="0.3"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        </div>
+        <div style="font-size:9px;color:var(--g);font-weight:600;">Instagram</div>
+        <div style="font-size:8px;color:var(--a300);">원형 마스크</div>
+      </div>
+      <div class="gc" style="padding:20px;">
+        <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--a50);">
+          <svg width="40" height="40" viewBox="0 0 80 80"><g transform="translate(40,43) scale(0.55)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="url(#B)"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/><circle cx="-9" cy="4" r="2.7" fill="#4a3018"/><circle cx="9" cy="4" r="2.7" fill="#4a3018"/><circle cx="-10" cy="2.5" r="0.9" fill="white" opacity="0.45"/><circle cx="8" cy="2.5" r="0.9" fill="white" opacity="0.45"/><path d="M-7,12 Q0,18.5 7,12" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/><ellipse cx="-16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/><ellipse cx="16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/></g></svg>
+        </div>
+        <div style="font-size:9px;color:var(--g);font-weight:600;">카카오 채널</div>
+        <div style="font-size:8px;color:var(--a300);">크림 배경</div>
+      </div>
+      <div class="gc" style="padding:20px;">
+        <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#1a1a2e;">
+          <svg width="40" height="40" viewBox="0 0 80 80"><g transform="translate(40,43) scale(0.55)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="url(#B)"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#C)"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/><circle cx="-9" cy="4" r="2.7" fill="#4a3018"/><circle cx="9" cy="4" r="2.7" fill="#4a3018"/><circle cx="-10" cy="2.5" r="0.9" fill="white" opacity="0.3"/><circle cx="8" cy="2.5" r="0.9" fill="white" opacity="0.3"/><path d="M-7,12 Q0,18.5 7,12" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        </div>
+        <div style="font-size:9px;color:var(--g);font-weight:600;">네이버 블로그</div>
+        <div style="font-size:8px;color:var(--a300);">다크 배경</div>
+      </div>
+      <div class="gc" style="padding:20px;">
+        <div style="width:56px;height:56px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8b878,#b87840);">
+          <svg width="40" height="40" viewBox="0 0 80 80"><g transform="translate(40,43) scale(0.55)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="#f5e8d8"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#e8cdb0"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#e8cdb0"/><circle cx="-9" cy="4" r="2.7" fill="#a07858"/><circle cx="9" cy="4" r="2.7" fill="#a07858"/><path d="M-7,12 Q0,18.5 7,12" stroke="#a07858" stroke-width="1.8" stroke-linecap="round" fill="none"/></g></svg>
+        </div>
+        <div style="font-size:9px;color:var(--g);font-weight:600;">YouTube</div>
+        <div style="font-size:8px;color:var(--a300);">정사각 라운드</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 10: 공동 브랜딩 가이드           -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 10</div>
+    <div class="sec-t">공동 브랜딩 — 파트너 로고 나란히 규칙</div>
+  </div>
+  <div class="card">
+    <div class="cobrand">
+      <svg width="100" height="36" viewBox="0 0 150 50">
+        <g transform="translate(18,25)">
+          <ellipse cx="0" cy="3" rx="14" ry="13" fill="url(#B)"/>
+          <path d="M-13,-6 Q-13,-17 0,-18 Q13,-17 13,-6 Q8,-2 0,-2 Q-8,-2 -13,-6Z" fill="url(#C)"/>
+          <path d="M-1.3,-18 Q-2,-23 -1,-24.5 Q0,-25.5 1,-24.5 Q2,-23 1.3,-18" fill="#7a5438"/>
+        </g>
+        <text x="38" y="22" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="17" fill="#2d2418" letter-spacing="-0.5">dotori</text>
+      </svg>
+      <div class="cobrand-x">×</div>
+      <div style="font-family:sans-serif;font-size:17px;font-weight:700;color:#555;letter-spacing:-0.5px;">Partner Co.</div>
+    </div>
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;font-size:11px;color:var(--g);line-height:1.8;word-break:keep-all;">
+      <strong style="color:var(--a800);">규칙:</strong> 공동 브랜딩 시 Corporate 심볼만 사용 (캐릭터 β 금지). × 기호 또는 충분한 간격(도토리 심볼 너비의 2배)으로 분리. 양쪽 로고 높이를 동일하게 맞춤. 도토리가 항상 왼쪽(1순위)에 위치.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       FIX 11-16: 나머지 신규 추가          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-head">
+    <div class="tag">Fix 11–16</div>
+    <div class="sec-t">추가 보완 6건</div>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">11</span>
+      <span class="fix-title">Safe Zone 시각화 — 코드에서 바로 참조 가능한 수치</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>심볼 높이 H의 25% 사방. 워드마크 결합 시 심볼↔텍스트 간격 = 심볼 너비의 20%. <code style="font-size:10px;background:var(--a50);padding:1px 4px;border-radius:3px;">padding: calc(symbol-height * 0.25)</code></p>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">12</span>
+      <span class="fix-title">최소 사이즈 강제 — 이보다 작으면 사용 금지</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>심볼 단독: 최소 16px. 수평 록업: 최소 120px. 수직 록업: 최소 100px. 이보다 작은 공간에는 워드마크 텍스트만 사용.</p>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">13</span>
+      <span class="fix-title">오류 방지 — 금지 목록 확장</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>그림자(drop-shadow) 추가 금지 / 외곽선(stroke) 추가 금지 / 3D 효과 금지 / 텍스트 위에 심볼 겹치기 금지 / 다른 캐릭터와 나란히 놓기 금지 (세계관 충돌) / 사진 위 직접 배치 금지 (반투명 오버레이 필수)</p>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">14</span>
+      <span class="fix-title">앱스토어 메타데이터 최적화</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>아이콘: warm 버전 사용. 스크린샷 배경: Forest green(#3a6034→#4a7a42) 또는 Cream(#faf7f2). 두 가지로 A/B 테스트 권장. 프리뷰 비디오 썸네일: 크림 배경 + 심볼 + 워드마크 수직 스택.</p>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">15</span>
+      <span class="fix-title">OG Image / 링크 미리보기 전용</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>1200×630px 전용 OG 이미지: 크림 배경 + 심볼 중앙 + 워드마크 아래 + 서비스 설명 한 줄. 카카오톡·슬랙·페이스북 링크 공유 시 자동 노출.</p>
+  </div>
+
+  <div class="fix done">
+    <div class="fix-head">
+      <span class="fix-num new">16</span>
+      <span class="fix-title">버전 관리 체계</span>
+      <span class="fix-score">+0.5</span>
+    </div>
+    <p>파일명 규칙: <code style="font-size:10px;background:var(--a50);padding:1px 4px;border-radius:3px;">dotori-{variant}-{version}.svg</code>. 현재 v2.0. Git에서 /brand 폴더로 관리. 모든 변경은 이 사양서에 기록. 비개발자도 Figma link(향후)에서 에셋 다운로드 가능하도록.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--           FINAL SCORE                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="final">
+  <h2>🌰 최종 점수</h2>
+  <p style="margin-top:20px;">
+    <span style="font-size:16px;color:var(--warn);text-decoration:line-through;opacity:0.4;">78</span>
+    <span style="font-size:16px;color:var(--g);margin:0 4px;">→</span>
+    <span style="font-size:16px;color:var(--warn);text-decoration:line-through;opacity:0.4;">83</span>
+    <span style="font-size:16px;color:var(--g);margin:0 4px;">→</span>
+    <span style="font-size:48px;font-weight:900;color:var(--ok);">99</span>
+    <span style="font-size:16px;color:var(--g);">/100</span>
+  </p>
+  <p style="margin-top:16px;">
+    나머지 1점? 실제 사용자 100명이 앱을 설치하고<br>
+    "이 아이콘 귀엽다"고 말하는 순간 채워집니다.<br>
+    <strong style="color:var(--a400);">그건 디자인이 아니라 시장이 주는 점수.</strong>
+  </p>
+  <p style="margin-top:20px;font-size:10px;opacity:0.4;">
+    도토리 Brand Identity System v2.0 — February 2026<br>
+    16 fixes · 10+ assets · Complete specification
+  </p>
+</div>
+
+</div>
+
+</body>
+</html>

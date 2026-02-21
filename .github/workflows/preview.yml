@@ -1,0 +1,113 @@
+# ── Dotori PR Preview Deployments ──
+# Creates preview apps for PRs, cleans up on close
+# GitHub Pro: deployment environment로 staging 시크릿 분리
+# Ref: https://github.com/digitalocean/app_action
+
+name: PR Preview
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'brand/**'
+      - 'reference/**'
+  # cleanup은 별도 트리거 — paths-ignore 없이 모든 close에서 실행
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ── Deploy preview on PR open/update ──
+  preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.url.outputs.preview_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy PR preview
+        id: deploy
+        uses: digitalocean/app_action/deploy@v2
+        with:
+          deploy_pr_preview: "true"
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Extract preview URL
+        id: url
+        run: |
+          URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "Preview URL unavailable")
+          echo "preview_url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: ${{ steps.url.outputs.preview_url }}
+        with:
+          script: |
+            const url = process.env.PREVIEW_URL;
+            const body = [
+              '### Preview Deployment',
+              '',
+              `**URL**: ${url}`,
+              '',
+              `Deployed: ${new Date().toISOString()}`,
+              `Commit: \`${context.sha.substring(0, 7)}\``,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('### Preview Deployment')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Preview deployment failed. [View logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`,
+            });
+
+  # ── Cleanup preview on PR close (항상 실행, paths-ignore 없음) ──
+  cleanup:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete preview app
+        uses: digitalocean/app_action/delete@v2
+        with:
+          from_pr_preview: "true"
+          ignore_not_found: "true"
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}

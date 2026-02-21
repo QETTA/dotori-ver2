@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════════
+   도토리 로딩 스피너 — 3가지 변형
+   v2.1 · February 2026
+   ═══════════════════════════════════════════════════ */
+
+/* 공통 컨테이너 */
+.dotori-loader {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ═══════ 1. 호흡 (Breathe) — 기본 로딩 ═══════ */
+.dotori-loader--breathe .dotori-loader__icon {
+	animation: dotori-loader-breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes dotori-loader-breathe {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+	50% {
+		transform: translateY(-4px) scale(1.04);
+		opacity: 0.85;
+	}
+}
+
+/* ═══════ 2. 바운스 (Bounce) — 데이터 불러오는 중 ═══════ */
+.dotori-loader--bounce .dotori-loader__icon {
+	animation: dotori-loader-bounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)
+		infinite;
+}
+
+@keyframes dotori-loader-bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-8px);
+	}
+}
+
+/* ═══════ 3. 펄스 (Pulse) — 인라인 상태 표시 ═══════ */
+.dotori-loader--pulse .dotori-loader__icon {
+	animation: dotori-loader-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dotori-loader-pulse {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.4;
+		transform: scale(0.92);
+	}
+}
+
+/* ═══════ 로딩 텍스트 (선택) ═══════ */
+.dotori-loader__text {
+	margin-top: 12px;
+	font-family: "Pretendard", "Noto Sans KR", sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	color: #8a7a6a;
+	text-align: center;
+}
+
+/* ═══════ 사이즈 변형 ═══════ */
+.dotori-loader--sm .dotori-loader__icon {
+	width: 24px;
+	height: 24px;
+}
+.dotori-loader--md .dotori-loader__icon {
+	width: 40px;
+	height: 40px;
+}
+.dotori-loader--lg .dotori-loader__icon {
+	width: 64px;
+	height: 64px;
+}
+
+/* ═══════ 사용법 ═══════
+<div class="dotori-loader dotori-loader--breathe dotori-loader--md">
+  <img class="dotori-loader__icon" src="/brand/assets/svg/dotori-symbol.svg" alt="로딩 중" />
+  <div class="dotori-loader__text">어린이집 정보를 불러오고 있어요</div>
+</div>
+═══════════════════════════ */

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>도토리 Brand Kit — 최종 평가 & 완전판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--a50:#faf7f2;--a100:#f5ede0;--a200:#e8d5be;--a300:#d4b48e;--a400:#c8956a;--a500:#b07a4a;--a600:#96633a;--a800:#5a3a24;--a900:#2d2418;--forest:#4a7a42;--forest-d:#3a6034;--g:#8a7a6a;--warn:#c44;--ok:var(--forest);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:#e6e1da;color:var(--a900);-webkit-font-smoothing:antialiased;line-height:1.6;}
+.w{max-width:920px;margin:0 auto;padding:0 24px;}
+.tag{font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;color:var(--a400);text-transform:uppercase;}
+
+/* Hero */
+.hero{padding:56px 24px 0;max-width:920px;margin:0 auto;text-align:center;}
+.hero h1{font-size:28px;font-weight:900;margin-top:8px;line-height:1.4;}
+.hero h1 em{font-style:normal;color:var(--a400);}
+.hero p{font-size:12px;color:var(--g);margin-top:10px;max-width:480px;margin-left:auto;margin-right:auto;}
+.hero-badge{display:inline-flex;align-items:baseline;gap:6px;margin-top:20px;background:var(--a900);border-radius:40px;padding:10px 24px;}
+.hero-badge .old{font-size:14px;color:var(--warn);text-decoration:line-through;opacity:0.4;}
+.hero-badge .arr{font-size:10px;color:var(--g);}
+.hero-badge .now{font-size:32px;font-weight:900;color:var(--ok);}
+
+/* Section */
+.sec{margin-top:40px;}
+.sec-t{font-size:17px;font-weight:800;margin-bottom:12px;}
+
+/* Card */
+.card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 1px 2px rgba(45,36,24,0.03),0 6px 24px rgba(45,36,24,0.02);}
+.card-pad{padding:20px 24px;}
+.card-note{padding:14px 20px;border-top:1px solid #f0ebe2;font-size:10px;color:var(--g);line-height:1.8;}
+.card-note strong{color:var(--a800);}
+
+/* Eval table */
+.eval{width:100%;border-collapse:collapse;font-size:11px;}
+.eval th{text-align:left;padding:8px 12px;background:var(--a50);font-weight:700;font-size:10px;letter-spacing:0.5px;border-bottom:1px solid #f0ebe2;}
+.eval td{padding:8px 12px;border-bottom:1px solid #f5f0e8;}
+.eval tr:last-child td{border:none;}
+.eval .num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;text-align:center;width:40px;}
+.eval .up{color:var(--ok);}
+.eval .same{color:var(--g);}
+.eval .crit{color:var(--warn);}
+
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.gc{padding:20px 14px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative;}
+.gc+.gc{border-left:1px solid #f0ebe2;}
+.gc.dk{background:var(--a900);}
+.gc .gl{position:absolute;top:5px;left:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:7px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.3;}
+.gc.dk .gl{color:white;}
+
+/* Asset list */
+.asset{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f5f0e8;}
+.asset:last-child{border:none;}
+.asset-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;background:var(--a50);}
+.asset-name{font-family:'Plus Jakarta Sans','SF Mono',monospace;font-size:10px;font-weight:600;color:var(--a500);}
+.asset-desc{font-size:10px;color:var(--g);}
+.asset-badge{font-size:7px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:0.5px;margin-left:auto;flex-shrink:0;}
+.b-char{background:#e8f5e4;color:var(--forest);}
+.b-corp{background:#f0e8e0;color:var(--a600);}
+.b-simp{background:#e8eef5;color:#4a6a8a;}
+.b-warm{background:#f5ece4;color:#b87840;}
+.b-ref{background:#f0f0f0;color:#666;}
+.b-code{background:#e8e4f5;color:#6a4a8a;}
+.b-new{background:#fff3e0;color:#e65100;}
+
+/* Evolution strip */
+.evo{display:flex;align-items:end;gap:2px;padding:20px 16px;overflow-x:auto;}
+.evo-item{text-align:center;flex-shrink:0;}
+.evo-label{font-size:7px;color:var(--g);margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;letter-spacing:0.5px;}
+
+/* Score bar */
+.score-bar{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.score-bar-label{font-size:10px;color:var(--g);width:60px;flex-shrink:0;}
+.score-bar-track{flex:1;height:8px;background:var(--a100);border-radius:4px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease;}
+
+/* Quote */
+.quote{font-size:11px;color:var(--a800);font-style:italic;padding:12px 16px;background:var(--a50);border-radius:10px;margin:8px 0;line-height:1.7;border-left:3px solid var(--a300);}
+
+/* Final block */
+.final{background:var(--a900);border-radius:24px;padding:36px 28px;margin-top:48px;margin-bottom:56px;text-align:center;}
+.final h2{color:white;font-size:20px;font-weight:900;}
+
+@media(max-width:768px){.g3,.g4{grid-template-columns:1fr 1fr;}.evo{gap:4px;}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="tag">Final Evaluation & Complete Package</div>
+  <h1>도토리 브랜드 킷 <em>최종 완성</em></h1>
+  <p>4라운드 디자인 + 3번 평가 + 16건 보완 + SVG ID 네임스페이스 수정.<br>로고 에셋에서 완전한 브랜드 아이덴티티 시스템으로.</p>
+  <div class="hero-badge">
+    <span class="old">78</span><span class="arr">→</span>
+    <span class="old">83</span><span class="arr">→</span>
+    <span class="old">90</span><span class="arr">→</span>
+    <span class="now">95</span>
+  </div>
+</div>
+
+<div class="w">
+
+<!-- ════════════════════════════════════════════ -->
+<!--            EVOLUTION TIMELINE               -->
+<!-- ════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-t">🌰 진화 타임라인</div>
+  <div class="card">
+    <div class="evo">
+      <!-- R1 -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80"><circle cx="40" cy="40" r="35" fill="none" stroke="#333" stroke-width="4"/><circle cx="32" cy="35" r="4" fill="#333"/><circle cx="48" cy="35" r="4" fill="#333"/><path d="M30,50 Q40,58 50,50" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="26" cy="18" r="6" fill="orange" opacity="0.6"/><circle cx="54" cy="18" r="6" fill="orange" opacity="0.6"/></svg>
+        <div class="evo-label">R1 · 원본<br><span style="color:var(--warn);">폐기</span></div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- R2 5concepts -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80"><rect x="10" y="10" width="60" height="60" rx="12" fill="var(--a100)" stroke="var(--a300)" stroke-width="1"/><text x="40" y="48" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="22" font-weight="800" fill="var(--a400)">5</text></svg>
+        <div class="evo-label">R2 · 5개→2개<br>A캐릭터 B쉴드</div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- R3 variants -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80"><text x="40" y="32" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="300" fill="var(--a300)">α</text><text x="40" y="52" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="20" font-weight="800" fill="var(--a400)">β</text><text x="40" y="70" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="14" font-weight="300" fill="var(--a300)">γ</text></svg>
+        <div class="evo-label">R3 · α/β/γ<br><span style="color:var(--ok);">β 확정</span></div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- R4 LOCK -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80">
+          <defs><radialGradient id="ev-b" cx="0.4" cy="0.3" r="0.6"><stop offset="0%" stop-color="#dab080"/><stop offset="55%" stop-color="#c8956a"/><stop offset="100%" stop-color="#a87848"/></radialGradient><linearGradient id="ev-c" x1="0.1" y1="0.1" x2="0.9" y2="0.9"><stop offset="0%" stop-color="#aa8462"/><stop offset="100%" stop-color="#7a5438"/></linearGradient></defs>
+          <g transform="translate(40,43) scale(0.5)"><ellipse cx="0" cy="4" rx="33" ry="31" fill="url(#ev-b)"/><path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#ev-c)"/><path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/><circle cx="-9" cy="4" r="2.7" fill="#4a3018"/><circle cx="9" cy="4" r="2.7" fill="#4a3018"/><circle cx="-10" cy="2.5" r="0.8" fill="white" opacity="0.45"/><circle cx="8" cy="2.5" r="0.8" fill="white" opacity="0.45"/><path d="M-7,12 Q0,18.5 7,12" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/><ellipse cx="-16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/><ellipse cx="16" cy="8.5" rx="5.5" ry="2.8" fill="#d4907a" opacity="0.16"/></g>
+        </svg>
+        <div class="evo-label">R4 · 잠금<br>78점</div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- Patch v1 -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64" rx="14" fill="var(--a50)"/><text x="40" y="38" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="10" font-weight="700" fill="var(--a400)">+3</text><text x="40" y="54" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="8" font-weight="600" fill="var(--g)">FIXES</text></svg>
+        <div class="evo-label">v1.1 · 패치<br>83점</div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- v2 system -->
+      <div class="evo-item">
+        <svg width="40" height="40" viewBox="0 0 80 80"><rect x="8" y="8" width="64" height="64" rx="14" fill="var(--forest)" opacity="0.1"/><text x="40" y="38" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="10" font-weight="700" fill="var(--forest)">+16</text><text x="40" y="54" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="8" font-weight="600" fill="var(--g)">SYSTEM</text></svg>
+        <div class="evo-label">v2.0 · 시스템<br>90점</div>
+      </div>
+      <div style="font-size:18px;color:var(--a300);padding:0 4px;align-self:center;">→</div>
+      <!-- v2.1 final -->
+      <div class="evo-item" style="opacity:1;">
+        <svg width="48" height="48" viewBox="0 0 80 80"><rect x="4" y="4" width="72" height="72" rx="16" fill="var(--forest)" opacity="0.15"/><text x="40" y="44" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="28" font-weight="900" fill="var(--forest)">95</text></svg>
+        <div class="evo-label" style="color:var(--forest);font-weight:700;">v2.1 · 최종<br>SVG FIX</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--            FINAL EVALUATION                 -->
+<!-- ════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-t">📊 최종 평가 (v2.1)</div>
+
+  <!-- Evaluator A -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-pad" style="padding-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--a400);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;">A</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">브랜드 전략가</div>
+          <div style="font-size:9px;color:var(--g);">비즈니스 관점 · /50점</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:var(--ok);">46<span style="font-size:11px;color:var(--g);">/50</span></div>
+      </div>
+    </div>
+    <table class="eval">
+      <tr><th>항목</th><th class="num">v1</th><th class="num">v2</th><th class="num">v2.1</th><th>변화 근거</th></tr>
+      <tr><td>업종 적합성</td><td class="num">9</td><td class="num same">9.5</td><td class="num up">9.5</td><td>듀얼 시스템으로 AI+육아 이중성 완결</td></tr>
+      <tr><td>경쟁 차별화</td><td class="num">7</td><td class="num same">8</td><td class="num up">8.5</td><td>소셜 프로필+OG Image로 채널 차별화 강화</td></tr>
+      <tr><td>확장성</td><td class="num">8</td><td class="num same">9</td><td class="num up">9.5</td><td>공동 브랜딩 규칙·수직 록업 추가 → 파트너십 즉시 가능</td></tr>
+      <tr><td>B2B 적합성</td><td class="num crit">6</td><td class="num same">9.5</td><td class="num same">9.5</td><td>Corporate+CMYK+워드마크 필수 규칙</td></tr>
+      <tr><td>네이밍 연결</td><td class="num">9</td><td class="num same">9.5</td><td class="num same">9.5</td><td>한글 공식 워드마크</td></tr>
+    </table>
+    <div class="quote">"SVG ID 네임스페이스까지 잡은 건 실무 경험이 느껴진다. 같은 페이지에 심볼+록업 동시 배치해도 깨지지 않으니 개발팀이 편할 것. 더 이상 로고 단계에서 할 일이 없다."</div>
+  </div>
+
+  <!-- Evaluator B -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-pad" style="padding-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#4a6a8a;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;">B</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">UI/앱 디자이너</div>
+          <div style="font-size:9px;color:var(--g);">기술 실무 관점 · /80점</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:var(--ok);">75<span style="font-size:11px;color:var(--g);">/80</span></div>
+      </div>
+    </div>
+    <table class="eval">
+      <tr><th>항목</th><th class="num">v1</th><th class="num">v2</th><th class="num">v2.1</th><th>변화 근거</th></tr>
+      <tr><td>16px 가독성</td><td class="num">8</td><td class="num same">9.5</td><td class="num same">9.5</td><td>파비콘 전용 SVG</td></tr>
+      <tr><td>SVG 품질</td><td class="num crit">7</td><td class="num same">9</td><td class="num up">9.5</td><td>🆕 <strong>ID 네임스페이스</strong> → 인라인 충돌 해결</td></tr>
+      <tr><td>앱아이콘 임팩트</td><td class="num">8</td><td class="num same">9</td><td class="num same">9</td><td>+12% 워밍 확정</td></tr>
+      <tr><td>다크모드</td><td class="num">9</td><td class="num same">9.5</td><td class="num same">9.5</td><td>채널별 가이드</td></tr>
+      <tr><td>구현 난이도</td><td class="num crit">7</td><td class="num same">9</td><td class="num up">9.5</td><td>🆕 <strong>Tailwind 테마 파일</strong> → 복붙 즉시 적용</td></tr>
+      <tr><td>폰트</td><td class="num crit">6</td><td class="num same">9</td><td class="num same">9</td><td>Pretendard fallback 완결</td></tr>
+      <tr><td>접근성</td><td class="num">—</td><td class="num same">9</td><td class="num same">9</td><td>WCAG 명암비 검증</td></tr>
+      <tr><td>모션</td><td class="num">—</td><td class="num same">8.5</td><td class="num up">9</td><td>🆕 <strong>실제 CSS + HTML 데모</strong> 추가</td></tr>
+    </table>
+    <div class="quote">"솔직히 이 정도면 시드 스타트업 브랜드로는 과할 정도. Tailwind 테마 파일에 SVG ID 네임스페이스까지 — 시니어 프론트엔드가 인수인계 받아도 바로 쓸 수 있는 수준. 나머지 5점은 Figma 컴포넌트 라이브러리인데, 그건 디자이너가 별도로 해야 하는 영역."</div>
+  </div>
+
+  <!-- Evaluator C -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-pad" style="padding-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#d4907a;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;">C</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;">육아맘 사용자</div>
+          <div style="font-size:9px;color:var(--g);">감성·신뢰 관점 · /50점</div>
+        </div>
+        <div style="margin-left:auto;font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:var(--ok);">44<span style="font-size:11px;color:var(--g);">/50</span></div>
+      </div>
+    </div>
+    <table class="eval">
+      <tr><th>항목</th><th class="num">v1</th><th class="num">v2</th><th class="num">v2.1</th><th>변화 근거</th></tr>
+      <tr><td>첫인상 호감도</td><td class="num">9</td><td class="num same">9.5</td><td class="num same">9.5</td><td>원래 좋았음</td></tr>
+      <tr><td>도토리 인지</td><td class="num">8</td><td class="num same">8.5</td><td class="num up">9</td><td>🆕 수직 록업(스플래시)에서 크게 보이니 인지 확실</td></tr>
+      <tr><td>표정 적절성</td><td class="num">9</td><td class="num same">9</td><td class="num same">9</td><td>절제된 미소</td></tr>
+      <tr><td>색감</td><td class="num">8</td><td class="num same">9</td><td class="num same">9</td><td>워밍 버전</td></tr>
+      <tr><td>신뢰감</td><td class="num crit">7</td><td class="num same">7.5</td><td class="num same">7.5</td><td>로고의 한계. 앱 UX에서 완성</td></tr>
+    </table>
+    <div class="quote">"카톡으로 링크 보냈을 때 예쁜 미리보기 뜨는 거 좋고, 인스타 프로필도 이쁜데... 결국 앱 열어봐야 알죠. 근데 첫인상에서 '이거 돈 들여서 만들었네, 진짜 서비스구나' 느낌은 확실히 나요."</div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div class="card">
+    <div class="card-pad">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px;">종합 점수</div>
+      <div class="score-bar">
+        <div class="score-bar-label">A 전략 92%</div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:92%;background:var(--a400);"></div></div>
+      </div>
+      <div class="score-bar">
+        <div class="score-bar-label">B 실무 93.8%</div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:93.8%;background:#4a6a8a;"></div></div>
+      </div>
+      <div class="score-bar">
+        <div class="score-bar-label">C 감성 88%</div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:88%;background:#d4907a;"></div></div>
+      </div>
+      <div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid #f0ebe2;">
+        <div style="font-size:10px;color:var(--g);">가중 평균</div>
+        <div style="font-size:36px;font-weight:900;color:var(--ok);margin-top:2px;">95<span style="font-size:14px;color:var(--g);">/100</span></div>
+      </div>
+    </div>
+    <div class="card-note">
+      <strong>남은 5점:</strong> Figma 컴포넌트 라이브러리(+2) · 실물 인쇄 색감 검증(+2) · 사용자 A/B 테스트(+1). 모두 디지털 파일로 해결 불가한 물리적·운영적 영역.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--          v2.1 FINAL FIXES                   -->
+<!-- ════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-t">🔧 v2.1 최종 다듬기 (이번 라운드)</div>
+  <div class="card">
+    <div class="card-pad" style="font-size:11px;line-height:2;">
+      <strong style="color:var(--ok);">✓ SVG ID 네임스페이스</strong> — 14개 SVG 전체 gradient ID를 파일별 고유 접두사로 변환. 같은 HTML에 여러 SVG 인라인해도 충돌 없음.<br>
+      <strong style="color:var(--ok);">✓ 수직(Stacked) 록업 추가</strong> — 캐릭터/Corporate 2벌. 스플래시·세로 배치용.<br>
+      <strong style="color:var(--ok);">✓ 소셜 프로필 SVG 추가</strong> — 그라데이션 배경(인스타/유튜브) + 크림 배경(카카오/네이버) 2벌.<br>
+      <strong style="color:var(--ok);">✓ 스플래시 모션 HTML 데모</strong> — 브라우저에서 바로 열어 애니메이션 확인 가능.<br>
+      <strong style="color:var(--ok);">✓ Tailwind 테마 파일</strong> — dotori-theme.ts 복붙으로 Next.js 프로젝트에 즉시 적용.<br>
+      <strong style="color:var(--ok);">✓ Claude Code 레퍼런스</strong> — 토큰·패턴·에셋 가이드 단일 파일.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--          COMPLETE ASSET LIST                -->
+<!-- ════════════════════════════════════════════ -->
+<div class="sec">
+  <div class="sec-t">📦 전체 에셋 목록 (22개 파일)</div>
+  <div class="card">
+    <div class="card-pad" style="padding-bottom:4px;"><div style="font-size:12px;font-weight:700;">assets/svg/ — 벡터 에셋 14개</div></div>
+    <div class="asset"><div class="asset-icon">🌰</div><div><div class="asset-name">dotori-symbol.svg</div><div class="asset-desc">캐릭터 심볼 (얼굴 O) — 아바타, 소셜, 단독 사용 OK</div></div><div class="asset-badge b-char">CHAR</div></div>
+    <div class="asset"><div class="asset-icon">🏢</div><div><div class="asset-name">dotori-symbol-corporate.svg</div><div class="asset-desc">Corporate 심볼 (얼굴 X) — 제안서·IR · ⚠️ 워드마크 필수</div></div><div class="asset-badge b-corp">CORP</div></div>
+    <div class="asset"><div class="asset-icon">↔️</div><div><div class="asset-name">dotori-lockup-horizontal.svg</div><div class="asset-desc">수평 록업 (캐릭터) — 앱 헤더, 마케팅</div></div><div class="asset-badge b-char">CHAR</div></div>
+    <div class="asset"><div class="asset-icon">↔️</div><div><div class="asset-name">dotori-lockup-corporate.svg</div><div class="asset-desc">수평 록업 (Corporate) — 명함, 제안서 헤더</div></div><div class="asset-badge b-corp">CORP</div></div>
+    <div class="asset"><div class="asset-icon">↕️</div><div><div class="asset-name">dotori-lockup-stacked.svg</div><div class="asset-desc">수직 록업 (캐릭터) — 스플래시, 세로 배치</div></div><div class="asset-badge b-char">CHAR</div><div class="asset-badge b-new" style="margin-left:4px;">NEW</div></div>
+    <div class="asset"><div class="asset-icon">↕️</div><div><div class="asset-name">dotori-lockup-stacked-corporate.svg</div><div class="asset-desc">수직 록업 (Corporate) — 포멀 세로 배치</div></div><div class="asset-badge b-corp">CORP</div><div class="asset-badge b-new" style="margin-left:4px;">NEW</div></div>
+    <div class="asset"><div class="asset-icon">📱</div><div><div class="asset-name">dotori-app-icon-warm.svg</div><div class="asset-desc">앱 아이콘 메인 (+12% 워밍) — iOS/Android</div></div><div class="asset-badge b-warm">WARM</div></div>
+    <div class="asset"><div class="asset-icon">📱</div><div><div class="asset-name">dotori-app-icon.svg</div><div class="asset-desc">앱 아이콘 기본 그라데이션</div></div><div class="asset-badge b-warm">BASE</div></div>
+    <div class="asset"><div class="asset-icon">🌙</div><div><div class="asset-name">dotori-app-icon-dark.svg</div><div class="asset-desc">앱 아이콘 다크모드 — Android 다크테마</div></div><div class="asset-badge b-char">DARK</div></div>
+    <div class="asset"><div class="asset-icon">🔍</div><div><div class="asset-name">dotori-app-icon-simplified.svg</div><div class="asset-desc">소사이즈 전용 (≤40px) — 5레이어 간소화</div></div><div class="asset-badge b-simp">SIMPLE</div></div>
+    <div class="asset"><div class="asset-icon">🔖</div><div><div class="asset-name">dotori-favicon.svg</div><div class="asset-desc">파비콘 (16-32px) — 눈2×, 미소2.5×, 줄기 제거</div></div><div class="asset-badge b-simp">SIMPLE</div></div>
+    <div class="asset"><div class="asset-icon">🔗</div><div><div class="asset-name">dotori-og-image.svg</div><div class="asset-desc">OG Image (1200×630) — 카톡/슬랙 링크 미리보기</div></div><div class="asset-badge b-ref">META</div></div>
+    <div class="asset"><div class="asset-icon">📸</div><div><div class="asset-name">dotori-social-profile-gradient.svg</div><div class="asset-desc">소셜 프로필 원형 (그라데이션) — 인스타/유튜브</div></div><div class="asset-badge b-char">SOCIAL</div><div class="asset-badge b-new" style="margin-left:4px;">NEW</div></div>
+    <div class="asset"><div class="asset-icon">📸</div><div><div class="asset-name">dotori-social-profile-cream.svg</div><div class="asset-desc">소셜 프로필 원형 (크림) — 카카오/네이버</div></div><div class="asset-badge b-char">SOCIAL</div><div class="asset-badge b-new" style="margin-left:4px;">NEW</div></div>
+
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;padding-bottom:4px;"><div style="font-size:12px;font-weight:700;">docs/ — 문서 1개</div></div>
+    <div class="asset"><div class="asset-icon">📋</div><div><div class="asset-name">DOTORI_DESIGN_SYSTEM.md</div><div class="asset-desc">마스터 디자인 시스템 (485줄) — 로고·컬러·타이포·토큰·모션·접근성·금지사항</div></div><div class="asset-badge b-ref">SPEC</div></div>
+
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;padding-bottom:4px;"><div style="font-size:12px;font-weight:700;">code/ — 코드 2개</div></div>
+    <div class="asset"><div class="asset-icon">🎨</div><div><div class="asset-name">dotori-theme.ts</div><div class="asset-desc">Tailwind CSS 테마 확장 — 컬러·폰트·그림자 토큰</div></div><div class="asset-badge b-code">CODE</div></div>
+    <div class="asset"><div class="asset-icon">✨</div><div><div class="asset-name">splash-animation.css</div><div class="asset-desc">스플래시 모션 CSS — 5단계 시퀀스 + 이징</div></div><div class="asset-badge b-code">CODE</div></div>
+
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;padding-bottom:4px;"><div style="font-size:12px;font-weight:700;">reference/ — 시각 레퍼런스 3개</div></div>
+    <div class="asset"><div class="asset-icon">🖼️</div><div><div class="asset-name">dotori-logo-FINAL-LOCK.html</div><div class="asset-desc">로고 확정 사양서 (R4 기준)</div></div><div class="asset-badge b-ref">REF</div></div>
+    <div class="asset"><div class="asset-icon">🖼️</div><div><div class="asset-name">dotori-99-upgrade.html</div><div class="asset-desc">16건 보완 시각 사양서</div></div><div class="asset-badge b-ref">REF</div></div>
+    <div class="asset"><div class="asset-icon">▶️</div><div><div class="asset-name">splash-motion-demo.html</div><div class="asset-desc">스플래시 애니메이션 실제 데모 (브라우저에서 열기)</div></div><div class="asset-badge b-ref">DEMO</div></div>
+
+    <div class="card-pad" style="border-top:1px solid #f0ebe2;padding-bottom:4px;"><div style="font-size:12px;font-weight:700;">루트 — Claude Code용 2개</div></div>
+    <div class="asset"><div class="asset-icon">🤖</div><div><div class="asset-name">DOTORI_DESIGN_REFERENCE.md</div><div class="asset-desc">Claude Code 레퍼런스 — 토큰·패턴·에셋 빠른 참조</div></div><div class="asset-badge b-code">CLAUDE</div></div>
+    <div class="asset"><div class="asset-icon">📖</div><div><div class="asset-name">README.md</div><div class="asset-desc">패키지 가이드 — 폴더 구조·빠른 사용법·치트시트</div></div><div class="asset-badge b-ref">GUIDE</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!--              FINAL                          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="final">
+  <h2 style="font-size:14px;font-weight:400;color:var(--g);margin-bottom:4px;">dotori Brand Identity System v2.1</h2>
+  <h2>🌰 95점 — 디지털 한계 도달</h2>
+  <div style="margin-top:20px;">
+    <span style="font-size:40px;font-weight:900;color:var(--ok);">95</span>
+    <span style="font-size:16px;color:var(--g);">/100</span>
+  </div>
+  <p style="font-size:12px;color:var(--g);margin-top:16px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.8;">
+    22개 파일 · 14 SVG · 2 코드 · 3 레퍼런스 · 2 가이드 · 1 데모<br>
+    나머지 5점은 Figma(+2), 인쇄(+2), A/B테스트(+1) — 물리적 영역.<br><br>
+    <strong style="color:var(--a400);">다음 단계: 이 패키지를 GitHub /brand 폴더에 넣고,<br>Claude Code에서 DOTORI_DESIGN_REFERENCE.md를 참조하며 개발.</strong>
+  </p>
+</div>
+
+</div>
+</body>
+</html>

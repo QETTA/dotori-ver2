@@ -1,0 +1,171 @@
+# ── Dotori App — DigitalOcean App Platform Spec ──
+# 유료 계정 + GitHub Student Pack ($200 크레딧)
+# Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+# Deploy: doctl apps create --spec .do/app.yaml
+# Validate: doctl apps spec validate .do/app.yaml
+
+name: dotori-app
+region: sgp  # Singapore — 한국에 가장 가까운 DO 리전
+
+services:
+  - name: web
+    dockerfile_path: dotori-app/Dockerfile
+    github:
+      repo: QETTA/dotori-ver2
+      branch: main
+      deploy_on_push: true
+
+    # source_dir 미설정 → 빌드 컨텍스트 = repo root
+    # Dockerfile 내부에서 dotori-app/ 경로 참조
+
+    # ── 유료 계정 인스턴스 ──
+    # 시작: apps-s-1vcpu-2gb ($25/mo) — 20K 시설 SSR + AI 챗에 충분
+    # 스케일업: apps-d-1vcpu-2gb ($39/mo, dedicated) — 오토스케일 필요 시
+    # $200 크레딧: $25/mo → 8개월 사용 가능
+    instance_size_slug: apps-s-1vcpu-2gb
+    instance_count: 1
+    http_port: 3000
+
+    routes:
+      - path: /
+
+    envs:
+      # ── Auth ──
+      - key: AUTH_SECRET
+        type: SECRET
+        scope: RUN_TIME
+      - key: NEXTAUTH_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── Kakao OAuth ──
+      - key: AUTH_KAKAO_ID
+        type: SECRET
+        scope: RUN_TIME
+      - key: AUTH_KAKAO_SECRET
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── Kakao SDK (client-side, 빌드타임 주입) ──
+      - key: NEXT_PUBLIC_KAKAO_JS_KEY
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_KEY
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_MAP_KEY
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_CHANNEL_ID
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: KAKAO_REST_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── MongoDB Atlas (M10+ 유료) ──
+      # 연결 문자열에 maxPoolSize=10&serverSelectionTimeoutMS=5000 포함 권장
+      - key: MONGODB_URI
+        type: SECRET
+        scope: RUN_TIME
+      - key: MONGODB_DB_NAME
+        value: dotori
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── AI ──
+      - key: ANTHROPIC_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+      - key: AI_PROVIDER
+        value: anthropic
+        type: GENERAL
+        scope: RUN_TIME
+      - key: AI_MODEL
+        value: claude-opus-4-6
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── Naver API ──
+      - key: NAVER_CLIENT_ID
+        type: SECRET
+        scope: RUN_TIME
+      - key: NAVER_CLIENT_SECRET
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── Mapbox ──
+      - key: NEXT_PUBLIC_MAPBOX_TOKEN
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_MAPBOX_STYLE
+        type: GENERAL
+        scope: BUILD_TIME
+
+      # ── Toss Payments ──
+      - key: NEXT_PUBLIC_TOSS_CLIENT_KEY
+        type: GENERAL
+        scope: BUILD_TIME
+
+      # ── App ──
+      - key: NODE_ENV
+        value: production
+        type: GENERAL
+        scope: RUN_TIME
+      - key: NEXT_PUBLIC_APP_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_SITE_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: BUILD_TIME
+
+      # ── Monitoring (Sentry) ──
+      - key: NEXT_PUBLIC_SENTRY_DSN
+        type: GENERAL
+        scope: BUILD_TIME
+      - key: SENTRY_AUTH_TOKEN
+        type: SECRET
+        scope: BUILD_TIME
+
+      # ── Public Data APIs ──
+      - key: PUBLIC_DATA_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+      - key: CHILDCARE_PORTAL_KEY
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── Cron ──
+      - key: CRON_SECRET
+        type: SECRET
+        scope: RUN_TIME
+
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 15
+      period_seconds: 30
+      timeout_seconds: 5
+      failure_threshold: 5
+      success_threshold: 1
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
+# ── Custom domain (uncomment when ready) ──
+# domains:
+#   - domain: dotori.app
+#     type: PRIMARY
+#     minimum_tls_version: "1.3"
+
+# ── Dedicated instance + autoscaling (트래픽 증가 시 전환) ──
+# instance_size_slug: apps-d-1vcpu-2gb  # $39/mo dedicated
+# autoscaling:
+#   min_instance_count: 1
+#   max_instance_count: 3
+#   metrics:
+#     cpu:
+#       percent: 70
