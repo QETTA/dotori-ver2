@@ -25,8 +25,10 @@ export const GET = withApiHandler(async (req) => {
 		sort: searchParams.get("sort") || undefined,
 		facilityId: searchParams.get("facilityId") || undefined,
 	});
+	const anonymized = result.data.map(({ authorId, ...post }) => post);
+	const response = { ...result, data: anonymized };
 
-	return NextResponse.json(result, {
+	return NextResponse.json(response, {
 		headers: {
 			"Cache-Control": "public, s-maxage=15, stale-while-revalidate=30",
 		},
