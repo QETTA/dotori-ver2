@@ -15,6 +15,7 @@ import {
 	ArrowTopRightOnSquareIcon,
 	ArrowPathIcon,
 	CheckCircleIcon,
+	ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
@@ -62,6 +63,24 @@ type FacilityDetailClientFacility = Facility & {
 	establishmentYear?: number;
 	homepage?: string;
 	website?: string;
+};
+
+type FacilityPremiumProfile = {
+	directorMessage?: string | null;
+	highlights?: Array<string | null | undefined>;
+	photos?: Array<string | null | undefined>;
+	programs?: Array<string | null | undefined>;
+};
+
+type FacilityPremiumMeta = {
+	isActive?: boolean;
+	verifiedAt?: string | number | Date | null;
+};
+
+type FacilityPremiumFacility = FacilityDetailClientFacility & {
+	isPremium?: boolean;
+	premium?: FacilityPremiumMeta;
+	premiumProfile?: FacilityPremiumProfile | null;
 };
 
 type FacilityDetailClientProps = {
@@ -157,6 +176,19 @@ function getQualityColor(score?: number): "forest" | "amber" | "dotori" {
 function getSafeNumber(value?: number | null): number | null {
 	if (typeof value !== "number" || Number.isNaN(value)) return null;
 	return value;
+}
+
+function getFormattedVerifiedAt(
+	verifiedAt: string | number | Date | null | undefined,
+): string | null {
+	if (!verifiedAt) return null;
+
+	const date = verifiedAt instanceof Date ? verifiedAt : new Date(verifiedAt);
+	if (Number.isNaN(date.getTime())) return null;
+
+	const year = date.getFullYear();
+	const month = `${date.getMonth() + 1}`.padStart(2, "0");
+	return `${year}.${month}`;
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -258,13 +290,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	);
 
 	const premiumProfile = facility.premiumProfile;
-	const premiumDirectorMessage = premiumProfile?.directorMessage?.trim();
-	const premiumHighlights = premiumProfile?.highlights
+	const premiumFacility = facility as FacilityPremiumFacility;
+	const isPremiumFacility =
+		premiumFacility.isPremium === true || premiumFacility.premium?.isActive === true;
+	const premiumMeta = premiumFacility.premium;
+	const premiumDirectorMessage = premiumFacility.premiumProfile?.directorMessage?.trim();
+	const premiumHighlights = premiumFacility.premiumProfile?.highlights
 		?.map((item) => item.trim())
 		.filter((item): item is string => item.length > 0);
-	const premiumPhotos = premiumProfile?.photos
+	const premiumPrograms = premiumFacility.premiumProfile?.programs
+		?.map((item) => item?.trim())
+		.filter((item): item is string => item.length > 0);
+	const premiumPhotos = premiumFacility.premiumProfile?.photos
 		?.map((photo) => photo.trim())
 		.filter((photo): photo is string => photo.length > 0);
+	const premiumVerifiedAt = premiumMeta?.verifiedAt
+		? getFormattedVerifiedAt(premiumMeta.verifiedAt)
+		: null;
+	const showPremiumSection =
+		isPremiumFacility || Boolean(premiumFacility.premiumProfile);
 
 	const handleCopyAddress = useCallback(async () => {
 		if (!copyableAddress) return;
@@ -496,14 +540,20 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</header>
 			<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
 				<Badge color={getTypeBadgeColor(facility.type)}>{facility.type}</Badge>
-				{facility.premium?.isActive ? (
-					<Badge color="forest">인증 시설</Badge>
+				{isPremiumFacility ? (
+					<Badge color="forest" className="inline-flex items-center gap-1.5">
+						<ShieldCheckIcon className="h-4 w-4" />
+						인증 파트너
+					</Badge>
 				) : null}
 				<Badge color={getQualityColor(qualityScore)}>
 					{qualityScore == null
 						? "데이터 품질 미공개"
 						: `데이터 품질 점수 ${qualityScore}점`}
 				</Badge>
+				{!isPremiumFacility ? (
+					<span className="text-sm text-dotori-500">이 시설은 아직 파트너 미가입</span>
+				) : null}
 			</div>
 
 			<div className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
@@ -556,17 +606,39 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					)}
 				</section>
 
-				{facility.premiumProfile ? (
+				{showPremiumSection ? (
 					<section className="rounded-3xl bg-white p-5 shadow-sm">
-						<h2 className="text-sm font-semibold text-dotori-900">파트너 시설</h2>
+						<div className="flex items-center justify-between gap-2">
+							<h2 className="text-sm font-semibold text-dotori-900">인증 파트너</h2>
+							{premiumVerifiedAt ? (
+								<p className="text-sm font-medium text-forest-700">
+									검증일: {premiumVerifiedAt}
+								</p>
+							) : null}
+						</div>
 						{premiumDirectorMessage ? (
 							<div className="mt-3 rounded-2xl bg-dotori-50 p-4">
 								<h3 className="mb-1 text-[13px] font-medium text-dotori-700">
-									원장 인사말
+									원장 한마디
 								</h3>
 								<p className="text-sm leading-6 text-dotori-800">
 									{premiumDirectorMessage}
 								</p>
+							</div>
+						) : null}
+
+						{premiumPrograms && premiumPrograms.length > 0 ? (
+							<div className="mt-3">
+								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
+									프로그램
+								</h3>
+								<div className="mt-2 flex flex-wrap gap-2">
+									{premiumPrograms.map((program) => (
+										<Badge key={program} color="forest">
+											{program}
+										</Badge>
+									))}
+								</div>
 							</div>
 						) : null}
 
