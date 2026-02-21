@@ -11,7 +11,6 @@ const MIN_LIMIT = 1;
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
 const DEFAULT_NEARBY_LIMIT = 20;
-const MAX_NEARBY_LIMIT = 100;
 
 export type FacilitySort = "distance" | "rating" | "capacity" | "isPremium";
 

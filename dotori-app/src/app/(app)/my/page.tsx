@@ -15,7 +15,6 @@ import {
 	CogIcon,
 	CreditCardIcon,
 	DocumentTextIcon,
-	HeartIcon,
 	InformationCircleIcon,
 	LifebuoyIcon,
 	MegaphoneIcon,

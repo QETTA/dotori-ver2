@@ -92,7 +92,6 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 		facilityByName.set(f.name.toLowerCase(), f);
 	}
 
-	const facilityIds = matchedFacilities.map((f) => f._id);
 	const existingFacilityIds = new Set<string>();
 
 	// Process each validated item

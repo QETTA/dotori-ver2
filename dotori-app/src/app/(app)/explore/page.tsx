@@ -234,7 +234,6 @@ function ExploreContent() {
 		let active = true;
 		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoadingSigungu(true);
-		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setSigunguOptions([]);
 
 		if (!selectedSido) {
@@ -266,6 +265,7 @@ function ExploreContent() {
 		return () => {
 			active = false;
 		};
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedSido]);
 
 	// Sync state → URL params (skip initial mount)
@@ -423,6 +423,7 @@ function ExploreContent() {
 
 	useEffect(() => {
 		if (!isLoading || facilities.length > 0 || error) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setIsTimeout(false);
 			return;
 		}
