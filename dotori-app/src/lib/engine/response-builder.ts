@@ -71,6 +71,14 @@ function detectTransferScenario(message: string): TransferScenario {
 	return "일반";
 }
 
+function sanitizeSearchQuery(query: string): string {
+	return query
+		.replace(/["'\\]/g, "")
+		.replace(/[-~]/g, " ")
+		.trim()
+		.slice(0, 200);
+}
+
 type RegionMatch = { sido: string; sigungu: string; confidence: number };
 type ExtractedRegion = { sido?: string; sigungu?: string; confidence: number };
 
@@ -693,7 +701,7 @@ async function buildExplainResponse(
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	// Try to find a specific facility by name
 	const facilities = await Facility.find({
-		$text: { $search: message },
+		$text: { $search: sanitizeSearchQuery(message) },
 	})
 		.limit(1)
 		.lean()
@@ -912,7 +920,7 @@ async function buildChecklistResponse(
 		// Try to find a facility the user is asking about
 		let facility = null;
 		const facilities = await Facility.find({
-			$text: { $search: message },
+			$text: { $search: sanitizeSearchQuery(message) },
 		})
 			.limit(1)
 			.lean()
