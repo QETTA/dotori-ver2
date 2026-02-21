@@ -1,44 +1,48 @@
-/**
- * Runtime environment variable validation.
- * Fails fast at startup if required variables are missing.
- */
+import { z } from "zod";
 
-function required(name: string): string {
-	const value = process.env[name];
-	if (!value) {
-		// During Docker/CI build, server modules are evaluated but runtime env vars may not exist
-		if (
-			process.env.SKIP_ENV_VALIDATION === "1" ||
-			process.env.NEXT_PHASE === "phase-production-build"
-		) {
-			return "";
-		}
-		throw new Error(
-			`${name} 환경변수를 .env.local에 설정해주세요`,
-		);
-	}
-	return value;
-}
+const isBuildTime =
+	process.env.SKIP_ENV_VALIDATION === "1" ||
+	process.env.NEXT_PHASE === "phase-production-build";
 
-function optional(name: string, fallback = ""): string {
-	return process.env[name] ?? fallback;
+const envSchema = z.object({
+	/** MongoDB Atlas connection string */
+	MONGODB_URI: isBuildTime ? z.string().default("") : z.string().min(1, "MONGODB_URI 환경변수를 .env.local에 설정해주세요"),
+	/** MongoDB database name */
+	MONGODB_DB_NAME: z.string().default("dotori"),
+	/** NextAuth secret for JWT signing */
+	AUTH_SECRET: isBuildTime ? z.string().default("") : z.string().min(1, "AUTH_SECRET 환경변수를 .env.local에 설정해주세요"),
+	/** Kakao OAuth client ID */
+	AUTH_KAKAO_ID: z.string().default(""),
+	/** Kakao OAuth client secret */
+	AUTH_KAKAO_SECRET: z.string().default(""),
+	/** Public app URL */
+	NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
+	/** Node environment */
+	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+});
+
+const parsed = envSchema.safeParse({
+	MONGODB_URI: process.env.MONGODB_URI,
+	MONGODB_DB_NAME: process.env.MONGODB_DB_NAME,
+	AUTH_SECRET: process.env.AUTH_SECRET,
+	AUTH_KAKAO_ID: process.env.AUTH_KAKAO_ID,
+	AUTH_KAKAO_SECRET: process.env.AUTH_KAKAO_SECRET,
+	NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+	NODE_ENV: process.env.NODE_ENV,
+});
+
+if (!parsed.success) {
+	const missing = parsed.error.issues.map((i) => i.message).join(", ");
+	throw new Error(`환경변수 오류: ${missing}`);
 }
 
 export const env = {
-	/** MongoDB Atlas connection string */
-	MONGODB_URI: required("MONGODB_URI"),
-	/** MongoDB database name */
-	MONGODB_DB_NAME: optional("MONGODB_DB_NAME", "dotori"),
-	/** NextAuth secret for JWT signing */
-	AUTH_SECRET: required("AUTH_SECRET"),
-	/** Kakao OAuth client ID */
-	AUTH_KAKAO_ID: optional("AUTH_KAKAO_ID"),
-	/** Kakao OAuth client secret */
-	AUTH_KAKAO_SECRET: optional("AUTH_KAKAO_SECRET"),
-	/** Public app URL (for server-side API calls) */
-	APP_URL: optional("NEXT_PUBLIC_APP_URL", "http://localhost:3000"),
-	/** Node environment */
-	NODE_ENV: optional("NODE_ENV", "development"),
-	/** Is production? */
-	isProduction: process.env.NODE_ENV === "production",
+	MONGODB_URI: parsed.data.MONGODB_URI,
+	MONGODB_DB_NAME: parsed.data.MONGODB_DB_NAME,
+	AUTH_SECRET: parsed.data.AUTH_SECRET,
+	AUTH_KAKAO_ID: parsed.data.AUTH_KAKAO_ID,
+	AUTH_KAKAO_SECRET: parsed.data.AUTH_KAKAO_SECRET,
+	APP_URL: parsed.data.NEXT_PUBLIC_APP_URL,
+	NODE_ENV: parsed.data.NODE_ENV,
+	isProduction: parsed.data.NODE_ENV === "production",
 } as const;
