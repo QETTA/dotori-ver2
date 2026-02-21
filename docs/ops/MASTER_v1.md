@@ -60,6 +60,7 @@
 ## 4. CI/CD & 배포 상태
 
 **파이프라인:** lint ✅ → test ✅ → build ✅ → deploy ⏳ (진행 중)
+**파이프라인:** lint ✅ → test ✅ → build ✅ → deploy ✅ sgp 리전 (2026-02-22 확인)
 
 **최근 수정:** .do/app.yaml region: nrt → sgp 수정 완료, lint 에러 3건 수정 (2026-02-22)
 **MongoDB:** 비밀번호 로테이션됨 → DO 환경변수 MONGODB_URI 업데이트 확인 필요
@@ -73,7 +74,7 @@
 | 1 | DO 리전 nrt 무효 | ✅ | .do/app.yaml region: sgp 완료 |
 | 2 | MongoDB 비밀번호 | 🟡 | DO 환경변수 MONGODB_URI 확인 필요 |
 | 3 | 카카오 채널 미개설 | 🔴 | KAKAO_CHANNEL.md 참조, 즉시 실행 |
-| 4 | 이동 수요 타겟 메시지 미반영 | 🔴 | 앱 카피/랜딩 리팩토링 필요 |
+| 4 | 이동 수요 타겟 메시지 미반영 | ✅ | 완료 (2026-02-22 리팩토링) |
 | 5 | 프리미엄 영업 시작 | 🟡 | PREMIUM_SPEC.md 실행 |
 
 ---
