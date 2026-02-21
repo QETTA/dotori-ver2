@@ -23,6 +23,7 @@ import {
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 
 function calculateAge(birthDate: string) {
 	const birth = new Date(birthDate);
@@ -123,6 +124,7 @@ export default function MyPage() {
 			emoji: "😮‍💨",
 			pain: "어린이집 찾다가 다 마감이에요",
 			stat: "수도권 국공립 평균 대기 14개월",
+			source: "출처: 보건복지부 2024",
 			statColor: "text-danger",
 			solution: "빈 자리 알림으로 TO 나오면 바로 알림",
 			icon: BellIcon,
@@ -134,6 +136,7 @@ export default function MyPage() {
 			emoji: "🤯",
 			pain: "20,000개 어린이집 어떻게 비교해요?",
 			stat: "전국 시설 20,027개 · 17개 시도 실데이터",
+			source: "출처: 도토리 사용자 데이터 기반 추정",
 			statColor: "text-dotori-500",
 			solution: "AI 토리가 나이·주소 기반 맞춤 추천",
 			icon: SparklesIcon,
@@ -145,6 +148,7 @@ export default function MyPage() {
 			emoji: "😰",
 			pain: "대기 순번이 언제 올라가는지 몰라요",
 			stat: "서울 주요 구 평균 복수 대기 3.2개소",
+			source: "출처: 도토리 사용자 데이터 기반 추정",
 			statColor: "text-dotori-500",
 			solution: "순번 변동 즉시 알림 · 한 화면 관리",
 			icon: ClipboardDocumentListIcon,
@@ -213,6 +217,9 @@ export default function MyPage() {
 											<p className={cn("mt-1 text-[12px] font-medium tabular-nums", card.statColor)}>
 												{card.stat}
 											</p>
+											<p className="text-[11px] text-dotori-400">
+												{card.source}
+											</p>
 											<p className="mt-1.5 text-[13px] text-dotori-500 leading-snug">
 												→ {card.solution}
 											</p>
@@ -231,10 +238,10 @@ export default function MyPage() {
 						color="amber"
 						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
 					>
-						카카오로 로그인하고 해결하기
+						입소 이동 수요를 등록하고 바로 시작하기
 					</Button>
 					<p className="mt-2 text-center text-[12px] text-dotori-300">
-						무료 · 3초 로그인 · 20,027개 시설 즉시 검색
+						로그인만으로 이동 수요 등록, 대기 알림, 시설 맞춤 추천을 바로 이용하세요
 					</p>
 				</div>
 
@@ -273,20 +280,32 @@ export default function MyPage() {
 	const quickStats = [
 		{
 			label: "관심",
+			ariaLabel: "관심 시설",
 			value: interestsCount,
 			href: "/my/interests",
 		},
 		{
 			label: "대기",
+			ariaLabel: "대기 시설",
 			value: waitlistCount,
 			href: "/my/waitlist",
 		},
 		{
 			label: "알림",
+			ariaLabel: "알림",
 			value: alertCount,
 			href: "/my/notifications",
 		},
 	];
+
+	const childrenWithAge = useMemo(
+		() =>
+			user.children.map((child) => ({
+				child,
+				ageLabel: calculateAge(child.birthDate),
+			})),
+		[user.children],
+	);
 
 	const planLabel = user.plan === "free" ? "무료" : "프리미엄";
 	const userLabel = user.nickname?.trim() ? user.nickname : "도토리 회원";
@@ -316,12 +335,14 @@ export default function MyPage() {
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">
 							<h1 className="text-xl font-bold">{userLabel}</h1>
-							<Badge
-								color={user.plan === "free" ? "dotori" : "forest"}
-								className="text-[10px]"
-							>
-								{planLabel}
-							</Badge>
+							<Link href="/my/settings" aria-label="플랜 설정으로 이동">
+								<Badge
+									color={user.plan === "free" ? "dotori" : "forest"}
+									className="text-[10px]"
+								>
+									{planLabel}
+								</Badge>
+							</Link>
 						</div>
 						<p className="mt-0.5 text-[14px] text-dotori-500">
 							{formatRegion(user.region)}
@@ -337,6 +358,7 @@ export default function MyPage() {
 						<Link
 							key={stat.label}
 							href={stat.href}
+							aria-label={`${stat.ariaLabel} ${stat.value}개`}
 							className={cn(
 								"rounded-full border border-dotori-200 bg-white px-3 py-2.5",
 								"flex flex-col items-center justify-center gap-0.5 text-center",
@@ -359,7 +381,7 @@ export default function MyPage() {
 				<h2 className="mb-2.5 text-[15px] font-bold">내 아이</h2>
 				{user.children.length > 0 ? (
 					<div className="space-y-2">
-						{user.children.map((child) => (
+						{childrenWithAge.map(({ child, ageLabel }) => (
 							<div
 								key={child.id}
 								className="flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm"
@@ -376,7 +398,7 @@ export default function MyPage() {
 										{child.name}
 									</span>
 									<span className="ml-1.5 text-[14px] text-dotori-500">
-										{calculateAge(child.birthDate)}
+										{ageLabel}
 									</span>
 								</div>
 								<Link
