@@ -1,0 +1,56 @@
+import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
+
+const BASE = process.env.BASE_URL || "http://localhost:3000";
+
+async function goExplore(page: Page) {
+	await page.goto(`${BASE}/explore`, {
+		waitUntil: "load",
+		timeout: 30000,
+	});
+}
+
+test("탐색 페이지 렌더 테스트", async ({ page }) => {
+	await goExplore(page);
+
+	await expect(
+		page.getByPlaceholder("이동할 시설 검색 (이름, 지역)"),
+	).toBeVisible();
+
+	await page.getByRole("button", { name: "필터" }).click();
+
+	await expect(page.getByRole("button", { name: "국공립" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "민간" })).toBeVisible();
+});
+
+test("검색 플로우 테스트", async ({ page }) => {
+	await goExplore(page);
+
+	const searchInput = page.getByPlaceholder("이동할 시설 검색 (이름, 지역)");
+	await expect(searchInput).toBeVisible();
+	await searchInput.fill("강남");
+
+	await page.waitForTimeout(500);
+
+	const facilityCards = page.locator('a[href^="/facility/"]');
+	const emptyState = page.getByRole("heading", { name: /찾지 못했어요/ });
+
+	await expect(async () => {
+		const hasCards = (await facilityCards.count()) > 0;
+		const hasEmpty = await emptyState.count() > 0;
+
+		expect(hasCards || hasEmpty).toBe(true);
+	}).toPass();
+});
+
+test("탐색→상세 네비게이션 테스트", async ({ page }) => {
+	await goExplore(page);
+
+	const facilityCards = page.locator('a[href^="/facility/"]');
+	const cardCount = await facilityCards.count();
+
+	test.skip(cardCount === 0, "시설 카드가 없어 상세 페이지 검증을 생략합니다.");
+
+	await facilityCards.first().click();
+	await expect(page).toHaveURL(/\/facility\//);
+});
