@@ -3,9 +3,11 @@
  * Applied at API boundaries before data reaches the database.
  */
 
+const dangerousTagPattern = /<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi;
+
 /** Strip HTML tags from user input */
 export function stripHtml(input: string): string {
-	return input.replace(/<[^>]*>/g, "");
+	return input.replace(dangerousTagPattern, "").replace(/<[^>]*>/g, "").trim();
 }
 
 /** Sanitize a string: trim, strip HTML, collapse whitespace */

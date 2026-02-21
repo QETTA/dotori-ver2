@@ -7,10 +7,20 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+// --- internal helpers ---
+
+const objectIdPattern = "[a-f\\d]{24}";
+const objectIdRegex = new RegExp(`^${objectIdPattern}$`, "i");
+const facilityIdRegex = new RegExp(`^(?:${objectIdPattern})(?:,(?:${objectIdPattern}))*$`, "i");
+
 // --- Shared primitives ---
 
-export const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "유효하지 않은 ID 형식입니다");
+export const objectIdSchema = z.string().regex(objectIdRegex, "유효하지 않은 ID 형식입니다");
 export const dateStringSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 형식이어야 합니다");
+
+export function isValidObjectId(id: string): boolean {
+	return objectIdRegex.test(id);
+}
 
 // --- Chat ---
 
@@ -24,10 +34,7 @@ export const chatMessageSchema = z.object({
 // --- Actions ---
 
 /** facilityId: 단일 ObjectId 또는 쉼표 구분 다중 ObjectId (generate_report용) */
-const facilityIdSchema = z.string().regex(
-	/^[a-f\d]{24}(,[a-f\d]{24})*$/i,
-	"유효하지 않은 시설 ID 형식입니다",
-);
+const facilityIdSchema = z.string().regex(facilityIdRegex, "유효하지 않은 시설 ID 형식입니다");
 
 export const actionIntentSchema = z.object({
 	actionType: z.enum(

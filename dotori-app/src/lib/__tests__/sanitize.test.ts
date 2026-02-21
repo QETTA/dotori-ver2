@@ -4,7 +4,8 @@ import { stripHtml, sanitizeString, sanitizeContent, sanitizeSearchQuery } from 
 describe("sanitize", () => {
   describe("stripHtml", () => {
     it("removes HTML tags", () => {
-      expect(stripHtml("<script>alert('xss')</script>hello")).toBe("alert('xss')hello");
+      expect(stripHtml("<script>alert(1)</script>hello")).toBe("hello");
+      expect(stripHtml("<b>굵게</b>")).toBe("굵게");
       expect(stripHtml("<b>bold</b>")).toBe("bold");
       expect(stripHtml("no tags")).toBe("no tags");
     });
