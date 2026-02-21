@@ -226,6 +226,7 @@ export type TransferChecklistItem = ChecklistItem;
 
 export interface EnrollmentChecklist {
 	title: string;
+	facilityId?: string;
 	facilityName?: string;
 	categories: ChecklistCategory[];
 	generatedAt: string;
@@ -349,6 +350,21 @@ export function generateChecklist(
 			checked: false,
 		},
 		{
+			id: "transfer_7",
+			text: "현재 시설에 퇴소 예정 통보 (30일 전 권장)",
+			checked: false,
+		},
+		{
+			id: "transfer_8",
+			text: "입소 예정 시설에 입소 확정 연락",
+			checked: false,
+		},
+		{
+			id: "transfer_9",
+			text: "보육료 지원 변경 신청 (아이사랑카드)",
+			checked: false,
+		},
+		{
 			id: "transfer_3",
 			text: "아이사랑포털 퇴소 처리",
 			detail: "아이사랑 앱/웹에서 퇴소 신청을 마무리해요",
@@ -444,6 +460,7 @@ export function generateChecklist(
 		title: facility
 			? `${facility.name} 입소 준비 체크리스트`
 			: "어린이집 입소 준비 체크리스트",
+		facilityId: facility?.id,
 		facilityName: facility?.name,
 		categories,
 		generatedAt: new Date().toISOString(),

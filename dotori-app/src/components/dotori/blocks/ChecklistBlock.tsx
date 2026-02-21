@@ -6,6 +6,12 @@ import type {
 } from "@/types/dotori";
 import { cn } from "@/lib/utils";
 
+const CHECKLIST_STORAGE_PREFIX = "dotori_checklist_";
+
+type ChecklistBlockWithFacilityId = ChecklistBlockType & {
+	facilityId?: string;
+};
+
 function buildCheckedMap(
 	block: ChecklistBlockType,
 ): Record<string, boolean> {
@@ -18,14 +24,74 @@ function buildCheckedMap(
 	return map;
 }
 
+function createStorageKey(block: ChecklistBlockWithFacilityId): string {
+	const facilityId =
+		block.facilityId?.trim() ??
+		block.title;
+	const fallbackId = facilityId.trim().length > 0 ? facilityId : "default";
+	return `${CHECKLIST_STORAGE_PREFIX}${encodeURIComponent(fallbackId)}`;
+}
+
+function readCheckedMap(
+	storageKey: string,
+	fallback: Record<string, boolean>,
+): Record<string, boolean> {
+	if (typeof window === "undefined") {
+		return fallback;
+	}
+
+	try {
+		const raw = window.localStorage.getItem(storageKey);
+		if (!raw) {
+			return fallback;
+		}
+
+		const parsed = JSON.parse(raw);
+		if (!parsed || typeof parsed !== "object") {
+			return fallback;
+		}
+
+		const restored = { ...fallback };
+		for (const [id, checked] of Object.entries(parsed)) {
+			if (typeof checked === "boolean") {
+				restored[id] = checked;
+			}
+		}
+		return restored;
+	} catch {
+		return fallback;
+	}
+}
+
+function writeCheckedMap(storageKey: string, checkedMap: Record<string, boolean>) {
+	if (typeof window === "undefined") {
+		return;
+	}
+	try {
+		window.localStorage.setItem(storageKey, JSON.stringify(checkedMap));
+	} catch {
+		// ignore storage write failures in browser environments with restricted storage
+	}
+}
+
 export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
+	const typedBlock = block as ChecklistBlockWithFacilityId;
+	const storageKey = useMemo(
+		() => createStorageKey(typedBlock),
+		[typedBlock.facilityId, typedBlock.title],
+	);
+
 	const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(
-		() => buildCheckedMap(block),
+		() => readCheckedMap(storageKey, buildCheckedMap(block)),
 	);
 
 	useEffect(() => {
-		setCheckedMap(buildCheckedMap(block));
-	}, [block]);
+		setCheckedMap(readCheckedMap(storageKey, buildCheckedMap(block)));
+	}, [block, storageKey]);
+
+	useEffect(() => {
+		writeCheckedMap(storageKey, checkedMap);
+	}, [storageKey, checkedMap]);
 
 	const totalItems = useMemo(
 		() => block.categories.reduce((acc, cat) => acc + cat.items.length, 0),
