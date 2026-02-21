@@ -12,8 +12,8 @@ WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(eslint-infra subscription-api analytics-track premium-gate chat-quota facility-premium alert-premium home-upsell my-upgrade landing-b2c onboarding-value)
-MERGE_ORDER=(eslint-infra analytics-track subscription-api premium-gate chat-quota alert-premium facility-premium home-upsell my-upgrade landing-b2c onboarding-value)
+AGENTS=(eslint-fix premium-model admin-api unit-tests explore-ux landing-upgrade home-dashboard chat-engine e2e-chat e2e-explore e2e-onboarding)
+MERGE_ORDER=(eslint-fix premium-model admin-api unit-tests explore-ux home-dashboard chat-engine landing-upgrade e2e-onboarding e2e-explore e2e-chat)
 PIDS=()
 PASS=()
 FAIL=()
@@ -30,166 +30,235 @@ info() { echo "     $1"; }
 get_task() {
   local agent=$1
   case $agent in
-    eslint-infra)
-      echo "두 가지 작업을 해라:
-1) src/components/dotori/PageTransition.tsx ESLint 에러 수정:
-   - Cannot call impure function during render → useEffect 내부로 이동
-   - Unexpected any 타입 제거
-2) .dockerignore 신규 생성 (node_modules, .next, .env*, .git 제외)
-3) src/middleware.ts rate limiting 추가 (Map 기반 in-memory, /api/* 경로)"
+    eslint-fix)
+      echo "ESLint 에러를 모두 제거해라. 먼저 npx eslint src --ext ts,tsx 실행해서 에러 목록 확인.
+
+주요 패턴:
+- 'any' 타입 → 명시적 타입으로 교체
+- impure function during render → useEffect/useCallback 내부로 이동
+- unused variables → 제거 또는 _prefix 사용
+- missing deps in useEffect/useCallback → deps 배열 보완
+
+담당 파일: ESLint가 리포트하는 에러 파일만 수정. npm run build도 에러 없어야 함."
       ;;
-    subscription-api)
-      echo "구독 시스템 API 기반을 만들어라 (결제 연동 준비):
+    premium-model)
+      echo "PREMIUM_SPEC.md Task 1-3을 구현해라 (B2B 시설 프리미엄 기반):
 
-1) src/models/Subscription.ts 신규:
-   - userId, plan('free'|'premium'|'partner'), status('active'|'cancelled'|'expired')
-   - startedAt, expiresAt, paymentMethod(optional), amount
+1) src/models/Facility.ts 수정 — premium 서브스키마 추가:
+   premium?: {
+     isActive: boolean;        // default: false
+     plan: 'basic' | 'pro';
+     startDate: Date;
+     endDate: Date;
+     features: string[];
+     sortBoost: number;        // default: 0, 검색 정렬 가중치
+     verifiedAt?: Date;
+     contactPerson?: string;
+     contactPhone?: string;
+     contactEmail?: string;
+   }
+   주의: 기존 필드 변경 금지. optional 서브스키마로 추가.
 
-2) src/app/api/subscriptions/route.ts 신규:
-   - GET: 현재 사용자 구독 상태 조회
-   - POST: 구독 생성/업그레이드 (실제 결제는 TODO, 지금은 mock — plan을 DB에 저장만)
-   - body: { plan: 'premium' | 'partner' }
-   - 성공 시 User.plan 업데이트
+2) src/types/dotori.ts 수정 — FacilityPremium 인터페이스 추가:
+   export interface FacilityPremium {
+     isActive: boolean;
+     plan: 'basic' | 'pro';
+     features: string[];
+     sortBoost: number;
+     verifiedAt?: string;
+   }
+   기존 Facility 인터페이스에 premium?: FacilityPremium; 추가
 
-3) src/app/api/users/me/route.ts 수정:
-   - PATCH allowedFields에 'plan' 추가 (어드민/구독 API에서 업데이트 가능)
-
-주의: 실제 결제 로직 없음 (Stripe는 추후). 지금은 plan 필드 DB 업데이트만."
+3) src/lib/dto.ts 수정 — toFacilityDTO에서 premium 매핑:
+   premium.isActive === true 인 경우에만 DTO에 premium 포함.
+   false이거나 없으면 DTO에 premium 미포함 (프론트에 노출 안 됨)"
       ;;
-    analytics-track)
-      echo "사용량 추적 시스템을 만들어라 (채팅 쿼터 기반):
+    admin-api)
+      echo "PREMIUM_SPEC.md Task 4+6을 구현해라 (시설 정렬 + Admin API):
 
-1) src/models/UsageLog.ts 신규:
-   - userId, type('chat'|'alert'|'export'), count, month(YYYY-MM 형식)
-   - 월별 카운터: 같은 userId + type + month면 upsert
+1) src/app/api/facilities/route.ts 수정 — sortBoost 정렬:
+   검색/필터 결과에서 premium.isActive=true && premium.sortBoost>0 인 시설을 상단 노출.
+   MongoDB aggregate 또는 sort 활용. 동일 조건 시 sortBoost 내림차순.
 
-2) src/app/api/analytics/usage/route.ts 신규:
-   - GET: 현재 사용자의 이번 달 사용량 반환
-   - Response: { chat: number, alert: number, limits: { free: { chat: 5 }, premium: { chat: -1 } } }
-
-3) src/types/dotori.ts 에 UsageStats 타입 추가:
-   { chat: number; alert: number; limits: { chat: number } }  (-1은 무제한)"
+2) src/app/api/admin/facility/[id]/premium/route.ts 신규:
+   PUT 엔드포인트:
+   - Authorization: Bearer ${process.env.CRON_SECRET} 검증 (없으면 401)
+   - body: { isActive: boolean, plan: 'basic'|'pro', sortBoost: number, features?: string[] }
+   - Facility 모델 premium 필드 업데이트 (upsert)
+   - 응답: { success: true, facilityId, premium: { isActive, plan, sortBoost } }"
       ;;
-    premium-gate)
-      echo "프리미엄 게이트 공통 컴포넌트를 만들어라:
+    unit-tests)
+      echo "핵심 엔진 유닛 테스트를 작성해라 (Jest):
 
-1) src/components/dotori/PremiumGate.tsx 신규:
-   Props: { feature: string; description: string; children: ReactNode; isPremium: boolean }
-   - isPremium=true면 children 그대로 렌더
-   - isPremium=false면 잠금 오버레이 + '프리미엄으로 업그레이드' CTA 버튼 표시
-   - 버튼 클릭 → /my/settings 로 이동
-   - 디자인: dotori 색상, 잠금 아이콘(HeroIcons LockClosedIcon)
+먼저 src/lib/engine/ 디렉토리의 파일들을 읽어서 실제 함수 시그니처 파악.
 
-2) src/components/dotori/UsageCounter.tsx 신규:
-   Props: { current: number; limit: number; label: string }
-   - 진행바 표시 (limit=-1이면 '무제한' 표시)
-   - limit의 80% 이상 → amber 색상 경고
-   - limit 초과 → red + '업그레이드' 링크"
+1) src/__tests__/engine/intent-classifier.test.ts 신규:
+   이동 수요 시나리오 인텐트 분류 테스트:
+   - '이동하고 싶어요' → 이동/전원 관련 인텐트
+   - '반편성이 맘에 안들어요' → 반편성 관련
+   - '선생님이 또 바뀌었어요' → 교사 교체 관련
+   - '국공립 대기 당첨됐어요' → 국공립 당첨 관련
+   - '강남구 어린이집 추천해줘' → 시설 탐색 관련
+   실제 함수를 import해서 테스트. mock은 최소화.
+
+2) src/__tests__/lib/dto.test.ts 신규 (있으면 보완):
+   - toFacilityDTO: premium.isActive=false → premium 필드 없음
+   - toFacilityDTO: premium.isActive=true → premium 필드 포함
+   - toFacilityDTO: premium 없는 시설 → premium 미포함
+
+3) 파일이 없으면 src/__tests__/smoke.test.ts 에 기본 import 스모크 테스트 추가.
+   테스트 실행: npx jest --passWithNoTests"
       ;;
-    chat-quota)
-      echo "채팅 월 5회 무료 제한을 구현해라 (B2C 핵심 수익화):
+    explore-ux)
+      echo "탐색 페이지를 이동 수요 포지셔닝으로 개선해라:
 
-1) src/app/(app)/chat/page.tsx 수정:
-   - 페이지 로드 시 /api/analytics/usage fetch
-   - 무료 사용자(plan=free): 채팅 5회/월 초과 시 PremiumGate 컴포넌트로 입력창 잠금
-   - 채팅 창 상단에 UsageCounter 표시 (예: '이번 달 3/5회 사용')
-   - 잠금 상태에서 '업그레이드하면 무제한으로 대화해요' 메시지
+src/app/(app)/explore/page.tsx 수정:
 
-2) src/app/api/chat/stream/route.ts 수정:
-   - 요청 시 userId + 이번 달 chat 카운트 확인
-   - free 플랜 + count >= 5 → 403 반환 { error: 'quota_exceeded', message: '이번 달 무료 채팅 횟수를 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한으로 대화할 수 있어요.' }
-   - 성공 시 UsageLog upsert (count+1)
-   - 비로그인 → 3회 제한 (sessionStorage 기반 간단 카운트)"
+1) 검색창 placeholder 변경:
+   현재: '이동할 시설 검색 (이름, 지역)'
+   변경: '이동 고민? 내 주변 빈자리 먼저 확인해요'
+
+2) 이동 수요 프롬프트 칩 추가 (POPULAR_SEARCHES 배열 개선):
+   현재 칩들 유지하되 앞에 추가:
+   ['반편성 불만', '교사 교체', '국공립 당첨', '이사 예정']
+   → 클릭 시 해당 키워드로 검색
+
+3) 이동 가능 시설 필터 버튼 강조:
+   '이동 가능 시설' 필터 칩에 forest 색상 강조 (현재보다 눈에 띄게)
+   또는 상단에 '이동 가능 시설만 보기' 토글 추가
+
+4) 빈 결과 EmptyState 메시지 개선:
+   '해당 조건의 시설이 없어요' → '이 조건의 이동 가능 시설이 없어요. 조건을 바꿔보세요'"
       ;;
-    facility-premium)
-      echo "시설 상세에 인증 파트너 기능을 렌더링해라 (B2B 가치 증명):
-
-1) src/app/(app)/facility/[id]/FacilityDetailClient.tsx 수정:
-   - facility.isPremium=true인 경우 '인증 파트너' 배지 표시 (forest 색상, ShieldCheckIcon)
-   - facility.premiumProfile.directorMessage 있으면 원장 한마디 섹션 표시
-   - facility.premiumProfile.programs 있으면 프로그램 목록 칩 표시
-   - facility.premium.verifiedAt 있으면 '검증일: YYYY.MM' 표시
-   - 비프리미엄 시설에는 '이 시설은 아직 파트너 미가입' 안내 (선택)"
-      ;;
-    alert-premium)
-      echo "빈자리 알림을 프리미엄 전용으로 처리해라 (B2C 핵심 가치):
-
-1) src/app/(app)/my/waitlist/page.tsx 수정:
-   - 무료 사용자: 대기 신청은 가능, 즉시 알림은 PremiumGate로 잠금
-   - '빈자리 즉시 알림'은 프리미엄 전용임을 명시
-   - 무료: '빈자리 생기면 앱 열었을 때 확인 가능', 프리미엄: '빈자리 즉시 푸시 알림'
-   - 업그레이드 CTA: '월 1,900원으로 즉시 알림 받기'
-
-2) src/app/api/alerts/route.ts 수정 (있으면):
-   - 알림 생성 시 plan 확인 — free면 즉시 발송 안 하고 pending 상태만"
-      ;;
-    home-upsell)
-      echo "홈 페이지에 프리미엄 업셀 요소를 추가해라:
-
-src/app/(app)/page.tsx 수정:
-1) 무료 사용자에게 배너 표시:
-   - '빈자리 즉시 알림 서비스 — 월 1,900원'
-   - 작은 카드형 배너, 닫기 가능(localStorage), dotori 색상
-   - 클릭 → /my/settings
-
-2) AI 브리핑 카드에 사용량 힌트:
-   - 무료: '이번 달 N/5회 사용 · 프리미엄은 무제한'
-   - 프리미엄: '프리미엄 이용 중 · 무제한 AI 대화'
-
-3) 빈자리 알림 섹션:
-   - 무료: 알림 수 대신 '프리미엄 전용 기능' 안내
-   - 프리미엄: 실제 알림 카운트"
-      ;;
-    my-upgrade)
-      echo "MY 페이지 플랜 업그레이드 UI와 settings 페이지를 구현해라:
-
-1) src/app/(app)/my/page.tsx 수정:
-   - 무료 사용자 플랜 섹션에 업그레이드 카드 추가:
-     '프리미엄 · 월 1,900원' — 즉시 알림, 무제한 AI, 우선 매칭
-   - '지금 시작하기' 버튼 → /my/settings
-
-2) src/app/(app)/my/settings/page.tsx 신규 생성:
-   - 현재 플랜 표시 (free / premium)
-   - 프리미엄 혜택 목록:
-     ✓ 빈자리 즉시 알림
-     ✓ 토리챗 무제한 대화
-     ✓ 이동 우선 매칭
-   - '프리미엄 시작하기' 버튼 (클릭 → /api/subscriptions POST, mock 결제)
-   - 프리미엄이면 '이용 중' 배지 + 다음 갱신일 표시
-   - 고객센터 링크 (카카오톡 채널)"
-      ;;
-    landing-b2c)
-      echo "랜딩 페이지에 B2C 프리미엄 플랜을 추가하고 CTA를 강화해라:
+    landing-upgrade)
+      echo "랜딩 페이지 FAQ + 후기 섹션을 추가해라 (reference/template-components 참고):
 
 src/app/(landing)/landing/page.tsx 수정:
-1) pricingPlans 배열에 B2C 플랜 추가:
-   - 이름: '부모 프리미엄'
-   - 가격: 월 1,900원
-   - 혜택: 빈자리 즉시 알림, 토리챗 무제한, 이동 전략 리포트
-   - 버튼: '무료로 시작하기' → /onboarding
 
-2) 히어로 섹션 업데이트:
-   - '어린이집 이동, 더 이상 혼자 고민하지 마세요'
-   - 숫자 강조: 20,027개 시설 · AI 맞춤 분석 · 실시간 빈자리 알림
+1) FAQ 아코디언 섹션 추가 (페이지 하단 CTA 위):
+   이동 수요 타겟 FAQ:
+   Q: '지금 다니는 어린이집에서 이동하려면 어떻게 해야 하나요?'
+   A: '도토리 탐색에서 빈자리 시설을 찾고, 관심 등록 후 연락해보세요. 이동 절차 가이드도 제공해요.'
+   Q: '반편성 결과가 맘에 안들면 이동할 수 있나요?'
+   A: '가능해요. 3월 초가 이동 최적 시기이며, 도토리가 인근 빈자리 시설을 바로 보여드려요.'
+   Q: '국공립 대기번호가 당첨됐는데 현재 민간 어린이집과 어떻게 비교하나요?'
+   A: '토리챗에 물어보면 AI가 두 시설을 비교 분석해드려요.'
+   UI: details/summary 또는 useState로 토글. Tailwind만 사용.
 
-3) 사회적 증거 섹션 (신규):
-   - '이미 N,NNN명의 부모가 사용 중' (mock 숫자 OK)
-   - 후기 카드 2-3개"
+2) 사용자 후기 섹션 추가 (FAQ 위):
+   후기 카드 3개 (mock 데이터 OK):
+   - 강남맘: '반편성 불만으로 이동 고민하다 도토리로 3일 만에 새 시설 찾았어요'
+   - 성동맘: '국공립 당첨됐는데 현재 민간이랑 토리챗으로 비교해보니 답이 나오더라고요'
+   - 서초맘: '교사 교체 후 불안했는데 빈자리 알림 걸어두고 기다렸다가 이동했어요'
+   card 스타일: rounded-3xl bg-white border border-dotori-100 p-4, Avatar(이니셜), Text(dotori)"
       ;;
-    onboarding-value)
-      echo "온보딩에 프리미엄 가치 제안을 강화해라:
+    home-dashboard)
+      echo "홈 대시보드를 실제 데이터와 연동해라:
 
-src/app/(onboarding)/onboarding/page.tsx 수정:
-1) 슬라이드 중 프리미엄 가치 제안 슬라이드 추가/강화:
-   - '빈자리 생기면 바로 알려드려요' 슬라이드
-   - '토리챗 AI가 이동 전략을 짜줘요' 슬라이드
-   - 가격 언급: '월 1,900원으로 시작'
+src/app/(app)/page.tsx 수정:
 
-2) 마지막 슬라이드 CTA 개선:
-   - 현재: '시작하기' → /
-   - 개선: '무료로 시작하기' (메인) + '프리미엄 보기' (서브, /my/settings 링크)
+1) 관심 시설 섹션 실제 데이터 연동:
+   현재 관심 시설이 있으면 각 시설의 최신 status 표시
+   /api/facilities?ids=xxx 로 관심 시설 현황 fetch
+   status='available'이면 '빈자리 있어요!' Toast/Badge 강조
 
-3) 건너뛰기 텍스트: '나중에' → '무료로 먼저 체험하기'"
+2) 서비스 통계 카드 실제 숫자:
+   시설 수: 20,027 (하드코딩 OK, DB 쿼리 비용 아낌)
+   '실시간 AI 분석 중' 뱃지 추가
+
+3) 이동 수요 NBA 카드:
+   기존 NBA 카드 중 '이동 고민이라면?' 우선 노출:
+   ActionCard title='이동 고민 중이세요?'
+   description='AI 토리가 인근 빈자리 시설을 바로 찾아드려요'
+   href='/explore' or href='/chat?prompt=이동'
+
+4) 홈 헤더 인사말:
+   비로그인: '어린이집 이동 고민, 도토리가 해결해드려요'
+   로그인: '○○맘, 관심 시설 현황을 확인해보세요'"
+      ;;
+    chat-engine)
+      echo "토리챗 이동 수요 엔진을 강화해라:
+
+1) src/lib/engine/intent-classifier.ts 수정 (있으면):
+   이동 수요 인텐트 추가/강화:
+   - 반편성 키워드: '반편성', '반 배정', '같은 반', '친한 친구'
+   - 교사교체 키워드: '선생님 바뀌', '교사 교체', '담임 바뀌'
+   - 설명회실망 키워드: '설명회', '원장 태도', '시설이 낡'
+   - 국공립당첨 키워드: '국공립 당첨', '대기 당첨', '연락 왔'
+   - 이사예정 키워드: '이사', '이사 예정', '통원 거리'
+
+2) src/lib/engine/response-builder.ts 수정 (있으면):
+   이동 시나리오별 공감 응답 추가:
+   - 반편성: '반편성 결과가 실망스러우셨군요. 이동 골든타임은 3월 초예요...'
+   - 교사교체: '교사 교체 후 불안한 마음이 드실 수 있어요...'
+   - 국공립당첨: '국공립 당첨 축하해요! 현재 시설과 비교해볼게요...'
+
+3) 파일이 없으면 분석 결과만 docs로 정리 (수정 대상 없음으로 처리)"
+      ;;
+    e2e-chat)
+      echo "토리챗 E2E 테스트를 작성해라 (Playwright):
+
+src/__tests__/e2e/chat.spec.ts 신규:
+
+import { test, expect } from '@playwright/test'
+const BASE = process.env.BASE_URL || 'http://localhost:3000'
+
+1) 게스트 채팅 쿼터 테스트:
+   - /chat 접속
+   - 입력창에 '강남구 국공립 추천해줘' 입력 후 전송
+   - 응답 수신 또는 에러 메시지 확인
+   - UsageCounter 또는 쿼터 표시 요소 확인
+
+2) 채팅 UI 렌더 테스트:
+   - 채팅 입력창 존재 확인 (textarea or input)
+   - 전송 버튼 존재 확인
+   - BottomTabBar 존재 확인
+
+playwright.config.ts 없으면 신규 생성:
+  testDir: 'src/__tests__/e2e'
+  use: { baseURL: 'http://localhost:3000', headless: true }"
+      ;;
+    e2e-explore)
+      echo "탐색 페이지 E2E 테스트를 작성해라 (Playwright):
+
+src/__tests__/e2e/explore.spec.ts 신규:
+
+1) 탐색 페이지 렌더 테스트:
+   - /explore 접속 (waitUntil: 'load', timeout: 30000)
+   - 검색창 존재 확인
+   - 필터 칩 존재 확인 (국공립, 민간 등)
+
+2) 검색 플로우 테스트:
+   - 검색창에 '강남' 입력
+   - debounce 대기 (500ms)
+   - 시설 카드 또는 EmptyState 렌더링 확인
+
+3) 탐색→상세 네비게이션 테스트:
+   - 시설 카드가 있으면 클릭
+   - URL이 /facility/로 시작하는지 확인
+
+playwright.config.ts 활용 (e2e-chat 에이전트가 만든 것 사용)"
+      ;;
+    e2e-onboarding)
+      echo "온보딩 플로우 E2E 테스트를 작성해라 (Playwright):
+
+src/__tests__/e2e/onboarding.spec.ts 신규:
+
+1) 온보딩 페이지 렌더 테스트:
+   - /onboarding 접속
+   - 온보딩 콘텐츠 렌더링 확인 (슬라이드 또는 스텝)
+   - '시작하기' 또는 CTA 버튼 존재 확인
+
+2) 온보딩 완주 테스트:
+   - 슬라이더가 있으면 next 버튼 클릭 반복
+   - 마지막 CTA 클릭
+   - / 또는 /login으로 이동하는지 확인
+
+3) 건너뛰기 테스트:
+   - 건너뛰기 버튼이 있으면 클릭
+   - 홈 또는 로그인으로 이동 확인
+
+playwright.config.ts 활용"
       ;;
     *)
       echo "agent_task_registry.md 에서 $agent 담당 작업을 확인해라."
@@ -201,7 +270,7 @@ src/app/(onboarding)/onboarding/page.tsx 수정:
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ㄱ 파이프라인 v2 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  목표: 수익화 퍼널 구현 (B2C + B2B)            ║${NC}"
+echo -e "${BLUE}║  목표: 테스트 완전성 + B2B 프리미엄 기반        ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
