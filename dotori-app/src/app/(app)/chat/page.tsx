@@ -14,22 +14,23 @@ import type { ChatBlock, ChatMessage } from "@/types/dotori";
 const suggestedPrompts = [
 	{
 		label: "이동 고민",
-		prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 어떻게 시작해야 할까요?",
+		prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 무엇부터 시작해야 할까요?",
 		icon: "🔄",
 	},
 	{
-		label: "반편성 불만",
-		prompt: "반편성 결과가 마음에 안 들어요. 이동할 수 있는 시설 찾아줘요",
+			label: "반편성 불만",
+		prompt:
+			"3월 반편성 결과가 마음에 안 들어요. 이동할 만한 시설이 있을까요?",
 		icon: "📋",
 	},
 	{
 		label: "빈자리 탐색",
-		prompt: "우리 동네 어린이집 중 지금 자리 있는 곳 알려줘요",
+		prompt: "우리 동네 어린이집 중 지금 바로 입소 가능한 곳을 찾고 싶어요",
 		icon: "🔍",
 	},
 	{
 		label: "시설 비교",
-		prompt: "국공립이랑 민간 어린이집 차이점 알려줘요",
+		prompt: "국공립과 민간 어린이집의 실질적인 차이점을 알고 싶어요",
 		icon: "⚖️",
 	},
 ];
@@ -115,6 +116,18 @@ function ChatContent() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
 	const lastPromptRef = useRef("");
+	const patchStreamingMessage = useCallback(
+		(streamingMessageId: string, patch: Partial<ChatMessage>) => {
+			setMessages((prev) =>
+				prev.map((message) =>
+					message.id === streamingMessageId
+						? { ...message, ...patch }
+						: message,
+				),
+			);
+		},
+		[],
+	);
 
 	const handleBlockAction = useCallback(
 		(actionId: string) => {
@@ -235,16 +248,6 @@ function ChatContent() {
 			let assistantBlocks: ChatBlock[] = [];
 			let done = false;
 
-			const patchStreamingMessage = (patch: Partial<ChatMessage>) => {
-				setMessages((prev) =>
-					prev.map((message) =>
-						message.id === streamingMessageId
-							? { ...message, ...patch }
-							: message,
-					),
-				);
-			};
-
 			const parseEvent = (event: StreamEvent) => {
 				switch (event.type) {
 					case "start":
@@ -252,7 +255,7 @@ function ChatContent() {
 					case "block":
 						if (!event.block) return;
 						assistantBlocks = [...assistantBlocks, event.block];
-						patchStreamingMessage({
+						patchStreamingMessage(streamingMessageId, {
 							isStreaming: false,
 							blocks: assistantBlocks,
 							content: assistantContent,
@@ -261,7 +264,7 @@ function ChatContent() {
 					case "text":
 						if (!event.text) return;
 						assistantContent += event.text;
-						patchStreamingMessage({
+						patchStreamingMessage(streamingMessageId, {
 							isStreaming: true,
 							content: assistantContent,
 							blocks:
@@ -271,7 +274,7 @@ function ChatContent() {
 						});
 						return;
 					case "done":
-						patchStreamingMessage({
+						patchStreamingMessage(streamingMessageId, {
 							isStreaming: false,
 							content: assistantContent,
 							blocks: assistantBlocks,
@@ -317,12 +320,12 @@ function ChatContent() {
 					id: `error-${Date.now()}`,
 					role: "assistant",
 					content:
-						"죄송해요, 응답을 생성하지 못했어요. 다시 시도해주세요.",
+						"앗, 방금 응답이 중단됐어요. 네트워크 상태가 불안정하거나 서버가 잠시 바빠서 그랬을 수 있어요. 아래 버튼으로 바로 다시 시도할 수 있어요.",
 					timestamp: new Date().toISOString(),
 					actions: [
 						{
 							id: RETRY_ACTION_ID,
-							label: "다시 시도",
+							label: "마지막 질문 다시 보내기",
 							action: "generate_report",
 							variant: "outline",
 						},
@@ -371,7 +374,7 @@ function ChatContent() {
 									className="mx-auto mb-4 h-14 w-14"
 								/>
 								<h2 className="text-center text-lg font-bold text-dotori-800">
-									토리와 함께 시작해볼까요?
+									우리 아이에게 맞는 어린이집을 찾을 때까지 토리가 함께해요
 								</h2>
 								<p className="mt-1.5 text-center text-[14px] text-dotori-500">
 									어린이집 검색부터 입소 전략, 서류 준비까지 도와드릴게요.
