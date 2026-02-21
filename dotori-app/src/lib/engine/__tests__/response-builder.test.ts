@@ -77,6 +77,11 @@ const buildFacilityQuery = (items: unknown[]) => {
 	return query;
 };
 
+const buildWaitlistQuery = (items: unknown[]) => ({
+	populate: jest.fn().mockReturnThis(),
+	lean: jest.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
+});
+
 const sampleFacility = {
 	_id: "f1",
 	name: "해오름어린이집",
@@ -190,6 +195,17 @@ describe("buildResponse", () => {
 		expect(response.blocks[0]).toMatchObject({ type: "text" });
 	});
 
+	it("buildExplainResponse with no matched facility still returns text + actions blocks", async () => {
+		mockFacilityFind.mockReturnValue(buildFacilityQuery([]));
+
+		const response = await buildResponse("explain", "\"없는시설\" 설명해줘");
+		const types = response.blocks.map((block) => block.type);
+
+		expect(types).toContain("text");
+		expect(types).toContain("actions");
+		expect(types).not.toContain("facility_list");
+	});
+
 	it("buildKnowledgeResponse returns response with helpful fallback", async () => {
 		const response = await buildResponse("knowledge", "국공립 대기 신청 방법 알려줘");
 
@@ -212,6 +228,37 @@ describe("buildResponse", () => {
 		expect(actionBlock).toMatchObject({
 			buttons: expect.arrayContaining([expect.objectContaining({ id: "login" })]),
 		});
+	});
+
+	it("buildStatusResponse with userId includes waitlist information", async () => {
+		mockWaitlistFind.mockReturnValue(
+			buildWaitlistQuery([
+				{
+					status: "pending",
+					position: 3,
+					facilityId: { name: "해오름어린이집", status: "waiting" },
+				},
+			]),
+		);
+		mockUserFindById.mockReturnValue({
+			lean: jest
+				.fn<() => Promise<{ interests: string[] }>>()
+				.mockResolvedValue({ interests: ["f1"] }),
+		});
+
+		const response = await buildResponse("status", "대기 순번 확인해줘", "user-1");
+		const actionBlock = response.blocks.find((block) => block.type === "actions");
+
+		expect(response.content).toContain("대기 신청");
+		expect(actionBlock).toMatchObject({
+			type: "actions",
+			buttons: expect.arrayContaining([
+				expect.objectContaining({ id: "waitlist" }),
+			]),
+		});
+		expect(mockWaitlistFind).toHaveBeenCalledWith(
+			expect.objectContaining({ userId: "user-1" }),
+		);
 	});
 
 	it("buildChecklistResponse returns checklist block", async () => {

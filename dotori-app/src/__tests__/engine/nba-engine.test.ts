@@ -114,4 +114,83 @@ describe("generateNBA", () => {
 			),
 		).toBe(true);
 	});
+
+	it("returns default NBA without crashing for a user object with nullable-like fields", () => {
+		const nullableLikeUser = {
+			id: null,
+			nickname: null,
+			children: null,
+			region: null,
+			interests: null,
+			gpsVerified: null,
+			plan: null,
+			onboardingCompleted: null,
+		} as unknown as NonNullable<NBAContext["user"]>;
+
+		const ctx: NBAContext = {
+			user: nullableLikeUser,
+			interestFacilities: [],
+			alertCount: 0,
+			waitlistCount: 0,
+		};
+
+		expect(() => generateNBA(ctx)).not.toThrow();
+		const result = generateNBA(ctx);
+
+		expect(result.length).toBeGreaterThan(0);
+		expect(result[0].id).toBe("onboarding_incomplete");
+	});
+
+	it("includes waitlist-check NBA when user has pending waitlist information", () => {
+		const ctx: NBAContext = {
+			user: baseUser,
+			interestFacilities: [],
+			alertCount: 0,
+			waitlistCount: 1,
+			bestWaitlistPosition: 4,
+			waitlistFacilityName: "해오름어린이집",
+		};
+
+		const result = generateNBA(ctx);
+		const waitlistNba = result.find((item) => item.id === "waitlist_position");
+
+		expect(waitlistNba).toBeDefined();
+		expect(
+			`${waitlistNba?.title ?? ""} ${waitlistNba?.description ?? ""} ${waitlistNba?.action?.label ?? ""}`,
+		).toContain("대기");
+	});
+
+	it("includes alert-check style NBA when alertCount is positive", () => {
+		const ctx: NBAContext = {
+			user: baseUser,
+			interestFacilities: [
+				{
+					id: "f-alert",
+					name: "새싹어린이집",
+					type: "국공립",
+					status: "available",
+					address: "서울시 강남구",
+					lat: 37.494,
+					lng: 127.024,
+					capacity: { total: 28, current: 20, waiting: 0 },
+					features: [],
+					rating: 4.4,
+					reviewCount: 11,
+					lastSyncedAt: new Date().toISOString(),
+				},
+			],
+			alertCount: 2,
+			waitlistCount: 0,
+		};
+
+		const result = generateNBA(ctx);
+
+		expect(
+			result.some(
+				(item) =>
+					item.id.startsWith("vacancy_") &&
+					`${item.title} ${item.action?.label ?? ""}`.includes("확인"),
+			),
+		).toBe(true);
+	});
 });

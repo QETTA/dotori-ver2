@@ -36,4 +36,23 @@ describe("classifyIntent", () => {
 	it.each(scenarios)(`%s`, ({ message, expected }) => {
 		expect(expected).toContain(classifyIntent(message));
 	});
+
+	it("returns general for empty input", () => {
+		expect(classifyIntent("")).toBe("general");
+	});
+
+	it("returns general for emoji-only input", () => {
+		expect(classifyIntent("🍼👶✨")).toBe("general");
+	});
+
+	it("classifies very long recommendation sentence without crashing", () => {
+		const longMessage =
+			"요즘 아이가 어린이집에서 보내는 시간이 길어져서 프로그램과 교사 안정성, 통원 동선까지 전부 다시 보고 싶은데 여러 요소를 종합해서 우리 동네에서 추천할 만한 곳을 자세히 알려주세요.";
+		expect(classifyIntent(longMessage)).toBe("recommend");
+	});
+
+	it("classifies mixed transfer/recommend intent into supported high-priority intent", () => {
+		const mixedIntent = "반편성도 맘에 안 들고 국공립 빈자리도 보고 싶어요";
+		expect(["transfer", "recommend"]).toContain(classifyIntent(mixedIntent));
+	});
 });

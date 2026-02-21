@@ -23,7 +23,7 @@ describe("generateTransferReasons", () => {
 		expect(Array.isArray(result)).toBe(true);
 	});
 
-  it("returns public_waitlist reason when facility is public type", () => {
+	it("returns public_waitlist reason when facility is public type", () => {
 		const facility: Facility = {
 			...sampleFacility,
 			capacity: { total: 25, current: 25, waiting: 12 },
@@ -47,5 +47,29 @@ describe("generateTransferReasons", () => {
 		const reason = result.find((item) => item.category === "teacher_turnover");
 		expect(reason).toBeDefined();
 		expect(reason?.source).toBe("인력 구성 분석");
+	});
+
+	it("does not include public_waitlist reason when waiting count is zero", () => {
+		const facility: Facility = {
+			...sampleFacility,
+			type: "국공립",
+			capacity: { total: 20, current: 20, waiting: 0 },
+		};
+
+		const result = generateTransferReasons({ facility });
+
+		expect(
+			result.some((item) => item.category === "public_waitlist"),
+		).toBe(false);
+	});
+
+	it("handles facility names with special characters without crashing", () => {
+		const facility: Facility = {
+			...sampleFacility,
+			name: "★도토리&키즈!@#어린이집(테스트)",
+		};
+
+		expect(() => generateTransferReasons({ facility })).not.toThrow();
+		expect(Array.isArray(generateTransferReasons({ facility }))).toBe(true);
 	});
 });

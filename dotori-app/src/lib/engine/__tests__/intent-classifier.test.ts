@@ -88,4 +88,42 @@ describe("classifyIntent", () => {
 			expect(expected).toContain(classifyIntent(message));
 		},
 	);
+
+	it("returns general for empty input", () => {
+		expect(classifyIntent("")).toBe("general");
+	});
+
+	it("returns general for emoji-only input", () => {
+		expect(classifyIntent("🧸🎈😊")).toBe("general");
+	});
+
+	it("returns general for whitespace-only input", () => {
+		expect(classifyIntent("   ")).toBe("general");
+	});
+
+	it("classifies a very long sentence with recommendation intent", () => {
+		const message =
+			"아이가 적응을 힘들어해서 교사 안정성과 통원 거리, 프로그램 균형, 급식 만족도까지 길게 비교해보고 싶고 우리 동네 기준으로 추천 가능한 어린이집을 자세히 알려주세요.";
+		expect(classifyIntent(message)).toBe("recommend");
+	});
+
+	it("classifies mixed transfer and vacancy message as transfer or recommend", () => {
+		const message = "반편성도 맘에 안 들고 국공립 빈자리도 보고 싶어요";
+		expect(["transfer", "recommend"]).toContain(classifyIntent(message));
+	});
+
+	it("classifies uppercase VS keyword as compare", () => {
+		expect(classifyIntent("A VS B 어디가 좋아?")).toBe("compare");
+	});
+
+	it("prefers checklist over knowledge when both checklist and application keywords exist", () => {
+		expect(classifyIntent("국공립 신청 방법이랑 서류 뭐가 필요해?")).toBe(
+			"checklist",
+		);
+	});
+
+	it("prioritizes transfer over status when transfer signals are stronger", () => {
+		const message = "국공립 대기 당첨됐는데 빈자리 현황도 궁금해요";
+		expect(classifyIntent(message)).toBe("transfer");
+	});
 });
