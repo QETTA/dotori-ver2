@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import type { Session } from "next-auth";
 import { z } from "zod";
+import { auth } from "@/auth";
 import { withApiHandler, BadRequestError, NotFoundError } from "@/lib/api-handler";
 import Facility from "@/models/Facility";
 
@@ -26,18 +28,22 @@ const normalizeFeatureList = (values: string[]): string[] => {
 		.filter((value) => value.length > 0);
 };
 
-const ensureAuthorized = (req: Request): boolean => {
+const hasValidCronSecret = (req: Request): boolean => {
 	const secret = process.env.CRON_SECRET;
 	const authorization = req.headers.get("authorization");
 	return Boolean(secret && authorization === `Bearer ${secret}`);
 };
 
-export const PUT = withApiHandler<PremiumUpdatePayload>(async (_req, { params, body }) => {
-	if (!ensureAuthorized(_req)) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
+const hasAdminRole = (session: Session | null): boolean => {
+	if (!session?.user?.id) return false;
+	const user = session.user as Record<string, unknown>;
+	return user.role === "admin";
+};
 
-	const facilityId = params.id;
+const updateFacilityPremium = async (
+	facilityId: string,
+	body: PremiumUpdatePayload,
+): Promise<NextResponse> => {
 	if (!mongoose.Types.ObjectId.isValid(facilityId)) {
 		throw new BadRequestError("유효하지 않은 시설 ID입니다");
 	}
@@ -82,4 +88,32 @@ export const PUT = withApiHandler<PremiumUpdatePayload>(async (_req, { params, b
 		},
 		{ status: 200 },
 	);
+};
+
+const putByAdminSession = withApiHandler<PremiumUpdatePayload>(async (_req, { params, body }) => {
+	const session = await auth();
+	if (!hasAdminRole(session)) {
+		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+	}
+
+	return updateFacilityPremium(params.id, body);
+}, { schema: premiumUpdateSchema });
+
+const putByCronSecret = withApiHandler<PremiumUpdatePayload>(async (_req, { params, body }) => {
+	return updateFacilityPremium(params.id, body);
 }, { auth: false, schema: premiumUpdateSchema });
+
+type RouteContext = { params: Promise<Record<string, string>> };
+
+export const PUT = async (req: NextRequest, routeCtx: RouteContext): Promise<NextResponse> => {
+	if (hasValidCronSecret(req)) {
+		return putByCronSecret(req, routeCtx);
+	}
+
+	const session = await auth();
+	if (!hasAdminRole(session)) {
+		return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+	}
+
+	return putByAdminSession(req, routeCtx);
+};
