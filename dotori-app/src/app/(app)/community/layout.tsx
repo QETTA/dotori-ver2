@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "커뮤니티",
+	title: {
+		absolute: "이웃 커뮤니티 | 도토리",
+	},
 	description:
-		"다른 부모님들과 어린이집 정보를 나누고, 입소 경험과 팁을 공유하세요.",
+		"어린이집 정보를 이웃과 나눠요",
 };
 
 export default function CommunityLayout({

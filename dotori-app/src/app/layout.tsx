@@ -15,6 +15,16 @@ const SITE_URL =
 	process.env.NEXT_PUBLIC_SITE_URL || "https://dotori.app";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
+const organizationSchema = {
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	name: "도토리",
+	url: SITE_URL,
+	description:
+		"AI가 추천해주는 어린이집 검색, 실시간 빈자리 알림, 입소 대기 관리 플랫폼입니다.",
+	logo: `${SITE_URL}/brand/dotori-favicon.svg`,
+};
+
 export const metadata: Metadata = {
 	title: {
 		default: "도토리 — 우리 아이 어린이집 찾기",
@@ -60,6 +70,9 @@ export const metadata: Metadata = {
 		index: true,
 		follow: true,
 	},
+	alternates: {
+		canonical: SITE_URL,
+	},
 	manifest: "/manifest.json",
 	appleWebApp: {
 		capable: true,
@@ -89,6 +102,12 @@ export default function RootLayout({
 					rel="stylesheet"
 					crossOrigin="anonymous"
 					href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+				/>
+				<Script
+					id="organization-schema"
+					type="application/ld+json"
+					strategy="beforeInteractive"
+					dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
 				/>
 			</head>
 			<body className="bg-white text-dotori-900 antialiased">
