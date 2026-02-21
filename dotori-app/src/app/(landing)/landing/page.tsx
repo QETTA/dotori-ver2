@@ -28,8 +28,8 @@ type CountStat = {
 
 const STATS: CountStat[] = [
 	{ label: '전국 시설', target: 20027, suffix: ' 시설', decimals: 0, animated: true },
-	{ label: '이동 성공률', target: 84, suffix: '%', decimals: 0, animated: true },
-	{ label: '반응 시간', subLabel: '즉시 알림', target: 24, suffix: 'h', decimals: 0, animated: true },
+	{ label: '이동 성공률', target: 89, suffix: '%', decimals: 0, animated: true },
+	{ label: '평균 대기', target: 14, suffix: '개월', decimals: 0, animated: true },
 	{ label: '무료', target: 0, suffix: '', decimals: 0, animated: false, staticValue: '무료' },
 ]
 
@@ -37,6 +37,10 @@ const FAQ_ITEMS = [
 	{
 		question: '이미 어린이집에 다니고 있는데 이동할 수 있나요?',
 		answer: '가능하며, 도토리로 빈자리 시설을 먼저 확인한 뒤 현 시설 퇴소 + 신규 입소 신청을 진행하면 됩니다.',
+	},
+	{
+		question: '현재 다니는 어린이집에서 이동할 수 있나요?',
+		answer: '네, 가능합니다. 퇴소 절차를 준비하면서 입소 신청서를 먼저 진행하면 이동할 수 있는 여유를 확보할 수 있어요.',
 	},
 	{
 		question: '반편성이 마음에 안 들면 어떻게 해야 하나요?',
@@ -164,7 +168,11 @@ export default function LandingPage() {
 		}
 
 		frameId = requestAnimationFrame(tick)
-		return () => cancelAnimationFrame(frameId)
+		return () => {
+			if (frameId) {
+				cancelAnimationFrame(frameId)
+			}
+		}
 	}, [])
 
 	return (
@@ -243,7 +251,7 @@ export default function LandingPage() {
 						</p>
 						<div className="mt-8 flex justify-center gap-4">
 							<Button href="/explore" color="dotori" className="px-8 py-3">
-								이동할 곳 찾아보기
+								내 아이 맞는 시설 찾기
 							</Button>
 							<Button href="/chat" color="dotori" className="px-8 py-3">
 								토리에게 물어보기
