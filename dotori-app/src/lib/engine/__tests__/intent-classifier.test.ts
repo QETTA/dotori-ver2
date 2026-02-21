@@ -89,6 +89,19 @@ describe("classifyIntent", () => {
 		},
 	);
 
+	it.each([
+		{ message: "이동하고 싶어요", expected: ["transfer"] },
+		{ message: "강남구 어린이집 추천해줘", expected: ["recommend"] },
+		{ message: "A와 B 시설 비교해줘", expected: ["compare"] },
+		{ message: "국공립 대기 신청 방법 알려줘", expected: ["knowledge"] },
+		{ message: "서류 준비 어떻게 해?", expected: ["knowledge", "checklist"] },
+	] as const)(
+		`keeps migrated legacy scenario: $message`,
+		({ message, expected }) => {
+			expect(expected).toContain(classifyIntent(message));
+		},
+	);
+
 	it("returns general for empty input", () => {
 		expect(classifyIntent("")).toBe("general");
 	});
