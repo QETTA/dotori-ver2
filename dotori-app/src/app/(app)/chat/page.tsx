@@ -4,30 +4,37 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
+import { Field, Fieldset, Label } from "@/components/catalyst/fieldset";
 import { ChatBubble } from "@/components/dotori/ChatBubble";
+import { Heading } from "@/components/catalyst/heading";
+import { Input } from "@/components/catalyst/input";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { Select } from "@/components/catalyst/select";
 import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { motion, type Variants } from "motion/react";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
 import type { ChatBlock, ChatMessage } from "@/types/dotori";
 import { useSession } from "next-auth/react";
+import { Text } from "@/components/catalyst/text";
 
 const FREE_PLAN_CHAT_LIMIT = 5;
 const GUEST_CHAT_LIMIT = 3;
 const MONTHLY_USAGE_API_URL = "/api/analytics/usage";
 const PREMIUM_GATE_HINT = "업그레이드하면 무제한으로 대화해요";
+const TORI_ICON = (BRAND as { TORI_ICON?: string }).TORI_ICON ?? BRAND.appIconSimple;
 
 const suggestedPrompts = [
 	{
 		label: "이동 고민",
-		prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 무엇부터 시작해야 할까요?",
+		prompt:
+			"지금 다니는 어린이집에서 이동하고 싶어요. 무엇부터 시작해야 할까요?",
 		icon: "🔄",
 	},
 	{
-			label: "반편성 불만",
-		prompt:
-			"3월 반편성 결과가 마음에 안 들어요. 이동할 만한 시설이 있을까요?",
+		label: "반편성 불만",
+		prompt: "3월 반편성 결과가 마음에 안 들어요. 이동할 만한 시설이 있을까요?",
 		icon: "📋",
 	},
 	{
@@ -35,12 +42,29 @@ const suggestedPrompts = [
 		prompt: "우리 동네 어린이집 중 지금 바로 입소 가능한 곳을 찾고 싶어요",
 		icon: "🔍",
 	},
-	{
-		label: "시설 비교",
-		prompt: "국공립과 민간 어린이집의 실질적인 차이점을 알고 싶어요",
-		icon: "⚖️",
+] as const;
+
+const promptListVariants: Variants = {
+	hidden: { opacity: 1 },
+	show: {
+		opacity: 1,
+		transition: {
+			staggerChildren: 0.06,
+		},
 	},
-];
+};
+
+const promptItemVariants: Variants = {
+	hidden: { opacity: 0, y: 8 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			ease: "easeOut",
+			duration: 0.24,
+		},
+	},
+};
 
 const RETRY_ACTION_ID = "chat:retry-last-message";
 const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
@@ -117,8 +141,24 @@ function UsageCounter({ count, limit, isLoading }: {
 	limit: number;
 	isLoading: boolean;
 }) {
-	const text = isLoading ? "이번 달 사용량을 확인하는 중" : `이번 달 ${count}/${limit}회 사용`;
-	return <p className="text-[12px] text-dotori-500">{text}</p>;
+	const safeLimit = Math.max(1, Math.floor(limit));
+	const safeCount = Math.max(0, Math.floor(count));
+	const percent = Math.min(100, Math.round((safeCount / safeLimit) * 100));
+	const text = isLoading
+		? "이번 달 사용량을 확인하는 중"
+		: `이번 달 ${safeCount}/${safeLimit}회 사용`;
+
+	return (
+		<div className="flex items-center gap-2 text-sm text-dotori-500">
+			<Text>{text}</Text>
+			<div className="h-1.5 w-24 rounded-full bg-dotori-100">
+				<div
+					className="h-full rounded-full bg-dotori-400"
+					style={{ width: `${percent}%` }}
+				/>
+			</div>
+		</div>
+	);
 }
 
 function PremiumGate({
@@ -130,14 +170,15 @@ function PremiumGate({
 }) {
 	return (
 		<div className="mb-2 rounded-2xl border border-dotori-200 bg-dotori-50 px-4 py-3">
-			<p className="text-[13px] font-semibold text-dotori-800">
+			<Text className="text-sm font-semibold text-dotori-800">
 				이번 달 무료 채팅 횟수를 모두 사용했어요
-			</p>
-			<p className="mt-1 text-[13px] text-dotori-700">
-				<Badge color="dotori" className="text-[11px]">{usageLimit}회 제한</Badge>
-				
+			</Text>
+			<Text className="mt-1 text-sm text-dotori-700">
+				<Badge color="dotori" className="text-xs">
+					{usageLimit}회 제한
+				</Badge>
 				{` ${message}`}
-			</p>
+			</Text>
 			<Button href="/landing" color="dotori" className="mt-2.5 w-full">
 				프리미엄으로 업그레이드
 			</Button>
@@ -263,6 +304,9 @@ function ChatContent() {
 	const [usageCount, setUsageCount] = useState(0);
 	const [usageLimit, setUsageLimit] = useState(0);
 	const [isUsageLoading, setIsUsageLoading] = useState(false);
+	const [selectedPromptLabel, setSelectedPromptLabel] = useState<string>(
+		suggestedPrompts[0]?.label ?? "",
+	);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
@@ -586,8 +630,20 @@ function ChatContent() {
 	}
 
 	function handleSuggest(prompt: string) {
+		const selectedPrompt = suggestedPrompts.find((item) => item.prompt === prompt);
+		if (selectedPrompt) {
+			setSelectedPromptLabel(selectedPrompt.label);
+		}
 		sendMessage(prompt);
 	}
+
+	const handlePromptSelectChange = (value: string) => {
+		const selectedPrompt = suggestedPrompts.find((item) => item.label === value);
+		if (!selectedPrompt) return;
+		setSelectedPromptLabel(selectedPrompt.label);
+		setInput(selectedPrompt.prompt);
+		inputRef.current?.focus();
+	};
 
 	const handleClearHistory = async () => {
 		setIsResetting(true);
@@ -604,24 +660,29 @@ function ChatContent() {
 			{/* ── Header ── */}
 			<header className="flex items-center gap-3 border-b border-dotori-100/30 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img src={BRAND.appIconWarm} alt="" aria-hidden="true" className="h-8 w-8" />
-				<h1 className="text-xl font-bold">토리</h1>
-				<Badge color="forest" className="text-[12px]">
-					<span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-forest-500" />
-					온라인
-				</Badge>
-				<button
+				<img
+					src={TORI_ICON}
+					alt=""
+					aria-hidden="true"
+					className="h-10 w-10 rounded-full border border-dotori-100 bg-white"
+				/>
+				<div className="min-w-0">
+					<Heading level={3} className="font-semibold text-dotori-900">
+						토리
+					</Heading>
+					<Badge color="forest" className="w-fit text-xs">
+						<span className="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
+						토리 · 온라인
+					</Badge>
+				</div>
+				<Button
 					onClick={handleClearHistory}
 					disabled={isResetting || isLoading}
-					className={cn(
-						"ml-auto inline-flex min-h-[34px] min-w-[102px] items-center justify-center rounded-full px-3 text-xs font-medium transition-all",
-						isResetting
-							? "bg-dotori-100 text-dotori-300"
-						: "bg-dotori-50 text-dotori-600 hover:bg-dotori-100",
-					)}
+					color="dotori"
+					className="ml-auto min-h-10 min-w-24 px-3 text-sm"
 				>
 					대화 초기화
-				</button>
+				</Button>
 			</header>
 			{isTrackingUsage ? (
 				<div className="border-b border-dotori-100/30 bg-white/90 px-5 py-2.5">
@@ -641,48 +702,70 @@ function ChatContent() {
 					</div>
 				) : messages.length === 0 ? (
 					<div className="relative px-6 pb-4 pt-10">
-						<div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-3xl border border-dotori-100 bg-white/90 p-6 shadow-sm">
-							<div className="absolute -left-10 -top-8 h-24 w-24 rounded-full bg-dotori-100/80 blur-2xl" />
-							<div className="absolute -right-8 -bottom-8 h-20 w-20 rounded-full bg-dotori-100/70 blur-3xl" />
+						<div className="mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-dotori-100 bg-white/90 p-6 shadow-sm">
 							<div className="relative">
 								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
-									src={BRAND.appIconWarm}
+									src={TORI_ICON}
 									alt=""
-									className="mx-auto mb-4 h-14 w-14"
+									className="mx-auto mb-4 h-14 w-14 rounded-full border border-dotori-100 bg-white"
 								/>
-								<h2 className="text-center text-lg font-bold text-dotori-800">
-									우리 아이에게 맞는 어린이집을 찾을 때까지 토리가 함께해요
-								</h2>
-								<p className="mt-1.5 text-center text-[14px] text-dotori-500">
-									어린이집 검색부터 입소 전략, 서류 준비까지 도와드릴게요.
-								</p>
+								<Heading level={3} className="text-center text-lg text-dotori-800">
+									이동 고민이라면 뭐든 물어보세요
+								</Heading>
+								<Text className="mt-1.5 block text-center text-sm text-dotori-500">
+									토리에게 무엇이든 편하게 물어보세요.
+								</Text>
 							</div>
 
-							<div className="relative mt-6 space-y-2.5">
-								{suggestedPrompts.map((sp) => (
-									<button
-										key={sp.label}
-										onClick={() => handleSuggest(sp.prompt)}
-										className={cn(
-											"flex w-full items-center gap-3 rounded-2xl bg-dotori-50 px-4 py-3 text-left transition-all",
-											"active:scale-[0.99] hover:bg-dotori-100",
-										)}
+							<Fieldset className="sr-only">
+								<Field>
+									<Label>빠른 시나리오</Label>
+									<Select
+										value={selectedPromptLabel}
+										onChange={(event) =>
+											handlePromptSelectChange(event.currentTarget.value)
+										}
 									>
-										<span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-[18px]">
-											{sp.icon}
-										</span>
-										<div className="min-w-0">
-											<span className="block text-[14px] font-semibold text-dotori-700">
-												{sp.label}
+										{suggestedPrompts.map((prompt) => (
+											<option key={prompt.label} value={prompt.label}>
+												{prompt.label}
+											</option>
+										))}
+									</Select>
+								</Field>
+							</Fieldset>
+
+							<motion.div
+								className="relative mt-6 space-y-2.5"
+								variants={promptListVariants}
+								initial="hidden"
+								animate="show"
+							>
+								{suggestedPrompts.map((sp) => (
+									<motion.div key={sp.label} variants={promptItemVariants}>
+										<button
+											onClick={() => handleSuggest(sp.prompt)}
+											className={cn(
+												"flex w-full items-center gap-3 rounded-2xl bg-dotori-50 px-4 py-3 text-left transition-all",
+												"hover:bg-dotori-100 active:scale-95",
+											)}
+										>
+											<span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-lg">
+												{sp.icon}
 											</span>
-											<span className="mt-0.5 block text-[12px] text-dotori-500 line-clamp-1">
-												{sp.prompt}
-											</span>
-										</div>
-									</button>
+											<div className="min-w-0">
+												<Text className="block font-semibold text-dotori-700">
+													{sp.label}
+												</Text>
+												<Text className="mt-0.5 block text-sm text-dotori-500 line-clamp-1">
+													{sp.prompt}
+												</Text>
+											</div>
+										</button>
+									</motion.div>
 								))}
-							</div>
+							</motion.div>
 						</div>
 					</div>
 				) : (
@@ -704,7 +787,7 @@ function ChatContent() {
 								{msg.role === "assistant" ? (
 									<MarkdownText content={msg.content} />
 								) : (
-									<p className="text-[15px]">{msg.content}</p>
+									<Text>{msg.content}</Text>
 								)}
 							</ChatBubble>
 						))}
@@ -722,22 +805,25 @@ function ChatContent() {
 					/>
 				) : null}
 				<div className="flex items-center gap-2.5">
-					<input
-						ref={inputRef}
-						type="text"
-						value={input}
-						onChange={(e) => setInput(e.target.value)}
-						placeholder="토리에게 물어보세요..."
-						className="min-w-0 flex-1 rounded-3xl bg-dotori-100/60 px-5 py-3.5 text-[15px] outline-none transition-all focus:ring-2 focus:ring-dotori-300"
-						onKeyDown={(e) => {
-							if (e.key === "Enter" && input.trim()) {
-								sendMessage(input);
-							}
-						}}
-						disabled={
-							isLoading || isUsageLoading || isUsageLimitReached
-						}
-					/>
+					<Fieldset className="min-w-0 flex-1">
+						<Field>
+							<Label className="sr-only">메시지 입력</Label>
+							<Input
+								ref={inputRef}
+								type="text"
+								value={input}
+								onChange={(e) => setInput(e.target.value)}
+								placeholder="토리에게 물어보세요..."
+								className="min-h-12 bg-dotori-100/60 text-sm"
+								onKeyDown={(event) => {
+									if (event.key === "Enter" && input.trim()) {
+										sendMessage(input);
+									}
+								}}
+								disabled={isLoading || isUsageLoading || isUsageLimitReached}
+							/>
+						</Field>
+					</Fieldset>
 					<button
 						onClick={() => sendMessage(input)}
 						disabled={
@@ -745,7 +831,7 @@ function ChatContent() {
 						}
 						aria-label="메시지 전송"
 						className={cn(
-							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-[0.97]",
+							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95",
 							input.trim() && !isLoading && !isUsageLoading && !isUsageLimitReached
 								? "bg-dotori-900 text-white"
 								: "bg-dotori-100 text-dotori-500",
