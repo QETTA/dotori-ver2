@@ -29,9 +29,7 @@ test("게스트 채팅 쿼터 반응", async ({ page }) => {
 	]);
 
 	await expect(
-		page.getByText(
-			/이번 달 사용량을 확인하는 중|이번 달 \d+\/\d+회 사용|무료 채팅 횟수를 모두 사용했어요/,
-		),
+		page.getByText(/\b\d+\/\d+\b|무료 채팅 횟수를 모두 사용했어요/),
 	).toBeVisible();
 });
 

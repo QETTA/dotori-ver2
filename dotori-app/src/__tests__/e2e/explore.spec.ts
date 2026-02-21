@@ -21,6 +21,11 @@ test("탐색 페이지 렌더 테스트", async ({ page }) => {
 
 	await expect(page.getByRole("button", { name: "국공립" })).toBeVisible();
 	await expect(page.getByRole("button", { name: "민간" })).toBeVisible();
+
+	await expect(page.getByRole("button", { name: "반편성 불만" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "교사 교체" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "국공립 당첨" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "이사 예정" })).toBeVisible();
 });
 
 test("검색 플로우 테스트", async ({ page }) => {
