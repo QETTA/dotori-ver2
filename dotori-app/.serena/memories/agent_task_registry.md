@@ -1,43 +1,54 @@
-# Agent Task Registry — Codex 에이전트 공유 메모리
+# 에이전트 파일 소유권 맵 (R6 준비, 2026-02-22)
 
-## 목적
-이 파일은 Claude Code가 Codex 워크트리 에이전트에게 전달하는 작업 레지스트리.
-각 Codex 에이전트는 작업 시작 전 반드시 이 파일을 읽어야 함.
+## R6 태스크 배분 (11 Codex 에이전트)
 
-## 파일 소유권 맵 (충돌 방지)
-각 에이전트는 아래 파일만 수정. 다른 에이전트 파일 수정 금지.
+| 에이전트 | 담당 파일 | 작업 내용 |
+|---------|---------|---------|
+| **r6-eslint** | `src/components/dotori/PageTransition.tsx` | refs during render → useEffect 분리 (ESLint P0) |
+| **r6-auth** | `src/lib/models/User.ts`, `src/lib/auth.ts` | NextAuth + Mongoose User 스키마 통합 |
+| **r6-service-facility** | `src/lib/services/facility-service.ts` (신규) | 시설 서비스 레이어 분리 |
+| **r6-service-community** | `src/lib/services/post-service.ts`, `alert-service.ts` (신규) | 커뮤니티/알림 서비스 레이어 |
+| **r6-api-middleware** | `src/lib/middleware/withApiHandler.ts`, `src/lib/errors/ApiError.ts` | API 인증 미들웨어 통일 |
+| **r6-env** | `src/env.ts` | env.ts Zod validation 전환 |
+| **r6-explore-fix** | `src/app/(app)/explore/page.tsx` | placeholder 수정 + 필터 칩 줄바꿈 fix |
+| **r6-home-data** | `src/app/(app)/page.tsx` | 퀵액세스 카드 실제 DB 데이터 연결 |
+| **r6-landing-cta** | `src/app/(landing)/page.tsx` | 파트너 플랜 CTA 강화 (수익화 핵심) |
+| **r6-geocode** | `src/app/api/geocode/reverse/route.ts` | Kakao API 실제 연동 확인 |
+| **r6-infra** | `.dockerignore`, `src/middleware.ts` | Rate Limiting + 인프라 정비 |
 
-| 에이전트 ID | 담당 파일/디렉터리 | 주의사항 |
-|------------|-------------------|---------| 
-| chat-agent | `src/app/(app)/chat/`, `src/app/api/chat/` | SSE 스트림 유지 |
-| explore-agent | `src/app/(app)/explore/`, `src/hooks/use-facilities.ts` | API 호환 유지 |
-| engine-agent | `src/lib/engine/`, `src/lib/ai/` | buildResponse 인터페이스 유지 |
-| ui-agent | `src/components/dotori/` | Catalyst 컴포넌트 수정 금지 |
-| my-agent | `src/app/(app)/my/` | auth 패턴 유지 |
-| api-agent | `src/app/api/` (chat 제외) | withApiHandler 패턴 유지 |
+## 충돌 금지 규칙
+- `types/dotori.ts` — 한 에이전트만 수정
+- `(app)/page.tsx` (홈) — r6-home-data만
+- `(landing)/page.tsx` — r6-landing-cta만
+- `chat/stream/route.ts` — 엔진 에이전트만
+- `intent-classifier.ts` + `response-builder.ts` — 같은 에이전트만
 
-## 공유 타입 (변경 시 모든 에이전트 영향)
-- `src/types/dotori.ts` — ChatMessage, ChatBlock, Facility, UserProfile, ApiResponse<T>, PaginatedResponse<T>
-- `src/lib/engine/intent-classifier.ts` — ChatIntent 타입
-- `src/lib/engine/response-builder.ts` — ConversationContext, buildResponse
+## R6 Codex 발사 스크립트 (Claude Code 실행용)
+```bash
+#!/bin/bash
+APP=/home/sihu2129/dotori-ver2/dotori-app
+AGENTS=(eslint auth service-facility service-community api-middleware env explore-fix home-data landing-cta geocode infra)
+mkdir -p /tmp/results/r6 /tmp/logs/r6
 
-## 현재 진행 중인 작업
-없음 (2026-02-22 10개 워크트리 완료 + squash merge)
+for AGENT in "${AGENTS[@]}"; do
+  git -C $APP worktree add .worktrees/r6-$AGENT -b codex/r6-$AGENT 2>/dev/null
+done
+```
 
-## 완료된 주요 작업 이력
-- SSE 스트리밍: `/api/chat/stream` 구현 (2026-02-22)
-- MarkdownText.tsx 생성 (2026-02-22)
-- ChatBubble 타이핑 dots 애니메이션 (2026-02-22)
-- kidsmap 레거시 DB 삭제, dotori DB 전용화 (2026-02-22)
-- 지역 인식 22개 추가 (인천/대구/대전/세종/송도/청라/마곡) (2026-02-22)
-- **10-agent worktree 라운드 완료** (2026-02-22)
-  - stream: Anthropic messages.stream() 실제 토큰 스트리밍
-  - facility: 상세 페이지 통계/특징칩/액션바
-  - login: 로그인/랜딩/온보딩 DS 색상 준수
-  - home: 홈 대시보드 그리드 + dotori 색상 토큰
-  - waitlist: accepted 상태 추가, 진행바, estimatedDate
-  - community: 글쓰기 카테고리칩 + API 유효성 강화
-  - api: Cache-Control 통일, graceful degradation
-  - chat2: retry 버튼, 히스토리 스켈레톤, 로딩 스피너
-  - types: ApiResponse<T>, PaginatedResponse<T> 추가
-  - perf: 시설 캐시 30s TTL, 이미지 lazy loading
+## 완료된 작업 (R5, 2026-02-22)
+
+| 에이전트 | 수정 파일 | 내용 |
+|---------|---------|------|
+| r5-a | `src/app/(app)/explore/page.tsx` | GPS 내 위치 버튼 + 이동 가능 시설 필터 |
+| r5-b | `src/components/dotori/MapEmbed.tsx` | 사용자 위치 마커 + 에러 UI 개선 |
+| r5-c | `src/app/(auth)/login/page.tsx` | 에러 처리 + 카카오 버튼 개선 |
+| r5-d | `src/app/(app)/facility/[id]/FacilityDetailClient.tsx` | 입소설명회 안내 섹션 |
+| r5-d | `src/components/dotori/facility/FacilityCapacityCard.tsx` | 정원 progress bar |
+| r5-e | `src/app/(app)/facility/[id]/FacilityDetailClient.tsx` | 대기 신청 UX 개선 |
+| r5-e | `src/app/(app)/my/waitlist/page.tsx` | 대기 현황 UI 개선 |
+| r5-e | `src/app/api/waitlist/route.ts` | API 에러처리 강화 |
+| r5-f | `src/app/(app)/community/page.tsx` | 이웃 게시판 UX + FAB + 탭 개선 |
+| r5-g | `src/app/(app)/page.tsx` | 홈 UX 현대화 + 퀵액세스 카드 |
+| r5-h | `src/app/(app)/my/page.tsx` | MY 페이지 + 비로그인 CTA |
+| r5-i | `src/app/(onboarding)/onboarding/page.tsx` | 온보딩 슬라이더 + 나중에 설정 |
+| r5-j | `src/app/(app)/chat/page.tsx` | 빠른 응답 칩 + 대화 초기화 버튼 |
