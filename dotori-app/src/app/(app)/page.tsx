@@ -430,7 +430,7 @@ export default function HomePage() {
 							className="h-7 w-7"
 						/>
 						<h1 className="text-xl font-bold tracking-tight">
-							{user?.onboardingCompleted ? `${user.nickname}님` : "도토리"}
+							{user?.onboardingCompleted ? `${user?.nickname ?? ''}님` : "도토리"}
 						</h1>
 					</div>
 					<Link
@@ -584,7 +584,7 @@ export default function HomePage() {
 								<Text
 									className={cn(
 										"mt-1.5 text-sm font-semibold text-dotori-900",
-										stat.emphasized ? "text-3xl" : "text-base",
+										(stat as { emphasized?: boolean }).emphasized ? "text-3xl" : "text-base",
 									)}
 								>
 									{stat.value}
@@ -691,7 +691,7 @@ export default function HomePage() {
 							className="flex items-center gap-2 rounded-full border border-dotori-100 bg-white px-4 py-2.5"
 						>
 							<Text className="min-w-0 flex-1 truncate text-sm text-dotori-700">
-								커뮤니티 소식: {hotPost ? `${hotPost.author.nickname} · ${hotPost.content}` : "아직 소식이 없어요"}
+								커뮤니티 소식: {hotPost ? `${hotPost?.author?.nickname ?? ""} · ${hotPost?.content ?? ""}` : "아직 소식이 없어요"}
 							</Text>
 							<ChevronRightIcon className="h-4 w-4 text-dotori-300" />
 						</Link>
@@ -724,7 +724,7 @@ export default function HomePage() {
 						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-7 w-7" />
 						<h1 className="text-xl font-bold tracking-tight">
 							{user?.onboardingCompleted
-								? `${user.nickname}님`
+								? `${user?.nickname ?? ''}님`
 								: "도토리"}
 						</h1>
 					</div>
@@ -831,7 +831,7 @@ export default function HomePage() {
 										<div
 											className={cn(
 												"grid h-11 w-11 place-items-center rounded-2xl text-[20px]",
-												action.bg,
+												(action as { bg?: string }).bg ?? "bg-dotori-50",
 											)}
 										>
 											{action.icon}
@@ -1082,12 +1082,12 @@ export default function HomePage() {
 										"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 duration-300",
 									)}
 								>
-									<Link href={`/facility/${urgentFacility.id}`}>
+									<Link href={`/facility/${urgentFacility!.id}`}>
 										<div className="relative">
 											<span className="absolute -top-1.5 left-3 z-10 rounded-full bg-forest-500 px-2.5 py-1 text-[11px] font-bold text-white">
 												NEW TO
 											</span>
-											{urgentFacility.status === "available" ? (
+											{urgentFacility!.status === "available" ? (
 												<Badge
 													color="forest"
 													className="absolute left-3 top-3 z-10 px-2 py-0.5 text-xs"
@@ -1096,7 +1096,7 @@ export default function HomePage() {
 												</Badge>
 											) : null}
 											<FacilityCard
-												facility={urgentFacility}
+												facility={urgentFacility!}
 												compact
 											/>
 										</div>
@@ -1154,14 +1154,14 @@ export default function HomePage() {
 							>
 								<div className="flex items-center gap-2.5">
 									<div className="grid h-10 w-10 place-items-center rounded-full bg-dotori-100 text-[14px] font-bold text-dotori-600">
-										{hotPost.author.nickname[0]}
+										{hotPost!.author.nickname[0]}
 									</div>
 									<div className="min-w-0 flex-1">
 										<div className="flex items-center gap-1.5">
 											<span className="text-[14px] font-semibold text-dotori-800">
-												{hotPost.author.nickname}
+												{hotPost!.author.nickname}
 											</span>
-											{hotPost.author.verified && (
+											{hotPost!.author.verified && (
 												<span className="rounded bg-forest-100 px-1.5 py-0.5 text-[11px] font-medium text-forest-700">
 													인증
 												</span>
@@ -1171,11 +1171,11 @@ export default function HomePage() {
 									<ChevronRightIcon className="h-4 w-4 text-dotori-300" />
 								</div>
 								<p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-dotori-700">
-									{hotPost.content}
+									{hotPost!.content}
 								</p>
 								<div className="mt-3 flex items-center gap-3 text-[13px] text-dotori-500">
-									<span>❤️ {hotPost.likes}</span>
-									<span>💬 {hotPost.commentCount}</span>
+									<span>❤️ {hotPost!.likes}</span>
+									<span>💬 {hotPost!.commentCount}</span>
 								</div>
 							</Link>
 						) : (
@@ -1305,7 +1305,7 @@ export default function HomePage() {
 					)}
 
 				{/* ── 온보딩 미완료시 CTA (로그인 CTA는 NBA 카드에서 처리) ── */}
-				{user && !user.onboardingCompleted && (
+				{user != null && !user!.onboardingCompleted && (
 					<section
 						className={cn(
 							"mt-8 rounded-2xl bg-dotori-900 p-5 text-white",

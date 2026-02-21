@@ -15,7 +15,8 @@ dotori-ver2/
 Claude Code (지휘관)
 ├── Serena MCP    → 코드 인텔리전스 + 에이전트 공유 메모리 허브
 ├── Git Worktrees → 각 Codex 에이전트 격리 실행 공간
-└── Codex CLI     → 코드 구현 에이전트 (codex exec, 병렬 최대 10개)
+├── Codex CLI     → 코드 구현 에이전트 (codex exec, 병렬 최대 11개)
+└── Plugins       → 리뷰/커밋/리팩토링 자동화 (Claude Code 전용)
 ```
 
 ### 역할 분담
@@ -23,10 +24,22 @@ Claude Code (지휘관)
 |-----------|------|
 | 코드 생성/리팩토링/버그 수정 | **Codex** (워크트리) |
 | 코드 분석/심볼 검색/타입 확인 | **Serena** |
+| 머지 전 코드 리뷰 | **pr-review-toolkit** 플러그인 |
+| 커밋/PR 생성 | **commit-commands** 플러그인 |
+| UI 컴포넌트 설계 | **frontend-excellence** 플러그인 |
 | 1-2줄 직접 수정 | Claude (Edit 도구) |
 | 파일 탐색/검색 | Claude (Glob/Grep) |
 | git/배포/빌드 검증 | Claude (Bash) |
 | 아키텍처 결정/설계 | Claude (대화) |
+
+### 설치된 플러그인
+| 플러그인 | 사용 시점 |
+|---------|---------|
+| `frontend-design` | UI 컴포넌트 제작 |
+| `frontend-excellence` | React 19/Next.js 패턴 |
+| `pr-review-toolkit` | Codex 머지 전 리뷰 (Phase 3) |
+| `commit-commands` | 스쿼시 머지 커밋 (Phase 4) |
+| `code-refactoring` | 리팩토링 필요 시 |
 
 ## Codex 워크트리 병렬 파이프라인
 
@@ -105,9 +118,35 @@ npm run screenshot # 스크린샷
 ## 축약어
 | 입력 | 동작 |
 |------|------|
-| `ㄱ` | 빌드→분석→워크트리 Codex 병렬→검증→머지→리포트 |
+| `ㄱ` | 스크린샷→비전평가→태스크재편→Codex(11)병렬→pr-review→머지→빌드→리포트 |
 | `ㄱㄱ` | 위 사이클 반복 |
 | `ㅂ` | 빌드 검증만 |
-| `ㅅ` | 스크린샷 |
+| `ㅅ` | 스크린샷 + Claude 비전 평가 |
 
-**원칙: Serena로 컨텍스트 파악 → Codex 워크트리로 구현 → Claude가 빌드 검증 + 머지**
+## ㄱ 전체 파이프라인 (비전 평가 통합)
+```
+[Pre] ㅅ: ./scripts/vision-eval.sh → Claude Read 스크린샷 → 비전 평가
+         → 개선 항목 도출 → agent_task_registry.md 업데이트
+
+[Run] ㄱ: ./scripts/launch.sh r6
+  Phase 0: Pre-flight (빌드확인 + ESLint + 스테일 워크트리 정리)
+  Phase 1: 11개 워크트리 생성 (.env.local 복사 + chmod 777)
+  Phase 2: Codex 11개 병렬 발사 (각자 git commit)
+  Phase 3: 빌드 검증 → /pr-review-toolkit 리뷰
+  Phase 4: Squash Merge → /commit-commands
+  Phase 5: 최종 빌드 + 정리 + 메모리 업데이트
+
+[Post] ㅅ: 다시 스크린샷 → 비전 비교 평가 → ㄱㄱ 반복
+
+# 모니터링
+./scripts/wt-monitor.sh r6 --watch
+```
+
+## 비전 평가 관점 (ㅅ 실행 시 자동 적용)
+1. 브랜드 일관성 — dotori 색상 조합, 촌스러움 여부
+2. 수익화 CTA — 프리미엄 유도, 업그레이드 버튼 가시성
+3. 모바일 UX — 375px, 터치 타겟 44px, 가독성
+4. 전환 퍼널 — 각 화면의 다음 액션 명확성
+5. 비즈니스 목표 달성도
+
+**원칙: ㅅ 비전평가 → Serena 컨텍스트 → Codex(11) 구현 → 플러그인 리뷰 → 배포 → 반복**

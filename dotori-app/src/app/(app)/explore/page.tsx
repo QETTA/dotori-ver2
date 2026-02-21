@@ -912,7 +912,7 @@ function ExploreContent() {
 										관심
 									</Button>
 									<Button
-										color={f.status === "available" ? "forest" : "dotori"}
+										color="dotori"
 										type="button"
 										disabled={isActionLoading(f.id)}
 										onClick={() => applyWaiting(f.id)}
