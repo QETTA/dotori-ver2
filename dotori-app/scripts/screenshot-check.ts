@@ -24,7 +24,7 @@ async function main() {
   const routes = [
     { path: '/', name: '01-home' },
     { path: '/chat', name: '02-chat' },
-    { path: '/explore', name: '03-explore' },
+    { path: '/explore', name: '03-explore', waitUntil: 'load' as const },  // Kakao Map 외부 요청으로 networkidle 불가
     { path: '/landing', name: '04-landing' },
     { path: '/login', name: '05-login' },
     { path: '/onboarding', name: '06-onboarding' },
@@ -46,7 +46,7 @@ async function main() {
     const page = await context.newPage()
     try {
       await page.goto(`${BASE}${route.path}`, {
-        waitUntil: 'networkidle',
+        waitUntil: (route as { waitUntil?: 'networkidle' | 'load' }).waitUntil ?? 'networkidle',
         timeout: 30000,
       })
       // Wait for fonts + animations + Tailwind CSS
