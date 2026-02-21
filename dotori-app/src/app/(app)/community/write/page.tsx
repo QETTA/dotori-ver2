@@ -23,6 +23,12 @@ const categories = [
 		activeClass: "bg-forest-800 text-white border-forest-800",
 	},
 	{
+		key: "transition",
+		label: "이동고민",
+		baseClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+		activeClass: "bg-emerald-800 text-white border-emerald-800",
+	},
+	{
 		key: "info",
 		label: "정보공유",
 		baseClass: "bg-dotori-100 text-dotori-800 border-dotori-300",

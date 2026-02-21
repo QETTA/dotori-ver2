@@ -11,6 +11,7 @@ import { BRAND } from "@/lib/brand-assets";
 import type { CommunityPost } from "@/types/dotori";
 import {
 	ChatBubbleLeftIcon,
+	ArrowPathIcon,
 	HeartIcon,
 	EyeIcon,
 	MapPinIcon,
@@ -22,12 +23,13 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const tabs = ["전체", "정보공유", "질문", "후기", "모임"];
+const tabs = ["전체", "정보공유", "질문", "후기", "이동고민", "모임"];
 
 const categoryLabel: Record<string, string> = {
 	feedback: "모임",
 	question: "질문",
 	review: "후기",
+	transition: "이동고민",
 	info: "정보공유",
 };
 
@@ -35,6 +37,7 @@ const categoryStyle: Record<string, string> = {
 	feedback: "bg-dotori-100 text-dotori-600",
 	question: "bg-blue-50 text-blue-600",
 	review: "bg-forest-50 text-forest-600",
+	transition: "bg-emerald-50 text-emerald-600",
 	info: "bg-dotori-100 text-dotori-600",
 };
 
@@ -43,6 +46,7 @@ const tabToCategoryParam: Record<string, string> = {
 	정보공유: "info",
 	질문: "question",
 	후기: "review",
+	이동고민: "transition",
 	모임: "feedback",
 };
 
@@ -101,6 +105,7 @@ export default function CommunityPage() {
 	const [hasGeolocationPermission, setHasGeolocationPermission] = useState<boolean | null>(
 		null,
 	);
+	const isTransitionMonth = new Date().getMonth() <= 2;
 	const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
 	// GPS verification state
@@ -396,12 +401,13 @@ export default function CommunityPage() {
 							aria-selected={activeTab === tab}
 							onClick={() => setActiveTab(tab)}
 							className={cn(
-								"flex-1 py-3 text-center text-[15px] font-medium transition-all",
+								"flex-1 flex items-center justify-center gap-1.5 py-3 text-center text-[15px] font-medium transition-all",
 								activeTab === tab
 									? "border-b-2 border-dotori-900 text-dotori-900"
 									: "text-dotori-500",
 							)}
 						>
+							{tab === "이동고민" ? <ArrowPathIcon className="h-4 w-4" /> : null}
 							{tab}
 						</button>
 					))}
@@ -410,6 +416,12 @@ export default function CommunityPage() {
 
 			{/* -- 피드 -- */}
 			<div className="px-5 pt-4">
+				{isTransitionMonth ? (
+					<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-[14px] text-forest-700">
+						<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과 나눠보세요.
+					</div>
+				) : null}
+
 				{/* GPS 인증 배너 — 로그인 + 미인증 시에만 표시 */}
 				{userId &&
 					gpsVerified === false &&
