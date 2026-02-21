@@ -3,7 +3,6 @@ import { ApiError, withApiHandler } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 import { alertCreateSchema } from "@/lib/validations";
 import { alertService } from "@/lib/services/alert.service";
-import Alert from "@/models/Alert";
 import User from "@/models/User";
 
 export const GET = withApiHandler(async (_req, { userId }) => {
@@ -31,6 +30,13 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 
 	const alertType = body.type || "vacancy";
 	const isPremiumUser = userDoc.plan === "premium";
+	if (!isPremiumUser && alertType === "vacancy") {
+		return NextResponse.json({
+			data: null,
+			message: "빈자리 알림은 프리미엄 기능입니다",
+			requiresPremium: true,
+		});
+	}
 
 	const alert = await alertService.create({
 		userId,
@@ -39,10 +45,6 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 		condition: body.condition,
 		channels: body.channels,
 	});
-	if (!isPremiumUser && alertType === "vacancy") {
-		await Alert.findByIdAndUpdate(alert._id, { $set: { active: false } }).exec();
-		alert.active = false;
-	}
 
 	return NextResponse.json({ data: alert }, { status: 201 });
 }, { schema: alertCreateSchema, rateLimiter: standardLimiter });
