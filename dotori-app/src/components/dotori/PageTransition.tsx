@@ -2,13 +2,13 @@
 
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 let hasHydrated = false;
 
 export function PageTransition({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
-	const isInitialRender = useRef(!hasHydrated);
+	const [skipAnimation] = useState(() => !hasHydrated);
 
 	useEffect(() => {
 		hasHydrated = true;
@@ -17,7 +17,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
 	return (
 		<motion.div
 			key={pathname}
-			initial={isInitialRender.current ? false : { opacity: 0, y: 8 }}
+			initial={skipAnimation ? false : { opacity: 0, y: 8 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{
 				duration: 0.25,

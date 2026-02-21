@@ -205,6 +205,7 @@ function ExploreContent() {
 	// ── Region options ──
 	useEffect(() => {
 		let active = true;
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoadingSido(true);
 		apiFetch<{ data: string[] }>("/api/regions/sido")
 			.then((res) => {
@@ -225,7 +226,9 @@ function ExploreContent() {
 
 	useEffect(() => {
 		let active = true;
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoadingSigungu(true);
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setSigunguOptions([]);
 
 		if (!selectedSido) {

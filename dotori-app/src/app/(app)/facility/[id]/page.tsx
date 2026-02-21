@@ -16,6 +16,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		notFound();
 	}
 
+	let facility;
 	try {
 		await dbConnect();
 		const facilityDoc = await Facility.findById(facilityId).lean();
@@ -24,11 +25,9 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 			notFound();
 		}
 
-		const facility = toFacilityDTO(
+		facility = toFacilityDTO(
 			facilityDoc as Parameters<typeof toFacilityDTO>[0],
 		);
-
-		return <FacilityDetailClient facility={facility} />;
 	} catch {
 		return (
 			<div className="pb-4">
@@ -36,4 +35,6 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 			</div>
 		);
 	}
+
+	return <FacilityDetailClient facility={facility} />;
 }

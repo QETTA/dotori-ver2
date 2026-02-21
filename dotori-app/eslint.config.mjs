@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Non-production scripts
+    "map-test.js",
+    "scripts/**",
   ]),
 ]);
 
