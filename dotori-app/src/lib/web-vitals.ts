@@ -36,19 +36,6 @@ function getRating(
 export function reportWebVital(metric: WebVitalMetric): void {
 	const rating = getRating(metric.name, metric.value);
 
-	// Log in development
-	if (process.env.NODE_ENV === "development") {
-		const color =
-			rating === "good"
-				? "\x1b[32m"
-				: rating === "needs-improvement"
-					? "\x1b[33m"
-					: "\x1b[31m";
-		console.log(
-			`${color}[WebVital] ${metric.name}: ${Math.round(metric.value)}ms (${rating})\x1b[0m`,
-		);
-	}
-
 	// In production, send to analytics endpoint
 	if (
 		process.env.NODE_ENV === "production" &&
