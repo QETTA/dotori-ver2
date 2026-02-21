@@ -2,8 +2,7 @@
 
 import {
 	BellAlertIcon,
-	ClipboardDocumentListIcon,
-	HomeModernIcon,
+	ArrowPathIcon,
 	MagnifyingGlassIcon,
 	ScaleIcon,
 	SparklesIcon,
@@ -25,9 +24,9 @@ import { generateNBAs, type NBAItem } from "@/lib/engine/nba-engine";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
 const quickActions = [
-	{ label: "동네 추천", href: "/chat?prompt=동네추천", Icon: HomeModernIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
-	{ label: "시설 비교", href: "/chat?prompt=비교", Icon: ScaleIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
-	{ label: "서류 준비", href: "/chat?prompt=서류", Icon: ClipboardDocumentListIcon, bg: "bg-dotori-50", iconColor: "text-dotori-500" },
+	{ label: "이동 고민", href: "/chat?prompt=이동고민", Icon: ArrowPathIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
+	{ label: "반편성 비교", href: "/chat?prompt=반편성", Icon: ScaleIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
+	{ label: "빈자리 탐색", href: "/explore", Icon: MagnifyingGlassIcon, bg: "bg-dotori-50", iconColor: "text-dotori-500" },
 	{ label: "TO 알림", href: "/my/settings", Icon: BellAlertIcon, bg: "bg-red-50", iconColor: "text-red-400" },
 ];
 
@@ -102,6 +101,13 @@ export default function HomePage() {
 				data.alertCount > 0 ||
 				data.waitlistCount > 0),
 	);
+	const isTransitionMonth = (() => {
+		const month = new Date().getMonth() + 1;
+		return month === 2 || month === 3;
+	})();
+	const todayTip = isTransitionMonth
+		? "반편성 결과가 마음에 들지 않는다면 지금이 바로 이동 골든타임이에요. 3월 첫 2주 안에 결정하는 게 유리해요."
+		: "반편성 결과가 마음에 들지 않는다면 지금이 바로 이동 골든타임이에요. 3월 첫 2주 안에 결정하는 게 유리해요.";
 
 	function dismissNBA(id: string) {
 		setDismissedNBAs((prev) => new Set(prev).add(id));
@@ -203,11 +209,11 @@ export default function HomePage() {
 					)}
 				>
 					<MagnifyingGlassIcon className="h-5 w-5 text-dotori-500" />
-					<span className="text-[15px] text-dotori-500">
-						어린이집 이름, 지역 검색
-					</span>
-				</Link>
-			</header>
+						<span className="text-[15px] text-dotori-500">
+							이동할 어린이집 탐색...
+						</span>
+					</Link>
+				</header>
 
 			<div className="px-5">
 				{/* ── AI 오늘의 브리핑 ── */}
@@ -510,14 +516,13 @@ export default function HomePage() {
 							오늘의 팁
 						</div>
 						<p className="mt-2 text-[15px] leading-relaxed text-dotori-800">
-							국공립 어린이집 대기 신청은 아이사랑포털에서 온라인으로 가능해요.
-							대기 순번은 신청 시점 기준이므로 빠른 신청이 유리합니다.
+							{todayTip}
 						</p>
 						<Link
-							href="/chat?prompt=대기신청"
+							href="/explore"
 							className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-forest-600 transition-colors hover:text-forest-700"
 						>
-							자세히 알아보기
+							빈자리 찾기
 							<ChevronRightIcon className="h-3.5 w-3.5" />
 						</Link>
 					</div>
@@ -537,28 +542,26 @@ export default function HomePage() {
 						<div className="rounded-2xl bg-dotori-900 p-5">
 							<div className="flex items-center justify-between gap-4">
 								<div className="flex min-w-0 items-center gap-3">
-									{/* eslint-disable-next-line @next/next/no-img-element */}
-									<img
-										src={BRAND.symbol}
-										alt=""
-										className="h-8 w-8 shrink-0"
-									/>
-									<p className="text-[15px] leading-snug font-semibold">
-										토리와 함께라면
-										<br />
-										어린이집 찾기가 쉬워요
-									</p>
+										{/* eslint-disable-next-line @next/next/no-img-element */}
+										<img
+											src={BRAND.symbol}
+											alt=""
+											className="h-8 w-8 shrink-0"
+										/>
+										<p className="text-[15px] leading-snug font-semibold">
+											이미 다니고 있는데 고민 중이신가요?
+										</p>
+									</div>
+									<Link
+										href="/login"
+										className="inline-flex shrink-0 rounded-xl bg-dotori-400 px-4 py-2 text-[14px] font-semibold text-white transition-all active:scale-[0.97]"
+									>
+										무료로 이동 상담하기 →
+									</Link>
 								</div>
-								<Link
-									href="/login"
-									className="inline-flex shrink-0 rounded-xl bg-dotori-400 px-4 py-2 text-[14px] font-semibold text-white transition-all active:scale-[0.97]"
-								>
-									시작하기 →
-								</Link>
 							</div>
-						</div>
-					</motion.section>
-				)}
+						</motion.section>
+					)}
 
 				{/* ── 온보딩 미완료시 CTA (로그인 CTA는 NBA 카드에서 처리) ── */}
 				{user && !user.onboardingCompleted && (
@@ -569,10 +572,10 @@ export default function HomePage() {
 						)}
 					>
 						<h3 className="text-base font-bold">
-							아이 정보를 등록해보세요
+							이동 맞춤 알림 받기
 						</h3>
 						<p className="mt-1.5 text-[14px] leading-snug text-white/70">
-							맞춤 입소 전략과 실시간 알림을 받을 수 있어요
+							아이 나이와 지역을 등록하면 이동 최적 시기를 알려드려요
 						</p>
 						<Link
 							href="/onboarding"
