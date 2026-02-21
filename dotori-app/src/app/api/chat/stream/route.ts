@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import mongoose, { type Model } from "mongoose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -19,6 +20,10 @@ import type { ChatIntent } from "@/lib/engine/intent-classifier";
 const MAX_CHAT_MESSAGES = 200;
 const AI_MODEL = process.env.AI_MODEL || "claude-sonnet-4-6";
 const AI_TIMEOUT_MS = 15_000;
+const MONTHLY_FREE_CHAT_LIMIT = 5;
+const GUEST_CHAT_LIMIT = 3;
+const MONTHLY_QUOTA_EXCEEDED_MESSAGE =
+	"이번 달 무료 채팅 횟수를 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한으로 대화할 수 있어요.";
 const STREAM_SYSTEM_PROMPT = `당신은 "토리", 도토리 앱의 어린이집·유치원 AI 어시스턴트입니다.
 
 ## 정체성
@@ -65,6 +70,38 @@ const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
 	recommend: ["더 보기", "지도에서 보기", "비교하기"],
 	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
 };
+
+interface IUsageLog {
+	userId: string;
+	month: string;
+	count: number;
+}
+
+const usageLogSchema = new mongoose.Schema<IUsageLog>(
+	{
+		userId: { type: String, required: true, index: true },
+		month: { type: String, required: true, index: true },
+		count: { type: Number, required: true, default: 0, min: 0 },
+	},
+	{ timestamps: true },
+);
+usageLogSchema.index({ userId: 1, month: 1 }, { unique: true });
+
+const UsageLog: Model<IUsageLog> =
+	mongoose.models.UsageLog as Model<IUsageLog> ||
+	mongoose.model<IUsageLog>("UsageLog", usageLogSchema);
+
+function getMonthKey(date = new Date()): string {
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	return `${date.getFullYear()}-${month}`;
+}
+
+function parseGuestUsage(headerValue: string | null): number {
+	if (!headerValue) return 0;
+	const parsed = Number(headerValue);
+	if (!Number.isFinite(parsed)) return 0;
+	return Math.max(0, Math.floor(parsed));
+}
 
 function getQuickReplies(intent: ChatIntent): string[] {
 	return QUICK_REPLIES_BY_INTENT[intent] ?? [];
@@ -160,6 +197,31 @@ function buildFacilityContext(blocks: ChatBlock[]): string {
 	return `[검색된 시설 데이터]\n${lines.join("\n")}`;
 }
 
+async function getMonthlyChatCount(userId: string): Promise<number> {
+	const month = getMonthKey();
+	const usage = await UsageLog.findOne({ userId, month }).lean<{ count: number }>();
+	if (!usage || typeof usage.count !== "number" || Number.isNaN(usage.count)) {
+		return 0;
+	}
+	return Math.max(0, Math.floor(usage.count));
+}
+
+async function incrementMonthlyChatCount(userId: string): Promise<void> {
+	const month = getMonthKey();
+	await UsageLog.findOneAndUpdate(
+		{ userId, month },
+		{
+			$setOnInsert: {
+				userId,
+				month,
+				count: 0,
+			},
+			$inc: { count: 1 },
+		},
+		{ upsert: true, new: true },
+	);
+}
+
 export const POST = async (req: NextRequest) => {
 	const limited = strictLimiter.check(req);
 	if (limited) return limited;
@@ -177,6 +239,32 @@ export const POST = async (req: NextRequest) => {
 	const message = sanitizeString(parsed.data.message);
 	const session = await auth();
 	const userId = session?.user?.id;
+	const isPremiumPlan = session?.user?.plan === "premium";
+	const guestUsageCount = parseGuestUsage(
+		req.headers.get("x-chat-guest-usage"),
+	);
+
+	if (isAuthUserId(userId) && !isPremiumPlan) {
+		await dbConnect();
+		const currentMonthUsage = await getMonthlyChatCount(userId);
+		if (currentMonthUsage >= MONTHLY_FREE_CHAT_LIMIT) {
+			return NextResponse.json(
+				{
+					error: "quota_exceeded",
+					message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
+				},
+				{ status: 403 },
+			);
+		}
+	} else if (guestUsageCount >= GUEST_CHAT_LIMIT) {
+		return NextResponse.json(
+			{
+				error: "quota_exceeded",
+				message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
+			},
+			{ status: 403 },
+		);
+	}
 
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
@@ -324,6 +412,10 @@ export const POST = async (req: NextRequest) => {
 						chatHistory.messages = chatHistory.messages.slice(-MAX_CHAT_MESSAGES);
 					}
 					await chatHistory.save();
+				}
+
+				if (isAuthUserId(userId) && !isPremiumPlan) {
+					await incrementMonthlyChatCount(userId);
 				}
 
 				emitEvent(controller, encoder, {

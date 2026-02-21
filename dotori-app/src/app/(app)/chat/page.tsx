@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { ChatBubble } from "@/components/dotori/ChatBubble";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { BRAND } from "@/lib/brand-assets";
@@ -10,6 +11,12 @@ import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
 import type { ChatBlock, ChatMessage } from "@/types/dotori";
+import { useSession } from "next-auth/react";
+
+const FREE_PLAN_CHAT_LIMIT = 5;
+const GUEST_CHAT_LIMIT = 3;
+const MONTHLY_USAGE_API_URL = "/api/analytics/usage";
+const PREMIUM_GATE_HINT = "업그레이드하면 무제한으로 대화해요";
 
 const suggestedPrompts = [
 	{
@@ -42,7 +49,135 @@ const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
 	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
 };
 
-function getQuickReplies(intent?: string): string[] {
+function getMonthKey(date = new Date()) {
+	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getGuestUsageStorageKey(monthKey: string): string {
+	return `chat:guest-monthly-usage:${monthKey}`;
+}
+
+function getGuestUsageCount(monthKey: string): number {
+	if (typeof window === "undefined") return 0;
+	const raw = window.sessionStorage.getItem(getGuestUsageStorageKey(monthKey));
+	if (!raw) return 0;
+
+	const parsed = Number(raw);
+	if (!Number.isFinite(parsed)) return 0;
+	return Math.max(0, Math.floor(parsed));
+}
+
+function setGuestUsageCount(monthKey: string, count: number): void {
+	if (typeof window === "undefined") return;
+	window.sessionStorage.setItem(
+		getGuestUsageStorageKey(monthKey),
+		String(Math.max(0, Math.floor(count))),
+	);
+}
+
+function parseToNumber(value: unknown, fallback: number): number {
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return Math.max(0, Math.floor(value));
+	}
+	if (typeof value === "string") {
+		const parsed = Number(value);
+		if (Number.isFinite(parsed)) {
+			return Math.max(0, Math.floor(parsed));
+		}
+	}
+	return fallback;
+}
+
+function parseUsageResponse(
+	payload: unknown,
+	fallbackLimit: number,
+): { count: number; limit: number } {
+	if (!payload || typeof payload !== "object") {
+		return { count: 0, limit: fallbackLimit };
+	}
+
+	const record = payload as Record<string, unknown>;
+	const data = record.data;
+	const nested = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
+
+	return {
+		count: parseToNumber(
+			nested?.count ?? nested?.used ?? record.count ?? record.used,
+			0,
+		),
+		limit: parseToNumber(
+			nested?.limit ?? record.limit,
+			fallbackLimit,
+		),
+	};
+}
+
+function UsageCounter({ count, limit, isLoading }: {
+	count: number;
+	limit: number;
+	isLoading: boolean;
+}) {
+	const text = isLoading ? "이번 달 사용량을 확인하는 중" : `이번 달 ${count}/${limit}회 사용`;
+	return <p className="text-[12px] text-dotori-500">{text}</p>;
+}
+
+function PremiumGate({
+	usageLimit,
+	message,
+}: {
+	usageLimit: number;
+	message: string;
+}) {
+	return (
+		<div className="mb-2 rounded-2xl border border-dotori-200 bg-dotori-50 px-4 py-3">
+			<p className="text-[13px] font-semibold text-dotori-800">
+				이번 달 무료 채팅 횟수를 모두 사용했어요
+			</p>
+			<p className="mt-1 text-[13px] text-dotori-700">
+				<Badge color="dotori" className="text-[11px]">{usageLimit}회 제한</Badge>
+				
+				{` ${message}`}
+			</p>
+			<Button href="/landing" color="dotori" className="mt-2.5 w-full">
+				프리미엄으로 업그레이드
+			</Button>
+		</div>
+	);
+}
+
+function getStreamErrorPayload(
+	response: Response,
+): Promise<{ isQuotaExceeded: boolean; message: string }> {
+	const fallback = "스트리밍 응답을 받을 수 없습니다.";
+	if (!response.headers.get("content-type")?.includes("application/json")) {
+		return response
+			.text()
+			.then((text) => ({
+				isQuotaExceeded: false,
+				message: text.trim() || fallback,
+			}))
+			.catch(() => ({
+				isQuotaExceeded: false,
+				message: fallback,
+			}));
+	}
+
+	return response
+		.json()
+		.then((payload) => {
+			if (!payload || typeof payload !== "object") {
+				return { isQuotaExceeded: false, message: fallback };
+			}
+			const record = payload as Record<string, unknown>;
+			const isQuotaExceeded = record.error === "quota_exceeded";
+			const message =
+				typeof record.message === "string" ? record.message : fallback;
+			return { isQuotaExceeded, message };
+		})
+		.catch(() => ({ isQuotaExceeded: false, message: fallback }));
+}
+
+function parseQuickReplies(intent?: string): string[] {
 	if (!intent || !QUICK_REPLIES_BY_INTENT[intent]) return [];
 	return QUICK_REPLIES_BY_INTENT[intent];
 }
@@ -117,17 +252,27 @@ export default function ChatPage() {
 }
 
 function ChatContent() {
+	const { data: session, status } = useSession();
 	const router = useRouter();
 	const searchParams = useSearchParams();
-		const [input, setInput] = useState("");
-		const [messages, setMessages] = useState<ChatMessage[]>([]);
-		const [isHistoryLoading, setIsHistoryLoading] = useState(true);
-		const [isLoading, setIsLoading] = useState(false);
-		const [isResetting, setIsResetting] = useState(false);
-		const messagesEndRef = useRef<HTMLDivElement>(null);
+	const [input, setInput] = useState("");
+	const [messages, setMessages] = useState<ChatMessage[]>([]);
+	const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isResetting, setIsResetting] = useState(false);
+	const [usageCount, setUsageCount] = useState(0);
+	const [usageLimit, setUsageLimit] = useState(0);
+	const [isUsageLoading, setIsUsageLoading] = useState(false);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
 	const lastPromptRef = useRef("");
+	const messagesRef = useRef<ChatMessage[]>([]);
+	const monthKey = getMonthKey();
+	const isPremiumUser = status === "authenticated" && session?.user?.plan === "premium";
+	const isTrackingUsage = status !== "loading" && !isPremiumUser;
+	const isUsageLimitReached = isTrackingUsage && usageLimit > 0 && usageCount >= usageLimit;
+
 	const patchStreamingMessage = useCallback(
 		(streamingMessageId: string, patch: Partial<ChatMessage>) => {
 			setMessages((prev) =>
@@ -148,13 +293,11 @@ function ChatContent() {
 				return;
 			}
 
-			// Map action IDs to navigation or secondary actions
 			const actionRoutes: Record<string, string> = {
 				explore: "/explore",
 				waitlist: "/my/waitlist",
 				interests: "/my/interests",
 				community: "/community",
-				onboarding: "/onboarding",
 				settings: "/my/settings",
 				login: "/login",
 				import: "/my/import",
@@ -166,17 +309,14 @@ function ChatContent() {
 				return;
 			}
 
-			// Facility-specific: "facility_<id>" → navigate to detail
 			if (actionId.startsWith("facility_")) {
 				const fId = actionId.replace("facility_", "");
 				router.push(`/facility/${fId}`);
 				return;
 			}
 
-			// Fallback: treat as a follow-up prompt
 			sendMessage(actionId);
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[router],
 	);
 
@@ -184,7 +324,6 @@ function ChatContent() {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
 
-	// Load history on mount
 	useEffect(() => {
 		setIsHistoryLoading(true);
 		apiFetch<{ data: { messages: ChatMessage[] } }>("/api/chat/history")
@@ -201,22 +340,81 @@ function ChatContent() {
 			});
 	}, []);
 
-	// Auto-send ?prompt= parameter from deep links (e.g. quick action chips)
 	useEffect(() => {
 		if (promptHandled.current) return;
 		const prompt = searchParams.get("prompt");
 		if (prompt) {
 			promptHandled.current = true;
-			// Small delay to let history load first
 			const timer = setTimeout(() => sendMessage(prompt), 300);
 			return () => clearTimeout(timer);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams]);
+
+	useEffect(() => {
+		if (status === "loading") return;
+		let isActive = true;
+		setIsUsageLoading(true);
+
+		if (status !== "authenticated") {
+			const count = getGuestUsageCount(monthKey);
+			if (isActive) {
+				setUsageCount(Math.min(count, GUEST_CHAT_LIMIT));
+				setUsageLimit(GUEST_CHAT_LIMIT);
+				setIsUsageLoading(false);
+			}
+			return;
+		}
+
+		if (session?.user?.plan === "premium") {
+			if (isActive) {
+				setUsageCount(0);
+				setUsageLimit(0);
+				setIsUsageLoading(false);
+			}
+			return;
+		}
+
+		(async () => {
+			try {
+				const res = await fetch(MONTHLY_USAGE_API_URL, {
+					cache: "no-store",
+				});
+				if (!res.ok) {
+					throw new Error("usage-load-failed");
+				}
+				const payload = await res.json().catch(() => null);
+				if (!isActive) return;
+				const data = parseUsageResponse(payload, FREE_PLAN_CHAT_LIMIT);
+				setUsageCount(Math.min(data.count, data.limit));
+				setUsageLimit(Math.max(1, data.limit));
+			} catch {
+				if (!isActive) return;
+				setUsageCount(0);
+				setUsageLimit(FREE_PLAN_CHAT_LIMIT);
+			} finally {
+				if (isActive) {
+					setIsUsageLoading(false);
+				}
+			}
+		})();
+
+		return () => {
+			isActive = false;
+		};
+	}, [status, session?.user?.id, session?.user?.plan]);
+
+	messagesRef.current = messages;
 
 	async function sendMessage(text: string) {
 		const normalizedText = text.trim();
-		if (!normalizedText || isLoading) return;
+		if (
+			!normalizedText ||
+			isLoading ||
+			isUsageLoading ||
+			isUsageLimitReached
+		) {
+			return;
+		}
 		lastPromptRef.current = normalizedText;
 
 		const userMsg: ChatMessage = {
@@ -244,38 +442,52 @@ function ChatContent() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
+					...(isTrackingUsage && status !== "authenticated"
+						? { "x-chat-guest-usage": String(usageCount) }
+						: {}),
 				},
 				body: JSON.stringify({ message: text }),
 			});
 
 			if (!res.ok || !res.body) {
-				throw new Error("스트리밍 응답을 받을 수 없습니다.");
+				const errorPayload = await getStreamErrorPayload(res);
+				setMessages((prev) => prev.filter((m) => m.id !== streamingMsg.id));
+				if (errorPayload.isQuotaExceeded) {
+					if (isTrackingUsage && usageLimit > 0) {
+						setUsageCount((prev) => Math.max(prev, usageLimit));
+						if (status !== "authenticated") {
+							setGuestUsageCount(monthKey, usageLimit);
+						}
+					}
+					return;
+				}
+				throw new Error(errorPayload.message);
 			}
 
 			const streamingMessageId = streamingMsg.id;
-				const reader = res.body.getReader();
-				const decoder = new TextDecoder();
-				let buffer = "";
-				let assistantContent = "";
-				let assistantBlocks: ChatBlock[] = [];
-				let done = false;
-				let currentIntent: string | undefined;
-				let quickReplies: string[] = [];
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			let buffer = "";
+			let assistantContent = "";
+			let assistantBlocks: ChatBlock[] = [];
+			let done = false;
+			let currentIntent: string | undefined;
+			let quickReplies: string[] = [];
 
-				const parseEvent = (event: StreamEvent) => {
-					switch (event.type) {
-						case "start":
-							currentIntent = event.intent;
-							quickReplies = event.quick_replies?.length
-								? event.quick_replies
-								: getQuickReplies(event.intent);
-							patchStreamingMessage(streamingMessageId, {
-								quick_replies: quickReplies,
-							});
-							return;
-						case "block":
-							if (!event.block) return;
-							assistantBlocks = [...assistantBlocks, event.block];
+			const parseEvent = (event: StreamEvent) => {
+				switch (event.type) {
+					case "start":
+						currentIntent = event.intent;
+						quickReplies = event.quick_replies?.length
+							? event.quick_replies
+							: parseQuickReplies(event.intent);
+						patchStreamingMessage(streamingMessageId, {
+							quick_replies: quickReplies,
+						});
+						return;
+					case "block":
+						if (!event.block) return;
+						assistantBlocks = [...assistantBlocks, event.block];
 						patchStreamingMessage(streamingMessageId, {
 							isStreaming: false,
 							blocks: assistantBlocks,
@@ -294,21 +506,30 @@ function ChatContent() {
 									: undefined,
 						});
 						return;
-						case "done":
-							const finalQuickReplies = event.quick_replies?.length
-								? event.quick_replies
-								: quickReplies.length > 0
-									? quickReplies
-									: getQuickReplies(currentIntent);
-							patchStreamingMessage(streamingMessageId, {
-								isStreaming: false,
-								content: assistantContent,
-								blocks: assistantBlocks,
-								timestamp: event.timestamp ?? new Date().toISOString(),
-								quick_replies: finalQuickReplies,
+					case "done":
+						const finalQuickReplies = event.quick_replies?.length
+							? event.quick_replies
+							: quickReplies.length > 0
+								? quickReplies
+								: parseQuickReplies(currentIntent);
+						patchStreamingMessage(streamingMessageId, {
+							isStreaming: false,
+							content: assistantContent,
+							blocks: assistantBlocks,
+							timestamp: event.timestamp ?? new Date().toISOString(),
+							quick_replies: finalQuickReplies,
+						});
+						done = true;
+						if (isTrackingUsage && usageLimit > 0) {
+							setUsageCount((prev) => {
+								const next = Math.min(prev + 1, usageLimit);
+								if (status !== "authenticated") {
+									setGuestUsageCount(monthKey, next);
+								}
+								return next;
 							});
-							done = true;
-							return;
+						}
+						return;
 					case "error":
 						throw new Error(event.error || "스트리밍이 중단되었습니다.");
 				}
@@ -331,7 +552,6 @@ function ChatContent() {
 					separatorIndex = buffer.indexOf("\n\n");
 				}
 			}
-			// Parse final chunk (no trailing delimiter)
 			const tail = decoder.decode();
 			if (tail) {
 				buffer += tail;
@@ -341,23 +561,24 @@ function ChatContent() {
 				}
 			}
 		} catch {
-			// Remove streaming indicator and show error
 			setMessages((prev) =>
-				prev.filter((m) => m.id !== streamingMsg.id).concat({
-					id: `error-${Date.now()}`,
-					role: "assistant",
-					content:
-						"앗, 방금 응답이 중단됐어요. 네트워크 상태가 불안정하거나 서버가 잠시 바빠서 그랬을 수 있어요. 아래 버튼으로 바로 다시 시도할 수 있어요.",
-					timestamp: new Date().toISOString(),
-					actions: [
-						{
-							id: RETRY_ACTION_ID,
-							label: "마지막 질문 다시 보내기",
-							action: "generate_report",
-							variant: "outline",
-						},
-					],
-				}),
+				prev
+					.filter((m) => m.id !== streamingMsg.id)
+					.concat({
+						id: `error-${Date.now()}`,
+						role: "assistant",
+						content:
+							"앗, 방금 응답이 중단됐어요. 네트워크 상태가 불안정하거나 서버가 잠시 바빠서 그랬을 수 있어요. 아래 버튼으로 바로 다시 시도할 수 있어요.",
+						timestamp: new Date().toISOString(),
+						actions: [
+							{
+								id: RETRY_ACTION_ID,
+								label: "마지막 질문 다시 보내기",
+								action: "generate_report",
+								variant: "outline",
+							},
+						],
+					}),
 			);
 		} finally {
 			setIsLoading(false);
@@ -394,16 +615,26 @@ function ChatContent() {
 					disabled={isResetting || isLoading}
 					className={cn(
 						"ml-auto inline-flex min-h-[34px] min-w-[102px] items-center justify-center rounded-full px-3 text-xs font-medium transition-all",
-						isResetting ? "bg-dotori-100 text-dotori-300" : "bg-dotori-50 text-dotori-600 hover:bg-dotori-100",
+						isResetting
+							? "bg-dotori-100 text-dotori-300"
+						: "bg-dotori-50 text-dotori-600 hover:bg-dotori-100",
 					)}
 				>
 					대화 초기화
 				</button>
 			</header>
+			{isTrackingUsage ? (
+				<div className="border-b border-dotori-100/30 bg-white/90 px-5 py-2.5">
+					<UsageCounter
+						count={usageCount}
+						limit={usageLimit}
+						isLoading={isUsageLoading}
+					/>
+				</div>
+			) : null}
 
 			{/* ── Messages ── */}
 			<div className="flex-1 overflow-y-auto">
-				{/* 채팅 로딩 중 */}
 				{isHistoryLoading ? (
 					<div className="px-4 pt-4">
 						<Skeleton variant="chat" count={3} />
@@ -428,7 +659,6 @@ function ChatContent() {
 								</p>
 							</div>
 
-							{/* 추천 프롬프트 카드 */}
 							<div className="relative mt-6 space-y-2.5">
 								{suggestedPrompts.map((sp) => (
 									<button
@@ -458,19 +688,19 @@ function ChatContent() {
 				) : (
 					<div className="px-4 pt-4">
 						{messages.map((msg) => (
-								<ChatBubble
-									key={msg.id}
-									role={msg.role}
+							<ChatBubble
+								key={msg.id}
+								role={msg.role}
 								timestamp={msg.timestamp}
 								sources={msg.sources}
 								actions={msg.actions}
 								blocks={msg.blocks}
-									isStreaming={msg.isStreaming}
-									onBlockAction={handleBlockAction}
-									onQuickReply={sendMessage}
-									quickReplies={msg.quick_replies}
-									isRead={msg.role === "user"}
-								>
+								isStreaming={msg.isStreaming}
+								onBlockAction={handleBlockAction}
+								onQuickReply={sendMessage}
+								quickReplies={msg.quick_replies}
+								isRead={msg.role === "user"}
+							>
 								{msg.role === "assistant" ? (
 									<MarkdownText content={msg.content} />
 								) : (
@@ -485,6 +715,12 @@ function ChatContent() {
 
 			{/* ── Input area ── */}
 			<div className="border-t border-dotori-100/30 bg-white/80 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
+				{isTrackingUsage && isUsageLimitReached ? (
+					<PremiumGate
+						usageLimit={usageLimit}
+						message={PREMIUM_GATE_HINT}
+					/>
+				) : null}
 				<div className="flex items-center gap-2.5">
 					<input
 						ref={inputRef}
@@ -498,15 +734,19 @@ function ChatContent() {
 								sendMessage(input);
 							}
 						}}
-						disabled={isLoading}
+						disabled={
+							isLoading || isUsageLoading || isUsageLimitReached
+						}
 					/>
 					<button
 						onClick={() => sendMessage(input)}
-						disabled={!input.trim() || isLoading}
+						disabled={
+							!input.trim() || isLoading || isUsageLoading || isUsageLimitReached
+						}
 						aria-label="메시지 전송"
 						className={cn(
 							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-[0.97]",
-							input.trim() && !isLoading
+							input.trim() && !isLoading && !isUsageLoading && !isUsageLimitReached
 								? "bg-dotori-900 text-white"
 								: "bg-dotori-100 text-dotori-500",
 						)}
