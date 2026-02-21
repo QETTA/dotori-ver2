@@ -188,6 +188,40 @@ const rules: NBARule[] = [
 		}),
 	},
 
+	{
+		id: "class_assignment_season",
+		priority: 90,
+		condition: (ctx) => {
+			const month = new Date().getMonth(); // 0-indexed
+			return month === 2; // 3월
+		},
+		generate: () => ({
+			id: "class_assignment_season",
+			title: "반편성 결과 발표 시즌이에요",
+			description:
+				"마음에 안 드신다면 지금이 이동 골든타임! 빈자리 있는 시설을 바로 확인해보세요.",
+			action: { label: "빈자리 탐색", href: "/explore" },
+			priority: 90,
+		}),
+	},
+
+	{
+		id: "orientation_season",
+		priority: 85,
+		condition: (ctx) => {
+			const month = new Date().getMonth();
+			return month === 1; // 2월
+		},
+		generate: () => ({
+			id: "orientation_season",
+			title: "설명회 다녀오셨나요?",
+			description:
+				"기대와 달랐다면 지금 다른 시설도 살펴보세요. 2월이 연중 이동이 가장 많은 달이에요.",
+			action: { label: "시설 탐색", href: "/explore" },
+			priority: 85,
+		}),
+	},
+
 	// ── 아이 나이 기반 시설 유형 추천 ──
 	{
 		id: "age_based_recommend",
@@ -270,6 +304,19 @@ const rules: NBARule[] = [
 			description: "빈자리가 생기면 바로 알려드려요",
 			action: { label: "설정하기", href: "/my/settings" },
 			priority: 60,
+		}),
+	},
+
+	{
+		id: "login_prompt_transfer",
+		priority: 30,
+		condition: (ctx) => !ctx.user,
+		generate: () => ({
+			id: "login_prompt_transfer",
+			title: "이동 알림 받으려면 로그인하세요",
+			description: "관심 시설에 자리가 나면 즉시 알려드려요.",
+			action: { label: "카카오 로그인", href: "/login" },
+			priority: 30,
 		}),
 	},
 

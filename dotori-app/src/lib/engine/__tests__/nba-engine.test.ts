@@ -63,4 +63,28 @@ describe("generateNBAs", () => {
     const result = generateNBAs(ctx);
     expect(result.length).toBeLessThanOrEqual(3);
   });
+
+  describe("seasonal rules", () => {
+    it("shows class assignment alert in March", () => {
+      const originalDate = Date;
+      global.Date = class extends Date {
+        getMonth() {
+          return 2;
+        }
+      } as typeof Date;
+
+      const ctx: NBAContext = {
+        user: baseUser,
+        interestFacilities: [],
+        alertCount: 0,
+        waitlistCount: 0,
+      };
+      try {
+        const result = generateNBAs(ctx);
+        expect(result.some((n) => n.id === "class_assignment_season")).toBe(true);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+  });
 });
