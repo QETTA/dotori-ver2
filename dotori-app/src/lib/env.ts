@@ -6,8 +6,12 @@
 function required(name: string): string {
 	const value = process.env[name];
 	if (!value) {
+		// During next build, server modules are evaluated but runtime env vars may not exist
+		if (process.env.NEXT_PHASE === "phase-production-build") {
+			return `__BUILD_PLACEHOLDER_${name}__`;
+		}
 		throw new Error(
-			`Missing required environment variable: ${name}. Check .env.local`,
+			`${name} 환경변수를 .env.local에 설정해주세요`,
 		);
 	}
 	return value;
