@@ -4,13 +4,49 @@ import { Button } from "@/components/catalyst/button";
 import { PageTransition } from "@/components/dotori/PageTransition";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { motion } from "motion/react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+	OAuthSignin: "카카오 로그인 연결에 문제가 있어요. 잠시 후 다시 시도해주세요.",
+	OAuthCallback: "카카오 로그인 연결에 문제가 있어요. 잠시 후 다시 시도해주세요.",
+	Default: "로그인에 실패했어요. 다시 시도해주세요.",
+};
+
+function getAuthErrorMessage(error: string | null) {
+	if (!error) return null;
+	return AUTH_ERROR_MESSAGES[error] ?? AUTH_ERROR_MESSAGES.Default;
+}
+
+function LoginPageErrorFallback() {
+	return (
+		<div className="mt-10 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 text-center shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)]">
+			<div className="h-4 w-2/3 animate-pulse rounded-full bg-dotori-100/80" />
+			<div className="mt-4 h-11 rounded-xl bg-dotori-100/80" />
+		</div>
+	);
+}
+
 export default function LoginPage() {
+	return (
+		<Suspense fallback={<LoginPageErrorFallback />}>
+			<LoginPageClient />
+		</Suspense>
+	);
+}
+
+function LoginPageClient() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const searchParams = useSearchParams();
+	const queryError = useMemo(
+		() => getAuthErrorMessage(searchParams.get("error")),
+		[searchParams],
+	);
+	const visibleError = queryError ?? error;
 
 	async function handleKakaoLogin() {
 		setIsLoading(true);
@@ -77,8 +113,13 @@ export default function LoginPage() {
 					</svg>
 				</div>
 
-					{/* ── 메인 콘텐츠 ── */}
-				<div className="relative z-10 flex min-h-dvh w-full flex-col items-center px-6 text-center motion-safe:animate-in motion-safe:fade-in duration-400">
+				{/* ── 메인 콘텐츠 ── */}
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, ease: "easeOut" }}
+					className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center"
+				>
 					{/* 인사말 */}
 					<div className="mt-6 w-full">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -89,75 +130,122 @@ export default function LoginPage() {
 						/>
 					</div>
 
-					<p className="mb-3 mt-8 text-[14px] font-medium tracking-wide text-dotori-400">
+					<motion.p
+						initial={{ opacity: 0, y: 12 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1, duration: 0.5, ease: "easeOut" }}
+						className="mt-8 text-[14px] font-semibold tracking-wide text-dotori-500"
+					>
 						이동 고민, 토리가 해결해드려요
-					</p>
-					<p className="mt-5 text-[16px] leading-relaxed font-semibold text-dotori-600">
+					</motion.p>
+					<motion.p
+						initial={{ opacity: 0, y: 12 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
+						className="mt-3 text-[18px] leading-relaxed font-bold text-dotori-700"
+					>
 						반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
-					</p>
-
-					{/* 서브 태그라인 */}
-					<p className="mt-1.5 text-[13px] text-dotori-300">
+					</motion.p>
+					<motion.p
+						initial={{ opacity: 0, y: 12 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+						className="mt-2 text-[13px] text-dotori-400"
+					>
 						전국 20,000+ 어린이집 데이터
-					</p>
+					</motion.p>
 
 					{/* 에러 메시지 */}
-					{error && (
-						<p className="mt-4 rounded-xl bg-dotori-100 px-4 py-2 text-[14px] text-dotori-700">
-							{error}
-						</p>
+					{visibleError && (
+						<motion.div
+							initial={{ opacity: 0, scale: 0.98 }}
+							animate={{ opacity: 1, scale: 1 }}
+							transition={{ duration: 0.25, ease: "easeOut" }}
+							className="mt-6 w-full max-w-md rounded-2xl border border-dotori-300 bg-dotori-100/90 px-4 py-3 text-left shadow-sm"
+							role="status"
+						>
+							<div className="inline-flex items-center gap-2">
+								<span className="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-dotori-200 text-[11px] font-bold text-dotori-700">
+									!
+								</span>
+								<p className="text-[13px] font-medium leading-relaxed text-dotori-700">
+									{visibleError}
+								</p>
+							</div>
+						</motion.div>
 					)}
 
-					{/* 카카오 로그인 */}
-					<Button
-						onClick={handleKakaoLogin}
-						disabled={isLoading}
-						aria-busy={isLoading}
-						color="amber"
-						className={cn(
-							"mt-10 w-full gap-2.5 px-6 py-4.5 text-[16px] font-semibold",
-							isLoading && "opacity-60",
-						)}
+					{/* 로그인 카드 */}
+					<motion.div
+						initial={{ opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.2, duration: 0.55, ease: "easeOut" }}
+						className="mt-7 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur"
 					>
-						{isLoading ? (
-							<span className="animate-pulse">로그인 중...</span>
-						) : (
-							<>
-								<span data-slot="icon" aria-hidden="true">
-									<svg
-										className="h-5 w-5"
-										viewBox="0 0 24 24"
-										fill="currentColor"
-									>
-										<path d="M12 3C6.477 3 2 6.463 2 10.691c0 2.727 1.8 5.127 4.508 6.49-.197.735-.712 2.664-.815 3.078-.127.509.187.501.393.364.163-.108 2.593-1.762 3.644-2.48.734.105 1.49.16 2.27.16 5.523 0 10-3.463 10-7.612C22 6.463 17.523 3 12 3z" />
-									</svg>
+						<p className="text-[13px] leading-relaxed text-dotori-500">
+							빠르게 시작하고, 서비스와 바로 연결해보세요.
+						</p>
+						{/* 카카오 로그인 */}
+						<Button
+							onClick={handleKakaoLogin}
+							disabled={isLoading}
+							aria-busy={isLoading}
+							aria-label="카카오 계정으로 로그인"
+							color="amber"
+							className={cn(
+								"mt-5 w-full gap-2.5 px-6 py-4.5 text-[16px] font-semibold",
+								isLoading && "opacity-90",
+							)}
+						>
+							{isLoading ? (
+								<span className="mr-2 inline-flex h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-700" />
+							) : (
+								<span
+									className="mr-2 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-dotori-700/15 text-[10px] font-bold text-dotori-700"
+									aria-hidden="true"
+								>
+									◯
 								</span>
-								<span>카카오로 3초 만에 시작</span>
-							</>
-						)}
-					</Button>
+							)}
+							{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
+						</Button>
+						<p className="mt-2 text-[12px] font-medium text-dotori-400">
+							카카오 계정으로 1초 만에 시작
+						</p>
+					</motion.div>
 
 					{/* 둘러보기 */}
-					<Link
-						href="/"
-						className="mt-5 py-2.5 text-[15px] text-dotori-400 transition-colors hover:text-dotori-500"
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.55, duration: 0.4 }}
 					>
-						로그인 없이 둘러보기
-					</Link>
+						<Link
+							href="/"
+							className="mt-7 inline-block py-2.5 text-[15px] text-dotori-500 transition-colors hover:text-dotori-700"
+						>
+							로그인 없이 둘러보기
+						</Link>
+					</motion.div>
 
 					{/* 이용약관 */}
-					<p className="mt-8 max-w-xs text-[12px] leading-relaxed text-dotori-300">
-						시작하면{" "}
-						<Link href="/my/terms" className="underline hover:text-dotori-400">
-							이용약관
-						</Link>{" "}
-						및{" "}
-						<Link href="/my/terms" className="underline hover:text-dotori-400">
+					<motion.p
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.62, duration: 0.4 }}
+						className="mt-auto pt-10 pb-6 text-[12px] leading-relaxed text-dotori-300"
+					>
+						로그인 시{" "}
+						<Link href="/my/terms" className="font-medium underline">
+							서비스 이용약관
+						</Link>
+						{" "}및{" "}
+						<Link href="/my/terms" className="font-medium underline">
 							개인정보처리방침
 						</Link>
-						에 동의하게 됩니다.
-					</p>
-				</div>
+						에 동의합니다
+					</motion.p>
+				</motion.div>
 			</div>
 		</PageTransition>
 	);
