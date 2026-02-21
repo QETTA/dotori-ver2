@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 /* ── Simplified default export (ErrorFallback-style) ── */
 
@@ -20,8 +21,14 @@ export default function EmptyStateFallback({
 	actionLabel,
 	onAction,
 }: EmptyStateSimpleProps) {
+	const motionProps = {
+		initial: { opacity: 0, y: 16 },
+		animate: { opacity: 1, y: 0 },
+		transition: { duration: 0.4, ease: "easeOut" as const },
+	}
+
 	return (
-		<div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+		<motion.div className="flex flex-col items-center justify-center py-16 px-6 text-center" {...motionProps}>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
 				src={BRAND.emptyState}
@@ -42,7 +49,7 @@ export default function EmptyStateFallback({
 					{actionLabel}
 				</button>
 			)}
-		</div>
+		</motion.div>
 	);
 }
 
@@ -81,6 +88,12 @@ export function EmptyState({
 		</div>
 	)
 
+	const motionProps = {
+		initial: { opacity: 0, y: 16 },
+		animate: { opacity: 1, y: 0 },
+		transition: { duration: 0.4, ease: "easeOut" as const },
+	}
+
 	const resolvedIcon =
 		icon ??
 		(variant === "transfer"
@@ -88,11 +101,9 @@ export function EmptyState({
 			: null)
 
 	return (
-		<div
-			className={cn(
-				"flex flex-col items-center justify-center px-6 py-16 text-center",
-				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-300"
-			)}
+		<motion.div
+			className={cn("flex flex-col items-center justify-center px-6 py-16 text-center")}
+			{...motionProps}
 		>
 			{resolvedIcon ? (
 				<div className="mb-5 rounded-full bg-dotori-100 p-6 text-dotori-500">
@@ -137,6 +148,6 @@ export function EmptyState({
 					{secondaryLabel}
 				</Link>
 			)}
-		</div>
+		</motion.div>
 	);
 }

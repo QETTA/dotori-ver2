@@ -3,6 +3,7 @@
 import { memo, useMemo } from 'react'
 import { Badge } from '@/components/catalyst/badge'
 import { Button } from '@/components/catalyst/button'
+import { motion } from 'motion/react'
 import { cn, facilityTypeBadgeColor, formatRelativeTime } from '@/lib/utils'
 import type { ActionType, Facility, SourceInfo } from '@/types/dotori'
 import { SourceChip } from './SourceChip'
@@ -37,11 +38,18 @@ export const FacilityCard = memo(function FacilityCard({
     full: 'bg-danger',
   }
 
+	const motionCardProps = {
+		whileHover: { scale: 1.01, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' },
+		whileTap: { scale: 0.98 },
+	transition: { type: 'spring' as const, stiffness: 400, damping: 30 },
+	}
+
   if (compact) {
     return (
-      <div
+      <motion.div
         role="article"
         aria-label={facility.name}
+        {...motionCardProps}
         className={cn(
           'relative flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md',
           'motion-safe:animate-in motion-safe:fade-in duration-300',
@@ -81,14 +89,15 @@ export const FacilityCard = memo(function FacilityCard({
           )}
           <span className="text-[11px] text-dotori-500" suppressHydrationWarning>{formatRelativeTime(facility.lastSyncedAt)}</span>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div
+    <motion.div
       role="article"
       aria-label={facility.name}
+      {...motionCardProps}
       className={cn(
         'group relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md',
         'motion-safe:animate-in motion-safe:fade-in duration-300',
@@ -157,7 +166,7 @@ export const FacilityCard = memo(function FacilityCard({
             </Button>
           )}
         </div>
-      </div>
-    </div>
-  )
+        </div>
+      </motion.div>
+    )
 })
