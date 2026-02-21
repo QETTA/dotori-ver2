@@ -7,6 +7,7 @@ export interface IPost extends Document {
 		avatar?: string;
 		verified: boolean;
 	};
+	title?: string;
 	content: string;
 	category: "question" | "review" | "info" | "feedback";
 	facilityTags: string[];
@@ -31,6 +32,7 @@ const PostSchema = new Schema<IPost>(
 	{
 		authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
 		author: { type: AuthorSubSchema, required: true },
+		title: { type: String, maxlength: 120 },
 		content: { type: String, required: true },
 		category: {
 			type: String,

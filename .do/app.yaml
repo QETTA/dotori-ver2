@@ -5,7 +5,7 @@
 # Validate: doctl apps spec validate .do/app.yaml
 
 name: dotori-app
-region: nrt  # Tokyo — 한국에 가장 가까운 DO 리전
+region: sgp  # Singapore — 한국에서 가장 가까운 유효 DO 리전 (nrt은 미지원)
 
 services:
   - name: web

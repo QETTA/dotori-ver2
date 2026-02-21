@@ -38,6 +38,7 @@ export interface CreatePostInput {
 	authorAvatar?: string;
 	authorImage?: string;
 	authorVerified?: boolean;
+	title?: string;
 	content: string;
 	category: IPost["category"];
 	facilityTags?: string[];
@@ -139,6 +140,7 @@ export async function create(input: CreatePostInput): Promise<PostRecord> {
 			avatar: avatar || undefined,
 			verified: input.authorVerified ?? false,
 		},
+		title: input.title ? sanitizeString(input.title) : undefined,
 		content: sanitizeContent(input.content),
 		category: input.category,
 		facilityTags: (input.facilityTags ?? []).map((item) => sanitizeString(item)),

@@ -37,6 +37,7 @@ export const POST = withApiHandler(async (req: NextRequest, { userId, body }) =>
 	const session = await (await import("@/auth")).auth();
 	const post = await postService.create({
 		userId,
+		title: body.title,
 		content: body.content,
 		category: body.category,
 		facilityTags: body.facilityTags,

@@ -40,6 +40,7 @@ const WaitlistSchema = new Schema<IWaitlist>(
 		position: Number,
 		ageClass: String,
 		externalRef: String,
+		estimatedDate: Date,
 		requiredDocs: {
 			type: [
 				{

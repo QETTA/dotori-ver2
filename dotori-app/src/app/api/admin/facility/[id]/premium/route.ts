@@ -119,3 +119,23 @@ export const POST = withApiHandler<PremiumProfileUpdatePayload>(async (_req, { p
 		{ status: 200 },
 	);
 }, { auth: false, schema: premiumProfileUpdateSchema });
+
+export const DELETE = withApiHandler<never>(async (_req, { params }) => {
+	const secret = process.env.CRON_SECRET;
+	const authHeader = _req.headers.get("authorization");
+	if (!secret || authHeader !== `Bearer ${secret}`) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
+
+	const { id } = params;
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		throw new BadRequestError("유효하지 않은 시설 ID입니다");
+	}
+
+	await Facility.findByIdAndUpdate(id, {
+		$set: { isPremium: false },
+		$unset: { premiumExpiresAt: "", premiumProfile: "" },
+	});
+
+	return NextResponse.json({ data: { id, isPremium: false } }, { status: 200 });
+}, { auth: false });

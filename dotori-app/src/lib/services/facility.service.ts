@@ -13,7 +13,7 @@ const MAX_LIMIT = 100;
 const DEFAULT_NEARBY_LIMIT = 20;
 const MAX_NEARBY_LIMIT = 100;
 
-export type FacilitySort = "distance" | "rating" | "capacity";
+export type FacilitySort = "distance" | "rating" | "capacity" | "isPremium";
 
 export type FacilityRecord = Omit<IFacility, keyof mongoose.Document> & {
 	_id: mongoose.Types.ObjectId;
@@ -182,7 +182,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 	const skip = (page - 1) * limit;
 	const filter = normalizeFilter(params);
 	const sort =
-		params.sort === "rating" || params.sort === "capacity"
+		params.sort === "rating" || params.sort === "capacity" || params.sort === "isPremium"
 			? (params.sort as FacilitySort)
 			: "distance";
 
@@ -206,7 +206,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 					...{},
 				},
 			},
-			{ $sort: { distance: 1 } },
+			{ $sort: { isPremium: -1, distance: 1 } },
 			{ $skip: skip },
 			{ $limit: limit },
 		];
@@ -233,7 +233,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 					},
 				},
 			},
-			{ $sort: { availableSeats: -1, lastSyncedAt: -1 } },
+			{ $sort: { isPremium: -1, availableSeats: -1, lastSyncedAt: -1 } },
 			{ $skip: skip },
 			{ $limit: limit },
 		]).exec()) as FacilityRecord[];
@@ -247,7 +247,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 	}
 
 	const data = (await Facility.find(filter)
-		.sort({ rating: -1, reviewCount: -1, lastSyncedAt: -1 })
+		.sort({ isPremium: -1, rating: -1, reviewCount: -1, lastSyncedAt: -1 })
 		.skip(skip)
 		.limit(limit)
 		.lean()

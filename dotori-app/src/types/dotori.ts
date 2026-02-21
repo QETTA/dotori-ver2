@@ -29,6 +29,7 @@ export interface FacilityPremiumProfile {
 	photos?: string[];
 	programs?: string[];
 	highlights?: string[];
+	contactNote?: string;
 }
 
 export interface Facility {
@@ -298,6 +299,7 @@ export interface CommunityPost {
 		avatar?: string;
 		verified: boolean;
 	};
+	title?: string;
 	content: string;
 	facilityTags?: string[];
 	aiSummary?: string;

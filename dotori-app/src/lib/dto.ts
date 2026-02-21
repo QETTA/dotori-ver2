@@ -20,6 +20,7 @@ interface FacilityDocument {
 		photos?: string[];
 		programs?: string[];
 		highlights?: string[];
+		contactNote?: string;
 	};
 	location?: { coordinates?: [number, number] };
 	roomCount?: number;
@@ -50,6 +51,7 @@ interface PostDocument {
 	id?: string;
 	authorId?: { _id?: unknown; name?: string; nickname?: string; image?: string; gpsVerified?: boolean } | unknown;
 	author?: { nickname?: string; name?: string; avatar?: string; image?: string; verified?: boolean; gpsVerified?: boolean };
+	title?: string;
 	content: string;
 	category: string;
 	facilityTags?: string[];
@@ -112,6 +114,7 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 					photos: doc.premiumProfile.photos,
 					programs: doc.premiumProfile.programs,
 					highlights: doc.premiumProfile.highlights,
+					contactNote: doc.premiumProfile.contactNote,
 				}
 			: undefined,
 		roomCount: doc.roomCount,
@@ -177,6 +180,7 @@ export function toPostDTO(doc: PostDocument): CommunityPost {
 			? String(populatedAuthorId?._id ?? doc.authorId)
 			: undefined,
 		author,
+		title: doc.title,
 		content: doc.content,
 		facilityTags: doc.facilityTags ?? [],
 		aiSummary: doc.aiSummary,

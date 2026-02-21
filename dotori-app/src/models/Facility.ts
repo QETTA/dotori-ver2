@@ -25,6 +25,7 @@ export interface IFacility extends Document {
 		photos?: string[];
 		programs?: string[];
 		highlights?: string[];
+		contactNote?: string;
 	};
 	roomCount?: number;
 	teacherCount?: number;
@@ -84,6 +85,7 @@ const FacilitySchema = new Schema<IFacility>(
 			photos: { type: [String], default: [] },
 			programs: { type: [String], default: [] },
 			highlights: { type: [String], default: [] },
+			contactNote: String,
 		},
 		roomCount: Number,
 		teacherCount: Number,
