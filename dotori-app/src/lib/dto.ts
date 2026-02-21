@@ -15,6 +15,18 @@ interface FacilityDocument {
 	};
 	isPremium?: boolean;
 	premiumExpiresAt?: Date | string;
+	premium?: {
+		isActive: boolean;
+		plan: "basic" | "pro";
+		startDate: Date | string;
+		endDate: Date | string;
+		features: string[];
+		sortBoost: number;
+		verifiedAt?: Date | string;
+		contactPerson?: string;
+		contactPhone?: string;
+		contactEmail?: string;
+	};
 	premiumProfile?: {
 		directorMessage?: string;
 		photos?: string[];
@@ -74,6 +86,20 @@ interface PostDocument {
  */
 export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): Facility {
 	const coords = doc.location?.coordinates;
+	const activePremium = Boolean(doc.premium?.isActive);
+	const toIsoDate = (value?: Date | string): string => {
+		if (value instanceof Date && Number.isFinite(value.getTime())) {
+			return value.toISOString();
+		}
+		if (typeof value === "string" && value.trim()) {
+			const parsed = new Date(value);
+			if (Number.isFinite(parsed.getTime())) {
+				return parsed.toISOString();
+			}
+		}
+
+		return new Date().toISOString();
+	};
 	return {
 		id: String(doc._id ?? doc.id),
 		name: doc.name,
@@ -101,13 +127,29 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 						doc.dataQuality.updatedAt instanceof Date
 							? doc.dataQuality.updatedAt.toISOString()
 							: doc.dataQuality.updatedAt,
-				}
-			: undefined,
-		isPremium: doc.isPremium || false,
-		premiumExpiresAt:
-			doc.premiumExpiresAt instanceof Date
-				? doc.premiumExpiresAt.toISOString()
-				: doc.premiumExpiresAt,
+					}
+				: undefined,
+			isPremium: doc.isPremium || activePremium,
+			premium: activePremium
+				? {
+						isActive: true,
+						plan: doc.premium?.plan ?? "basic",
+						startDate: toIsoDate(doc.premium?.startDate),
+						endDate: toIsoDate(doc.premium?.endDate),
+						features: doc.premium?.features ?? [],
+						sortBoost: doc.premium?.sortBoost ?? 0,
+						verifiedAt: doc.premium?.verifiedAt
+							? toIsoDate(doc.premium.verifiedAt)
+							: undefined,
+						contactPerson: doc.premium?.contactPerson,
+						contactPhone: doc.premium?.contactPhone,
+						contactEmail: doc.premium?.contactEmail,
+					}
+				: undefined,
+			premiumExpiresAt:
+				doc.premiumExpiresAt instanceof Date
+					? doc.premiumExpiresAt.toISOString()
+					: doc.premiumExpiresAt,
 		premiumProfile: doc.premiumProfile
 			? {
 					directorMessage: doc.premiumProfile.directorMessage,

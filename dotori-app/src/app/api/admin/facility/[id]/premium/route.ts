@@ -4,138 +4,112 @@ import { z } from "zod";
 import { withApiHandler, BadRequestError, NotFoundError } from "@/lib/api-handler";
 import Facility from "@/models/Facility";
 
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const premiumUpdateSchema = z.object({
+	isActive: z.boolean(),
+	plan: z.enum(["basic", "pro"]).default("basic"),
+	startDate: z.coerce.date().optional(),
+	endDate: z.coerce.date().optional(),
+	features: z.array(z.string()).max(50).optional(),
+	sortBoost: z.number().min(0).max(1000).default(0),
+	verifiedAt: z.coerce.date().optional(),
+	contactPerson: z.string().trim().max(80).optional(),
+	contactPhone: z.string().trim().max(80).optional(),
+	contactEmail: z.string().trim().email().max(254).optional(),
+}).strict();
 
-const premiumProfileUpdateSchema = z.object({
-	isPremium: z.boolean(),
-	directorMessage: z.string().trim().max(1000).optional(),
-	highlights: z.array(z.string()).max(20).optional(),
-	programs: z.array(z.string()).max(20).optional(),
-	photos: z.array(z.string()).max(20).optional(),
-});
+type PremiumUpdatePayload = z.infer<typeof premiumUpdateSchema>;
 
-type PremiumProfileUpdatePayload = z.infer<typeof premiumProfileUpdateSchema>;
-
-type PremiumProfileUpdate = {
-	directorMessage?: string;
-	highlights?: string[];
-	programs?: string[];
-	photos?: string[];
+type StoredPremium = {
+	isActive?: boolean;
+	plan?: "basic" | "pro";
+	startDate?: Date | string;
+	endDate?: Date | string;
+	features?: string[];
+	sortBoost?: number;
+	verifiedAt?: Date | string;
+	contactPerson?: string;
+	contactPhone?: string;
+	contactEmail?: string;
 };
 
-const trimStringList = (values: string[]): string[] => {
-	const nextValues = values.map((value) => value.trim()).filter((item) => item.length > 0);
-	return nextValues;
+const normalizeDate = (value?: Date | string): Date | undefined => {
+	if (value instanceof Date) {
+		return value;
+	}
+	if (typeof value === "string" && value.trim().length > 0) {
+		const parsed = new Date(value);
+		return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+	}
+	return undefined;
 };
 
-export const POST = withApiHandler<PremiumProfileUpdatePayload>(async (_req, { params, body }) => {
+const normalizeFeatureList = (values: string[]): string[] => {
+	return values
+		.map((value) => value.trim())
+		.filter((value) => value.length > 0);
+};
+
+const ensureAuthorized = (req: Request): boolean => {
 	const secret = process.env.CRON_SECRET;
-	const authHeader = _req.headers.get("authorization");
-	if (!secret || authHeader !== `Bearer ${secret}`) {
+	const authorization = req.headers.get("authorization");
+	return Boolean(secret && authorization === `Bearer ${secret}`);
+};
+
+export const PUT = withApiHandler<PremiumUpdatePayload>(async (_req, { params, body }) => {
+	if (!ensureAuthorized(_req)) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	const { id } = params;
-	if (!mongoose.Types.ObjectId.isValid(id)) {
+	const facilityId = params.id;
+	if (!mongoose.Types.ObjectId.isValid(facilityId)) {
 		throw new BadRequestError("유효하지 않은 시설 ID입니다");
 	}
 
-	const facility = await Facility.findById(id).select("_id premiumProfile").lean();
+	const facility = await Facility.findById(facilityId)
+		.select("_id premium")
+		.lean()
+		.exec();
 	if (!facility) {
 		throw new NotFoundError("시설을 찾을 수 없습니다");
 	}
 
-	const update: {
-		$set: Record<string, unknown>;
-		$unset?: Record<string, string>;
-	} = {
-		$set: {
-			isPremium: body.isPremium,
-		},
+	const currentPremium = (facility as { premium?: StoredPremium }).premium;
+	const nextPremium = {
+		isActive: body.isActive,
+		plan: body.plan ?? currentPremium?.plan ?? "basic",
+		startDate: normalizeDate(body.startDate) ?? normalizeDate(currentPremium?.startDate) ?? new Date(),
+		endDate: normalizeDate(body.endDate) ?? normalizeDate(currentPremium?.endDate) ?? new Date(),
+		features: normalizeFeatureList(
+			typeof body.features === "undefined"
+				? currentPremium?.features ?? []
+				: body.features,
+		),
+		sortBoost: body.sortBoost ?? currentPremium?.sortBoost ?? 0,
+		verifiedAt: body.verifiedAt ?? normalizeDate(currentPremium?.verifiedAt),
+		contactPerson: body.contactPerson ?? currentPremium?.contactPerson,
+		contactPhone: body.contactPhone ?? currentPremium?.contactPhone,
+		contactEmail: body.contactEmail ?? currentPremium?.contactEmail,
 	};
-	if (body.isPremium) {
-		const nextProfile: PremiumProfileUpdate = facility?.premiumProfile
-			? { ...(facility.premiumProfile as PremiumProfileUpdate) }
-			: {};
 
-		if (body.directorMessage !== undefined) {
-			const directorMessage = body.directorMessage.trim();
-			if (directorMessage) {
-				nextProfile.directorMessage = directorMessage;
-			} else {
-				delete nextProfile.directorMessage;
-			}
-		}
-
-		if (body.highlights !== undefined) {
-			const highlights = trimStringList(body.highlights);
-			if (highlights.length > 0) {
-				nextProfile.highlights = highlights;
-			} else {
-				delete nextProfile.highlights;
-			}
-		}
-
-		if (body.programs !== undefined) {
-			const programs = trimStringList(body.programs);
-			if (programs.length > 0) {
-				nextProfile.programs = programs;
-			} else {
-				delete nextProfile.programs;
-			}
-		}
-
-		if (body.photos !== undefined) {
-			const photos = trimStringList(body.photos);
-			if (photos.length > 0) {
-				nextProfile.photos = photos;
-			} else {
-				delete nextProfile.photos;
-			}
-		}
-
-		update.$set.premiumExpiresAt = new Date(Date.now() + THIRTY_DAYS_MS);
-		update.$set.premiumProfile = nextProfile;
-	} else {
-		update.$unset = {
-			premiumExpiresAt: "",
-			premiumProfile: "",
-		} as Record<string, string>;
-	}
-
-	const updatedFacility = await Facility.findByIdAndUpdate(id, update, {
-		new: true,
-	}).select("isPremium premiumExpiresAt premiumProfile");
+	const updatedFacility = await Facility.findByIdAndUpdate(
+		facilityId,
+		{
+			$set: {
+				isPremium: body.isActive,
+				premium: nextPremium,
+			},
+		},
+		{ new: true },
+	).select("isPremium premium");
 
 	return NextResponse.json(
 		{
 			data: {
-				id,
-				isPremium: updatedFacility?.isPremium || false,
-				premiumExpiresAt: updatedFacility?.premiumExpiresAt,
-				premiumProfile: updatedFacility?.premiumProfile,
+				id: facilityId,
+				isPremium: Boolean(updatedFacility?.isPremium),
+				premium: updatedFacility?.premium,
 			},
 		},
 		{ status: 200 },
 	);
-}, { auth: false, schema: premiumProfileUpdateSchema });
-
-export const DELETE = withApiHandler<never>(async (_req, { params }) => {
-	const secret = process.env.CRON_SECRET;
-	const authHeader = _req.headers.get("authorization");
-	if (!secret || authHeader !== `Bearer ${secret}`) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-	}
-
-	const { id } = params;
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		throw new BadRequestError("유효하지 않은 시설 ID입니다");
-	}
-
-	await Facility.findByIdAndUpdate(id, {
-		$set: { isPremium: false },
-		$unset: { premiumExpiresAt: "", premiumProfile: "" },
-	});
-
-	return NextResponse.json({ data: { id, isPremium: false } }, { status: 200 });
-}, { auth: false });
+}, { auth: false, schema: premiumUpdateSchema });

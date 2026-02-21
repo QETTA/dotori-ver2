@@ -180,6 +180,11 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 	const limit = normalizeLimit(params.limit);
 	const skip = (page - 1) * limit;
 	const filter = normalizeFilter(params);
+	const premiumSort = {
+		"premium.isActive": -1,
+		"premium.sortBoost": -1,
+		isPremium: -1,
+	} as const;
 	const sort =
 		params.sort === "rating" || params.sort === "capacity" || params.sort === "isPremium"
 			? (params.sort as FacilitySort)
@@ -205,7 +210,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 					...{},
 				},
 			},
-			{ $sort: { isPremium: -1, distance: 1 } },
+			{ $sort: { ...premiumSort, distance: 1 } },
 			{ $skip: skip },
 			{ $limit: limit },
 		];
@@ -232,7 +237,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 					},
 				},
 			},
-			{ $sort: { isPremium: -1, availableSeats: -1, lastSyncedAt: -1 } },
+			{ $sort: { ...premiumSort, availableSeats: -1, lastSyncedAt: -1 } },
 			{ $skip: skip },
 			{ $limit: limit },
 		]).exec()) as FacilityRecord[];
@@ -246,7 +251,7 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 	}
 
 	const data = (await Facility.find(filter)
-		.sort({ isPremium: -1, rating: -1, reviewCount: -1, lastSyncedAt: -1 })
+		.sort({ ...premiumSort, rating: -1, reviewCount: -1, lastSyncedAt: -1 })
 		.skip(skip)
 		.limit(limit)
 		.lean()

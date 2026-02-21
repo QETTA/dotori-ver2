@@ -496,6 +496,9 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</header>
 			<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
 				<Badge color={getTypeBadgeColor(facility.type)}>{facility.type}</Badge>
+				{facility.premium?.isActive ? (
+					<Badge color="forest">인증 시설</Badge>
+				) : null}
 				<Badge color={getQualityColor(qualityScore)}>
 					{qualityScore == null
 						? "데이터 품질 미공개"

@@ -1,5 +1,18 @@
 import mongoose, { type Document, type Model, Schema } from "mongoose";
 
+export interface IFacilityPremium {
+	isActive: boolean;
+	plan: "basic" | "pro";
+	startDate: Date;
+	endDate: Date;
+	features: string[];
+	sortBoost: number;
+	verifiedAt?: Date;
+	contactPerson?: string;
+	contactPhone?: string;
+	contactEmail?: string;
+}
+
 export interface IFacility extends Document {
 	name: string;
 	type: "국공립" | "민간" | "가정" | "직장" | "협동" | "사회복지";
@@ -18,6 +31,7 @@ export interface IFacility extends Document {
 		missing?: string[];
 		updatedAt?: Date;
 	};
+	premium?: IFacilityPremium;
 	isPremium: boolean;
 	premiumExpiresAt?: Date;
 	premiumProfile?: {
@@ -41,6 +55,22 @@ export interface IFacility extends Document {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const PremiumSchema = new Schema<IFacilityPremium>(
+	{
+		isActive: { type: Boolean, default: false },
+		plan: { type: String, enum: ["basic", "pro"], default: "basic" },
+		startDate: { type: Date },
+		endDate: { type: Date },
+		features: { type: [String], default: [] },
+		sortBoost: { type: Number, default: 0 },
+		verifiedAt: Date,
+		contactPerson: String,
+		contactPhone: String,
+		contactEmail: String,
+	},
+	{ _id: false },
+);
 
 const FacilitySchema = new Schema<IFacility>(
 	{
@@ -78,6 +108,7 @@ const FacilitySchema = new Schema<IFacility>(
 			missing: { type: [String], default: [] },
 			updatedAt: Date,
 		},
+		premium: { type: PremiumSchema },
 		isPremium: { type: Boolean, default: false },
 		premiumExpiresAt: { type: Date },
 		premiumProfile: {

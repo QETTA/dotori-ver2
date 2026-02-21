@@ -32,6 +32,19 @@ export interface FacilityPremiumProfile {
 	contactNote?: string;
 }
 
+export interface FacilityPremium {
+	isActive: boolean;
+	plan: "basic" | "pro";
+	startDate: string;
+	endDate: string;
+	features: string[];
+	sortBoost: number;
+	verifiedAt?: string;
+	contactPerson?: string;
+	contactPhone?: string;
+	contactEmail?: string;
+}
+
 export interface Facility {
 	id: string;
 	name: string;
@@ -51,6 +64,7 @@ export interface Facility {
 	rating: number;
 	reviewCount: number;
 	dataQuality?: FacilityDataQuality;
+	premium?: FacilityPremium;
 	isPremium?: boolean;
 	premiumExpiresAt?: string;
 	premiumProfile?: FacilityPremiumProfile;
