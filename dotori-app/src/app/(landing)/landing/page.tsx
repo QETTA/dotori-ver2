@@ -33,25 +33,24 @@ const SCENARIOS = [
 ]
 
 const HERO_STATS = [
-	{ value: '20,027', label: '시설' },
-	{ value: '17', label: '개 시도' },
-	{ value: 'AI', label: '매칭' },
+	{ value: '20,027+', label: '시설' },
+	{ value: '17개', label: '시도' },
 ]
 
 const FEATURE_CARDS = [
 	{
-		title: '반편성 탐색',
-		description: '반편성 사유를 정리해 지역 기반 이동 후보를 우선 정렬해요',
+		title: '빈자리 실시간 확인',
+		description: '관심 지역의 입소 가능 변동을 빠르게 확인하고 우선순위를 잡아요',
 		Icon: UserGroupIcon,
 	},
 	{
-		title: '교사 교체 대응',
-		description: '교체 이력·안정성 이슈를 반영해 전환 가능한 시설을 점검해요',
+		title: 'AI 이동 상담',
+		description: '이동 사유를 입력하면 체크리스트와 추천 순서를 AI가 정리해드려요',
 		Icon: AcademicCapIcon,
 	},
 	{
-		title: '국공립 당첨 비교',
-		description: '당첨 가점, 대기 우선순위, 입학 가능성까지 한 번에 비교해요',
+		title: '맞춤 알림',
+		description: '원하는 조건에 맞는 변화가 생기면 즉시 알려줘서 기회를 놓치지 않아요',
 		Icon: BuildingOffice2Icon,
 	},
 ]
@@ -169,7 +168,7 @@ export default function LandingPage() {
 							</a>
 						</nav>
 						<Button href="/onboarding" color="dotori" className="shrink-0">
-							빈자리 있는 곳 찾기
+							무료로 시작하기
 						</Button>
 					</div>
 				</header>
@@ -178,27 +177,22 @@ export default function LandingPage() {
 					<div className="pointer-events-none absolute inset-0">
 						<motion.div
 							className="absolute left-0 top-10 h-52 w-52 rounded-full bg-dotori-300/20 blur-3xl"
-							animate={{ scale: [1, 1.08, 1], opacity: [0.18, 0.42, 0.18] }}
-							transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
-						/>
-						<motion.div
-							className="absolute right-0 top-28 h-56 w-56 rounded-full bg-dotori-200/25 blur-3xl"
-							animate={{ scale: [1, 1.06, 1], opacity: [0.16, 0.36, 0.16] }}
-							transition={{ duration: 5, delay: 1, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+							animate={{ y: [0, -10, 0], opacity: [0.2, 0.35, 0.2] }}
+							transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
 						/>
 					</div>
 					<div className="relative mx-auto max-w-3xl">
 						<Heading level={1} className="text-3xl font-semibold leading-tight sm:text-4xl">
-							반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
+							아이에게 맞는 어린이집, 더 빨리 찾으세요
 						</Heading>
 						<Text className="mx-auto mt-4 max-w-2xl text-base text-dotori-700">
-							이동 수요 특화 AI — 전국 20,000+ 어린이집 실시간 연결
+							빈자리 확인부터 AI 이동 상담까지, 도토리에서 한 번에 진행해요.
 						</Text>
 						<div className="mt-6 flex flex-wrap justify-center gap-2">
 							<Badge color="forest">무료로 시작</Badge>
 							<Text className="text-base font-semibold text-forest-700">월 1,900원</Text>
 						</div>
-						<div className="mt-8 grid grid-cols-3 gap-3">
+						<div className="mx-auto mt-8 grid max-w-sm grid-cols-2 gap-3">
 							{HERO_STATS.map((stat) => (
 								<div
 									key={stat.label}
@@ -210,10 +204,10 @@ export default function LandingPage() {
 							))}
 						</div>
 						<div className="mt-8 flex flex-wrap justify-center gap-3">
-							<Button href="/explore" color="dotori">
-								이동할 시설 찾기
+							<Button href="/onboarding" color="dotori">
+								무료로 시작하기
 							</Button>
-							<Button href="/chat" plain>
+							<Button href="/chat" plain={true}>
 								토리에게 먼저 질문하기
 							</Button>
 						</div>
