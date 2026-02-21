@@ -29,6 +29,25 @@ function youngestChild(children: ChildProfile[]): ChildProfile | null {
 	);
 }
 
+/** 첫 번째 아이(최상위 기준) */
+function firstChild(children: ChildProfile[]): ChildProfile | null {
+	if (children.length === 0) return null;
+	return children[0];
+}
+
+function getChildDisplayName(children: ChildProfile[]): string {
+	const child = firstChild(children);
+	if (!child) return "자녀";
+	const name = child.name?.trim();
+	const suffix = children.length > 1 ? "(첫째 기준)" : "";
+	return `${name || "자녀"}${suffix}`;
+}
+
+function getChildSubject(children: ChildProfile[]): string {
+	const name = getChildDisplayName(children);
+	return name.startsWith("자녀") ? `${name}가` : `${name}이(가)`;
+}
+
 /** 입소 신청 시즌 판별 (10~12월: 내년 3월 입소 신청 시기) */
 function isEnrollmentSeason(): boolean {
 	const month = new Date().getMonth(); // 0-indexed
@@ -82,12 +101,11 @@ const rules: NBARule[] = [
 					priority: 95,
 				};
 			}
-			const child = youngestChild(ctx.user?.children || []);
-			const childMsg = child ? `${child.name}이(가) 갈 수 있는 ` : "";
+			const childMsg = getChildSubject(ctx.user?.children || []);
 			return {
 				id: `vacancy_${facility.id}`,
 				title: `${facility.name}에 빈자리가 생겼어요!`,
-				description: `${childMsg}자리가 생겼어요. 서둘러 확인하세요`,
+				description: `${childMsg} 갈 수 있는 자리가 생겼어요. 서둘러 확인하세요`,
 				action: {
 					label: "바로 확인",
 					href: `/facility/${facility.id}`,
@@ -106,10 +124,14 @@ const rules: NBARule[] = [
 		generate: (ctx) => {
 			const pos = ctx.bestWaitlistPosition!;
 			const facilityName = ctx.waitlistFacilityName || "시설";
-			const desc =
+			const waitlistMessage =
 				pos <= 3
-					? `${facilityName}에서 곧 차례가 올 수 있어요!`
-					: `${facilityName} 대기 ${pos}번째예요`;
+					? "곧 입소 연락이 올 수 있어요! 미리 서류를 준비하세요"
+					: pos <= 10
+						? "대기 순번이 가까워지고 있어요. 입소 의향을 다시 확인해두세요"
+						: "대기 중인 시설 현황을 정기적으로 확인해보세요";
+			const desc =
+				`${facilityName} ${waitlistMessage}`;
 			return {
 				id: "waitlist_position",
 				title:
@@ -141,10 +163,11 @@ const rules: NBARule[] = [
 			const child = youngestChild(ctx.user!.children)!;
 			const nextYear = new Date().getFullYear() + 1;
 			const { className } = getClassAge(child.birthDate, nextYear);
+			const childLabel = getChildDisplayName(ctx.user!.children);
 			return {
 				id: "enrollment_season",
 				title: `${nextYear}년 3월 입소 신청 시즌이에요`,
-				description: `${child.name}은(는) ${className} 대상이에요. 아이사랑에서 입소 신청을 준비하세요`,
+				description: `${childLabel}은(는) ${className} 대상이에요. 아이사랑에서 입소 신청을 준비하세요`,
 				action: { label: "입소 전략 보기", href: "/chat?prompt=입소전략" },
 				priority: 85,
 			};
@@ -237,6 +260,7 @@ const rules: NBARule[] = [
 			const child = youngestChild(ctx.user!.children)!;
 			const months = getChildAgeMonths(child.birthDate);
 			const age = formatAge(months);
+			const childLabel = getChildDisplayName(ctx.user!.children);
 			let suggestion: string;
 			let prompt: string;
 
@@ -257,7 +281,7 @@ const rules: NBARule[] = [
 
 			return {
 				id: "age_based_recommend",
-				title: `${child.name} (${age}) 맞춤 추천`,
+				title: `${childLabel} (${age}) 맞춤 추천`,
 				description: suggestion,
 				action: {
 					label: "토리에게 물어보기",
@@ -279,8 +303,9 @@ const rules: NBARule[] = [
 		generate: (ctx) => {
 			const child = youngestChild(ctx.user!.children);
 			const region = ctx.user!.region?.sigungu || "우리 동네";
+			const childLabel = getChildDisplayName(ctx.user!.children);
 			const desc = child
-				? `${region}에서 ${child.name}에게 맞는 어린이집을 찾아보세요`
+				? `${region}에서 ${childLabel}에게 맞는 어린이집을 찾아보세요`
 				: `${region} 어린이집을 탐색하고 관심 등록하세요`;
 			return {
 				id: "no_interests",
