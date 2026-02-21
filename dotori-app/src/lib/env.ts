@@ -27,6 +27,8 @@ function optional(name: string, fallback = ""): string {
 export const env = {
 	/** MongoDB Atlas connection string */
 	MONGODB_URI: required("MONGODB_URI"),
+	/** MongoDB database name */
+	MONGODB_DB_NAME: optional("MONGODB_DB_NAME", "dotori"),
 	/** NextAuth secret for JWT signing */
 	AUTH_SECRET: required("AUTH_SECRET"),
 	/** Kakao OAuth client ID */

@@ -180,16 +180,20 @@ TaskCreate로 등록, 의존관계 설정.
 
 ### 세션 시작 루틴 (자동 실행)
 ```bash
-# 1. 상태 확인
-git log --oneline -3                          # 최근 커밋
-git status --short                             # 미커밋 파일
-ps aux | grep codex | grep -v grep             # 좀비 프로세스
+# 1. 좀비/잔여 정리 (★ 최우선)
+rm -f /tmp/claude-1000/-home-sihu2129-dotori-ver2/tasks/*.output
+rm -rf /tmp/wt-results /tmp/wt-logs /tmp/*.js /tmp/*.ts
+ps aux | grep codex | grep -v grep | awk '{print $2}' | xargs kill 2>/dev/null
 
-# 2. Serena 메모리 로드 (자동 — mcp__serena__list_memories)
+# 2. git 상태 확인
+git log --oneline -3
+git status --short
+
+# 3. Serena 메모리 로드 (mcp__serena__list_memories)
 # project_overview, agent_task_registry 필수 확인
 
-# 3. 포트 정리
-ss -tlnp | grep -E "3000|3001"                # dev server 상태
+# 4. 포트 확인
+ss -tlnp | grep -E "3000|3001"
 ```
 
 ### Serena 프리분석 → Codex 주입 패턴 (★ 핵심)

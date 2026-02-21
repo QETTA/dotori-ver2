@@ -13,7 +13,7 @@ services:
     github:
       repo: QETTA/dotori-ver2
       branch: main
-      deploy_on_push: true
+      deploy_on_push: false  # GitHub Actions ci.yml이 배포 담당 (이중 배포 방지)
 
     # source_dir 미설정 → 빌드 컨텍스트 = repo root
     # Dockerfile 내부에서 dotori-app/ 경로 참조

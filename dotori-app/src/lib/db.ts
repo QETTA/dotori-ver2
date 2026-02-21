@@ -23,7 +23,7 @@ const RETRY_DELAY_MS = 1000;
 async function connectWithRetry(attempt = 1): Promise<typeof mongoose> {
 	try {
 		const conn = await mongoose.connect(MONGODB_URI, {
-			dbName: "dotori",
+			dbName: process.env.MONGODB_DB_NAME ?? "dotori",
 			bufferCommands: false,
 			serverSelectionTimeoutMS: 5000,
 			socketTimeoutMS: 45000,

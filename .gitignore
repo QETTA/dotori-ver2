@@ -83,3 +83,7 @@ tmp-biome-*
 *.seed
 *.gz
 *.tgz
+
+# Claude settings (contains sensitive MCP credentials)
+.claude/settings.json
+.claude/settings.local.json
