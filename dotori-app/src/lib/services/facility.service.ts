@@ -191,9 +191,9 @@ export async function search(params: FacilitySearchParams = {}): Promise<Facilit
 	const hasValidGeo = numberIsValidCoordinate(latitude, longitude);
 
 	if (sort === "distance" && hasValidGeo) {
-		const geoNear: Record<string, unknown> = {
+		const geoNear: { type: "Point"; coordinates: [number, number] } = {
 			type: "Point",
-			coordinates: [longitude, latitude],
+			coordinates: [longitude!, latitude!],
 		};
 		const pipeline: PipelineStage[] = [
 			{
@@ -276,9 +276,9 @@ export async function findNearby(params: NearbyFacilityParams): Promise<Facility
 	if (params.type) query.type = params.type;
 	if (params.status) query.status = params.status;
 
-	const geoNear: Record<string, unknown> = {
+	const geoNear: { type: "Point"; coordinates: [number, number] } = {
 		type: "Point",
-		coordinates: [longitude, latitude],
+		coordinates: [longitude!, latitude!],
 	};
 	const pipeline: PipelineStage[] = [
 		{

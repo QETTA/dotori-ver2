@@ -5,7 +5,7 @@ const baseUser = {
   id: "user1",
   nickname: "테스트맘",
   children: [{ id: "c1", name: "도토리", birthDate: "2023-01-15", gender: "male" as const }],
-  region: { sido: "서울특별시", sigungu: "강남구" },
+  region: { sido: "서울특별시", sigungu: "강남구", dong: "역삼동" },
   interests: [],
   gpsVerified: false,
   plan: "free" as const,

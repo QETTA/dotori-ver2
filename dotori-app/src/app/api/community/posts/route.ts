@@ -21,7 +21,7 @@ export const GET = withApiHandler(async (req) => {
 	const result = await postService.list({
 		page: searchParams.get("page") || undefined,
 		limit: searchParams.get("limit") || undefined,
-		category: searchParams.get("category") || undefined,
+		category: (searchParams.get("category") || undefined) as "review" | "question" | "info" | "feedback" | undefined,
 		sort: searchParams.get("sort") || undefined,
 		facilityId: searchParams.get("facilityId") || undefined,
 	});
