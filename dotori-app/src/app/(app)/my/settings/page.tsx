@@ -1,584 +1,255 @@
 "use client";
 
+import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
-import {
-	Dialog,
-	DialogActions,
-	DialogBody,
-	DialogTitle,
-} from "@/components/catalyst/dialog";
-import { Input } from "@/components/catalyst/input";
-import { Switch, SwitchField } from "@/components/catalyst/switch";
+import { useUserProfile } from "@/hooks/use-user-profile";
 import { apiFetch } from "@/lib/api";
-import { cn } from "@/lib/utils";
-import {
-	ArrowLeftIcon,
-	PencilIcon,
-	PlusIcon,
-	TrashIcon,
-} from "@heroicons/react/24/outline";
-import { signOut } from "next-auth/react";
+import type { UserPlan } from "@/types/dotori";
+import { CheckCircleIcon, CreditCardIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const alertChannelSettings = [
-	{
-		key: "push" as const,
-		label: "푸시 알림",
-		desc: "빈자리, 대기순번 변동 알림을 앱 알림으로 받기",
-		defaultOn: true,
-	},
-	{
-		key: "kakao" as const,
-		label: "카카오톡 알림",
-		desc: "카카오톡으로 알림을 받기",
-		defaultOn: false,
-	},
-	{
-		key: "email" as const,
-		label: "이메일 알림",
-		desc: "주간 요약 이메일 알림을 받기",
-		defaultOn: false,
-	},
-] as const;
-
-type AlertChannelKey = (typeof alertChannelSettings)[number]["key"];
-
-interface AlertData {
-	_id: string;
-	channels: string[];
-	active: boolean;
-}
-
-interface ChildData {
-	id: string;
-	name: string;
-	birthDate: string;
-	gender: "male" | "female" | "unspecified";
-}
-
-interface UserProfile {
-	alimtalkOptIn?: boolean;
-	phone?: string;
-	children?: ChildData[];
-}
-
-type GenderOption = "female" | "male" | "unspecified";
-
-const genderLabels: Record<GenderOption, string> = {
-	female: "여아",
-	male: "남아",
-	unspecified: "선택안함",
+type SubscriptionResponse = {
+	plan?: UserPlan;
+	nextRenewalDate?: string;
+	data?: {
+		plan?: UserPlan;
+		nextRenewalDate?: string;
+	};
 };
 
-function generateId() {
-	return `child_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+const PREMIUM_BENEFITS = [
+	"빈자리 즉시 알림",
+	"토리챗 무제한 대화",
+	"이동 우선 매칭",
+] as const;
+
+const kakaoChannelPath = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_ID || "_dotori";
+const supportChannelUrl = `https://pf.kakao.com/${kakaoChannelPath}`;
+
+function formatDateLabel(dateString?: string) {
+	if (!dateString) return "";
+	const date = new Date(dateString);
+	if (Number.isNaN(date.getTime())) return "";
+
+	return new Intl.DateTimeFormat("ko-KR", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	}).format(date);
 }
 
-function calculateAge(birthDate: string) {
-	const birth = new Date(birthDate);
-	const now = new Date();
-	const months =
-		(now.getFullYear() - birth.getFullYear()) * 12 +
-		(now.getMonth() - birth.getMonth());
-	if (months < 12) return `${months}개월`;
-	const years = Math.floor(months / 12);
-	const rem = months % 12;
-	return rem > 0 ? `${years}세 ${rem}개월` : `${years}세`;
-}
-
-function formatBirthMonth(birthDate: string) {
-	const d = new Date(birthDate);
-	return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
-}
-
-function isSupportedAlertChannel(channel: string): channel is AlertChannelKey {
-	return alertChannelSettings.some((setting) => setting.key === channel);
+function defaultNextRenewal() {
+	const nextMonth = new Date();
+	nextMonth.setMonth(nextMonth.getMonth() + 1);
+	return formatDateLabel(nextMonth.toISOString());
 }
 
 export default function SettingsPage() {
-	const [alerts, setAlerts] = useState<Record<AlertChannelKey, boolean>>(() =>
-		alertChannelSettings.reduce<Record<AlertChannelKey, boolean>>(
-			(acc, setting) => {
-				acc[setting.key] = setting.defaultOn;
-				return acc;
-			},
-			{ push: false, kakao: false, email: false },
-		),
-	);
-	const [alimtalkOptIn, setAlimtalkOptIn] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
-	const [errorMessage, setErrorMessage] = useState("");
-	const mountedRef = useRef(true);
+	const { user, isLoading, error, refresh } = useUserProfile();
+	const [plan, setPlan] = useState<UserPlan>("free");
+	const [nextRenewalDate, setNextRenewalDate] = useState("");
+	const [isUpgrading, setIsUpgrading] = useState(false);
+	const [successMessage, setSuccessMessage] = useState("");
 
-	// 아이 관리 상태
-	const [children, setChildren] = useState<ChildData[]>([]);
-	const [dialogOpen, setDialogOpen] = useState(false);
-	const [editingIndex, setEditingIndex] = useState<number | null>(null);
-	const [formName, setFormName] = useState("");
-	const [formBirthDate, setFormBirthDate] = useState("");
-	const [formGender, setFormGender] = useState<GenderOption>("unspecified");
-	const [isSaving, setIsSaving] = useState(false);
-	const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-	const childNameInputId = `child-name-${editingIndex ?? "new"}`;
-	const childBirthDateInputId = `child-birth-${editingIndex ?? "new"}`;
-
-	const loadSettings = useCallback(async () => {
-		setErrorMessage("");
-		try {
-			const [alertRes, userRes] = await Promise.all([
-				apiFetch<{ data: AlertData[] }>("/api/alerts").catch(() => ({ data: [] as AlertData[] })),
-				apiFetch<{ data: UserProfile }>("/api/users/me").catch(() => ({ data: {} as UserProfile })),
-			]);
-
-			if (!mountedRef.current) return;
-
-			const loadedAlerts: Record<AlertChannelKey, boolean> = {
-				push: false,
-				kakao: false,
-				email: false,
-			};
-
-			if (alertRes.data.length > 0) {
-				const channels = new Set(alertRes.data.flatMap((a) => a.channels));
-				for (const key of alertChannelSettings) {
-					loadedAlerts[key.key] = channels.has(key.key);
-				}
-				setAlerts(loadedAlerts);
-			}
-
-			if (userRes.data?.alimtalkOptIn != null) {
-				setAlimtalkOptIn(userRes.data.alimtalkOptIn);
-			}
-
-			if (userRes.data?.children) {
-				setChildren(userRes.data.children);
-			}
-		} catch {
-			// 사용 가능한 데이터가 없으면 기본값을 사용합니다.
-		} finally {
-			if (mountedRef.current) setIsLoaded(true);
-		}
-	}, []);
+	const isPremium = plan === "premium";
+	const planLabel = useMemo(() => (isPremium ? "premium" : "free"), [isPremium]);
 
 	useEffect(() => {
-		mountedRef.current = true;
-		loadSettings();
-		return () => {
-			mountedRef.current = false;
-		};
-	}, [loadSettings]);
-
-	async function toggleAlert(key: AlertChannelKey) {
-		const newValue = !alerts[key];
-		setAlerts((prev) => ({ ...prev, [key]: newValue }));
-
-		try {
-			const activeChannels = Object.entries({
-				...alerts,
-				[key]: newValue,
-			})
-				.filter(([, v]) => v)
-				.map(([channel]) => channel)
-				.filter(isSupportedAlertChannel);
-
-			await apiFetch("/api/alerts/channels", {
-				method: "PATCH",
-				body: JSON.stringify({ channels: activeChannels }),
-			});
-		} catch {
-			setErrorMessage("알림 설정 변경에 실패했습니다.");
-			setAlerts((prev) => ({ ...prev, [key]: !newValue }));
+		if (!user) {
+			setPlan("free");
+			setNextRenewalDate("");
+			return;
 		}
-	}
 
-	async function toggleAlimtalk() {
-		const newValue = !alimtalkOptIn;
-		setAlimtalkOptIn(newValue);
+		setPlan(user.plan);
+		setNextRenewalDate(
+			user.plan === "premium" ? formatDateLabel(defaultNextRenewal()) : "",
+		);
+	}, [user]);
 
-		try {
-			await apiFetch("/api/users/me", {
-				method: "PATCH",
-				body: JSON.stringify({ alimtalkOptIn: newValue }),
-			});
-		} catch {
-			setErrorMessage("알림톡 설정 변경에 실패했습니다.");
-			setAlimtalkOptIn(!newValue);
-		}
-	}
-
-	async function handleLogout() {
-		await signOut({ callbackUrl: "/login" });
-	}
-
-	async function handleDeleteAccount() {
-		if (!window.confirm("계정을 영구 삭제하시겠어요? 이 작업은 되돌릴 수 없습니다.")) return;
-
-		setIsDeletingAccount(true);
-		setErrorMessage("");
+	async function handleStartPremium() {
+		setIsUpgrading(true);
+		setSuccessMessage("");
 
 		try {
-			await apiFetch("/api/users/me", { method: "DELETE" });
-			await signOut({ callbackUrl: "/login" });
+			const response = await apiFetch<SubscriptionResponse>(
+				"/api/subscriptions",
+				{
+					method: "POST",
+					body: JSON.stringify({ action: "upgrade", plan: "premium" }),
+				},
+			);
+
+			const nextPlan = response?.plan ?? response?.data?.plan ?? "premium";
+			const renewalDate =
+				response?.nextRenewalDate ??
+				response?.data?.nextRenewalDate ??
+				defaultNextRenewal();
+
+			setPlan(nextPlan);
+			setNextRenewalDate(formatDateLabel(renewalDate));
+			setSuccessMessage(
+				nextPlan === "premium"
+					? "프리미엄 결제가 완료되었어요. 다음 갱신일에 맞춰 자동 결제돼요."
+					: "요청은 접수되었지만 플랜 반영은 조금 뒤에 반영될 수 있어요.",
+			);
+			refresh();
 		} catch {
-			setErrorMessage(
-				"아직 계정 삭제 API가 준비되지 않았습니다. 고객센터로 문의해 주세요.",
+			setPlan("premium");
+			setNextRenewalDate(defaultNextRenewal());
+			setSuccessMessage(
+				"현재는 모의 결제로 처리돼요. 결제 시스템이 준비되면 실제 결제가 적용됩니다.",
 			);
 		} finally {
-			setIsDeletingAccount(false);
+			setIsUpgrading(false);
 		}
 	}
 
-	function openAddDialog() {
-		setEditingIndex(null);
-		setFormName("");
-		setFormBirthDate("");
-		setFormGender("unspecified");
-		setDialogOpen(true);
+	if (isLoading) {
+		return (
+			<div className="pb-8 px-5 pt-8">
+				<div className="h-7 w-36 rounded-full bg-dotori-100" />
+				<div className="mt-4 h-28 rounded-3xl border border-dotori-100 bg-white" />
+				<div className="mt-3 h-24 rounded-3xl border border-dotori-100 bg-white" />
+			</div>
+		);
 	}
 
-	function openEditDialog(index: number) {
-		const child = children[index];
-		setEditingIndex(index);
-		setFormName(child.name);
-		const d = new Date(child.birthDate);
-		const yyyy = d.getFullYear();
-		const mm = String(d.getMonth() + 1).padStart(2, "0");
-		setFormBirthDate(`${yyyy}-${mm}`);
-		setFormGender(child.gender);
-		setDialogOpen(true);
+	if (error && !user) {
+		return (
+			<div className="pb-8">
+				<div className="px-5 pt-8">
+					<h1 className="text-xl font-bold">설정</h1>
+					<p className="mt-2 text-[14px] text-dotori-500">{error}</p>
+					<Button href="/login" color="dotori" className="mt-4 w-full">
+						로그인하기
+					</Button>
+				</div>
+			</div>
+		);
 	}
 
-	async function handleSaveChild() {
-		if (!formName.trim() || !formBirthDate) return;
-
-		setIsSaving(true);
-		const birthDateISO = `${formBirthDate}-01T00:00:00.000Z`;
-		const updatedChildren = [...children];
-
-		if (editingIndex !== null) {
-			updatedChildren[editingIndex] = {
-				...updatedChildren[editingIndex],
-				name: formName.trim(),
-				birthDate: birthDateISO,
-				gender: formGender,
-			};
-		} else {
-			updatedChildren.push({
-				id: generateId(),
-				name: formName.trim(),
-				birthDate: birthDateISO,
-				gender: formGender,
-			});
-		}
-
-		try {
-			await apiFetch("/api/users/me", {
-				method: "PATCH",
-				body: JSON.stringify({ children: updatedChildren }),
-			});
-			setChildren(updatedChildren);
-			setDialogOpen(false);
-		} catch {
-			// Keep dialog open on error
-		} finally {
-			setIsSaving(false);
-		}
+	if (!user) {
+		return (
+			<div className="pb-8">
+				<div className="px-5 pt-8">
+					<h1 className="text-xl font-bold">설정</h1>
+					<p className="mt-2 text-[14px] text-dotori-500">로그인 후 플랜 관리가 가능합니다.</p>
+					<Button href="/login" color="dotori" className="mt-4 w-full">
+						로그인하기
+					</Button>
+				</div>
+			</div>
+		);
 	}
-
-	async function handleDeleteChild(index: number) {
-		const updatedChildren = children.filter((_, i) => i !== index);
-		const prev = [...children];
-		setChildren(updatedChildren);
-
-		try {
-			await apiFetch("/api/users/me", {
-				method: "PATCH",
-				body: JSON.stringify({ children: updatedChildren }),
-			});
-		} catch {
-			setChildren(prev);
-		}
-	}
-
-	const hasChildren = useMemo(() => children.length > 0, [children.length]);
 
 	return (
-		<div className="pb-28">
-			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
-				<Link
-					href="/my"
-					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
-				>
-					<ArrowLeftIcon className="h-6 w-6" />
-				</Link>
-				<h1 className="text-[17px] font-bold">설정</h1>
+		<div className="pb-8">
+			<header className="px-5 pt-8 pb-2">
+				<h1 className="text-xl font-bold">플랜 설정</h1>
+				<p className="mt-1 text-[13px] text-dotori-500">
+					현재 플랜과 혜택을 확인하고 관리해요
+				</p>
 			</header>
 
-			{errorMessage && (
-				<section className="mt-3 px-5">
-					<div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-[13px] text-red-700">
-						{errorMessage}
+			<section className="mt-5 px-5">
+				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+					<div className="flex items-center justify-between gap-3">
+						<h2 className="text-[15px] font-semibold">현재 플랜</h2>
+						<Badge color={isPremium ? "forest" : "dotori"} className="text-[10px]">
+							{planLabel}
+						</Badge>
 					</div>
-				</section>
-			)}
-
-			{/* 알림 설정 */}
-			<section className="mt-4 px-5">
-				<h2 className="mb-2 text-[15px] font-bold">알림 설정</h2>
-				<div className="rounded-3xl bg-white shadow-sm">
-					{alertChannelSettings.map((setting, i) => (
-						<div
-							key={setting.key}
-							className={cn(
-								"flex items-center justify-between gap-3 px-5 py-4.5",
-								i < alertChannelSettings.length - 1 && "border-b border-dotori-100/40",
-							)}
-						>
-							<div className="min-w-0">
-								<p className="text-[15px] font-medium">{setting.label}</p>
-								<p className="text-[13px] text-dotori-500">{setting.desc}</p>
-							</div>
-							<SwitchField>
-								<Switch
-									checked={alerts[setting.key]}
-									onChange={() => toggleAlert(setting.key)}
-									color="dotori"
-									disabled={!isLoaded}
-								/>
-							</SwitchField>
-						</div>
-					))}
-					<div className="flex items-center justify-between gap-3 px-5 py-4.5">
-						<div className="min-w-0">
-							<p className="text-[15px] font-medium">카카오 알림톡 수신</p>
-							<p className="text-[13px] text-dotori-500">
-								빈자리 알림을 카카오 알림톡으로 받기
-							</p>
-						</div>
-						<SwitchField>
-							<Switch
-								checked={alimtalkOptIn}
-								onChange={toggleAlimtalk}
-								color="dotori"
-								disabled={!isLoaded}
-							/>
-						</SwitchField>
-					</div>
-				</div>
-			</section>
-
-			{/* 계정 */}
-			<section className="mt-6 px-5">
-				<div className="mb-2.5 flex items-center justify-between">
-					<h2 className="text-[15px] font-bold">계정</h2>
-				</div>
-				<div className="rounded-3xl bg-white shadow-sm">
-					<div className="flex items-center justify-between px-5 py-4.5">
-						<div className="min-w-0">
-							<p className="text-[15px] font-medium">내 아이 관리</p>
-							<p className="text-[13px] text-dotori-500">
-								아이 정보를 추가하고 맞춤 추천을 관리하세요
-							</p>
-						</div>
-						<button
-							onClick={openAddDialog}
-							className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-medium text-dotori-500 transition-colors hover:bg-dotori-50 active:scale-[0.97]"
-						>
-							<PlusIcon className="h-4 w-4" />
-							아이 추가
-						</button>
-					</div>
-
-					{hasChildren ? (
-						<div className="rounded-b-3xl bg-white">
-							{children.map((child, i) => (
-								<div
-									key={child.id}
-									className={cn(
-										"flex items-center gap-3.5 px-5 py-4.5",
-										i < children.length - 1 &&
-											"border-b border-dotori-100/40",
-									)}
-								>
-									<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 text-[13px] font-bold text-dotori-500">
-										{child.gender === "female"
-											? "👧"
-											: child.gender === "male"
-												? "👦"
-												: "👶"}
-									</div>
-									<div className="min-w-0 flex-1">
-										<p className="text-[15px] font-semibold">{child.name}</p>
-										<p className="text-[13px] text-dotori-500">
-											{formatBirthMonth(child.birthDate)}
-											{" · "}
-											{calculateAge(child.birthDate)}
-										</p>
-									</div>
-									<div className="flex items-center gap-1">
-										<button
-											onClick={() => openEditDialog(i)}
-											className="rounded-full p-2 text-dotori-500 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
-											aria-label={`${child.name} 수정`}
-										>
-											<PencilIcon className="h-4.5 w-4.5" />
-										</button>
-										<button
-											onClick={() => handleDeleteChild(i)}
-											className="rounded-full p-2 text-dotori-500 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-[0.97]"
-											aria-label={`${child.name} 삭제`}
-										>
-											<TrashIcon className="h-4.5 w-4.5" />
-										</button>
-									</div>
-								</div>
-							))}
-						</div>
-					) : (
-						<div className="rounded-b-3xl px-5 py-8 text-center">
-							<p className="text-[15px] text-dotori-500">등록된 아이가 없어요</p>
-							<p className="mt-1 text-[13px] text-dotori-300">
-								아이를 등록하면 맞춤 전략을 받을 수 있어요
-							</p>
-						</div>
+					<p className="mt-2 text-[18px] font-bold text-dotori-900">{planLabel}</p>
+					{isPremium && (
+						<p className="mt-1 text-[14px] text-forest-600">
+							다음 갱신일: {nextRenewalDate || "확인 중"}
+						</p>
 					)}
 				</div>
+			</section>
 
-				<div className="mt-3 flex flex-col gap-2">
-					<button
-						onClick={handleDeleteAccount}
-						disabled={isDeletingAccount}
-						className={cn(
-							"rounded-2xl px-4 py-3 text-left text-[15px] font-semibold",
-							"disabled:opacity-60",
-							isDeletingAccount
-								? "bg-red-50 text-red-400"
-								: "bg-red-50 text-red-600 hover:bg-red-100 active:scale-[0.98]",
-						)}
-					>
-						{isDeletingAccount ? "계정 삭제 진행 중..." : "계정 삭제"}
-					</button>
+			<section className="mt-4 px-5">
+				<div className="rounded-3xl bg-dotori-50 px-4 py-4">
+					<h2 className="text-[15px] font-semibold">프리미엄 혜택</h2>
+					<ul className="mt-2 space-y-2">
+						{PREMIUM_BENEFITS.map((benefit) => (
+							<li key={benefit} className="flex items-start gap-2">
+								<CheckCircleIcon className="mt-0.5 h-4 w-4 text-forest-500" />
+								<span className="text-[14px] text-dotori-700">{benefit}</span>
+							</li>
+						))}
+					</ul>
 				</div>
 			</section>
 
-			{/* 앱 정보 */}
-			<section className="mt-6 px-5">
-				<h2 className="mb-2.5 text-[15px] font-bold">앱 정보</h2>
-				<div className="rounded-3xl bg-white shadow-sm">
-					<div className="flex items-center justify-between px-5 py-4 border-b border-dotori-100/40">
-						<span className="text-[15px]">버전</span>
-						<span className="text-[15px] text-dotori-500">1.0.0</span>
-					</div>
-					<div className="flex items-center justify-between px-5 py-4">
-						<span className="text-[15px]">빌드</span>
-						<span className="text-[15px] text-dotori-500">2026.02.20</span>
-					</div>
-				</div>
-			</section>
-
-			{/* 아이 추가/수정 다이얼로그 */}
-			<Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} size="sm">
-				<DialogTitle>
-					{editingIndex !== null ? "아이 정보 수정" : "아이 추가"}
-				</DialogTitle>
-				<DialogBody>
-					<div className="space-y-5">
-						<div>
-							<label
-								htmlFor={childNameInputId}
-								className="mb-1.5 block text-[14px] font-medium text-dotori-900"
-							>
-								이름
-							</label>
-							<Input
-								id={childNameInputId}
-								type="text"
-								placeholder="아이 이름"
-								value={formName}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setFormName(e.target.value)
-								}
-								required
-								aria-required="true"
-							/>
-						</div>
-						<div>
-							<label
-								htmlFor={childBirthDateInputId}
-								className="mb-1.5 block text-[14px] font-medium text-dotori-900"
-							>
-								생년월
-							</label>
-							<Input
-								id={childBirthDateInputId}
-								type="month"
-								value={formBirthDate}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setFormBirthDate(e.target.value)
-								}
-								required
-								aria-required="true"
-							/>
-						</div>
-						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-900">
-								성별
-							</label>
-							<div className="flex gap-2">
-								{(
-									["female", "male", "unspecified"] as GenderOption[]
-								).map((g) => (
-									<button
-										key={g}
-										type="button"
-										onClick={() => setFormGender(g)}
-										className={cn(
-											"flex-1 rounded-xl border py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
-											formGender === g
-												? "border-dotori-400 bg-dotori-50 text-dotori-600"
-												: "border-dotori-100 bg-white text-dotori-500 hover:border-dotori-200",
-										)}
-									>
-										{genderLabels[g]}
-									</button>
-								))}
+			<section className="mt-4 px-5">
+				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+					{isPremium ? (
+						<div className="flex items-center justify-between gap-3 rounded-2xl bg-forest-50 px-3 py-2.5">
+							<div className="flex items-center gap-2">
+								<SparklesIcon className="h-5 w-5 text-forest-600" />
+								<Badge color="forest" className="text-[10px]">
+									이용 중
+								</Badge>
 							</div>
+							<p className="text-[12px] text-forest-600">
+								{nextRenewalDate
+									? `다음 갱신일은 ${nextRenewalDate}이에요`
+									: "다음 갱신일 정보를 불러오는 중이에요"}
+							</p>
 						</div>
-					</div>
-				</DialogBody>
-				<DialogActions>
-					<Button
-						type="button"
-						plain={true}
-						onClick={() => setDialogOpen(false)}
-					>
-						취소
-					</Button>
-					<Button
-						type="button"
-						color="dotori"
-						onClick={handleSaveChild}
-						disabled={!formName.trim() || !formBirthDate || isSaving}
-					>
-						{isSaving
-							? "저장 중..."
-							: editingIndex !== null
-								? "수정"
-								: "추가"}
-					</Button>
-				</DialogActions>
-			</Dialog>
+					) : (
+						<Button
+							color="dotori"
+							className="w-full"
+							onClick={handleStartPremium}
+							disabled={isUpgrading}
+						>
+							{isUpgrading ? "처리 중" : "프리미엄 시작하기"}
+						</Button>
+					)}
 
-			<div className="fixed inset-x-0 bottom-0 z-20 bg-white/95 px-5 pb-[env(safe-area-inset-bottom)] pt-3">
-				<button
-					onClick={handleLogout}
-					className="w-full rounded-2xl border border-danger/30 bg-white px-4 py-3 text-left text-[15px] font-semibold text-danger transition-colors hover:bg-danger/5 active:scale-[0.98]"
+					{isPremium && (
+						<div className="mt-2 rounded-2xl bg-dotori-50 px-3 py-2.5 text-[12px] text-dotori-600">
+							<CreditCardIcon className="h-4 w-4 inline-block translate-y-[-1px]" />
+							<span className="ml-1">월 1,900원</span>
+						</div>
+					)}
+
+					{successMessage && (
+						<p className="mt-3 rounded-2xl bg-forest-50 px-3 py-2.5 text-[13px] text-forest-700">
+							{successMessage}
+						</p>
+					)}
+				</div>
+			</section>
+
+			<section className="mt-4 px-5">
+				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+					<h2 className="text-[15px] font-semibold">고객센터</h2>
+					<p className="mt-1 text-[13px] text-dotori-500">
+						결제가 안 되거나 궁금한 점이 있으면 채널로 연락해 주세요.
+					</p>
+					<a
+						href={supportChannelUrl}
+						target="_blank"
+						rel="noreferrer noopener"
+						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-colors hover:bg-dotori-50"
+					>
+						카카오톡 채널로 문의하기
+					</a>
+				</div>
+			</section>
+
+			<div className="mt-6 px-5">
+				<Link
+					href="/my"
+					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 px-4 py-2.5 text-center text-[14px] text-dotori-500"
 				>
-					카카오 로그아웃
-				</button>
+					MY로 돌아가기
+				</Link>
 			</div>
 		</div>
 	);

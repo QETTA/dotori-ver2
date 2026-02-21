@@ -215,6 +215,7 @@ export default function MyPage() {
 		() => (user?.interests ?? []).slice(0, 3),
 		[user?.interests],
 	);
+	const isPremiumUser = user?.plan === "premium";
 
 	useEffect(() => {
 		if (!user || userInterestPreviewIds.length === 0) {
@@ -435,6 +436,31 @@ export default function MyPage() {
 					))}
 				</div>
 			</section>
+
+			{!isPremiumUser && (
+				<section className="mt-5 px-5">
+					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 px-4 py-5">
+						<p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-dotori-500">
+							프리미엄
+						</p>
+						<p className="mt-2 text-[18px] font-bold text-dotori-900">
+							프리미엄 · 월 1,900원
+						</p>
+						<div className="mt-2 space-y-1.5 text-[13px] text-dotori-700">
+							<p>• 즉시 알림</p>
+							<p>• 무제한 AI</p>
+							<p>• 우선 매칭</p>
+						</div>
+						<Button
+							href="/my/settings"
+							color="dotori"
+							className="mt-4 w-full"
+						>
+							지금 시작하기
+						</Button>
+					</div>
+				</section>
+			)}
 
 			{/* 관심 시설 미리보기 */}
 			<section className="mt-5 px-5">
