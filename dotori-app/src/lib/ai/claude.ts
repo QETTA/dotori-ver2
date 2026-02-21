@@ -64,6 +64,7 @@ const SYSTEM_PROMPT = `당신은 "토리", 도토리 앱의 어린이집·유치
 
 const TOKEN_BUDGETS: Record<string, number> = {
 	recommend: 400,
+	transfer: 500,
 	compare: 500,
 	explain: 600,
 	status: 300,

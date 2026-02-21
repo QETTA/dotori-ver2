@@ -434,7 +434,7 @@ async function buildTransferResponse(
 	const content =
 		aiResponse.success && aiResponse.content
 			? aiResponse.content
-			: "이사 고민이 크시겠어요. 이유를 먼저 정리하고, 지역/우선순위/시기까지 같이 확인해 다음 단계를 같이 잡아드릴게요.";
+			: "어린이집 이동 고민이 크시겠어요. 이동 이유를 먼저 파악하고, 지역·우선순위·시기까지 같이 확인해 다음 단계를 잡아드릴게요.";
 
 	return {
 		content,
