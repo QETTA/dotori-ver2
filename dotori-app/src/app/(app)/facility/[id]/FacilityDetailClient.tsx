@@ -173,6 +173,29 @@ function getQualityColor(score?: number): "forest" | "amber" | "dotori" {
 	return "dotori";
 }
 
+type FacilityStatusBadge = {
+	color: "forest" | "amber" | "red";
+	label: string;
+};
+
+function getFacilityStatusBadge(status: Facility["status"]): FacilityStatusBadge {
+	switch (status) {
+		case "available":
+			return { color: "forest", label: "빈자리 있음" };
+		case "waiting":
+			return { color: "amber", label: "대기 중" };
+		case "full":
+		default:
+			return { color: "red", label: "마감" };
+	}
+}
+
+function getCapacityProgressColor(occupancyRate: number): "bg-forest-500" | "bg-warning" | "bg-danger" {
+	if (occupancyRate >= 90) return "bg-danger";
+	if (occupancyRate >= 60) return "bg-warning";
+	return "bg-forest-500";
+}
+
 function getSafeNumber(value?: number | null): number | null {
 	if (typeof value !== "number" || Number.isNaN(value)) return null;
 	return value;
@@ -236,13 +259,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	const copyableAddress = facility.address?.trim();
 
 	const keyStats = useMemo(() => {
-		const totalCapacity = getSafeNumber(facility.capacity.total);
 		const roomCount = getSafeNumber(facility.roomCount);
 		const teacherCount = getSafeNumber(facility.teacherCount);
 		const establishmentYear = getSafeNumber(facility.establishmentYear);
 
 		return [
-			...(totalCapacity != null ? [{ label: "총 정원", value: `${totalCapacity}명` }] : []),
 			...(roomCount != null ? [{ label: "보육실", value: `${roomCount}개` }] : []),
 			...(teacherCount != null ? [{ label: "교직원", value: `${teacherCount}명` }] : []),
 			...(establishmentYear != null
@@ -250,7 +271,6 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				: []),
 		];
 	}, [
-		facility.capacity.total,
 		facility.roomCount,
 		facility.teacherCount,
 		facility.establishmentYear,
@@ -275,6 +295,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		Number.isFinite(facility.lng) &&
 		!(facility.lat === 0 && facility.lng === 0);
 	const waitingHintText = useMemo(() => getWaitingHintText(facility), [facility]);
+	const facilityStatusBadge = useMemo(
+		() => getFacilityStatusBadge(facility.status),
+		[facility.status],
+	);
+	const totalCapacity = Math.max(0, facility.capacity.total);
+	const currentCapacity = Math.max(0, facility.capacity.current);
+	const waitingCapacity = Math.max(0, facility.capacity.waiting);
+	const occupancyRate = useMemo(() => {
+		if (totalCapacity <= 0) return 0;
+		const boundedCurrent = Math.min(currentCapacity, totalCapacity);
+		return Math.max(
+			0,
+			Math.min(100, Math.round((boundedCurrent / totalCapacity) * 100)),
+		);
+	}, [currentCapacity, totalCapacity]);
+	const occupancyProgressColor = useMemo(
+		() => getCapacityProgressColor(occupancyRate),
+		[occupancyRate],
+	);
 
 	const websiteUrl = useMemo(() => {
 		const raw = facility.website || facility.homepage;
@@ -539,6 +578,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</header>
 			<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
 				<Badge color={getTypeBadgeColor(facility.type)}>{facility.type}</Badge>
+				<Badge color={facilityStatusBadge.color}>{facilityStatusBadge.label}</Badge>
 				{isPremiumFacility ? (
 					<Badge color="forest" className="inline-flex items-center gap-1.5">
 						<ShieldCheckIcon className="h-4 w-4" />
@@ -569,6 +609,22 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</div>
 
 			<div className="mt-4 space-y-3 px-5">
+				<section className="rounded-3xl bg-white p-5 shadow-sm">
+					<div className="flex items-center justify-between gap-2">
+						<h2 className="text-sm font-semibold text-dotori-900">정원 현황</h2>
+						<span className="text-sm font-semibold text-dotori-700">{occupancyRate}%</span>
+					</div>
+					<p className="mt-2 text-sm text-dotori-700">
+						현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
+					</p>
+					<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100">
+						<div
+							className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
+							style={{ width: `${occupancyRate}%` }}
+						/>
+					</div>
+				</section>
+
 				{keyStats.length > 0 ? (
 					<section className="rounded-3xl bg-white p-5 shadow-sm">
 						<h2 className="text-sm font-semibold text-dotori-900">주요 지표</h2>
@@ -711,7 +767,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 							<span className="line-clamp-2">{facility.address}</span>
 						</a>
 						<Button
-							plain
+							plain={true}
 							type="button"
 							onClick={handleCopyAddress}
 							disabled={!copyableAddress || copyingAddress}
@@ -799,25 +855,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				<div className="space-y-2">
 					<div className="flex gap-3">
 						<Button
-							plain
+							plain={true}
 							disabled={isTogglingLike}
 							onClick={toggleLike}
 							aria-label="관심 시설 추가/제거"
-							className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-2 text-[15px] font-semibold text-dotori-700 transition-all active:scale-[0.97]"
+							className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97]"
 						>
 							{liked ? (
 								<HeartSolid className="h-5 w-5 text-red-500" />
 							) : (
 								<HeartIcon className="h-5 w-5" />
 							)}
-							{liked ? "관심 시설 제거" : "관심 시설 추가"}
+							{liked ? "관심 추가됨" : "관심 추가"}
 						</Button>
 						<div className="flex-1">
 							{actionStatus === "executing" ? (
 								<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
 									<div className="flex h-full items-center justify-center gap-2">
 										<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
-										<span className="text-[14px] font-semibold text-dotori-700">
+										<span className="text-sm font-semibold text-dotori-700">
 											신청 처리 중...
 										</span>
 									</div>
@@ -834,11 +890,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 									>
 										MY &gt; 대기 현황에서 확인하세요
 									</Link>
-									<Button
-										plain
-										onClick={resetActionStatus}
-										className="mt-2 min-h-10 w-full rounded-2xl"
-									>
+										<Button
+											plain={true}
+											onClick={resetActionStatus}
+											className="mt-2 min-h-10 w-full rounded-2xl"
+										>
 										확인
 									</Button>
 								</div>
@@ -848,11 +904,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 										{error ?? "대기 신청 중 오류가 발생했어요."}
 									</p>
 									<div className="mt-2 flex gap-2">
-										<Button
-											plain
-											onClick={resetActionStatus}
-											className="min-h-10 flex-1 rounded-2xl"
-										>
+											<Button
+												plain={true}
+												onClick={resetActionStatus}
+												className="min-h-10 flex-1 rounded-2xl"
+											>
 											닫기
 										</Button>
 										<Button
@@ -869,11 +925,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 									<Button
 										color="dotori"
 										onClick={handleApplyClick}
-										className="min-h-12 w-full text-[15px] font-semibold"
+										className="min-h-12 w-full py-3 text-base font-semibold"
 									>
-										대기 신청하기
+										{facility.status === "available" ? "입소 신청" : "대기 신청"}
 									</Button>
-									<p className="mt-1 text-[12px] text-dotori-500">{waitingHintText}</p>
+									<p className="mt-1 text-xs text-dotori-500">{waitingHintText}</p>
 								</>
 							)}
 						</div>
