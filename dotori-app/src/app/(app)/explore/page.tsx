@@ -50,6 +50,9 @@ const RECENT_SEARCHES_KEY = "dotori_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
 const SEARCH_DEBOUNCE_MS = 300;
 const FACILITY_LOAD_TIMEOUT_MS = 8000;
+const MIN_BAR_WIDTH = 20;
+const MIN_WAITING_WIDTH = 60;
+const MAX_WIDTH = 100;
 const POPULAR_SEARCHES = [
 	"국공립",
 	"강남구",
@@ -538,6 +541,7 @@ function ExploreContent() {
 					{/* TO 토글 */}
 					<button
 						onClick={() => setToOnly(!toOnly)}
+						aria-pressed={toOnly}
 						className={cn(
 							"flex items-center gap-1 rounded-full px-4 py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
 							toOnly
@@ -604,20 +608,25 @@ function ExploreContent() {
 								시설 유형
 							</span>
 							<div className="flex flex-wrap gap-2">
-								{typeFilters.map((type) => (
-									<button
-										key={type}
-										onClick={() => toggleType(type)}
-										className={cn(
-											"rounded-full px-4 py-2 text-[14px] font-medium transition-all active:scale-[0.97]",
-											selectedTypes.includes(type)
-												? "bg-dotori-900 text-white"
-												: "bg-white text-dotori-600",
-										)}
-									>
-										{type}
-									</button>
-								))}
+								{typeFilters.map((type) => {
+									const isTypeSelected = selectedTypes.includes(type);
+
+									return (
+										<button
+											key={type}
+											onClick={() => toggleType(type)}
+											aria-pressed={isTypeSelected}
+											className={cn(
+												"rounded-full px-4 py-2 text-[14px] font-medium transition-all active:scale-[0.97]",
+												isTypeSelected
+													? "bg-dotori-900 text-white"
+													: "bg-white text-dotori-600",
+											)}
+										>
+											{type}
+										</button>
+									);
+								})}
 							</div>
 						</div>
 
@@ -701,7 +710,7 @@ function ExploreContent() {
 			<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
 				<MapEmbed
 					facilities={mapFacilityPoints}
-					height="h-56"
+					height="h-48 sm:h-64"
 				/>
 			</div>
 			)}
@@ -860,9 +869,25 @@ function ExploreContent() {
 														)}
 														style={{
 															width: `${f.status === "available"
-																? Math.max(20, 100 - Math.round(((f.capacity.total - f.capacity.current) / f.capacity.total) * 100))
+																? Math.max(
+																	MIN_BAR_WIDTH,
+																	MAX_WIDTH -
+																		Math.round(
+																			((f.capacity.total - f.capacity.current) / f.capacity.total) * MAX_WIDTH,
+																		),
+																)
 																: f.status === "waiting"
-																	? Math.min(100, Math.max(60, 60 + Math.min(40, (f.capacity.waiting / f.capacity.total) * 100)))
+																	? Math.min(
+																		MAX_WIDTH,
+																		Math.max(
+																			MIN_WAITING_WIDTH,
+																			MIN_WAITING_WIDTH +
+																				Math.min(
+																					MAX_WIDTH - MIN_WAITING_WIDTH,
+																					(f.capacity.waiting / f.capacity.total) * MAX_WIDTH,
+																				),
+																		),
+																	)
 																	: 100}%`,
 														}}
 													/>
@@ -941,7 +966,9 @@ function ExploreContent() {
 									: "이동할 시설을 찾지 못했어요"
 						}
 						description={
-							"다른 지역이나 시설 유형으로 검색해보세요. 반경을 넓히거나 필터를 변경해보세요."
+							!hasSearchInput && !hasFilterApplied
+								? "검색어나 필터 없이 결과가 없어요. 이동 가능한 시설만 보려면 '이동 가능 시설' 토글을 켜 보세요."
+								: "다른 지역이나 시설 유형으로 검색해보세요. 반경을 넓히거나 필터를 변경해보세요."
 						}
 						actionLabel={
 							hasSearchInput
