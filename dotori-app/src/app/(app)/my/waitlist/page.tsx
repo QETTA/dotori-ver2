@@ -15,6 +15,7 @@ import {
 	DevicePhoneMobileIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ISALANG_PORTAL, openIsalangLink, openIsalangApp } from "@/lib/external/isalang-api";
 
@@ -102,6 +103,8 @@ export default function WaitlistPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [cancellingIds, setCancellingIds] = useState<Set<string>>(new Set());
 	const mountedRef = useRef(true);
+	const { data: session } = useSession();
+	const isPremiumUser = session?.user?.plan === "premium";
 
 	const loadWaitlists = useCallback(async () => {
 		setIsLoading(true);
@@ -165,6 +168,35 @@ export default function WaitlistPage() {
 					</span>
 				)}
 			</header>
+
+			{!isLoading && (
+				<div className="mx-4 mt-3 rounded-2xl border border-dotori-100 bg-white px-4 py-3 shadow-sm">
+					<div className="flex items-start justify-between gap-3">
+						<div className="min-w-0">
+							<p className="text-[13px] font-semibold text-dotori-700">
+								빈자리 즉시 알림은 프리미엄 전용입니다
+							</p>
+							<p className="mt-1.5 text-[12px] leading-5 text-dotori-500">
+								{isPremiumUser
+									? "프리미엄: 빈자리 즉시 푸시 알림"
+									: "무료: 빈자리 생기면 앱 열었을 때 확인 가능"}
+							</p>
+						</div>
+						<Badge color={isPremiumUser ? "forest" : "dotori"}>
+							{isPremiumUser ? "프리미엄" : "무료"}
+						</Badge>
+					</div>
+					{!isPremiumUser && (
+						<Button
+							color="dotori"
+							href="/landing#pricing"
+							className="mt-3 w-full min-h-[44px]"
+						>
+							월 1,900원으로 즉시 알림 받기
+						</Button>
+					)}
+				</div>
+			)}
 
 			{isLoading ? (
 				<div className="px-4 mt-4">
