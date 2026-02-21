@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
 	Suspense,
 	useCallback,
@@ -22,7 +23,6 @@ import {
 } from "react";
 import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
-import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { useFacilities } from "@/hooks/use-facilities";
@@ -32,6 +32,11 @@ import { cn, facilityTypeBadgeColor } from "@/lib/utils";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { Select } from "@/components/catalyst/select";
+
+const MapEmbed = dynamic(
+	() => import("@/components/dotori/MapEmbed").then((mod) => mod.MapEmbed),
+	{ ssr: false },
+);
 
 const typeFilters = ["국공립", "민간", "가정", "직장", "공공형"];
 type SortKey = "distance" | "rating" | "capacity";
@@ -313,7 +318,10 @@ function ExploreContent() {
 		sort: sortBy,
 	});
 
-	const toCount = facilities.filter((f) => f.status === "available").length;
+	const toCount = useMemo(
+		() => facilities.filter((f) => f.status === "available").length,
+		[facilities],
+	);
 	const [isTimeout, setIsTimeout] = useState(false);
 	const resultLabel = useMemo(
 		() =>
@@ -325,6 +333,17 @@ function ExploreContent() {
 				isLoading,
 			}),
 		[selectedSido, selectedSigungu, selectedTypes, total, isLoading],
+	);
+	const mapFacilityPoints = useMemo(
+		() =>
+			facilities.map((f) => ({
+				id: f.id,
+				name: f.name,
+				lat: f.lat,
+				lng: f.lng,
+				status: f.status,
+			})),
+		[facilities],
 	);
 	const activeFilterCount =
 		selectedTypes.length + (toOnly ? 1 : 0) + (selectedSigungu ? 1 : 0) + (selectedSido ? 1 : 0);
@@ -670,18 +689,12 @@ function ExploreContent() {
 
 			{/* ── 지도뷰 ── */}
 			{showMap && facilities.length > 0 && (
-				<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
-					<MapEmbed
-						facilities={facilities.map((f) => ({
-							id: f.id,
-							name: f.name,
-							lat: f.lat,
-							lng: f.lng,
-							status: f.status,
-						}))}
-						height="h-56"
-					/>
-				</div>
+			<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
+				<MapEmbed
+					facilities={mapFacilityPoints}
+					height="h-56"
+				/>
+			</div>
 			)}
 
 				{/* ── 시설 리스트 ── */}

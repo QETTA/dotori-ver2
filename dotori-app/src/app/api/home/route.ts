@@ -186,6 +186,6 @@ export const GET = withApiHandler(
 	{
 		auth: false,
 		rateLimiter: relaxedLimiter,
-		cacheControl: "private, max-age=30, stale-while-revalidate=60",
+		cacheControl: "private, max-age=60, stale-while-revalidate=60",
 	},
 );

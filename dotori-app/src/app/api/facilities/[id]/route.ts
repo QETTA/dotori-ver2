@@ -11,7 +11,7 @@ export const GET = withApiHandler(async (_req, { params }) => {
 		{ data: facility },
 		{
 			headers: {
-				"Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+				"Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
 			},
 		},
 	);

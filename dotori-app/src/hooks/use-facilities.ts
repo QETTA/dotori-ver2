@@ -47,7 +47,8 @@ interface FacilityCacheEntry {
 }
 
 const facilityCache = new Map<string, FacilityCacheEntry>();
-const FACILITY_CACHE_TTL_MS = 30_000;
+const FACILITY_CACHE_TTL_MS = 60_000;
+const FACILITY_REQUEST_TIMEOUT_MS = 10_000;
 
 function buildRequestParams(
 	params: UseFacilitiesParams,
@@ -120,6 +121,10 @@ export function useFacilities(
 			else setIsLoading(true);
 			setError(null);
 
+			const timeoutId = window.setTimeout(() => {
+				controller.abort("Request timeout");
+			}, FACILITY_REQUEST_TIMEOUT_MS);
+
 			try {
 				const res = await apiFetch<FacilitiesResponse>(buildUrl(requestParams), {
 					signal: controller.signal,
@@ -139,7 +144,7 @@ export function useFacilities(
 					facilities: res.data,
 					total: res.pagination.total,
 					totalPages: res.pagination.totalPages,
-				});
+					});
 			} catch (err) {
 				if (err instanceof DOMException && err.name === "AbortError") return;
 				setError(
@@ -148,6 +153,7 @@ export function useFacilities(
 						: "시설 목록을 불러올 수 없습니다",
 				);
 			} finally {
+				window.clearTimeout(timeoutId);
 				// Only clear loading state if this controller is still the active one
 				if (abortRef.current === controller) {
 					setIsLoading(false);
