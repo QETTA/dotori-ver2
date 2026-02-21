@@ -5,7 +5,20 @@ import { NextResponse } from "next/server";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 120;
+const RATE_LIMIT_MAX_TRACKED_IPS = 10_000;
 const rateLimitMap = new Map<string, number[]>();
+let cleanupCounter = 0;
+
+const pruneOldestRateLimitEntries = () => {
+	while (rateLimitMap.size > RATE_LIMIT_MAX_TRACKED_IPS) {
+		const oldestIp = rateLimitMap.keys().next().value;
+		if (typeof oldestIp !== "string") {
+			break;
+		}
+
+		rateLimitMap.delete(oldestIp);
+	}
+};
 
 const getClientIp = (req: NextRequest) => {
 	const xForwardedFor = req.headers.get("x-forwarded-for");
@@ -24,6 +37,24 @@ const getClientIp = (req: NextRequest) => {
 const isRateLimited = (req: NextRequest) => {
 	const clientIp = getClientIp(req);
 	const now = Date.now();
+	cleanupCounter += 1;
+
+	if (cleanupCounter % 100 === 0) {
+		for (const [ip, timestamps] of rateLimitMap) {
+			const validTimestamps = timestamps.filter(
+				(timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS,
+			);
+			if (validTimestamps.length === 0) {
+				rateLimitMap.delete(ip);
+				continue;
+			}
+
+			rateLimitMap.set(ip, validTimestamps);
+		}
+
+		pruneOldestRateLimitEntries();
+	}
+
 	const windowStart = now - RATE_LIMIT_WINDOW_MS;
 	const requestTimestamps = rateLimitMap.get(clientIp) ?? [];
 	const recentRequests = requestTimestamps.filter(
@@ -32,6 +63,7 @@ const isRateLimited = (req: NextRequest) => {
 
 	if (recentRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
 		rateLimitMap.set(clientIp, recentRequests);
+		pruneOldestRateLimitEntries();
 		const oldestRequestAt = recentRequests[0] ?? now;
 		const retryAfterSeconds = Math.max(
 			1,
@@ -42,6 +74,7 @@ const isRateLimited = (req: NextRequest) => {
 
 	recentRequests.push(now);
 	rateLimitMap.set(clientIp, recentRequests);
+	pruneOldestRateLimitEntries();
 	return { limited: false, retryAfterSeconds: 0 };
 };
 
