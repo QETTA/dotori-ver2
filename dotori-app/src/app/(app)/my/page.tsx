@@ -5,16 +5,18 @@ import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
+import type { Facility } from "@/types/dotori";
 import {
 	BellIcon,
 	CameraIcon,
 	ChevronRightIcon,
-	ClipboardDocumentListIcon,
 	CogIcon,
 	CreditCardIcon,
 	DocumentTextIcon,
+	HeartIcon,
 	InformationCircleIcon,
 	LifebuoyIcon,
 	MegaphoneIcon,
@@ -23,7 +25,7 @@ import {
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function calculateAge(birthDate: string) {
 	const birth = new Date(birthDate);
@@ -37,6 +39,12 @@ function calculateAge(birthDate: string) {
 	return rem > 0 ? `${years}세 ${rem}개월` : `${years}세`;
 }
 
+function getBirthYear(birthDate: string) {
+	const birth = new Date(birthDate);
+	const year = birth.getFullYear();
+	return Number.isNaN(year) ? "출생년도 미확인" : `${year}년생`;
+}
+
 function formatRegion(region: { sido: string; sigungu: string; dong?: string }) {
 	return [region.sido, region.sigungu, region.dong]
 		.filter(Boolean)
@@ -44,50 +52,208 @@ function formatRegion(region: { sido: string; sigungu: string; dong?: string }) 
 		|| "지역 미설정";
 }
 
-const menuSections = [
+type MenuItem = {
+	label: string;
+	href: string;
+	icon: typeof BellIcon;
+	description: string;
+	requiresAuth?: boolean;
+};
+
+type MenuSection = {
+	title: string;
+	items: MenuItem[];
+};
+
+const menuSections: MenuSection[] = [
 	{
+		title: "내 정보",
 		items: [
 			{
-				label: "알림",
-				href: "/my/notifications",
-				icon: BellIcon,
-			},
-			{
-				label: "알림 설정",
+				label: "내 정보",
 				href: "/my/settings",
 				icon: CogIcon,
+				description: "닉네임·지역·아이 정보를 관리해요",
+				requiresAuth: true,
 			},
 			{
 				label: "플랜 관리",
 				href: "/my/settings",
 				icon: CreditCardIcon,
+				description: "구독 상태를 확인하고 혜택을 바꿔요",
+				requiresAuth: true,
 			},
 		],
 	},
 	{
+		title: "알림",
 		items: [
-			{ label: "공지사항", href: "/my/notices", icon: MegaphoneIcon },
-			{ label: "이용약관", href: "/my/terms", icon: DocumentTextIcon },
-			{ label: "고객센터", href: "/my/support", icon: LifebuoyIcon },
-			{ label: "앱 정보", href: "/my/app-info", icon: InformationCircleIcon },
+			{
+				label: "알림",
+				href: "/my/notifications",
+				icon: BellIcon,
+				description: "입소 알림과 대기 변경사항을 볼 수 있어요",
+				requiresAuth: true,
+			},
+			{
+				label: "알림 설정",
+				href: "/my/settings",
+				icon: SparklesIcon,
+				description: "알림 수신 채널과 주기를 조정해요",
+				requiresAuth: true,
+			},
+		],
+	},
+	{
+		title: "앱 정보",
+		items: [
+			{
+				label: "공지사항",
+				href: "/my/notices",
+				icon: MegaphoneIcon,
+				description: "도토리 최신 소식과 점검 일정을 확인해요",
+			},
+			{
+				label: "이용약관",
+				href: "/my/terms",
+				icon: DocumentTextIcon,
+				description: "서비스 이용 규칙을 확인해요",
+			},
+			{
+				label: "고객센터",
+				href: "/my/support",
+				icon: LifebuoyIcon,
+				description: "문의 내역을 작성하고 답변을 받아요",
+			},
+			{
+				label: "앱 정보",
+				href: "/my/app-info",
+				icon: InformationCircleIcon,
+				description: "도토리 앱 정보를 확인해요",
+			},
 		],
 	},
 ];
 
-const publicMenuSections = menuSections.slice(1);
+const publicMenuSections: MenuSection[] = menuSections
+	.map((section) => ({
+		...section,
+		items: section.items.filter((item) => item.requiresAuth !== true),
+	}))
+	.filter((section) => section.items.length > 0);
 
 export default function MyPage() {
-	const { user, interestsCount, waitlistCount, alertCount, isLoading, error, refresh } =
-		useUserProfile();
+	const {
+		user,
+		interestsCount,
+		waitlistCount,
+		alertCount,
+		isLoading,
+		error,
+		refresh,
+	} = useUserProfile();
 	const pathname = usePathname();
-	const menuItemClass = "min-h-12 flex items-center gap-3 px-4 py-4";
+	const [interestPreview, setInterestPreview] = useState<Facility[]>([]);
+	const [isInterestLoading, setIsInterestLoading] = useState(false);
+	const menuItemClass = "min-h-12 flex items-start gap-3 px-4 py-4";
 
-	async function handleLogout() {
-		await signOut({ callbackUrl: "/login" });
-	}
+	const visibleMenuSections = useMemo(
+		() => (user ? menuSections : publicMenuSections),
+		[user],
+	);
 
 	const isActiveMenuItem = (href: string) =>
 		pathname === href || pathname.startsWith(`${href}/`);
+
+	const quickStats = [
+		{
+			label: "관심",
+			ariaLabel: "관심 시설",
+			value: interestsCount,
+			href: "/my/interests",
+		},
+		{
+			label: "대기",
+			ariaLabel: "대기 시설",
+			value: waitlistCount,
+			href: "/my/waitlist",
+		},
+		{
+			label: "알림",
+			ariaLabel: "알림",
+			value: alertCount,
+			href: "/my/notifications",
+		},
+	];
+
+	const childDetails = useMemo(
+		() =>
+			user?.children.map((child) => ({
+				child,
+				ageLabel: calculateAge(child.birthDate),
+				birthYear: getBirthYear(child.birthDate),
+			})) ?? [],
+		[user?.children],
+	);
+
+	const childSummary = useMemo(() => {
+		if (!user?.children.length) {
+			return "아직 아이 정보를 등록하지 않았어요";
+		}
+
+		const shortList = childDetails
+			.slice(0, 2)
+			.map(
+				({ child, ageLabel, birthYear }) =>
+					`${child.name} · ${ageLabel} / ${birthYear}`,
+			);
+		const rest = Math.max(0, childDetails.length - 2);
+		return rest > 0 ? `${shortList.join(" · ")} +${rest}명` : shortList.join(" · ");
+	}, [childDetails, user?.children.length]);
+
+	const userInterestPreviewIds = useMemo(
+		() => (user?.interests ?? []).slice(0, 3),
+		[user?.interests],
+	);
+
+	useEffect(() => {
+		if (!user || userInterestPreviewIds.length === 0) {
+			setInterestPreview([]);
+			setIsInterestLoading(false);
+			return;
+		}
+
+		let isActive = true;
+		setIsInterestLoading(true);
+
+		(async () => {
+			try {
+				const ids = userInterestPreviewIds.join(",");
+				const res = await apiFetch<{ data: Facility[] }>(
+					`/api/facilities?ids=${encodeURIComponent(ids)}`,
+				);
+				if (!isActive) return;
+				setInterestPreview(Array.isArray(res.data) ? res.data.slice(0, 3) : []);
+			} catch {
+				if (!isActive) return;
+				setInterestPreview([]);
+			} finally {
+				if (!isActive) return;
+				setIsInterestLoading(false);
+			}
+		})();
+
+		return () => {
+			isActive = false;
+		};
+	}, [userInterestPreviewIds, user]);
+
+	async function handleLogout() {
+		if (!window.confirm("로그아웃 하시겠어요?")) {
+			return;
+		}
+		await signOut({ callbackUrl: "/login" });
+	}
 
 	if (isLoading) {
 		return (
@@ -118,136 +284,52 @@ export default function MyPage() {
 		);
 	}
 
-	// 수도권 DB 기준 육아맘 실제 pain → Dotori 솔루션 카드
-	const painCards = [
-		{
-			emoji: "😮‍💨",
-			pain: "어린이집 찾다가 다 마감이에요",
-			stat: "수도권 국공립 평균 대기 14개월",
-			source: "출처: 보건복지부 2024",
-			statColor: "text-danger",
-			solution: "빈 자리 알림으로 TO 나오면 바로 알림",
-			icon: BellIcon,
-			iconBg: "bg-forest-50",
-			iconColor: "text-forest-500",
-			accent: "border-l-forest-400",
-		},
-		{
-			emoji: "🤯",
-			pain: "20,000개 어린이집 어떻게 비교해요?",
-			stat: "전국 시설 20,027개 · 17개 시도 실데이터",
-			source: "출처: 도토리 사용자 데이터 기반 추정",
-			statColor: "text-dotori-500",
-			solution: "AI 토리가 나이·주소 기반 맞춤 추천",
-			icon: SparklesIcon,
-			iconBg: "bg-dotori-50",
-			iconColor: "text-dotori-500",
-			accent: "border-l-dotori-400",
-		},
-		{
-			emoji: "😰",
-			pain: "대기 순번이 언제 올라가는지 몰라요",
-			stat: "서울 주요 구 평균 복수 대기 3.2개소",
-			source: "출처: 도토리 사용자 데이터 기반 추정",
-			statColor: "text-dotori-500",
-			solution: "순번 변동 즉시 알림 · 한 화면 관리",
-			icon: ClipboardDocumentListIcon,
-			iconBg: "bg-dotori-50",
-			iconColor: "text-dotori-500",
-			accent: "border-l-dotori-300",
-		},
-	];
+	const planLabel = user?.plan === "premium" ? "프리미엄" : "무료";
+	const userLabel = user?.nickname?.trim() ? user.nickname : "도토리 회원";
 
-	// Not logged in
 	if (!user) {
 		return (
 			<div className="pb-8">
 				<header className="px-5 pt-8 pb-2">
-					<div className="flex items-center gap-4">
-						<div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-dotori-100">
-							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img
-								src={BRAND.appIconDark}
-								alt=""
-								aria-hidden="true"
-								className="h-10 w-10 blur-[1px]"
-							/>
-							<div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-						</div>
-						<div>
-							<h1 className="text-xl font-bold">어린이집 찾고 계신가요?</h1>
-							<p className="mt-0.5 text-[15px] text-dotori-500">
-								도토리가 수도권 20,027개 시설을 분석해드려요
-
-							</p>
+					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 px-5 py-5">
+						<div className="flex items-center gap-4">
+							<div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-white/70">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img
+									src={BRAND.appIconDark}
+									alt=""
+									className="h-10 w-10"
+								/>
+							</div>
+							<div>
+								<h1 className="text-xl font-bold">MY 페이지</h1>
+								<p className="mt-0.5 text-[15px] text-dotori-700">
+									로그인하면 관심 시설, 대기 현황을 모아볼 수 있어요
+								</p>
+							</div>
 						</div>
 					</div>
 				</header>
 
-				{/* 육아맘 Pain Point 카드 */}
-				<section className="mt-5 px-5">
-					<h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-dotori-300">
-						많은 분들이 이런 어려움을 겪고 있어요
-					</h2>
-					<div className="flex flex-col gap-3">
-						{painCards.map((card) => {
-							const Icon = card.icon;
-							return (
-								<div
-									key={card.pain}
-									className={cn(
-										"rounded-2xl bg-white shadow-sm border-l-[3px] px-4 py-4",
-										card.accent,
-									)}
-								>
-									<div className="flex items-start gap-3">
-										<div
-											className={cn(
-												"mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl",
-												card.iconBg,
-											)}
-										>
-											<Icon className={cn("h-5 w-5", card.iconColor)} />
-										</div>
-										<div className="flex-1 min-w-0">
-											<p className="text-[14px] font-semibold text-dotori-900 leading-snug">
-												<span className="mr-1">{card.emoji}</span>
-												{card.pain}
-											</p>
-											<p className={cn("mt-1 text-[12px] font-medium tabular-nums", card.statColor)}>
-												{card.stat}
-											</p>
-											<p className="text-[11px] text-dotori-400">
-												{card.source}
-											</p>
-											<p className="mt-1.5 text-[13px] text-dotori-500 leading-snug">
-												→ {card.solution}
-											</p>
-										</div>
-									</div>
-
-								</div>
-							);
-						})}
-					</div>
-				</section>
-
-				<div className="mt-5 px-5">
+				<div className="mt-6 px-5">
 					<Button
 						href="/login"
 						color="amber"
 						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
 					>
-						입소 이동 수요를 등록하고 바로 시작하기
+						카카오 로그인
 					</Button>
 					<p className="mt-2 text-center text-[12px] text-dotori-300">
-						로그인만으로 이동 수요 등록, 대기 알림, 시설 맞춤 추천을 바로 이용하세요
+						로그인 후 관심 시설, 대기 현황, 알림을 한 번에 확인하세요
 					</p>
 				</div>
 
 				{publicMenuSections.map((section, si) => (
 					<section key={si} className="mt-5 px-5">
-						<div className="rounded-3xl bg-white shadow-sm">
+						<h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-dotori-300">
+							{section.title}
+						</h2>
+						<div className="overflow-hidden rounded-3xl bg-white shadow-sm">
 							{section.items.map((item, i) => {
 								const Icon = item.icon;
 								return (
@@ -259,14 +341,17 @@ export default function MyPage() {
 											"transition-colors",
 											isActiveMenuItem(item.href) && "bg-dotori-50",
 											"active:bg-dotori-50 hover:bg-dotori-50/50",
-											i < section.items.length - 1 &&
-												"border-b border-dotori-100/40",
+											i < section.items.length - 1 && "border-b border-dotori-100/40",
 										)}
 									>
 										<Icon className="h-5 w-5 text-dotori-500" />
-
-										<span className="flex-1 text-[15px]">{item.label}</span>
-										<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
+										<div className="min-w-0 flex-1">
+											<p className="text-[15px] font-semibold">{item.label}</p>
+											<p className="mt-0.5 text-[12px] text-dotori-400">
+												{item.description}
+											</p>
+										</div>
+										<ChevronRightIcon className="mt-1 h-5 w-5 text-dotori-300" />
 									</Link>
 								);
 							})}
@@ -277,76 +362,51 @@ export default function MyPage() {
 		);
 	}
 
-	const quickStats = [
-		{
-			label: "관심",
-			ariaLabel: "관심 시설",
-			value: interestsCount,
-			href: "/my/interests",
-		},
-		{
-			label: "대기",
-			ariaLabel: "대기 시설",
-			value: waitlistCount,
-			href: "/my/waitlist",
-		},
-		{
-			label: "알림",
-			ariaLabel: "알림",
-			value: alertCount,
-			href: "/my/notifications",
-		},
-	];
-
-	const childrenWithAge = useMemo(
-		() =>
-			user.children.map((child) => ({
-				child,
-				ageLabel: calculateAge(child.birthDate),
-			})),
-		[user.children],
-	);
-
-	const planLabel = user.plan === "free" ? "무료" : "프리미엄";
-	const userLabel = user.nickname?.trim() ? user.nickname : "도토리 회원";
-
 	return (
 		<div className="pb-8">
 			{/* 프로필 헤더 */}
 			<header className="px-5 pt-8 pb-2">
-				<div className="flex items-center gap-4">
-					<div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-dotori-100">
-						{user.image ? (
-							/* eslint-disable-next-line @next/next/no-img-element */
-							<img
-								src={user.image}
-								alt=""
-								className="h-full w-full object-cover"
-							/>
-						) : (
-							/* eslint-disable-next-line @next/next/no-img-element */
-							<img
-								src={BRAND.appIconDark}
-								alt=""
-								className="h-9 w-9 rounded-full"
-							/>
-						)}
-					</div>
-					<div className="min-w-0 flex-1">
-						<div className="flex items-center gap-2">
-							<h1 className="text-xl font-bold">{userLabel}</h1>
-							<Link href="/my/settings" aria-label="플랜 설정으로 이동">
-								<Badge
+				<div className="rounded-3xl bg-white shadow-sm px-4 py-5 border border-dotori-100">
+					<div className="flex items-start gap-4">
+						<div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-dotori-100 via-dotori-50 to-forest-100">
+							<div className="absolute inset-0 opacity-15" />
+							{user.image ? (
+								/* eslint-disable-next-line @next/next/no-img-element */
+								<img
+									src={user.image}
+									alt=""
+									className="h-full w-full rounded-full object-cover"
+								/>
+							) : (
+								/* eslint-disable-next-line @next/next/no-img-element */
+								<img
+									src={BRAND.appIconDark}
+									alt=""
+									className="h-9 w-9 rounded-full"
+								/>
+							)}
+						</div>
+						<div className="min-w-0 flex-1">
+							<div className="flex items-center gap-2">
+								<h1 className="text-xl font-bold">{userLabel}</h1>
+								<Link href="/my/settings" aria-label="플랜 설정으로 이동">
+									<Badge
 									color={user.plan === "free" ? "dotori" : "forest"}
 									className="text-[10px]"
 								>
 									{planLabel}
 								</Badge>
+								</Link>
+							</div>
+							<p className="mt-0.5 text-[13px] text-dotori-500">{formatRegion(user.region)}</p>
+							<p className="mt-1 text-[13px] text-dotori-500">{childSummary}</p>
+							<Link
+								href="/my/settings"
+								className="mt-2 inline-flex items-center rounded-full bg-dotori-50 px-3 py-1.5 text-[12px] font-semibold text-dotori-700 transition-colors hover:bg-dotori-100"
+							>
+								프로필 수정
 							</Link>
 						</div>
-						<p className="mt-0.5 text-[14px] text-dotori-500">
-							{formatRegion(user.region)}
-						</p>
 					</div>
 				</div>
 			</header>
@@ -376,12 +436,70 @@ export default function MyPage() {
 				</div>
 			</section>
 
+			{/* 관심 시설 미리보기 */}
+			<section className="mt-5 px-5">
+				<div className="mb-2.5">
+					<Link
+						href="/my/interests"
+						className="flex items-center justify-between"
+					>
+						<h2 className="text-[15px] font-bold">관심 시설 {interestsCount}곳</h2>
+						<span className="inline-flex items-center text-[13px] text-dotori-500">
+							자세히 보기
+							<ChevronRightIcon className="ml-0.5 h-4 w-4" />
+						</span>
+					</Link>
+				</div>
+				{isInterestLoading ? (
+					<Skeleton variant="card" count={2} />
+				) : interestPreview.length > 0 ? (
+					<div className="space-y-2.5">
+						{interestPreview.map((facility) => (
+							<Link
+								key={facility.id}
+								href={`/facility/${facility.id}`}
+								className="block rounded-3xl bg-white p-4 shadow-sm transition-all active:scale-[0.99]"
+							>
+								<div className="flex items-start gap-3">
+									<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-dotori-50 text-dotori-500">
+										<HeartIcon className="h-5 w-5" />
+									</div>
+									<div className="min-w-0 flex-1">
+										<div className="flex items-center justify-between gap-2">
+											<p className="font-semibold text-dotori-900 leading-snug line-clamp-1">
+												{facility.name}
+											</p>
+											<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-[11px] text-dotori-500">
+												{facility.type}
+											</span>
+										</div>
+										<p className="mt-1 text-[12px] text-dotori-500 line-clamp-1">
+											{facility.address}
+										</p>
+									</div>
+								</div>
+							</Link>
+						))}
+				</div>
+				) : (
+					<div className="rounded-3xl bg-dotori-50 px-5 py-4 text-center">
+						<p className="text-[14px] text-dotori-500">아직 관심 시설이 없어요.</p>
+						<Link
+							href="/explore"
+							className="mt-2 inline-flex w-full justify-center rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700"
+						>
+							시설 탐색하기
+						</Link>
+					</div>
+				)}
+			</section>
+
 			{/* 내 아이 */}
 			<section className="mt-5 px-5">
 				<h2 className="mb-2.5 text-[15px] font-bold">내 아이</h2>
 				{user.children.length > 0 ? (
 					<div className="space-y-2">
-						{childrenWithAge.map(({ child, ageLabel }) => (
+						{childDetails.map(({ child, ageLabel }) => (
 							<div
 								key={child.id}
 								className="flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm"
@@ -394,11 +512,9 @@ export default function MyPage() {
 											: "👶"}
 								</div>
 								<div className="min-w-0 flex-1">
-									<span className="text-[15px] font-semibold">
-										{child.name}
-									</span>
+									<span className="text-[15px] font-semibold">{child.name}</span>
 									<span className="ml-1.5 text-[14px] text-dotori-500">
-										{ageLabel}
+										만 {ageLabel}
 									</span>
 								</div>
 								<Link
@@ -409,7 +525,7 @@ export default function MyPage() {
 								</Link>
 							</div>
 						))}
-					</div>
+				</div>
 				) : (
 					<div className="rounded-2xl bg-dotori-50 p-5 text-center">
 						<p className="text-[15px] text-dotori-500">
@@ -447,8 +563,11 @@ export default function MyPage() {
 			</section>
 
 			{/* 메뉴 */}
-			{menuSections.map((section, si) => (
-				<section key={si} className="mt-5 px-5">
+			{visibleMenuSections.map((section, si) => (
+				<section key={section.title} className="mt-5 px-5">
+					<h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-dotori-300">
+						{section.title}
+					</h2>
 					<div className="overflow-hidden rounded-3xl bg-white shadow-sm">
 						{section.items.map((item, i) => {
 							const Icon = item.icon;
@@ -466,9 +585,13 @@ export default function MyPage() {
 									)}
 								>
 									<Icon className="h-5 w-5 text-dotori-500" />
-
-									<span className="flex-1 text-[15px]">{item.label}</span>
-									<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
+									<div className="min-w-0 flex-1">
+										<p className="text-[15px] font-semibold">{item.label}</p>
+										<p className="mt-0.5 text-[12px] text-dotori-400">
+											{item.description}
+										</p>
+									</div>
+									<ChevronRightIcon className="mt-1 h-5 w-5 text-dotori-300" />
 								</Link>
 							);
 						})}
@@ -478,12 +601,8 @@ export default function MyPage() {
 
 			{/* 로그아웃 */}
 			<div className="mt-6 px-5">
-				<Button
-					color="amber"
-					onClick={handleLogout}
-					className="w-full py-3"
-				>
-					카카오 로그아웃
+				<Button color="dotori" onClick={handleLogout} className="w-full py-3">
+					로그아웃
 				</Button>
 			</div>
 			<p className="mt-2 text-center text-[12px] text-dotori-300">버전 1.0.0</p>
