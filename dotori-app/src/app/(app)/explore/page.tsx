@@ -6,7 +6,6 @@ import {
 	ListBulletIcon,
 	MapIcon,
 	MagnifyingGlassIcon,
-	SparklesIcon,
 	XMarkIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -82,7 +81,6 @@ interface GPSState {
 	lat: number | null;
 	lng: number | null;
 	loading: boolean;
-	error: string | null;
 }
 
 // ── localStorage helpers ──
@@ -146,11 +144,6 @@ function buildResultLabel({
 
 function isValidFacilityType(value: string, allowed: string[]): value is string {
 	return allowed.includes(value);
-}
-
-function toChatPrompt(search: string) {
-	const trimmed = search.trim();
-	return encodeURIComponent(trimmed ? `${trimmed} 이동 가능 시설` : "이동 고민");
 }
 
 export default function ExplorePage() {
@@ -218,7 +211,6 @@ function ExploreContent() {
 		lat: null,
 		lng: null,
 		loading: false,
-		error: null,
 	});
 
 	// ── Recent searches & suggestion panel ──
@@ -409,7 +401,10 @@ function ExploreContent() {
 		selectedTypes.length + (toOnly ? 1 : 0) + (selectedSigungu ? 1 : 0) + (selectedSido ? 1 : 0);
 	const hasSearchInput = debouncedSearch.trim().length > 0;
 	const hasFilterApplied = activeFilterCount > 0;
-	const chatPromptHref = useMemo(() => `/chat?prompt=${toChatPrompt(debouncedSearch)}`, [debouncedSearch]);
+	const chatPromptHref = useMemo(
+		() => `/chat?prompt=${encodeURIComponent(debouncedSearch.trim())}`,
+		[debouncedSearch],
+	);
 
 	const toggleType = useCallback((type: string) => {
 		setSelectedTypes((prev) =>
@@ -452,12 +447,12 @@ function ExploreContent() {
 
 		if (typeof navigator === "undefined" || !navigator.geolocation) {
 			const message = "이 기기에서 위치 서비스를 지원하지 않아요";
-			setUseGPS((prev) => ({ ...prev, loading: false, error: message }));
+			setUseGPS((prev) => ({ ...prev, loading: false }));
 			addToast({ type: "error", message });
 			return;
 		}
 
-		setUseGPS((prev) => ({ ...prev, loading: true, error: null }));
+		setUseGPS((prev) => ({ ...prev, loading: true }));
 
 		try {
 			const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -509,7 +504,6 @@ function ExploreContent() {
 				}
 			}
 
-			setUseGPS((prev) => ({ ...prev, error: message }));
 			addToast({ type: "error", message });
 		} finally {
 			setUseGPS((prev) => ({ ...prev, loading: false }));
@@ -623,7 +617,7 @@ function ExploreContent() {
 										type="button"
 										plain
 										onClick={() => setSearch(chip)}
-										className="text-sm"
+										className="rounded-full bg-dotori-50 border border-dotori-100 px-3 py-1.5 text-sm text-dotori-700"
 									>
 										{chip}
 									</Button>
@@ -967,19 +961,6 @@ function ExploreContent() {
 				)}
 			</div>
 
-			{!isLoading && !error && !isTimeout && sortedFacilities.length === 0 && (
-				<div className="fixed bottom-24 left-1/2 z-30 -translate-x-1/2 pb-[env(safe-area-inset-bottom)]">
-					<Button
-						color="dotori"
-						href={chatPromptHref}
-						aria-label="AI 추천 받기"
-						className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white"
-					>
-						<SparklesIcon className="h-4 w-4" />
-						AI 추천 받기
-					</Button>
-				</div>
-			)}
 		</div>
 	);
 }
