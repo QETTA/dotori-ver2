@@ -18,6 +18,14 @@ export interface IFacility extends Document {
 		missing?: string[];
 		updatedAt?: Date;
 	};
+	isPremium: boolean;
+	premiumExpiresAt?: Date;
+	premiumProfile?: {
+		directorMessage?: string;
+		photos?: string[];
+		programs?: string[];
+		highlights?: string[];
+	};
 	roomCount?: number;
 	teacherCount?: number;
 	establishmentYear?: number;
@@ -68,6 +76,14 @@ const FacilitySchema = new Schema<IFacility>(
 			score: { type: Number, min: 0, max: 100 },
 			missing: { type: [String], default: [] },
 			updatedAt: Date,
+		},
+		isPremium: { type: Boolean, default: false },
+		premiumExpiresAt: { type: Date },
+		premiumProfile: {
+			directorMessage: String,
+			photos: { type: [String], default: [] },
+			programs: { type: [String], default: [] },
+			highlights: { type: [String], default: [] },
 		},
 		roomCount: Number,
 		teacherCount: Number,

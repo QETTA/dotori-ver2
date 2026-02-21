@@ -230,6 +230,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		[facility.kakaoPlaceUrl, facility.name, facility.address],
 	);
 
+	const premiumProfile = facility.premiumProfile;
+	const premiumDirectorMessage = premiumProfile?.directorMessage?.trim();
+	const premiumHighlights = premiumProfile?.highlights
+		?.map((item) => item.trim())
+		.filter((item): item is string => item.length > 0);
+	const premiumPhotos = premiumProfile?.photos
+		?.map((photo) => photo.trim())
+		.filter((photo): photo is string => photo.length > 0);
+
 	const handleCopyAddress = useCallback(async () => {
 		if (!copyableAddress) return;
 
@@ -494,6 +503,62 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
 					)}
 				</section>
+
+				{facility.premiumProfile ? (
+					<section className="rounded-3xl bg-white p-5 shadow-sm">
+						<h2 className="text-sm font-semibold text-dotori-900">파트너 시설</h2>
+						{premiumDirectorMessage ? (
+							<div className="mt-3 rounded-2xl bg-dotori-50 p-4">
+								<h3 className="mb-1 text-[13px] font-medium text-dotori-700">
+									원장 인사말
+								</h3>
+								<p className="text-sm leading-6 text-dotori-800">
+									{premiumDirectorMessage}
+								</p>
+							</div>
+						) : null}
+
+						{premiumHighlights && premiumHighlights.length > 0 ? (
+							<div className="mt-3">
+								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
+									하이라이트
+								</h3>
+								<ul className="space-y-1.5">
+									{premiumHighlights.map((highlight) => (
+										<li key={highlight} className="text-sm text-dotori-700">
+											<span className="mr-2 inline-block text-forest-500">✓</span>
+											{highlight}
+										</li>
+									))}
+								</ul>
+							</div>
+						) : null}
+
+						{premiumPhotos && premiumPhotos.length > 0 ? (
+							<div className="mt-3">
+								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
+									추가 사진
+								</h3>
+								<div className="grid grid-cols-2 gap-2">
+									{premiumPhotos.map((photo, index) => (
+										<div
+											key={`${photo}-${index}`}
+											className="overflow-hidden rounded-xl"
+										>
+											{/* eslint-disable-next-line @next/next/no-img-element */}
+											<img
+												src={photo}
+												alt={`${facility.name} 파트너 시설 사진 ${index + 1}`}
+												loading="lazy"
+												className="h-28 w-full rounded-xl object-cover"
+											/>
+										</div>
+									))}
+								</div>
+							</div>
+						) : null}
+					</section>
+				) : null}
 
 				<section className="rounded-3xl bg-white p-5 shadow-sm">
 					<h2 className="text-sm font-semibold text-dotori-900">연락처</h2>

@@ -24,6 +24,13 @@ export interface FacilityRegion {
 	dong: string;
 }
 
+export interface FacilityPremiumProfile {
+	directorMessage?: string;
+	photos?: string[];
+	programs?: string[];
+	highlights?: string[];
+}
+
 export interface Facility {
 	id: string;
 	name: string;
@@ -43,6 +50,9 @@ export interface Facility {
 	rating: number;
 	reviewCount: number;
 	dataQuality?: FacilityDataQuality;
+	isPremium?: boolean;
+	premiumExpiresAt?: string;
+	premiumProfile?: FacilityPremiumProfile;
 	roomCount?: number;
 	teacherCount?: number;
 	establishmentYear?: number;

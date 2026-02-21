@@ -13,6 +13,14 @@ interface FacilityDocument {
 		missing?: string[];
 		updatedAt?: Date | string;
 	};
+	isPremium?: boolean;
+	premiumExpiresAt?: Date | string;
+	premiumProfile?: {
+		directorMessage?: string;
+		photos?: string[];
+		programs?: string[];
+		highlights?: string[];
+	};
 	location?: { coordinates?: [number, number] };
 	roomCount?: number;
 	teacherCount?: number;
@@ -91,6 +99,19 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 						doc.dataQuality.updatedAt instanceof Date
 							? doc.dataQuality.updatedAt.toISOString()
 							: doc.dataQuality.updatedAt,
+				}
+			: undefined,
+		isPremium: doc.isPremium || false,
+		premiumExpiresAt:
+			doc.premiumExpiresAt instanceof Date
+				? doc.premiumExpiresAt.toISOString()
+				: doc.premiumExpiresAt,
+		premiumProfile: doc.premiumProfile
+			? {
+					directorMessage: doc.premiumProfile.directorMessage,
+					photos: doc.premiumProfile.photos,
+					programs: doc.premiumProfile.programs,
+					highlights: doc.premiumProfile.highlights,
 				}
 			: undefined,
 		roomCount: doc.roomCount,

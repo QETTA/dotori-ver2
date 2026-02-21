@@ -322,6 +322,14 @@ function ExploreContent() {
 		() => facilities.filter((f) => f.status === "available").length,
 		[facilities],
 	);
+	const sortedFacilities = useMemo(() => {
+		if (facilities.length === 0) return facilities;
+		return [...facilities].sort((a, b) => {
+			const aPremium = a.isPremium ? 1 : 0;
+			const bPremium = b.isPremium ? 1 : 0;
+			return bPremium - aPremium;
+		});
+	}, [facilities]);
 	const [isTimeout, setIsTimeout] = useState(false);
 	const resultLabel = useMemo(
 		() =>
@@ -732,9 +740,9 @@ function ExploreContent() {
 				)}
 
 				{/* 결과 있음 */}
-				{!isLoading && !error && facilities.length > 0 && (
+				{!isLoading && !error && sortedFacilities.length > 0 && (
 					<div className="space-y-3 pb-4">
-						{facilities.map((f, index) => (
+						{sortedFacilities.map((f, index) => (
 							<Link key={f.id} href={`/facility/${f.id}`}>
 								<div
 									className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 duration-300"
@@ -745,6 +753,7 @@ function ExploreContent() {
 								>
 									<div className={cn(
 										"relative overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-200 hover:shadow-md",
+										f.isPremium ? "ring-1 ring-dotori-300" : "",
 									)}>
 											<div className={cn(
 												"absolute left-0 top-3 bottom-3 w-[3px] rounded-full",
@@ -921,7 +930,7 @@ function ExploreContent() {
 				)}
 
 				{/* 빈 결과 */}
-				{!isLoading && !error && !isTimeout && facilities.length === 0 && (
+				{!isLoading && !error && !isTimeout && sortedFacilities.length === 0 && (
 					<EmptyState
 						title={
 							hasSearchInput

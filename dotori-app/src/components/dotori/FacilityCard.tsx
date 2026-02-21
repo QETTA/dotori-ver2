@@ -36,10 +36,16 @@ export const FacilityCard = memo(function FacilityCard({
         role="article"
         aria-label={facility.name}
         className={cn(
-          'flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md',
-          'motion-safe:animate-in motion-safe:fade-in duration-300'
+          'relative flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md',
+          'motion-safe:animate-in motion-safe:fade-in duration-300',
+          facility.isPremium ? 'ring-1 ring-dotori-200' : ''
         )}
       >
+        {facility.isPremium ? (
+          <span className="absolute right-3 top-3 rounded-full bg-dotori-100 px-2 py-0.5 text-[11px] text-dotori-700">
+            파트너
+          </span>
+        ) : null}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className={cn('h-2 w-2 rounded-full', statusDot[facility.status])} />
@@ -70,9 +76,15 @@ export const FacilityCard = memo(function FacilityCard({
       className={cn(
         'group relative overflow-hidden rounded-3xl bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md',
         'motion-safe:animate-in motion-safe:fade-in duration-300',
-        statusColor[facility.status]
+        statusColor[facility.status],
+        facility.isPremium ? 'ring-1 ring-dotori-200' : ''
       )}
     >
+      {facility.isPremium ? (
+        <span className="absolute right-3 top-3 rounded-full bg-dotori-100 px-2 py-0.5 text-[11px] text-dotori-700">
+          파트너
+        </span>
+      ) : null}
       <div className="flex items-center justify-between">
         <span className="text-[17px] font-semibold">{facility.name}</span>
         <Badge color={facilityTypeBadgeColor(facility.type)}>{facility.type}</Badge>
