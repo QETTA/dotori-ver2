@@ -143,15 +143,17 @@ function UsageCounter({ count, limit, isLoading }: {
 }) {
 	const safeLimit = Math.max(1, Math.floor(limit));
 	const safeCount = Math.max(0, Math.floor(count));
-	const percent = Math.min(100, Math.round((safeCount / safeLimit) * 100));
-	const text = isLoading
-		? "이번 달 사용량을 확인하는 중"
-		: `이번 달 ${safeCount}/${safeLimit}회 사용`;
+	const displayCount = isLoading ? 0 : Math.min(safeCount, safeLimit);
+	const percent = isLoading
+		? 0
+		: Math.min(100, Math.round((displayCount / safeLimit) * 100));
 
 	return (
-		<div className="flex items-center gap-2 text-sm text-dotori-500">
-			<Text>{text}</Text>
-			<div className="h-1.5 w-24 rounded-full bg-dotori-100">
+		<div className="flex items-center gap-2">
+			<Text className="text-sm font-semibold text-dotori-700">
+				{`${displayCount}/${safeLimit}`}
+			</Text>
+			<div className="h-1.5 w-20 rounded-full bg-dotori-100">
 				<div
 					className="h-full rounded-full bg-dotori-400"
 					style={{ width: `${percent}%` }}
@@ -311,7 +313,6 @@ function ChatContent() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
 	const lastPromptRef = useRef("");
-	const messagesRef = useRef<ChatMessage[]>([]);
 	const monthKey = getMonthKey();
 	const isPremiumUser = status === "authenticated" && session?.user?.plan === "premium";
 	const isTrackingUsage = status !== "loading" && !isPremiumUser;
@@ -330,128 +331,7 @@ function ChatContent() {
 		[],
 	);
 
-	const handleBlockAction = useCallback(
-		(actionId: string) => {
-			if (actionId === RETRY_ACTION_ID) {
-				sendMessage(lastPromptRef.current);
-				return;
-			}
-
-			const actionRoutes: Record<string, string> = {
-				explore: "/explore",
-				waitlist: "/my/waitlist",
-				interests: "/my/interests",
-				community: "/community",
-				settings: "/my/settings",
-				login: "/login",
-				import: "/my/import",
-			};
-
-			const route = actionRoutes[actionId];
-			if (route) {
-				router.push(route);
-				return;
-			}
-
-			if (actionId.startsWith("facility_")) {
-				const fId = actionId.replace("facility_", "");
-				router.push(`/facility/${fId}`);
-				return;
-			}
-
-			sendMessage(actionId);
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[router],
-	);
-
-	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [messages]);
-
-	useEffect(() => {
-		setIsHistoryLoading(true);
-		apiFetch<{ data: { messages: ChatMessage[] } }>("/api/chat/history")
-			.then((res) => {
-				if (res.data.messages.length > 0) {
-					setMessages(res.data.messages);
-				}
-			})
-			.catch(() => {
-				// Not logged in or no history — that's fine
-			})
-			.finally(() => {
-				setIsHistoryLoading(false);
-			});
-	}, []);
-
-	useEffect(() => {
-		if (promptHandled.current) return;
-		const prompt = searchParams.get("prompt");
-		if (prompt) {
-			promptHandled.current = true;
-			const timer = setTimeout(() => sendMessage(prompt), 300);
-			return () => clearTimeout(timer);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
-
-	useEffect(() => {
-		if (status === "loading") return;
-		let isActive = true;
-		setIsUsageLoading(true);
-
-		if (status !== "authenticated") {
-			const count = getGuestUsageCount(monthKey);
-			if (isActive) {
-				setUsageCount(Math.min(count, GUEST_CHAT_LIMIT));
-				setUsageLimit(GUEST_CHAT_LIMIT);
-				setIsUsageLoading(false);
-			}
-			return;
-		}
-
-		if (session?.user?.plan === "premium") {
-			if (isActive) {
-				setUsageCount(0);
-				setUsageLimit(0);
-				setIsUsageLoading(false);
-			}
-			return;
-		}
-
-		(async () => {
-			try {
-				const res = await fetch(MONTHLY_USAGE_API_URL, {
-					cache: "no-store",
-				});
-				if (!res.ok) {
-					throw new Error("usage-load-failed");
-				}
-				const payload = await res.json().catch(() => null);
-				if (!isActive) return;
-				const data = parseUsageResponse(payload, FREE_PLAN_CHAT_LIMIT);
-				setUsageCount(Math.min(data.count, data.limit));
-				setUsageLimit(Math.max(1, data.limit));
-			} catch {
-				if (!isActive) return;
-				setUsageCount(0);
-				setUsageLimit(FREE_PLAN_CHAT_LIMIT);
-			} finally {
-				if (isActive) {
-					setIsUsageLoading(false);
-				}
-			}
-		})();
-
-		return () => {
-			isActive = false;
-		};
-	}, [monthKey, status, session?.user?.id, session?.user?.plan]);
-
-	messagesRef.current = messages;
-
-	async function sendMessage(text: string) {
+	const sendMessage = useCallback(async (text: string) => {
 		const normalizedText = text.trim();
 		if (
 			!normalizedText ||
@@ -492,7 +372,7 @@ function ChatContent() {
 						? { "x-chat-guest-usage": String(usageCount) }
 						: {}),
 				},
-				body: JSON.stringify({ message: text }),
+				body: JSON.stringify({ message: normalizedText }),
 			});
 
 			if (!res.ok || !res.body) {
@@ -629,7 +509,134 @@ function ChatContent() {
 		} finally {
 			setIsLoading(false);
 		}
-	}
+	}, [
+		isLoading,
+		isTrackingUsage,
+		isUsageLimitReached,
+		isUsageLoading,
+		monthKey,
+		patchStreamingMessage,
+		status,
+		usageCount,
+		usageLimit,
+	]);
+
+	const handleBlockAction = useCallback(
+		(actionId: string) => {
+			if (actionId === RETRY_ACTION_ID) {
+				sendMessage(lastPromptRef.current);
+				return;
+			}
+
+			const actionRoutes: Record<string, string> = {
+				explore: "/explore",
+				waitlist: "/my/waitlist",
+				interests: "/my/interests",
+				community: "/community",
+				settings: "/my/settings",
+				login: "/login",
+				import: "/my/import",
+			};
+
+			const route = actionRoutes[actionId];
+			if (route) {
+				router.push(route);
+				return;
+			}
+
+			if (actionId.startsWith("facility_")) {
+				const fId = actionId.replace("facility_", "");
+				router.push(`/facility/${fId}`);
+				return;
+			}
+
+			sendMessage(actionId);
+		},
+		[router, sendMessage],
+	);
+
+	useEffect(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [messages]);
+
+	useEffect(() => {
+		setIsHistoryLoading(true);
+		apiFetch<{ data: { messages: ChatMessage[] } }>("/api/chat/history")
+			.then((res) => {
+				if (res.data.messages.length > 0) {
+					setMessages(res.data.messages);
+				}
+			})
+			.catch(() => {
+				// Not logged in or no history — that's fine
+			})
+			.finally(() => {
+				setIsHistoryLoading(false);
+			});
+	}, []);
+
+	useEffect(() => {
+		if (promptHandled.current) return;
+		const prompt = searchParams.get("prompt");
+		if (prompt) {
+			promptHandled.current = true;
+			const timer = setTimeout(() => sendMessage(prompt), 300);
+			return () => clearTimeout(timer);
+		}
+	}, [searchParams, sendMessage]);
+
+	useEffect(() => {
+		if (status === "loading") return;
+		let isActive = true;
+		setIsUsageLoading(true);
+
+		if (status !== "authenticated") {
+			const count = getGuestUsageCount(monthKey);
+			if (isActive) {
+				setUsageCount(Math.min(count, GUEST_CHAT_LIMIT));
+				setUsageLimit(GUEST_CHAT_LIMIT);
+				setIsUsageLoading(false);
+			}
+			return;
+		}
+
+		if (session?.user?.plan === "premium") {
+			if (isActive) {
+				setUsageCount(0);
+				setUsageLimit(0);
+				setIsUsageLoading(false);
+			}
+			return;
+		}
+
+		(async () => {
+			try {
+				const res = await fetch(MONTHLY_USAGE_API_URL, {
+					cache: "no-store",
+				});
+				if (!res.ok) {
+					throw new Error("usage-load-failed");
+				}
+				const payload = await res.json().catch(() => null);
+				if (!isActive) return;
+				const data = parseUsageResponse(payload, FREE_PLAN_CHAT_LIMIT);
+				setUsageCount(Math.min(data.count, data.limit));
+				setUsageLimit(Math.max(1, data.limit));
+			} catch {
+				if (!isActive) return;
+				setUsageCount(0);
+				setUsageLimit(FREE_PLAN_CHAT_LIMIT);
+			} finally {
+				if (isActive) {
+					setIsUsageLoading(false);
+				}
+			}
+		})();
+
+		return () => {
+			isActive = false;
+		};
+	}, [status, session?.user?.id, session?.user?.plan, monthKey]);
 
 	function handleSuggest(prompt: string) {
 		const selectedPrompt = suggestedPrompts.find((item) => item.prompt === prompt);
@@ -672,10 +679,10 @@ function ChatContent() {
 					<Heading level={3} className="font-semibold text-dotori-900">
 						토리
 					</Heading>
-					<Badge color="forest" className="w-fit text-xs">
-						<span className="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
-						토리 · 온라인
-					</Badge>
+					<div className="mt-0.5 flex items-center gap-1.5">
+						<span className="inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
+						<Text className="text-xs font-medium text-forest-700">온라인</Text>
+					</div>
 				</div>
 				<Button
 					onClick={handleClearHistory}
@@ -716,7 +723,7 @@ function ChatContent() {
 									이동 고민이라면 뭐든 물어보세요
 								</Heading>
 								<Text className="mt-1.5 block text-center text-sm text-dotori-500">
-									토리에게 무엇이든 편하게 물어보세요.
+									반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 								</Text>
 							</div>
 
