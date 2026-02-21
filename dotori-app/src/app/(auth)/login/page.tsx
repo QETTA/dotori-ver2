@@ -77,26 +77,28 @@ export default function LoginPage() {
 					</svg>
 				</div>
 
-				{/* ── 메인 콘텐츠 ── */}
+					{/* ── 메인 콘텐츠 ── */}
 				<div className="relative z-10 flex min-h-dvh w-full flex-col items-center px-6 text-center motion-safe:animate-in motion-safe:fade-in duration-400">
 					{/* 인사말 */}
-					<p className="mb-3 mt-12 text-[14px] font-medium tracking-wide text-dotori-400">
-						우리 아이 어린이집 찾기
-					</p>
+					<div className="mt-6 w-full">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.lockupHorizontalKr}
+							alt="도토리"
+							className="mx-auto h-9 w-auto"
+						/>
+					</div>
 
-					{/* 로고 */}
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img src={BRAND.lockupStacked} alt="도토리" className="h-32" />
+					<p className="mb-3 mt-8 text-[14px] font-medium tracking-wide text-dotori-400">
+						이동 고민, 토리가 해결해드려요
+					</p>
 					<p className="mt-5 text-[16px] leading-relaxed font-semibold text-dotori-600">
-						우리 아이 어린이집, 도토리가 찾아드려요
+						반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
 					</p>
 
 					{/* 서브 태그라인 */}
-					<p className="mt-3 text-[16px] leading-relaxed text-dotori-400">
-						빈자리 알림부터 대기 신청까지
-					</p>
 					<p className="mt-1.5 text-[13px] text-dotori-300">
-						전국 20,000+ 어린이집 정보를 한눈에
+						전국 20,000+ 어린이집 데이터
 					</p>
 
 					{/* 에러 메시지 */}
@@ -130,7 +132,7 @@ export default function LoginPage() {
 										<path d="M12 3C6.477 3 2 6.463 2 10.691c0 2.727 1.8 5.127 4.508 6.49-.197.735-.712 2.664-.815 3.078-.127.509.187.501.393.364.163-.108 2.593-1.762 3.644-2.48.734.105 1.49.16 2.27.16 5.523 0 10-3.463 10-7.612C22 6.463 17.523 3 12 3z" />
 									</svg>
 								</span>
-								<span>카카오로 계속하기</span>
+								<span>카카오로 3초 만에 시작</span>
 							</>
 						)}
 					</Button>
