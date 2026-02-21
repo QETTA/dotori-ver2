@@ -49,9 +49,14 @@ export async function executeAction(
 				if (!result.success) {
 					return { success: false, error: result.error };
 				}
+
+				const position = result.position ?? result.waitlist?.position;
 				return {
 					success: true,
-					data: { waitlistId: String(result.waitlist?._id) },
+					data: {
+						waitlistId: String(result.waitlist?._id),
+						position,
+					},
 				};
 			}
 

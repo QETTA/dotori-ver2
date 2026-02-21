@@ -27,6 +27,7 @@ interface ApplyWaitlistResult {
 	waitlist?: (IWaitlist & { _id: unknown }) | null;
 	error?: string;
 	status?: number;
+	position?: number;
 }
 
 export async function applyWaitlist(
@@ -56,7 +57,23 @@ export async function applyWaitlist(
 		status: { $ne: "cancelled" },
 	});
 	if (existing) {
-		return { success: false, error: "이미 대기 신청한 시설입니다", status: 409 };
+		return {
+			success: false,
+			error: "이미 대기 신청된 시설이에요",
+			status: 409,
+		};
+	}
+
+	// Disallow when facility is already full
+	if (
+		facility.status === "full" ||
+		facility.capacity.current >= facility.capacity.total
+	) {
+		return {
+			success: false,
+			error: "시설 정원이 초과되어 대기 신청할 수 없어요",
+			status: 409,
+		};
 	}
 
 	// Auto-generate checklist
@@ -131,5 +148,5 @@ export async function applyWaitlist(
 		});
 	}
 
-	return { success: true, waitlist };
+	return { success: true, waitlist, position };
 }

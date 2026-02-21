@@ -388,17 +388,37 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 		try {
 			const res = await apiFetch<{
-				data: { success: boolean; error?: string };
+				data: {
+					success: boolean;
+					data?: {
+						waitlistId?: string;
+						position?: number;
+					};
+					error?: string;
+				};
 			}>("/api/actions/execute", {
 				method: "POST",
 				body: JSON.stringify({ intentId }),
 			});
 
 			if (res.data.success) {
+				const position = res.data.data?.position;
+				const positionLabel =
+					typeof position === "number"
+						? `현재 대기 ${position}번째로 신청되었어요`
+						: "현재 대기 현황에서 순번을 확인할 수 있어요";
+
 				setActionStatus("success");
 				addToast({
 					type: "success",
-					message: "대기 신청이 완료되었어요",
+					message: facility.status === "available"
+						? "입소 신청이 완료되었어요"
+						: `대기 신청이 완료되었어요. ${positionLabel}`,
+					action: {
+						label: "MY > 대기현황 보기",
+						onClick: () => router.push("/my/waitlist"),
+					},
+					duration: 7000,
 				});
 				setSheetOpen(false);
 			} else {

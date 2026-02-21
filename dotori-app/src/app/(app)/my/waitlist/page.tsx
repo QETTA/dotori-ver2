@@ -54,7 +54,7 @@ const statusConfig = {
 	pending: { label: "대기 중", color: "dotori" as const },
 	accepted: { label: "입소 확정", color: "forest" as const },
 	confirmed: { label: "입소 확정", color: "forest" as const },
-	cancelled: { label: "취소됨", color: "zinc" as const },
+	cancelled: { label: "취소됨", color: "dotori" as const },
 };
 
 function formatPositionTrend(current?: number, previous?: number) {
@@ -86,6 +86,16 @@ function getEstimatedAdmissionLabel(raw?: string) {
 	});
 }
 
+function getAdmissionGuide(position?: number, estimatedDate?: string) {
+	if (!estimatedDate) {
+		return typeof position === "number"
+			? "아직 최종 입소 시기 반영이 완료되지 않았어요. 대기 순번 기준으로 업데이트돼요."
+			: "아직 입소 시기 정보가 비어있어요. 나중에 다시 확인해 주세요.";
+	}
+
+	return "아이사랑 데이터 기준으로 입소 시기가 갱신됩니다.";
+}
+
 export default function WaitlistPage() {
 	const [waitlists, setWaitlists] = useState<WaitlistItem[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +124,10 @@ export default function WaitlistPage() {
 	}, [loadWaitlists]);
 
 	const cancelWaitlist = useCallback(async (id: string) => {
+		if (!confirm("대기 신청을 취소할까요?")) {
+			return;
+		}
+
 		if (cancellingIds.has(id)) return;
 		setCancellingIds((prev) => new Set(prev).add(id));
 		setWaitlists((prev) => prev.filter((w) => w._id !== id));
@@ -237,8 +251,8 @@ export default function WaitlistPage() {
 									{item.ageClass && (
 										<span>{item.ageClass}</span>
 									)}
-									{item.position && (
-										<span className="font-semibold text-dotori-700">
+									{typeof item.position === "number" && (
+										<span className="rounded-full bg-dotori-100 px-3 py-1 text-[11px] font-semibold text-dotori-700">
 											대기 {item.position}번째
 										</span>
 									)}
@@ -254,7 +268,7 @@ export default function WaitlistPage() {
 								<div className="mt-3 grid grid-cols-2 gap-2">
 									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
 										<span className="block text-[12px] text-dotori-500">
-											현재 대기 순위
+											현재 대기 순번
 										</span>
 										<span className="mt-0.5 inline-flex items-center justify-center gap-1">
 											<span className="text-[14px] font-bold text-dotori-900">
@@ -292,15 +306,18 @@ export default function WaitlistPage() {
 											})()}
 										</span>
 									</div>
-									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-										<span className="block text-[12px] text-dotori-500">
-											예상 입소 시기
-										</span>
-										<span className="text-[13px] font-bold text-dotori-900">
-											{getEstimatedAdmissionLabel(item.estimatedDate)}
-										</span>
-									</div>
+								<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+									<span className="block text-[12px] text-dotori-500">
+										예상 입소 시기
+									</span>
+									<span className="text-[13px] font-bold text-dotori-900">
+										{getEstimatedAdmissionLabel(item.estimatedDate)}
+									</span>
 								</div>
+							</div>
+							<p className="mt-2 text-[12px] text-dotori-500">
+								{getAdmissionGuide(item.position, item.estimatedDate)}
+							</p>
 
 								{/* 시설 현황 */}
 								{facility && (
@@ -408,11 +425,11 @@ export default function WaitlistPage() {
 										>
 											상세 보기 →
 										</Link>
-										<Button
-											color="red"
-											onClick={() =>
-												cancelWaitlist(item._id)
-											}
+									<Button
+										color="dotori"
+										onClick={() =>
+											cancelWaitlist(item._id)
+										}
 											disabled={cancellingIds.has(item._id)}
 											className={cn(
 												"min-h-[40px] px-4 text-[13px]",

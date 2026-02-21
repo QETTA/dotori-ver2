@@ -65,5 +65,11 @@ export const POST = withApiHandler(async (req, { userId, body }) => {
 		);
 	}
 
-	return NextResponse.json({ data: result.waitlist }, { status: 201 });
+	return NextResponse.json(
+		{
+			data: result.waitlist,
+			position: result.position,
+		},
+		{ status: 201 },
+	);
 }, { schema: waitlistCreateSchema, rateLimiter: standardLimiter });
