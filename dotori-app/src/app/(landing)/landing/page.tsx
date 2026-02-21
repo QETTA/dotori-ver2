@@ -38,7 +38,6 @@ const FAQ_ITEMS = [
 import {
   BellAlertIcon,
   SparklesIcon,
-  UserGroupIcon,
   ClipboardDocumentCheckIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline'
@@ -52,26 +51,21 @@ const stats = [
 ]
 
 const features = [
-  {
-    title: '실시간 빈자리 알림',
-    description: '관심 시설에 TO가 생기면 즉시 알려드려요. 아이사랑포털 데이터를 실시간으로 모니터링합니다.',
-    Icon: BellAlertIcon,
-  },
-  {
-    title: 'AI 맞춤 입소 전략',
-    description: '아이 나이, 지역, 시설 유형을 분석해 최적의 입소 전략을 제안합니다.',
-    Icon: SparklesIcon,
-  },
-  {
-    title: '동네 이웃 커뮤니티',
-    description: 'GPS 인증된 동네 학부모들과 실시간 정보를 공유하세요.',
-    Icon: UserGroupIcon,
-  },
-  {
-    title: '서류 체크리스트',
-    description: '시설 유형별 필요 서류를 자동으로 정리해드려요.',
-    Icon: ClipboardDocumentCheckIcon,
-  },
+	{
+		title: '국공립 정보',
+		description: '국공립 어린이집 정보를 지역별/연령별로 정리해, 입소 가능성이 높은 순으로 빠르게 확인할 수 있어요.',
+		Icon: ClipboardDocumentCheckIcon,
+	},
+	{
+		title: 'AI 추천',
+		description: '아이 나이, 지역, 시설 유형을 분석해 최적의 입소 전략을 제안합니다.',
+		Icon: SparklesIcon,
+	},
+	{
+		title: '실시간 알림',
+		description: '관심 시설의 빈자리 소식과 대기 변동을 알림으로 바로 받아볼 수 있어요.',
+		Icon: BellAlertIcon,
+	},
 ]
 
 const testimonials = [
@@ -347,15 +341,15 @@ export default function LandingPage() {
           <p className="mt-3 text-lg opacity-90">
             우리 아이에게 맞는 어린이집, 토리가 찾아드릴게요
           </p>
-          <Button
-            href="/onboarding"
-            color="dotori"
-            className="mt-8 inline-block rounded-full px-8 py-3 font-medium shadow-md transition-all duration-200 active:scale-[0.97]"
-          >
-            무료로 시작하기
-          </Button>
-        </div>
-      </Wallpaper>
+				<Button
+					href="/login"
+					color="dotori"
+					className="mt-8 inline-block rounded-full px-8 py-3 font-medium shadow-md transition-all duration-200 active:scale-[0.97]"
+				>
+					지금 시작하기
+				</Button>
+				</div>
+		</Wallpaper>
 
       {/* Footer */}
       <footer className="border-t border-dotori-100/30 bg-white px-6 py-12">

@@ -37,6 +37,37 @@ interface UseFacilitiesReturn {
 	hasMore: boolean;
 }
 
+interface FacilityCacheEntry {
+	paramsKey: string;
+	timestamp: number;
+	page: number;
+	facilities: Facility[];
+	total: number;
+	totalPages: number;
+}
+
+const facilityCache = new Map<string, FacilityCacheEntry>();
+const FACILITY_CACHE_TTL_MS = 30_000;
+
+function buildRequestParams(
+	params: UseFacilitiesParams,
+	page: number,
+): Record<string, string | number> {
+	const requestParams: Record<string, string | number> = {
+		page,
+		limit: params.limit ?? 20,
+	};
+
+	if (params.search) requestParams.search = params.search;
+	if (params.type) requestParams.type = params.type;
+	if (params.status) requestParams.status = params.status;
+	if (params.sido) requestParams.sido = params.sido;
+	if (params.sigungu) requestParams.sigungu = params.sigungu;
+	if (params.sort) requestParams.sort = params.sort;
+
+	return requestParams;
+}
+
 export function useFacilities(
 	params: UseFacilitiesParams = {},
 ): UseFacilitiesReturn {
@@ -49,42 +80,48 @@ export function useFacilities(
 	const [error, setError] = useState<string | null>(null);
 	const abortRef = useRef<AbortController | null>(null);
 
-	const buildUrl = useCallback(
-		(p: number) => {
-			const sp = new URLSearchParams();
-			sp.set("page", String(p));
-			sp.set("limit", String(params.limit ?? 20));
-			if (params.search) sp.set("search", params.search);
-			if (params.type) sp.set("type", params.type);
-			if (params.status) sp.set("status", params.status);
-			if (params.sido) sp.set("sido", params.sido);
-			if (params.sigungu) sp.set("sigungu", params.sigungu);
-			if (params.sort) sp.set("sort", params.sort);
-			return `/api/facilities?${sp.toString()}`;
-		},
-		[
-			params.search,
-			params.type,
-			params.status,
-			params.sido,
-			params.sigungu,
-			params.sort,
-			params.limit,
-		],
-	);
+	const buildUrl = useCallback((requestParams: Record<string, string | number>) => {
+		const sp = new URLSearchParams();
+		Object.entries(requestParams).forEach(([key, value]) => {
+			sp.set(key, String(value));
+		});
+		return `/api/facilities?${sp.toString()}`;
+	}, []);
 
 	const fetchPage = useCallback(
 		async (p: number, append: boolean) => {
+			const requestParams = buildRequestParams(params, p);
+			const cacheKey = JSON.stringify(requestParams);
 			abortRef.current?.abort();
 			const controller = new AbortController();
 			abortRef.current = controller;
+			const now = Date.now();
+
+			const cacheEntry = facilityCache.get(cacheKey);
+			if (
+				cacheEntry &&
+				cacheEntry.paramsKey === cacheKey &&
+				now - cacheEntry.timestamp < FACILITY_CACHE_TTL_MS
+			) {
+				if (append) setFacilities((prev) => [...prev, ...cacheEntry.facilities]);
+				else setFacilities(cacheEntry.facilities);
+				setTotal(cacheEntry.total);
+				setTotalPages(cacheEntry.totalPages);
+				setPage(cacheEntry.page);
+
+				if (abortRef.current === controller) {
+					setIsLoading(false);
+					setIsLoadingMore(false);
+				}
+				return;
+			}
 
 			if (append) setIsLoadingMore(true);
 			else setIsLoading(true);
 			setError(null);
 
 			try {
-				const res = await apiFetch<FacilitiesResponse>(buildUrl(p), {
+				const res = await apiFetch<FacilitiesResponse>(buildUrl(requestParams), {
 					signal: controller.signal,
 				});
 				// Don't update state if this request was aborted
@@ -95,6 +132,14 @@ export function useFacilities(
 				setTotal(res.pagination.total);
 				setTotalPages(res.pagination.totalPages);
 				setPage(p);
+				facilityCache.set(cacheKey, {
+					paramsKey: cacheKey,
+					timestamp: Date.now(),
+					page: p,
+					facilities: res.data,
+					total: res.pagination.total,
+					totalPages: res.pagination.totalPages,
+				});
 			} catch (err) {
 				if (err instanceof DOMException && err.name === "AbortError") return;
 				setError(
@@ -110,7 +155,7 @@ export function useFacilities(
 				}
 			}
 		},
-		[buildUrl],
+		[params, buildUrl],
 	);
 
 	useEffect(() => {

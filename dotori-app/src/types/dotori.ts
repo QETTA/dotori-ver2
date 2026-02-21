@@ -8,6 +8,22 @@ export type FacilityType =
 	| "사회복지";
 export type FacilityStatus = "available" | "waiting" | "full";
 
+export type FacilityFeature = string;
+export type FacilityFeatures = FacilityFeature[];
+export type KakaoPlaceId = string;
+
+export interface FacilityDataQuality {
+	score?: number;
+	missing?: string[];
+	updatedAt?: string;
+}
+
+export interface FacilityRegion {
+	sido: string;
+	sigungu: string;
+	dong: string;
+}
+
 export interface Facility {
 	id: string;
 	name: string;
@@ -23,14 +39,10 @@ export interface Facility {
 		current: number;
 		waiting: number;
 	};
-	features: string[];
+	features: FacilityFeatures;
 	rating: number;
 	reviewCount: number;
-	dataQuality?: {
-		score?: number;
-		missing?: string[];
-		updatedAt?: string;
-	};
+	dataQuality?: FacilityDataQuality;
 	roomCount?: number;
 	teacherCount?: number;
 	establishmentYear?: number;
@@ -39,8 +51,8 @@ export interface Facility {
 	lastSyncedAt: string;
 	images?: string[];
 	kakaoPlaceUrl?: string;
-	kakaoPlaceId?: string;
-	region?: { sido: string; sigungu: string; dong: string };
+	kakaoPlaceId?: KakaoPlaceId;
+	region?: FacilityRegion;
 	programs?: string[];
 	evaluationGrade?: string | null;
 	operatingHours?: { open: string; close: string; extendedCare: boolean };
@@ -58,21 +70,37 @@ export interface ChildProfile {
 	specialNeeds?: string[];
 }
 
+export type UserRegion = FacilityRegion;
+export type UserInterests = string[];
+export type UserChildren = ChildProfile[];
+export type UserPlan = "free" | "premium";
+
 /* ===== 사용자 ===== */
 export interface UserProfile {
 	id: string;
 	nickname: string;
 	image?: string;
-	children: ChildProfile[];
-	region: {
-		sido: string;
-		sigungu: string;
-		dong?: string;
-	};
-	interests: string[];
+	children: UserChildren;
+	region: UserRegion;
+	interests: UserInterests;
 	gpsVerified: boolean;
-	plan: "free" | "premium";
+	plan: UserPlan;
 	onboardingCompleted: boolean;
+}
+
+export interface ApiPagination {
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
+}
+
+export interface ApiResponse<T> {
+	data: T;
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+	pagination: ApiPagination;
 }
 
 /* ===== 데이터 출처 ===== */
@@ -174,7 +202,6 @@ export type ChatBlockType =
 	| "map"
 	| "compare"
 	| "actions"
-	| "report"
 	| "checklist";
 
 export interface TextBlock {
@@ -182,10 +209,12 @@ export interface TextBlock {
 	content: string;
 }
 
-export interface FacilityListBlock {
+export interface FacilityBlock {
 	type: "facility_list";
 	facilities: Facility[];
 }
+
+export type FacilityListBlock = FacilityBlock;
 
 export interface MapMarker {
 	id: string;
@@ -244,12 +273,11 @@ export interface ChecklistBlock {
 
 export type ChatBlock =
 	| TextBlock
-	| FacilityListBlock
+	| FacilityBlock
 	| MapBlock
-	| CompareBlock
 	| ActionsBlock
-	| ReportBlock
-	| ChecklistBlock;
+	| ChecklistBlock
+	| CompareBlock;
 
 /* ===== 커뮤니티 ===== */
 export interface CommunityPost {

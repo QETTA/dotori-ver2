@@ -5,10 +5,11 @@ export interface IWaitlist extends Document {
 	facilityId: mongoose.Types.ObjectId;
 	childName: string;
 	childBirthDate: string;
-	status: "pending" | "confirmed" | "cancelled";
+	status: "pending" | "accepted" | "confirmed" | "cancelled";
 	position?: number;
 	ageClass?: string; // 연령반 (만0세반~만5세반)
 	externalRef?: string; // 아이사랑 접수번호
+	estimatedDate?: Date; // 예상 입소 시기
 	requiredDocs: {
 		docId: string;
 		name: string;
@@ -33,7 +34,7 @@ const WaitlistSchema = new Schema<IWaitlist>(
 		childBirthDate: { type: String, required: true },
 		status: {
 			type: String,
-			enum: ["pending", "confirmed", "cancelled"],
+			enum: ["pending", "accepted", "confirmed", "cancelled"],
 			default: "pending",
 		},
 		position: Number,

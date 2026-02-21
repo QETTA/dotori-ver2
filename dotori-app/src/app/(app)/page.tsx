@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { ErrorState } from "@/components/dotori/ErrorState";
+import { EmptyState } from "@/components/dotori/EmptyState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
@@ -24,7 +25,7 @@ import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
 const quickActions = [
 	{ label: "동네 추천", href: "/chat?prompt=동네추천", Icon: HomeModernIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
-	{ label: "시설 비교", href: "/chat?prompt=비교", Icon: ScaleIcon, bg: "bg-blue-50", iconColor: "text-blue-500" },
+	{ label: "시설 비교", href: "/chat?prompt=비교", Icon: ScaleIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
 	{ label: "서류 준비", href: "/chat?prompt=서류", Icon: ClipboardDocumentListIcon, bg: "bg-dotori-50", iconColor: "text-dotori-500" },
 	{ label: "TO 알림", href: "/my/settings", Icon: BellAlertIcon, bg: "bg-red-50", iconColor: "text-red-400" },
 ];
@@ -91,6 +92,7 @@ export default function HomePage() {
 	);
 
 	const hotPost = data?.hotPosts[0] ?? null;
+	const nearbyFacilities = data?.nearbyFacilities ?? [];
 
 	function dismissNBA(id: string) {
 		setDismissedNBAs((prev) => new Set(prev).add(id));
@@ -179,9 +181,11 @@ export default function HomePage() {
 				<section
 					className={cn(
 						"mt-5",
+						"space-y-3",
 						"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 duration-500",
 					)}
 				>
+					<h2 className="text-[17px] font-bold">오늘의 할 일</h2>
 					<AiBriefingCard
 						source="아이사랑"
 						updatedAt={data?.sources?.isalang?.updatedAt ?? new Date().toISOString()}
@@ -336,11 +340,11 @@ export default function HomePage() {
 					</section>
 				)}
 
-				{/* ── 이웃 인기글 프리뷰 ── */}
-				{hotPost && (
+				{/* ── 커뮤니티 소식 프리뷰 ── */}
+				{data && (
 					<section className="mt-8">
 						<div className="mb-3 flex items-center justify-between">
-							<h2 className="text-[17px] font-bold">이웃 이야기</h2>
+							<h2 className="text-[17px] font-bold">커뮤니티 소식</h2>
 							<Link
 								href="/community"
 								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
@@ -349,44 +353,51 @@ export default function HomePage() {
 								<ChevronRightIcon className="h-4 w-4" />
 							</Link>
 						</div>
-						<Link
-							href="/community"
-							className={cn(
-								"block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-dotori-100/40 transition-all active:scale-[0.98] hover:shadow-md",
-								"motion-safe:animate-in motion-safe:fade-in duration-400",
-							)}
-						>
-							<div className="flex items-center gap-2.5">
-								<div className="grid h-10 w-10 place-items-center rounded-full bg-dotori-100 text-[14px] font-bold text-dotori-600">
-									{hotPost.author.nickname[0]}
-								</div>
-								<div className="min-w-0 flex-1">
-									<div className="flex items-center gap-1.5">
-										<span className="text-[14px] font-semibold text-dotori-800">
-											{hotPost.author.nickname}
-										</span>
-										{hotPost.author.verified && (
-											<span className="rounded bg-forest-100 px-1.5 py-0.5 text-[11px] font-medium text-forest-700">
-												인증
-											</span>
-										)}
+						{hotPost ? (
+							<Link
+								href="/community"
+								className={cn(
+									"block rounded-3xl bg-white p-5 shadow-sm ring-1 ring-dotori-100/40 transition-all active:scale-[0.98] hover:shadow-md",
+									"motion-safe:animate-in motion-safe:fade-in duration-400",
+								)}
+							>
+								<div className="flex items-center gap-2.5">
+									<div className="grid h-10 w-10 place-items-center rounded-full bg-dotori-100 text-[14px] font-bold text-dotori-600">
+										{hotPost.author.nickname[0]}
 									</div>
+									<div className="min-w-0 flex-1">
+										<div className="flex items-center gap-1.5">
+											<span className="text-[14px] font-semibold text-dotori-800">
+												{hotPost.author.nickname}
+											</span>
+											{hotPost.author.verified && (
+												<span className="rounded bg-forest-100 px-1.5 py-0.5 text-[11px] font-medium text-forest-700">
+													인증
+												</span>
+											)}
+										</div>
+									</div>
+									<ChevronRightIcon className="h-4 w-4 text-dotori-300" />
 								</div>
-								<ChevronRightIcon className="h-4 w-4 text-dotori-300" />
-							</div>
-							<p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-dotori-700">
-								{hotPost.content}
-							</p>
-							<div className="mt-3 flex items-center gap-3 text-[13px] text-dotori-400">
-								<span>❤️ {hotPost.likes}</span>
-								<span>💬 {hotPost.commentCount}</span>
-							</div>
-						</Link>
+								<p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-dotori-700">
+									{hotPost.content}
+								</p>
+								<div className="mt-3 flex items-center gap-3 text-[13px] text-dotori-400">
+									<span>❤️ {hotPost.likes}</span>
+									<span>💬 {hotPost.commentCount}</span>
+								</div>
+							</Link>
+						) : (
+							<EmptyState
+								title="아직 커뮤니티 소식이 없어요"
+								description="이웃이 올린 소식이 없어요. 새 글을 작성해 이웃들과 나눠보세요."
+							/>
+						)}
 					</section>
 				)}
 
-				{/* ── 인기 시설 ── */}
-				{data && data.nearbyFacilities.length > 0 && (
+				{/* ── 근처 어린이집 ── */}
+				{data && (
 					<section
 						className={cn(
 							"mt-8",
@@ -394,7 +405,7 @@ export default function HomePage() {
 						)}
 					>
 						<div className="mb-3 flex items-center justify-between">
-							<h2 className="text-[17px] font-bold">인기 시설</h2>
+							<h2 className="text-[17px] font-bold">근처 어린이집</h2>
 							<Link
 								href="/explore"
 								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
@@ -403,61 +414,27 @@ export default function HomePage() {
 								<ChevronRightIcon className="h-4 w-4" />
 							</Link>
 						</div>
-						<div className="hide-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
-							{data.nearbyFacilities.slice(0, 4).map((f, i) => (
-								<Link
-									key={f.id}
-									href={`/facility/${f.id}`}
-									className={cn(
-										"flex w-[200px] shrink-0 flex-col rounded-2xl bg-white p-4 shadow-sm ring-1 ring-dotori-100/40",
-										"transition-all active:scale-[0.97] hover:shadow-md",
-										"motion-safe:animate-in motion-safe:fade-in duration-300",
-									)}
-									style={{
-										animationDelay: `${i * 80}ms`,
-										animationFillMode: "both",
-									}}
-								>
-									<div className="flex items-center gap-1.5">
-										<span
-											className={cn(
-												"rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
-												f.type === "국공립"
-													? "bg-forest-100 text-forest-700"
-													: f.type === "민간"
-														? "bg-blue-50 text-blue-600"
-														: "bg-dotori-100 text-dotori-600",
-											)}
-										>
-											{f.type}
-										</span>
-										{f.status === "available" && (
-											<span className="rounded-md bg-forest-50 px-1.5 py-0.5 text-[11px] font-semibold text-forest-600">
-												여석
-											</span>
-										)}
-									</div>
-									<h3 className="mt-2 truncate text-[14px] font-semibold text-dotori-800">
-										{f.name}
-									</h3>
-									<p className="mt-0.5 truncate text-[12px] text-dotori-400">
-										{f.address.split(" ").slice(0, 3).join(" ")}
-									</p>
-									<div className="mt-2.5 flex items-center gap-2 text-[12px] text-dotori-500">
-										<span>정원 {f.capacity.total}명</span>
-										{f.distance && (
-											<>
-												<span className="h-0.5 w-0.5 rounded-full bg-dotori-300" />
-												<span>{f.distance}</span>
-											</>
-										)}
-									</div>
-								</Link>
-							))}
-							<div className="w-2 shrink-0" />
-						</div>
-					</section>
-				)}
+						{nearbyFacilities.length > 0 ? (
+							<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+								{nearbyFacilities.slice(0, 3).map((f, i) => (
+									<Link
+										key={f.id}
+										href={`/facility/${f.id}`}
+										className="rounded-2xl transition-all active:scale-[0.97] hover:shadow-md"
+										style={{
+											animationDelay: `${i * 80}ms`,
+											animationFillMode: "both",
+										}}
+									>
+										<FacilityCard facility={f} compact />
+									</Link>
+								))}
+							</div>
+							) : (
+								<Skeleton variant="facility-card" count={3} />
+							)}
+						</section>
+					)}
 
 				{/* ── 오늘의 팁 ── */}
 				<section

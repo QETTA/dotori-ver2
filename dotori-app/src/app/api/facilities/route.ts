@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { withApiHandler } from "@/lib/api-handler";
+import { NotFoundError, withApiHandler } from "@/lib/api-handler";
 import { relaxedLimiter } from "@/lib/rate-limit";
 import { sanitizeSearchQuery } from "@/lib/sanitize";
 import { toFacilityDTO } from "@/lib/dto";
 import Facility from "@/models/Facility";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const READ_ONLY_CACHE_CONTROL = "public, max-age=30, stale-while-revalidate=60";
 
 export const GET = withApiHandler(async (req) => {
 	const { searchParams } = req.nextUrl;
@@ -28,6 +29,9 @@ export const GET = withApiHandler(async (req) => {
 		}
 
 		const facilities = await Facility.find({ _id: { $in: idList } }).lean();
+		if (facilities.length === 0) {
+			throw new NotFoundError("요청한 시설을 찾을 수 없습니다");
+		}
 		return NextResponse.json({
 			data: facilities.map((f) => toFacilityDTO(f)),
 			pagination: {
@@ -173,10 +177,9 @@ export const GET = withApiHandler(async (req) => {
 				totalPages: Math.ceil(total / limit),
 			},
 		},
-		{
-			headers: {
-				"Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
-			},
-		},
 	);
-}, { auth: false, rateLimiter: relaxedLimiter });
+}, {
+	auth: false,
+	rateLimiter: relaxedLimiter,
+	cacheControl: READ_ONLY_CACHE_CONTROL,
+});

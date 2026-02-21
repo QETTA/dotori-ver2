@@ -81,6 +81,8 @@ interface ApiHandlerOptions<T = unknown> {
 	rateLimiter?: RateLimiter;
 	/** Skip dbConnect (default: false) */
 	skipDb?: boolean;
+	/** Cache-Control header for successful GET responses */
+	cacheControl?: string;
 }
 
 type HandlerFn<T = unknown> = (
@@ -102,6 +104,7 @@ export function withApiHandler<T = unknown>(
 		schema,
 		rateLimiter,
 		skipDb = false,
+		cacheControl,
 	} = options;
 
 	return async (req: NextRequest, routeCtx?: RouteContext): Promise<NextResponse> => {
@@ -173,6 +176,12 @@ export function withApiHandler<T = unknown>(
 			// 6. Execute handler
 			const start = Date.now();
 			const response = await handler(req, { userId, body, params });
+			if (req.method === "GET" && response.status >= 200 && response.status < 300) {
+				const cacheValue = cacheControl || "private, max-age=30, stale-while-revalidate=60";
+				if (!response.headers.get("Cache-Control")) {
+					response.headers.set("Cache-Control", cacheValue);
+				}
+			}
 
 			// 7. Request logging + response size tracking
 			const latency = Date.now() - start;

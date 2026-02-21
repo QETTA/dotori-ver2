@@ -1,10 +1,11 @@
 "use client";
 
+import { Button } from "@/components/catalyst/button";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { useState } from "react";
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export default function LoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -31,11 +32,11 @@ export default function LoginPage() {
 	}
 
 	return (
-		<>
+		<div className="relative min-h-dvh bg-dotori-50">
 			{/* ── 배경 장식 ── */}
 			{/* 상단 따뜻한 그라디언트 */}
 			<div
-				className="pointer-events-none fixed inset-0 z-0"
+				className="pointer-events-none absolute inset-0 z-0"
 				aria-hidden="true"
 			>
 				<div className="absolute inset-0 bg-gradient-to-b from-dotori-100 via-dotori-50 to-white" />
@@ -78,9 +79,9 @@ export default function LoginPage() {
 			</div>
 
 			{/* ── 메인 콘텐츠 ── */}
-			<div className="relative z-10 flex w-full flex-col items-center text-center motion-safe:animate-in motion-safe:fade-in duration-400">
+			<div className="relative z-10 flex min-h-dvh w-full flex-col items-center px-6 text-center motion-safe:animate-in motion-safe:fade-in duration-400">
 				{/* 인사말 */}
-				<p className="mb-3 text-[14px] font-medium tracking-wide text-dotori-400">
+				<p className="mb-3 mt-12 text-[14px] font-medium tracking-wide text-dotori-400">
 					우리 아이 어린이집 찾기
 				</p>
 
@@ -98,19 +99,19 @@ export default function LoginPage() {
 
 				{/* 에러 메시지 */}
 				{error && (
-					<p className="mt-4 rounded-xl bg-red-50 px-4 py-2 text-[14px] text-red-600">
+					<p className="mt-4 rounded-xl bg-dotori-100 px-4 py-2 text-[14px] text-dotori-700">
 						{error}
 					</p>
 				)}
 
 				{/* 카카오 로그인 */}
-				<button
+				<Button
 					onClick={handleKakaoLogin}
 					disabled={isLoading}
 					aria-busy={isLoading}
+					color="amber"
 					className={cn(
-						"mt-10 flex w-full items-center justify-center gap-2.5 rounded-3xl bg-[#FEE500] px-6 py-4.5 text-[16px] font-semibold text-[#191919]",
-						"transition-all active:scale-[0.98]",
+						"mt-10 w-full gap-2.5 px-6 py-4.5 text-[16px] font-semibold",
 						isLoading && "opacity-60",
 					)}
 				>
@@ -118,17 +119,19 @@ export default function LoginPage() {
 						<span className="animate-pulse">로그인 중...</span>
 					) : (
 						<>
-							<svg
-								className="h-5 w-5"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-							>
-								<path d="M12 3C6.477 3 2 6.463 2 10.691c0 2.727 1.8 5.127 4.508 6.49-.197.735-.712 2.664-.815 3.078-.127.509.187.501.393.364.163-.108 2.593-1.762 3.644-2.48.734.105 1.49.16 2.27.16 5.523 0 10-3.463 10-7.612C22 6.463 17.523 3 12 3z" />
-							</svg>
-							카카오로 시작하기
+							<span data-slot="icon" aria-hidden="true">
+								<svg
+									className="h-5 w-5"
+									viewBox="0 0 24 24"
+									fill="currentColor"
+								>
+									<path d="M12 3C6.477 3 2 6.463 2 10.691c0 2.727 1.8 5.127 4.508 6.49-.197.735-.712 2.664-.815 3.078-.127.509.187.501.393.364.163-.108 2.593-1.762 3.644-2.48.734.105 1.49.16 2.27.16 5.523 0 10-3.463 10-7.612C22 6.463 17.523 3 12 3z" />
+								</svg>
+							</span>
+							<span>카카오로 계속하기</span>
 						</>
 					)}
-				</button>
+				</Button>
 
 				{/* 둘러보기 */}
 				<Link
@@ -141,11 +144,16 @@ export default function LoginPage() {
 				{/* 이용약관 */}
 				<p className="mt-8 max-w-xs text-[12px] leading-relaxed text-dotori-300">
 					시작하면{" "}
-					<Link href="/my/terms" className="underline hover:text-dotori-400">이용약관</Link> 및{" "}
-					<Link href="/my/terms" className="underline hover:text-dotori-400">개인정보처리방침</Link>에 동의하게
-					됩니다.
+					<Link href="/my/terms" className="underline hover:text-dotori-400">
+						이용약관
+					</Link>{" "}
+					및{" "}
+					<Link href="/my/terms" className="underline hover:text-dotori-400">
+						개인정보처리방침
+					</Link>
+					에 동의하게 됩니다.
 				</p>
 			</div>
-		</>
+		</div>
 	);
 }

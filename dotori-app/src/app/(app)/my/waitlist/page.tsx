@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
@@ -18,8 +19,11 @@ interface WaitlistDoc {
 	submittedAt?: string;
 }
 
+type WaitlistStatus = "pending" | "accepted" | "confirmed" | "cancelled";
+
 interface WaitlistItem {
 	_id: string;
+	estimatedDate?: string;
 	facilityId:
 		| {
 				_id: string;
@@ -32,7 +36,7 @@ interface WaitlistItem {
 		| string;
 	childName: string;
 	childBirthDate: string;
-	status: "pending" | "confirmed" | "cancelled";
+	status: WaitlistStatus;
 	position?: number;
 	ageClass?: string;
 	requiredDocs?: WaitlistDoc[];
@@ -41,9 +45,25 @@ interface WaitlistItem {
 
 const statusConfig = {
 	pending: { label: "대기 중", color: "dotori" as const },
+	accepted: { label: "입소 확정", color: "forest" as const },
 	confirmed: { label: "입소 확정", color: "forest" as const },
 	cancelled: { label: "취소됨", color: "zinc" as const },
 };
+
+function getEstimatedAdmissionLabel(raw?: string) {
+	if (!raw) return "미정";
+
+	const date = new Date(raw);
+	if (Number.isNaN(date.getTime())) {
+		return raw;
+	}
+
+	return date.toLocaleDateString("ko-KR", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
+}
 
 export default function WaitlistPage() {
 	const [waitlists, setWaitlists] = useState<WaitlistItem[]>([]);
@@ -132,7 +152,7 @@ export default function WaitlistPage() {
 						className="h-32 w-32 opacity-60"
 					/>
 					<p className="mt-6 text-center text-[15px] font-medium text-dotori-500">
-						아직 대기 신청한 시설이 없어요
+						대기 중인 어린이집이 없어요
 					</p>
 					<p className="mt-1.5 text-center text-[14px] text-dotori-400">
 						관심 시설에서 대기 신청을 하면 여기서 현황을 확인할 수 있어요
@@ -141,7 +161,7 @@ export default function WaitlistPage() {
 						href="/explore"
 						className="mt-6 rounded-2xl bg-dotori-900 px-6 py-3.5 text-[15px] font-semibold text-white transition-all active:scale-[0.97]"
 					>
-						시설 탐색하기
+						탐색하기
 					</Link>
 					<Link
 						href="/my/import"
@@ -207,6 +227,26 @@ export default function WaitlistPage() {
 									>
 										{formatRelativeTime(item.appliedAt)}
 									</span>
+								</div>
+
+								{/* 대기 상태 요약 */}
+								<div className="mt-3 grid grid-cols-2 gap-2">
+									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+										<span className="block text-[12px] text-dotori-400">
+											현재 대기 순위
+										</span>
+										<span className="text-[14px] font-bold text-dotori-900">
+											{item.position ? `${item.position}번째` : "미정"}
+										</span>
+									</div>
+									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+										<span className="block text-[12px] text-dotori-400">
+											예상 입소 시기
+										</span>
+										<span className="text-[13px] font-bold text-dotori-900">
+											{getEstimatedAdmissionLabel(item.estimatedDate)}
+										</span>
+									</div>
 								</div>
 
 								{/* 시설 현황 */}
@@ -315,20 +355,19 @@ export default function WaitlistPage() {
 										>
 											상세 보기 →
 										</Link>
-										<button
+										<Button
+											color="red"
 											onClick={() =>
 												cancelWaitlist(item._id)
 											}
 											disabled={cancellingIds.has(item._id)}
 											className={cn(
-												"py-1.5 text-[13px] transition-colors",
-												cancellingIds.has(item._id)
-													? "text-dotori-400"
-													: "text-dotori-500 hover:text-red-500",
+												"min-h-[40px] px-4 text-[13px]",
+												cancellingIds.has(item._id) && "opacity-60",
 											)}
 										>
 											{cancellingIds.has(item._id) ? "취소 중..." : "대기 취소"}
-										</button>
+										</Button>
 									</div>
 								)}
 							</div>

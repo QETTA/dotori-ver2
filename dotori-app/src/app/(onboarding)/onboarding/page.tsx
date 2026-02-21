@@ -72,7 +72,7 @@ export default function OnboardingPage() {
 	const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
 	// Dynamic region data from API
-	const [sidoList, setSidoList] = useState<string[]>([]);
+	const [sidoList, setSidoList] = useState<string[]>(sidoFallbackOptions);
 	const [sigunguList, setSigunguList] = useState<string[]>([]);
 	const [isLoadingSido, setIsLoadingSido] = useState(false);
 	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
@@ -81,7 +81,12 @@ export default function OnboardingPage() {
 	useEffect(() => {
 		setIsLoadingSido(true);
 		apiFetch<{ data: string[] }>("/api/regions/sido")
-			.then((res) => setSidoList(res.data))
+			.then((res) => {
+				const merged = Array.from(
+					new Set([...res.data, ...sidoFallbackOptions]),
+				);
+				setSidoList(merged);
+			})
 			.catch(() => {
 				// Fallback to common regions
 				setSidoList(sidoFallbackOptions);
@@ -234,7 +239,7 @@ export default function OnboardingPage() {
 						key={i}
 						className={cn(
 							"h-2.5 w-2.5 rounded-full transition-all duration-300",
-							i <= step ? "bg-dotori-500" : "bg-dotori-200",
+							i === step ? "bg-dotori-500" : "bg-dotori-200",
 						)}
 					/>
 				))}
@@ -495,7 +500,7 @@ export default function OnboardingPage() {
 			{/* ── 하단 CTA ── */}
 			<div className="pb-8 pt-6">
 				{saveError && (
-					<div className="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-[13px] text-red-600">
+					<div className="mb-3 rounded-2xl bg-dotori-100 px-4 py-3 text-[13px] text-dotori-700">
 						{saveError}
 					</div>
 				)}

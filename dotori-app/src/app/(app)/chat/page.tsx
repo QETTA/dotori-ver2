@@ -1,6 +1,5 @@
 "use client";
 
-import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/catalyst/badge";
@@ -13,11 +12,38 @@ import { MarkdownText } from "@/components/dotori/MarkdownText";
 import type { ChatBlock, ChatMessage } from "@/types/dotori";
 
 const suggestedPrompts = [
-	{ label: "동네 추천", prompt: "우리 동네 어린이집 추천해주세요" },
-	{ label: "입소 전략", prompt: "입소 확률 높이는 전략 알려줘" },
-	{ label: "시설 비교", prompt: "해피어린이집이랑 사랑어린이집 비교해줘" },
-	{ label: "서류 준비", prompt: "입소 서류 체크리스트 알려줘" },
+	{
+		label: "동네 추천",
+		prompt: "우리 동네 어린이집 추천해주세요",
+		icon: "🏘️",
+	},
+	{
+		label: "입소 전략",
+		prompt: "입소 확률 높이는 전략 알려줘",
+		icon: "📈",
+	},
+	{
+		label: "시설 비교",
+		prompt: "해피어린이집이랑 사랑어린이집 비교해줘",
+		icon: "⚖️",
+	},
+	{
+		label: "서류 준비",
+		prompt: "입소 서류 체크리스트 알려줘",
+		icon: "📄",
+	},
 ];
+
+const RETRY_ACTION_ID = "chat:retry-last-message";
+
+function LoadingSpinner() {
+	return (
+		<div
+			aria-hidden="true"
+			className="h-5 w-5 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-50"
+		/>
+	);
+}
 
 interface StreamEvent {
 	type: "start" | "block" | "text" | "done" | "error";
@@ -83,13 +109,20 @@ function ChatContent() {
 	const searchParams = useSearchParams();
 	const [input, setInput] = useState("");
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
+	const [isHistoryLoading, setIsHistoryLoading] = useState(true);
 	const [isLoading, setIsLoading] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
+	const lastPromptRef = useRef("");
 
 	const handleBlockAction = useCallback(
 		(actionId: string) => {
+			if (actionId === RETRY_ACTION_ID) {
+				sendMessage(lastPromptRef.current);
+				return;
+			}
+
 			// Map action IDs to navigation or secondary actions
 			const actionRoutes: Record<string, string> = {
 				explore: "/explore",
@@ -128,6 +161,7 @@ function ChatContent() {
 
 	// Load history on mount
 	useEffect(() => {
+		setIsHistoryLoading(true);
 		apiFetch<{ data: { messages: ChatMessage[] } }>("/api/chat/history")
 			.then((res) => {
 				if (res.data.messages.length > 0) {
@@ -136,6 +170,9 @@ function ChatContent() {
 			})
 			.catch(() => {
 				// Not logged in or no history — that's fine
+			})
+			.finally(() => {
+				setIsHistoryLoading(false);
 			});
 	}, []);
 
@@ -153,12 +190,14 @@ function ChatContent() {
 	}, [searchParams]);
 
 	async function sendMessage(text: string) {
-		if (!text.trim() || isLoading) return;
+		const normalizedText = text.trim();
+		if (!normalizedText || isLoading) return;
+		lastPromptRef.current = normalizedText;
 
 		const userMsg: ChatMessage = {
 			id: `user-${Date.now()}`,
 			role: "user",
-			content: text,
+			content: normalizedText,
 			timestamp: new Date().toISOString(),
 		};
 
@@ -280,6 +319,14 @@ function ChatContent() {
 					content:
 						"죄송해요, 응답을 생성하지 못했어요. 다시 시도해주세요.",
 					timestamp: new Date().toISOString(),
+					actions: [
+						{
+							id: RETRY_ACTION_ID,
+							label: "다시 시도",
+							action: "generate_report",
+							variant: "outline",
+						},
+					],
 				}),
 			);
 		} finally {
@@ -306,73 +353,81 @@ function ChatContent() {
 
 			{/* ── Messages ── */}
 			<div className="flex-1 overflow-y-auto">
-				{/* 웰컴 영역 — messages가 없을 때만 */}
-				{messages.length === 0 && (
-					<div className="relative flex flex-col items-center px-6 pb-4 pt-10 text-center">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={BRAND.symbolMonoWhite}
-							alt=""
-							className="absolute top-6 left-1/2 -translate-x-1/2 h-28 w-28 opacity-[0.04]"
-						/>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={BRAND.appIconWarm}
-							alt=""
-							className="relative mb-4 h-14 w-14"
-						/>
-						<h2 className="text-lg font-bold text-dotori-800">
-							무엇을 도와드릴까요?
-						</h2>
-						<p className="mt-1.5 text-[15px] text-dotori-400">
-							어린이집 검색, 입소 전략, 서류 준비까지
-						</p>
+				{/* 채팅 로딩 중 */}
+				{isHistoryLoading ? (
+					<div className="px-4 pt-4">
+						<Skeleton variant="chat" count={3} />
+					</div>
+				) : messages.length === 0 ? (
+					<div className="relative px-6 pb-4 pt-10">
+						<div className="mx-auto w-full max-w-[320px] overflow-hidden rounded-3xl border border-dotori-100 bg-white/90 p-6 shadow-sm">
+							<div className="absolute -left-10 -top-8 h-24 w-24 rounded-full bg-dotori-100/80 blur-2xl" />
+							<div className="absolute -right-8 -bottom-8 h-20 w-20 rounded-full bg-dotori-100/70 blur-3xl" />
+							<div className="relative">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img
+									src={BRAND.appIconWarm}
+									alt=""
+									className="mx-auto mb-4 h-14 w-14"
+								/>
+								<h2 className="text-center text-lg font-bold text-dotori-800">
+									토리와 함께 시작해볼까요?
+								</h2>
+								<p className="mt-1.5 text-center text-[14px] text-dotori-500">
+									어린이집 검색부터 입소 전략, 서류 준비까지 도와드릴게요.
+								</p>
+							</div>
 
-						{/* 추천 프롬프트 카드 */}
-						<div className="mt-6 grid w-full grid-cols-2 gap-3">
-							{suggestedPrompts.map((sp) => (
-								<button
-									key={sp.label}
-									onClick={() => handleSuggest(sp.prompt)}
-									className={cn(
-										"rounded-3xl bg-white px-5 py-4 text-left shadow-sm transition-all",
-										"active:scale-[0.97] hover:bg-dotori-100",
-									)}
-								>
-									<span className="block text-[14px] font-semibold text-dotori-700">
-										{sp.label}
-									</span>
-									<span className="mt-1 block text-[12px] text-dotori-400 line-clamp-1">
-										{sp.prompt}
-									</span>
-								</button>
-							))}
+							{/* 추천 프롬프트 카드 */}
+							<div className="relative mt-6 space-y-2.5">
+								{suggestedPrompts.map((sp) => (
+									<button
+										key={sp.label}
+										onClick={() => handleSuggest(sp.prompt)}
+										className={cn(
+											"flex w-full items-center gap-3 rounded-2xl bg-dotori-50 px-4 py-3 text-left transition-all",
+											"active:scale-[0.99] hover:bg-dotori-100",
+										)}
+									>
+										<span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-[18px]">
+											{sp.icon}
+										</span>
+										<div className="min-w-0">
+											<span className="block text-[14px] font-semibold text-dotori-700">
+												{sp.label}
+											</span>
+											<span className="mt-0.5 block text-[12px] text-dotori-500 line-clamp-1">
+												{sp.prompt}
+											</span>
+										</div>
+									</button>
+								))}
+							</div>
 						</div>
 					</div>
+				) : (
+					<div className="px-4 pt-4">
+						{messages.map((msg) => (
+							<ChatBubble
+								key={msg.id}
+								role={msg.role}
+								timestamp={msg.timestamp}
+								sources={msg.sources}
+								actions={msg.actions}
+								blocks={msg.blocks}
+								isStreaming={msg.isStreaming}
+								onBlockAction={handleBlockAction}
+							>
+								{msg.role === "assistant" ? (
+									<MarkdownText content={msg.content} />
+								) : (
+									<p className="text-[15px]">{msg.content}</p>
+								)}
+							</ChatBubble>
+						))}
+						<div ref={messagesEndRef} />
+					</div>
 				)}
-
-				{/* 대화 메시지 */}
-				<div className="px-4 pt-4">
-					{messages.map((msg) => (
-						<ChatBubble
-							key={msg.id}
-							role={msg.role}
-							timestamp={msg.timestamp}
-							sources={msg.sources}
-							actions={msg.actions}
-							blocks={msg.blocks}
-							isStreaming={msg.isStreaming}
-							onBlockAction={handleBlockAction}
-						>
-							{msg.role === "assistant" ? (
-								<MarkdownText content={msg.content} />
-							) : (
-								<p className="text-[15px]">{msg.content}</p>
-							)}
-						</ChatBubble>
-					))}
-					<div ref={messagesEndRef} />
-				</div>
 			</div>
 
 			{/* ── Input area ── */}
@@ -403,7 +458,22 @@ function ChatContent() {
 								: "bg-dotori-100 text-dotori-400",
 						)}
 					>
-						<PaperAirplaneIcon className="h-5 w-5" />
+						{isLoading ? (
+							<LoadingSpinner />
+						) : (
+							<svg
+								className="h-5 w-5"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									d="M3.9 2.6L22 11.4L3.9 20.2V13.7L15 11.4L3.9 9.1V2.6Z"
+									fill="currentColor"
+								/>
+							</svg>
+						)}
 					</button>
 				</div>
 			</div>

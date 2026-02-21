@@ -43,6 +43,7 @@ const sortOptions: { key: SortKey; label: string }[] = [
 
 const RECENT_SEARCHES_KEY = "dotori_recent_searches";
 const MAX_RECENT_SEARCHES = 5;
+const SEARCH_DEBOUNCE_MS = 300;
 const POPULAR_SEARCHES = [
 	"국공립",
 	"강남구",
@@ -284,7 +285,7 @@ function ExploreContent() {
 		if (debounceRef.current) clearTimeout(debounceRef.current);
 		debounceRef.current = setTimeout(() => {
 			setDebouncedSearch(searchInput);
-		}, 300);
+		}, SEARCH_DEBOUNCE_MS);
 		return () => {
 			if (debounceRef.current) clearTimeout(debounceRef.current);
 		};
@@ -706,6 +707,16 @@ function ExploreContent() {
 												"bg-dotori-200",
 										)} />
 										<div className="flex items-center gap-3.5 p-5 pb-3">
+											{f.images?.[0] ? (
+												<div className="shrink-0">
+													<img
+														src={f.images[0]}
+														alt={`${f.name} 시설 이미지`}
+														loading="lazy"
+														className="h-16 w-16 rounded-xl object-cover"
+													/>
+												</div>
+											) : null}
 											<div className="min-w-0 flex-1">
 												<div className="flex items-center gap-1.5">
 													<span

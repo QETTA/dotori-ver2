@@ -42,10 +42,11 @@ const ActionConfirmSheet = dynamic(
 );
 
 const FEATURE_OPTIONS = [
-	{ key: "CCTV", label: "CCTV", color: "blue" },
-	{ key: "소규모", label: "소규모", color: "emerald" },
-	{ key: "통학버스", label: "통학버스", color: "amber" },
+	{ key: "CCTV", label: "CCTV", color: "forest" },
+	{ key: "소규모", label: "소규모", color: "forest" },
+	{ key: "통학버스", label: "통학버스", color: "forest" },
 	{ key: "놀이터", label: "놀이터", color: "forest" },
+	{ key: "대규모", label: "대규모", color: "forest" },
 ] as const;
 
 type FeatureOption = (typeof FEATURE_OPTIONS)[number];
@@ -118,13 +119,22 @@ export default function FacilityDetailClient({ facility }: FacilityDetailClientP
 		const totalCapacity = getSafeNumber(facility.capacity.total);
 		const roomCount = getSafeNumber(facility.roomCount);
 		const teacherCount = getSafeNumber(facility.teacherCount);
+		const establishmentYear = getSafeNumber(facility.establishmentYear);
 
 		return [
 			...(totalCapacity != null ? [{ label: "총 정원", value: `${totalCapacity}명` }] : []),
 			...(roomCount != null ? [{ label: "보육실", value: `${roomCount}개` }] : []),
 			...(teacherCount != null ? [{ label: "교직원", value: `${teacherCount}명` }] : []),
+			...(establishmentYear != null
+				? [{ label: "설립연도", value: `${establishmentYear}년` }]
+				: []),
 		];
-	}, [facility.capacity.total, facility.roomCount, facility.teacherCount]);
+	}, [
+		facility.capacity.total,
+		facility.roomCount,
+		facility.teacherCount,
+		facility.establishmentYear,
+	]);
 
 	const qualityScore = useMemo(() => {
 		const score = facility.dataQuality?.score as number | string | undefined;
@@ -329,7 +339,9 @@ export default function FacilityDetailClient({ facility }: FacilityDetailClientP
 							{facility.type}
 						</Badge>
 						<Badge color={getQualityColor(qualityScore)}>
-							{qualityScore == null ? "품질 미공개" : `품질 ${qualityScore}점`}
+							{qualityScore == null
+								? "데이터 품질 미공개"
+								: `데이터 품질 점수 ${qualityScore}점`}
 						</Badge>
 					</div>
 				</div>

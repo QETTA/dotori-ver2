@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
@@ -25,6 +26,9 @@ interface WaitlistDoc {
 	submittedAt?: string;
 }
 
+type WaitlistStatus = "pending" | "accepted" | "confirmed" | "cancelled";
+type ProgressState = "done" | "active" | "upcoming" | "fail";
+
 interface FacilityData {
 	_id: string;
 	name: string;
@@ -40,7 +44,8 @@ interface WaitlistDetail {
 	facilityId: FacilityData | string;
 	childName: string;
 	childBirthDate: string;
-	status: "pending" | "confirmed" | "cancelled";
+	status: WaitlistStatus;
+	estimatedDate?: string;
 	position?: number;
 	ageClass?: string;
 	requiredDocs: WaitlistDoc[];
@@ -50,9 +55,61 @@ interface WaitlistDetail {
 
 const statusConfig = {
 	pending: { label: "대기 중", color: "dotori" as const },
+	accepted: { label: "입소 확정", color: "forest" as const },
 	confirmed: { label: "입소 확정", color: "forest" as const },
 	cancelled: { label: "취소됨", color: "zinc" as const },
 };
+
+const progressStates = {
+	pending: {
+		percent: 66,
+		states: ["done", "active", "upcoming"] as ProgressState[],
+		barColor: "bg-dotori-500",
+		summary: "현재 신청이 접수되어 검토 단계에 있어요.",
+		finalLabel: "합격/탈락",
+	},
+	accepted: {
+		percent: 100,
+		states: ["done", "done", "done"] as ProgressState[],
+		barColor: "bg-forest-500",
+		summary: "서류 검토가 끝나 입소 확정 단계입니다.",
+		finalLabel: "합격",
+	},
+	confirmed: {
+		percent: 100,
+		states: ["done", "done", "done"] as ProgressState[],
+		barColor: "bg-forest-500",
+		summary: "서류 검토가 끝나 입소 확정 단계입니다.",
+		finalLabel: "합격",
+	},
+	cancelled: {
+		percent: 100,
+		states: ["done", "done", "fail"] as ProgressState[],
+		barColor: "bg-red-500",
+		summary: "현재 탈락 상태입니다. 상태가 바뀌면 다시 알림이 와요.",
+		finalLabel: "탈락",
+	},
+};
+
+function getProgressStateClass(state: ProgressState) {
+	return state === "done"
+		? "bg-forest-500 text-white"
+		: state === "active"
+			? "bg-dotori-500 text-white"
+			: state === "fail"
+				? "bg-red-500 text-white"
+				: "border border-dotori-200 bg-white text-dotori-400";
+}
+
+function getProgressTextClass(state: ProgressState) {
+	return state === "done" || state === "active" || state === "fail"
+		? "text-dotori-700"
+		: "text-dotori-400";
+}
+
+function getProgressSymbol(state: ProgressState) {
+	return state === "done" ? "✓" : state === "fail" ? "✕" : "•";
+}
 
 export default function WaitlistDetailPage() {
 	const { id } = useParams<{ id: string }>();
@@ -204,6 +261,7 @@ export default function WaitlistDetailPage() {
 	const config = statusConfig[data.status];
 	const totalDocs = data.requiredDocs.length;
 	const submittedDocs = data.requiredDocs.filter((d) => d.submitted).length;
+	const progress = progressStates[data.status];
 	const docProgress =
 		totalDocs > 0 ? Math.round((submittedDocs / totalDocs) * 100) : 0;
 
@@ -287,6 +345,52 @@ export default function WaitlistDetailPage() {
 					</div>
 				</section>
 			)}
+
+			{/* 상태 진행 바 */}
+			<section className="mx-4 mt-3 rounded-2xl bg-white p-5 shadow-sm">
+				<h3 className="text-[14px] font-semibold text-dotori-700">
+					대기 진행 현황
+				</h3>
+				<div className="mt-3 grid grid-cols-3 gap-2 text-center">
+					{["신청", "검토", progress.finalLabel].map(
+						(label, index) => {
+							const state = progress.states[index]!;
+							return (
+								<div key={label}>
+									<div
+										className={cn(
+											"mx-auto inline-flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-bold",
+											getProgressStateClass(state),
+										)}
+									>
+										{getProgressSymbol(state)}
+									</div>
+									<p
+										className={cn(
+											"mt-1 text-[12px]",
+											getProgressTextClass(state),
+										)}
+									>
+										{label}
+									</p>
+								</div>
+							);
+						},
+					)}
+				</div>
+				<div className="mt-3 h-2 overflow-hidden rounded-full bg-dotori-100">
+					<div
+						className={cn(
+							"h-full rounded-full transition-all duration-500",
+							progress.barColor,
+						)}
+						style={{ width: `${progress.percent}%` }}
+					/>
+				</div>
+				<p className="mt-2 text-[12px] text-dotori-500">
+					{progress.summary}
+				</p>
+			</section>
 
 			{/* 신청 정보 */}
 			<section className="mx-4 mt-3 rounded-2xl bg-white p-5 shadow-sm">
@@ -512,16 +616,17 @@ export default function WaitlistDetailPage() {
 							어린이집 전화하기
 						</a>
 					)}
-					<button
+					<Button
 						onClick={cancelWaitlist}
 						disabled={isCancelling}
+						color="red"
 						className={cn(
-							"block w-full py-3 text-center text-[14px] transition-colors",
-							isCancelling ? "text-dotori-400" : "text-dotori-500 hover:text-red-500",
+							"w-full justify-center px-4 py-3 text-[14px]",
+							isCancelling && "opacity-70",
 						)}
 					>
 						{isCancelling ? "취소 중..." : "대기 취소"}
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

@@ -1,3 +1,4 @@
+import Anthropic from "@anthropic-ai/sdk";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -16,6 +17,9 @@ import type { ChatBlock } from "@/types/dotori";
 import type { ChatIntent } from "@/lib/engine/intent-classifier";
 
 const MAX_CHAT_MESSAGES = 200;
+const AI_MODEL = process.env.AI_MODEL || "claude-sonnet-4-6";
+const AI_TIMEOUT_MS = 15_000;
+const STREAM_SYSTEM_PROMPT = `당신은 도토리 앱의 "토리"입니다. 어린이집·유치원 찾기 AI 어시스턴트로, 부모 관점에서 친절하고 간결하게 도와주세요.`;
 
 type StartEvent = {
 	type: "start";
@@ -58,6 +62,54 @@ function isAuthUserId(userId: unknown): userId is string {
 	return typeof userId === "string" && userId.length > 0;
 }
 
+function getAnthropicClient(): Anthropic | null {
+	const apiKey = process.env.ANTHROPIC_API_KEY || "";
+	if (!apiKey) {
+		log.warn("ANTHROPIC_API_KEY가 설정되지 않았습니다");
+		return null;
+	}
+
+	return new Anthropic({
+		apiKey,
+		timeout: AI_TIMEOUT_MS,
+	});
+}
+
+function buildFacilityContext(blocks: ChatBlock[]): string {
+	const seenNames = new Set<string>();
+	const lines: string[] = [];
+
+	for (const block of blocks) {
+		if (block.type === "facility_list" || block.type === "compare") {
+			for (const facility of block.facilities) {
+				if (seenNames.has(facility.name)) continue;
+				seenNames.add(facility.name);
+
+				const waitLabel =
+					facility.status === "available"
+						? `여석 ${facility.capacity.total - facility.capacity.current}명`
+						: facility.status === "waiting"
+							? `대기 ${facility.capacity.waiting}명`
+							: "정원 마감";
+
+				lines.push(
+					`- ${facility.name} (${facility.type}, ${facility.status}, 정원 ${facility.capacity.total}명/현원 ${facility.capacity.current}명, ${waitLabel}, 평점 ${facility.rating.toFixed(1)})`,
+				);
+				lines.push(`  주소: ${facility.address}`);
+				if (facility.evaluationGrade) {
+					lines.push(`  평가인증 ${facility.evaluationGrade}등급`);
+				}
+				if (facility.features.length > 0) {
+					lines.push(`  특징: ${facility.features.join(", ")}`);
+				}
+			}
+		}
+	}
+
+	if (lines.length === 0) return "";
+	return `[검색된 시설 데이터]\n${lines.join("\n")}`;
+}
+
 export const POST = async (req: NextRequest) => {
 	const limited = strictLimiter.check(req);
 	if (limited) return limited;
@@ -76,11 +128,12 @@ export const POST = async (req: NextRequest) => {
 	const session = await auth();
 	const userId = session?.user?.id;
 
-		const encoder = new TextEncoder();
-
-		const stream = new ReadableStream({
-			async start(controller) {
+	const encoder = new TextEncoder();
+	const stream = new ReadableStream({
+		async start(controller) {
 			let chatHistory: IChatHistory | null = null;
+			let assistantContent = "";
+			let hasStreamingText = false;
 
 			try {
 				await dbConnect();
@@ -134,17 +187,67 @@ export const POST = async (req: NextRequest) => {
 					});
 				}
 
-				for (let i = 0; i < response.content.length; i += 12) {
+				const facilityContext = buildFacilityContext(response.blocks);
+				const streamInput = facilityContext
+					? `${facilityContext}\n\n사용자 질문:\n${message}`
+					: message;
+				const streamMessages: { role: "user" | "assistant"; content: string }[] = [
+					...previousMessages.map((m) => ({
+						role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
+						content: m.content,
+					})),
+					{ role: "user" as const, content: streamInput },
+				];
+
+				const anthropicClient = getAnthropicClient();
+				if (anthropicClient) {
+					try {
+						const responseStream = await anthropicClient.messages.stream({
+							model: AI_MODEL,
+							max_tokens: 1500,
+							messages: streamMessages,
+							system: STREAM_SYSTEM_PROMPT,
+						});
+
+						for await (const chunk of responseStream) {
+							if (
+								chunk.type === "content_block_delta" &&
+								chunk.delta.type === "text_delta"
+							) {
+								hasStreamingText = true;
+								assistantContent += chunk.delta.text;
+								emitEvent(controller, encoder, {
+									type: "text",
+									text: chunk.delta.text,
+								});
+							}
+						}
+						await responseStream.finalMessage();
+					} catch (err) {
+						const streamError = err instanceof Error ? err.message : "unknown";
+						log.error("Anthropic 실시간 응답 처리 실패", {
+							intent,
+							error: streamError,
+						});
+					}
+				}
+
+				if (!hasStreamingText) {
+					assistantContent = response.content;
 					emitEvent(controller, encoder, {
 						type: "text",
-						text: response.content.slice(i, i + 12),
+						text: response.content,
 					});
+				}
+
+				if (!assistantContent) {
+					assistantContent = "요청하신 응답을 생성하지 못했어요. 잠시 후 다시 시도해주세요.";
 				}
 
 				const assistantTimestamp = new Date();
 				const assistantMessage = {
 					role: "assistant" as const,
-					content: response.content,
+					content: assistantContent,
 					timestamp: assistantTimestamp,
 					blocks: response.blocks,
 				};
@@ -169,7 +272,9 @@ export const POST = async (req: NextRequest) => {
 				});
 				controller.close();
 			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : "요청 처리 중 문제가 발생했습니다.";
+				const errorMessage = err instanceof Error
+					? err.message
+					: "요청 처리 중 문제가 발생했습니다.";
 				log.error("Chat stream 처리 실패", { error: errorMessage });
 				emitEvent(controller, encoder, {
 					type: "error",

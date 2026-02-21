@@ -4,30 +4,54 @@ import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import type { ChangeEvent } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
+import { Button } from "@/components/catalyst/button";
 
 const categories = [
-	{ key: "question", label: "질문" },
-	{ key: "review", label: "후기" },
-	{ key: "info", label: "정보" },
+	{
+		key: "question",
+		label: "질문",
+		baseClass: "bg-dotori-50 text-dotori-700 border-dotori-200",
+		activeClass: "bg-dotori-900 text-white border-dotori-900",
+	},
+	{
+		key: "review",
+		label: "후기",
+		baseClass: "bg-forest-50 text-forest-700 border-forest-200",
+		activeClass: "bg-forest-800 text-white border-forest-800",
+	},
+	{
+		key: "info",
+		label: "정보공유",
+		baseClass: "bg-dotori-100 text-dotori-800 border-dotori-300",
+		activeClass: "bg-dotori-700 text-white border-dotori-700",
+	},
+	{
+		key: "feedback",
+		label: "모임",
+		baseClass: "bg-forest-100 text-forest-600 border-forest-300",
+		activeClass: "bg-forest-700 text-white border-forest-700",
+	},
 ];
 
 function CommunityWriteForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { addToast } = useToast();
+	const imageInputRef = useRef<HTMLInputElement>(null);
 
 	const presetFacilityId = searchParams.get("facilityId") || "";
 	const presetFacilityName = searchParams.get("facilityName") || "";
 
 	const [content, setContent] = useState("");
-	const [category, setCategory] = useState(
-		presetFacilityId ? "review" : "question",
-	);
+	const [category, setCategory] = useState("");
+	const [title, setTitle] = useState("");
 	const [tagInput, setTagInput] = useState("");
 	const [facilityTags, setFacilityTags] = useState<string[]>([]);
 	const [facilityId, setFacilityId] = useState(presetFacilityId);
+	const [imageFiles, setImageFiles] = useState<string[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	// Pre-populate facility tag from URL params
@@ -40,6 +64,18 @@ function CommunityWriteForm() {
 			);
 		}
 	}, [presetFacilityName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	function onImageChange(e: ChangeEvent<HTMLInputElement>) {
+		const nextFiles = Array.from(e.target.files ?? []).map((file) => file.name).slice(0, 5);
+		setImageFiles(nextFiles);
+	}
+
+	function clearImages() {
+		setImageFiles([]);
+		if (imageInputRef.current) {
+			imageInputRef.current.value = "";
+		}
+	}
 
 	function addTag() {
 		const tag = tagInput.trim();
@@ -58,14 +94,32 @@ function CommunityWriteForm() {
 	}
 
 	async function handleSubmit() {
-		if (!content.trim() || isSubmitting) return;
+		if (isSubmitting) return;
+
+		const trimmedContent = content.trim();
+		const trimmedTitle = title.trim();
+		if (!category) {
+			addToast({
+				type: "error",
+				message: "카테고리를 먼저 선택해주세요",
+			});
+			return;
+		}
+		if (trimmedContent.length < 10) {
+			addToast({
+				type: "error",
+				message: "내용은 10자 이상 입력해주세요",
+			});
+			return;
+		}
 
 		setIsSubmitting(true);
 		try {
 			const res = await apiFetch<{ data: { id: string } }>("/api/community/posts", {
 				method: "POST",
 				body: JSON.stringify({
-					content: content.trim(),
+					title: trimmedTitle,
+					content: trimmedContent,
 					category,
 					facilityTags: facilityTags.length > 0 ? facilityTags : undefined,
 					...(facilityId ? { facilityId } : {}),
@@ -92,30 +146,31 @@ function CommunityWriteForm() {
 		}
 	}
 
+	const canSubmit = category && content.trim().length >= 10;
+
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
 			<header className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-sm">
 				<button
-					onClick={() => router.back()}
+					onClick={() => router.push("/community")}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="inline-flex items-center rounded-full px-3 py-2.5 text-[14px] font-medium text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-50"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
+					<span className="ml-1.5 inline-block">취소</span>
 				</button>
 				<h1 className="text-base font-bold">글쓰기</h1>
-				<button
+				<Button
+					color="dotori"
 					onClick={handleSubmit}
-					disabled={!content.trim() || isSubmitting}
+					disabled={!canSubmit || isSubmitting}
 					className={cn(
 						"rounded-full px-5 py-2.5 text-[14px] font-semibold transition-all active:scale-[0.97]",
-						content.trim() && !isSubmitting
-							? "bg-dotori-900 text-white"
-							: "bg-dotori-100 text-dotori-400",
 					)}
 				>
 					{isSubmitting ? "등록 중..." : "등록"}
-				</button>
+				</Button>
 			</header>
 
 			{/* 시설 연동 배지 */}
@@ -140,25 +195,44 @@ function CommunityWriteForm() {
 			)}
 
 			{/* 카테고리 선택 */}
+			<div className="px-5 pt-4">
+				<h3 className="mb-2 text-[14px] font-medium text-dotori-700">카테고리</h3>
+				<div className="flex flex-wrap gap-2">
+					{categories.map((cat) => {
+						const isActive = category === cat.key;
+						return (
+							<button
+								key={cat.key}
+								onClick={() => setCategory(cat.key)}
+								className={cn(
+									"rounded-full border px-4 py-2.5 text-[14px] font-semibold transition-all active:scale-[0.97]",
+									isActive ? cat.activeClass : cat.baseClass,
+								)}
+								type="button"
+							>
+								{cat.label}
+							</button>
+						);
+					})}
+				</div>
+				{!category && (
+					<p className="mt-2 text-[12px] text-dotori-600">카테고리를 선택해주세요.</p>
+				)}
+			</div>
+
+			{/* 제목 입력 */}
 			<div className="flex gap-2 px-5 pt-4">
-				{categories.map((cat) => (
-					<button
-						key={cat.key}
-						onClick={() => setCategory(cat.key)}
-						className={cn(
-							"rounded-full px-4 py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
-							category === cat.key
-								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-600",
-						)}
-					>
-						{cat.label}
-					</button>
-				))}
+				<input
+					value={title}
+					onChange={(e) => setTitle(e.target.value)}
+					placeholder="제목을 입력해주세요"
+					maxLength={120}
+					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-[15px] outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
+				/>
 			</div>
 
 			{/* 본문 입력 */}
-			<div className="mt-4 px-5">
+			<div className="mt-2 px-5">
 				<textarea
 					value={content}
 					onChange={(e) => setContent(e.target.value)}
@@ -171,9 +245,58 @@ function CommunityWriteForm() {
 					maxLength={5000}
 					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-[15px] leading-relaxed outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
 				/>
+				{content.trim().length > 0 && content.trim().length < 10 ? (
+					<p className="mt-1.5 text-[12px] text-dotori-600">내용은 최소 10자 이상이어야 합니다.</p>
+				) : null}
 				<div className="mt-1 text-right text-[12px] text-dotori-400">
 					{content.length}/5000
 				</div>
+			</div>
+
+			{/* 이미지 첨부 (UI only) */}
+			<div className="mt-5 px-5">
+				<h3 className="mb-2 text-[14px] font-medium text-dotori-700">
+					이미지 첨부 (선택)
+				</h3>
+				<div className="flex flex-wrap items-center gap-2">
+					<input
+						ref={imageInputRef}
+						onChange={onImageChange}
+						id="community-image-input"
+						type="file"
+						accept="image/*"
+						multiple
+						className="sr-only"
+					/>
+					<label
+						htmlFor="community-image-input"
+						className="inline-flex min-h-[44px] cursor-pointer items-center rounded-xl bg-dotori-100 px-4 py-2.5 text-[14px] font-medium text-dotori-700 transition-all active:scale-[0.97]"
+					>
+						사진 선택
+					</label>
+					{imageFiles.length > 0 ? (
+						<button
+							onClick={clearImages}
+							type="button"
+							className="inline-flex min-h-[44px] items-center rounded-xl bg-dotori-50 px-4 py-2.5 text-[14px] font-medium text-dotori-700 transition-all active:scale-[0.97]"
+						>
+							선택 초기화
+						</button>
+					) : null}
+				</div>
+				{imageFiles.length > 0 ? (
+					<ul className="mt-2 space-y-1 text-[13px] text-dotori-700">
+						{imageFiles.map((name) => (
+							<li key={name} className="rounded-lg bg-dotori-50 px-3 py-2">
+								{name}
+							</li>
+						))}
+					</ul>
+				) : (
+					<p className="mt-2 text-[12px] text-dotori-400">
+						첨부한 이미지가 없습니다. 현재는 첨부 UI만 제공합니다.
+					</p>
+				)}
 			</div>
 
 			{/* 시설 태그 */}
