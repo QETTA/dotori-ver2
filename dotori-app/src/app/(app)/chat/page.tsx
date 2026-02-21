@@ -13,24 +13,24 @@ import type { ChatBlock, ChatMessage } from "@/types/dotori";
 
 const suggestedPrompts = [
 	{
-		label: "동네 추천",
-		prompt: "우리 동네 어린이집 추천해주세요",
-		icon: "🏘️",
+		label: "이동 고민",
+		prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 어떻게 시작해야 할까요?",
+		icon: "🔄",
 	},
 	{
-		label: "입소 전략",
-		prompt: "입소 확률 높이는 전략 알려줘",
-		icon: "📈",
+		label: "반편성 불만",
+		prompt: "반편성 결과가 마음에 안 들어요. 이동할 수 있는 시설 찾아줘요",
+		icon: "📋",
+	},
+	{
+		label: "빈자리 탐색",
+		prompt: "우리 동네 어린이집 중 지금 자리 있는 곳 알려줘요",
+		icon: "🔍",
 	},
 	{
 		label: "시설 비교",
-		prompt: "해피어린이집이랑 사랑어린이집 비교해줘",
+		prompt: "국공립이랑 민간 어린이집 차이점 알려줘요",
 		icon: "⚖️",
-	},
-	{
-		label: "서류 준비",
-		prompt: "입소 서류 체크리스트 알려줘",
-		icon: "📄",
 	},
 ];
 
