@@ -46,11 +46,11 @@ async function main() {
     const page = await context.newPage()
     try {
       await page.goto(`${BASE}${route.path}`, {
-        waitUntil: 'domcontentloaded',
+        waitUntil: 'networkidle',
         timeout: 30000,
       })
-      // Wait for fonts + rendering
-      await page.waitForTimeout(3000)
+      // Wait for fonts + animations + Tailwind CSS
+      await page.waitForTimeout(2000)
       await page.screenshot({
         path: path.join(OUT, `${route.name}.png`),
         fullPage: true,

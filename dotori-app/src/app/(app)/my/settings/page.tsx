@@ -121,7 +121,7 @@ export default function SettingsPage() {
 			<div className="pb-8">
 				<div className="px-5 pt-8">
 					<h1 className="text-xl font-bold">설정</h1>
-					<p className="mt-2 text-[14px] text-dotori-500">{error}</p>
+					<p className="mt-2 text-sm text-dotori-500">{error}</p>
 					<Button href="/login" color="dotori" className="mt-4 w-full">
 						로그인하기
 					</Button>
@@ -135,7 +135,7 @@ export default function SettingsPage() {
 			<div className="pb-8">
 				<div className="px-5 pt-8">
 					<h1 className="text-xl font-bold">설정</h1>
-					<p className="mt-2 text-[14px] text-dotori-500">로그인 후 플랜 관리가 가능합니다.</p>
+					<p className="mt-2 text-sm text-dotori-500">로그인 후 플랜 관리가 가능합니다.</p>
 					<Button href="/login" color="dotori" className="mt-4 w-full">
 						로그인하기
 					</Button>
@@ -148,7 +148,7 @@ export default function SettingsPage() {
 		<div className="pb-8">
 			<header className="px-5 pt-8 pb-2">
 				<h1 className="text-xl font-bold">플랜 설정</h1>
-				<p className="mt-1 text-[13px] text-dotori-500">
+				<p className="mt-1 text-xs text-dotori-500">
 					현재 플랜과 혜택을 확인하고 관리해요
 				</p>
 			</header>
@@ -156,14 +156,14 @@ export default function SettingsPage() {
 			<section className="mt-5 px-5">
 				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
 					<div className="flex items-center justify-between gap-3">
-						<h2 className="text-[15px] font-semibold">현재 플랜</h2>
-						<Badge color={isPremium ? "forest" : "dotori"} className="text-[10px]">
+						<h2 className="text-sm font-semibold">현재 플랜</h2>
+						<Badge color={isPremium ? "forest" : "dotori"} className="text-xs">
 							{planLabel}
 						</Badge>
 					</div>
-					<p className="mt-2 text-[18px] font-bold text-dotori-900">{planLabel}</p>
+					<p className="mt-2 text-lg font-bold text-dotori-900">{planLabel}</p>
 					{isPremium && (
-						<p className="mt-1 text-[14px] text-forest-600">
+						<p className="mt-1 text-sm text-forest-600">
 							다음 갱신일: {nextRenewalDate || "확인 중"}
 						</p>
 					)}
@@ -172,12 +172,12 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl bg-dotori-50 px-4 py-4">
-					<h2 className="text-[15px] font-semibold">프리미엄 혜택</h2>
+					<h2 className="text-sm font-semibold">프리미엄 혜택</h2>
 					<ul className="mt-2 space-y-2">
 						{PREMIUM_BENEFITS.map((benefit) => (
 							<li key={benefit} className="flex items-start gap-2">
 								<CheckCircleIcon className="mt-0.5 h-4 w-4 text-forest-500" />
-								<span className="text-[14px] text-dotori-700">{benefit}</span>
+								<span className="text-sm text-dotori-700">{benefit}</span>
 							</li>
 						))}
 					</ul>
@@ -190,11 +190,11 @@ export default function SettingsPage() {
 						<div className="flex items-center justify-between gap-3 rounded-2xl bg-forest-50 px-3 py-2.5">
 							<div className="flex items-center gap-2">
 								<SparklesIcon className="h-5 w-5 text-forest-600" />
-								<Badge color="forest" className="text-[10px]">
+								<Badge color="forest" className="text-xs">
 									이용 중
 								</Badge>
 							</div>
-							<p className="text-[12px] text-forest-600">
+							<p className="text-xs text-forest-600">
 								{nextRenewalDate
 									? `다음 갱신일은 ${nextRenewalDate}이에요`
 									: "다음 갱신일 정보를 불러오는 중이에요"}
@@ -212,14 +212,14 @@ export default function SettingsPage() {
 					)}
 
 					{isPremium && (
-						<div className="mt-2 rounded-2xl bg-dotori-50 px-3 py-2.5 text-[12px] text-dotori-600">
+						<div className="mt-2 rounded-2xl bg-dotori-50 px-3 py-2.5 text-xs text-dotori-600">
 							<CreditCardIcon className="h-4 w-4 inline-block translate-y-[-1px]" />
 							<span className="ml-1">월 1,900원</span>
 						</div>
 					)}
 
 					{successMessage && (
-						<p className="mt-3 rounded-2xl bg-forest-50 px-3 py-2.5 text-[13px] text-forest-700">
+						<p className="mt-3 rounded-2xl bg-forest-50 px-3 py-2.5 text-xs text-forest-700">
 							{successMessage}
 						</p>
 					)}
@@ -228,15 +228,15 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
-					<h2 className="text-[15px] font-semibold">고객센터</h2>
-					<p className="mt-1 text-[13px] text-dotori-500">
+					<h2 className="text-sm font-semibold">고객센터</h2>
+					<p className="mt-1 text-xs text-dotori-500">
 						결제가 안 되거나 궁금한 점이 있으면 채널로 연락해 주세요.
 					</p>
 					<a
 						href={supportChannelUrl}
 						target="_blank"
 						rel="noreferrer noopener"
-						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-colors hover:bg-dotori-50"
+						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 px-4 py-2.5 text-sm font-semibold text-dotori-700 transition-colors hover:bg-dotori-50"
 					>
 						카카오톡 채널로 문의하기
 					</a>
@@ -246,7 +246,7 @@ export default function SettingsPage() {
 			<div className="mt-6 px-5">
 				<Link
 					href="/my"
-					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 px-4 py-2.5 text-center text-[14px] text-dotori-500"
+					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 px-4 py-2.5 text-center text-sm text-dotori-500"
 				>
 					MY로 돌아가기
 				</Link>
