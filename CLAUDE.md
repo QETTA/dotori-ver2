@@ -24,13 +24,49 @@ cd /home/sihu2129/dotori-ver2/dotori-app
 
 **앱 상세 규칙은 `dotori-app/CLAUDE.md` 참조** — 그 파일이 앱 개발의 마스터 가이드.
 
+## 모델 전략 (2026-02-22~)
+
+**Claude Code: Sonnet 4.6** (Opus 주간 할당량 절약)
+**Codex MCP: gpt-5.3-codex-spark** (ChatGPT Pro 무제한 — 적극 활용)
+
+### Codex 위임 정책 (필수)
+
+Opus 토큰 절약을 위해 **코드 생성/분석 작업은 Codex MCP로 최대한 위임**:
+
+| 작업 유형 | 담당 | 이유 |
+|-----------|------|------|
+| 새 컴포넌트/페이지 생성 | **Codex** | 대량 코드 생성 = 토큰 많이 소모 |
+| 멀티파일 리팩토링 | **Codex** | 여러 파일 읽기+쓰기 |
+| 버그 분석 + 수정안 제시 | **Codex** | 코드 탐색 + 추론 |
+| API 라우트 구현 | **Codex** | 보일러플레이트 많음 |
+| 빌드 에러 디버깅 | **Codex** | 로그 분석 + 수정 |
+| 간단 수정 (1-2줄) | Claude | 빠른 직접 수정이 효율적 |
+| 파일 읽기/검색 | Claude | 도구 직접 호출이 빠름 |
+| git/배포/인프라 | Claude | CLI 도구 직접 실행 |
+| 의사결정/설계 | Claude | 대화 컨텍스트 필요 |
+
+### Codex 호출 패턴
+
+```
+# 코드 생성 시 — mcp__codex__codex 사용
+mcp__codex__codex(prompt="...", approval-policy="never", sandbox="workspace-write")
+
+# Task 서브에이전트 — haiku 모델로 비용 절감
+Task(subagent_type="general-purpose", model="haiku", ...)
+```
+
+**원칙: "코드를 쓸 때는 Codex, 판단할 때는 Claude"**
+
 ## MCP Servers
 
 | 서버 | 모델/용도 | 상태 |
 |------|-----------|------|
-| codex | gpt-5.3-codex-spark (high reasoning) | 교차검수용 |
-| memory | @modelcontextprotocol/server-memory | 세션 간 기억 |
+| codex | gpt-5.3-codex-spark (xhigh reasoning) | ★ 주력 코드 생성 |
+| serena | TypeScript LSP 코드 분석 | 심볼 검색/수정 |
 | context7 | @upstash/context7-mcp | 라이브러리 문서 조회 |
+| mongodb | MongoDB Atlas readOnly | DB 쿼리/스키마 |
+| playwright | @playwright/mcp | 브라우저 자동화 |
+| github | GitHub MCP (settings.local) | PR/이슈 관리 |
 
 ## Key Commands
 
