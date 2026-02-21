@@ -23,15 +23,22 @@ export const PATCH = withApiHandler(async (req, { userId }) => {
 		"preferences",
 		"gpsVerified",
 		"onboardingCompleted",
+		"plan",
 		"phone",
 		"alimtalkOptIn",
 	];
 	const stringFields = ["nickname", "phone"];
+	const validPlans = ["free", "premium", "partner"];
 	const update: Record<string, unknown> = {};
 	for (const key of allowedFields) {
 		if (key in body) {
 			if (stringFields.includes(key) && typeof body[key] === "string") {
 				update[key] = sanitizeString(body[key]);
+			} else if (key === "plan" && typeof body[key] === "string") {
+				const sanitizedPlan = sanitizeString(body[key]);
+				if (validPlans.includes(sanitizedPlan as "free" | "premium" | "partner")) {
+					update[key] = sanitizedPlan;
+				}
 			} else if (key === "region" && typeof body[key] === "object" && body[key] !== null) {
 				const region = body[key] as Record<string, unknown>;
 				update[key] = {
@@ -45,10 +52,13 @@ export const PATCH = withApiHandler(async (req, { userId }) => {
 		}
 	}
 
+	const requestedPlan = typeof update.plan === "string" ? update.plan : "";
+	const runValidators = requestedPlan !== "partner";
+
 	const user = await User.findByIdAndUpdate(
 		userId,
 		{ $set: update },
-		{ new: true, runValidators: true },
+		{ new: true, runValidators },
 	).lean();
 
 	if (!user) {
