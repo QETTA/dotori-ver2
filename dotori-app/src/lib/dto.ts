@@ -21,6 +21,11 @@ interface FacilityDocument {
 		features: string[];
 		sortBoost: number;
 		verifiedAt?: Date | string;
+		startDate?: Date | string;
+		endDate?: Date | string;
+		contactPerson?: string;
+		contactEmail?: string;
+		contactPhone?: string;
 	};
 	premiumProfile?: {
 		directorMessage?: string;

@@ -37,6 +37,11 @@ export interface FacilityPremium {
 	plan: "basic" | "pro";
 	features: string[];
 	sortBoost: number;
+	startDate?: string;
+	endDate?: string;
+	contactPerson?: string;
+	contactEmail?: string;
+	contactPhone?: string;
 	verifiedAt?: string;
 }
 
