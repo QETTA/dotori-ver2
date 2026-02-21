@@ -27,7 +27,8 @@ import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { useFacilities } from "@/hooks/use-facilities";
 import { useFacilityActions } from "@/hooks/use-facility-actions";
-import { HeartIcon } from "@heroicons/react/24/solid";
+import { useToast } from "@/components/dotori/ToastProvider";
+import { HeartIcon, MapPinIcon } from "@heroicons/react/24/solid";
 import { cn, facilityTypeBadgeColor } from "@/lib/utils";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
@@ -60,6 +61,21 @@ const POPULAR_SEARCHES = [
 	"통학버스",
 	"영아전문",
 ];
+
+interface ReverseGeocodeResponse {
+	data: {
+		sido: string;
+		sigungu: string;
+		dong: string;
+	};
+}
+
+interface GPSState {
+	lat: number | null;
+	lng: number | null;
+	loading: boolean;
+	error: string | null;
+}
 
 // ── localStorage helpers ──
 
@@ -141,6 +157,7 @@ export default function ExplorePage() {
 }
 
 function ExploreContent() {
+	const { addToast } = useToast();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
@@ -181,6 +198,12 @@ function ExploreContent() {
 	const [sigunguOptions, setSigunguOptions] = useState<string[]>([]);
 	const [isLoadingSido, setIsLoadingSido] = useState(false);
 	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
+	const [useGPS, setUseGPS] = useState<GPSState>({
+		lat: null,
+		lng: null,
+		loading: false,
+		error: null,
+	});
 
 	// ── Recent searches & suggestion panel ──
 	const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
@@ -356,6 +379,18 @@ function ExploreContent() {
 			})),
 		[facilities],
 	);
+	const mapCenter = useMemo(() => {
+		if (useGPS.lat !== null && useGPS.lng !== null) {
+			return { lat: useGPS.lat, lng: useGPS.lng };
+		}
+		if (mapFacilityPoints.length > 0) {
+			return {
+				lat: mapFacilityPoints[0].lat,
+				lng: mapFacilityPoints[0].lng,
+			};
+		}
+		return undefined;
+	}, [mapFacilityPoints, useGPS.lat, useGPS.lng]);
 	const activeFilterCount =
 		selectedTypes.length + (toOnly ? 1 : 0) + (selectedSigungu ? 1 : 0) + (selectedSido ? 1 : 0);
 	const hasSearchInput = debouncedSearch.trim().length > 0;
@@ -393,6 +428,75 @@ function ExploreContent() {
 		setSearchInput("");
 		setDebouncedSearch("");
 	}, []);
+
+	const handleUseCurrentLocation = useCallback(async () => {
+		if (useGPS.loading) return;
+
+		if (typeof navigator === "undefined" || !navigator.geolocation) {
+			const message = "이 기기에서 위치 서비스를 지원하지 않아요";
+			setUseGPS((prev) => ({ ...prev, loading: false, error: message }));
+			addToast({ type: "error", message });
+			return;
+		}
+
+		setUseGPS((prev) => ({ ...prev, loading: true, error: null }));
+
+		try {
+			const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+				navigator.geolocation.getCurrentPosition(resolve, reject, {
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 30000,
+				});
+			});
+
+			const { latitude, longitude } = position.coords;
+			const geocodeRes = await apiFetch<ReverseGeocodeResponse>(
+				`/api/geocode/reverse?lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}`,
+			);
+
+			setUseGPS((prev) => ({
+				...prev,
+				lat: latitude,
+				lng: longitude,
+		}));
+
+			if (geocodeRes.data.sido) {
+				setSelectedSido(geocodeRes.data.sido);
+			}
+			if (geocodeRes.data.sigungu) {
+				setSelectedSigungu(geocodeRes.data.sigungu);
+			}
+
+			addToast({
+				type: "success",
+				message: "현재 위치로 지역이 설정되었어요",
+			});
+		} catch (error) {
+			let message = "현재 위치 정보를 가져오지 못했어요";
+
+			if (error instanceof GeolocationPositionError) {
+				switch (error.code) {
+					case error.PERMISSION_DENIED:
+						message = "위치 권한을 허용해주세요";
+						break;
+					case error.POSITION_UNAVAILABLE:
+						message = "현재 위치를 찾을 수 없어요";
+						break;
+					case error.TIMEOUT:
+						message = "위치 확인 시간이 초과했어요";
+						break;
+					default:
+						message = "현재 위치를 가져오지 못했어요";
+				}
+			}
+
+			setUseGPS((prev) => ({ ...prev, error: message }));
+			addToast({ type: "error", message });
+		} finally {
+			setUseGPS((prev) => ({ ...prev, loading: false }));
+		}
+	}, [addToast, setSelectedSido, setSelectedSigungu, useGPS.loading]);
 
 	const handleChipClick = useCallback(
 		(term: string) => {
@@ -468,6 +572,24 @@ function ExploreContent() {
 							</button>
 						)}
 					</form>
+					<div className="mt-2 flex flex-wrap gap-2">
+						<button
+							type="button"
+							onClick={handleUseCurrentLocation}
+							disabled={useGPS.loading}
+							className={cn(
+								"inline-flex items-center gap-1.5 rounded-full border border-dotori-200 px-3 py-2 text-[13px] font-medium text-dotori-600 transition-all active:scale-[0.97]",
+								useGPS.loading && "opacity-70",
+							)}
+						>
+								{useGPS.loading ? (
+									<span className="h-4 w-4 animate-spin rounded-full border-2 border-dotori-300 border-t-dotori-700" />
+								) : (
+									<MapPinIcon className="h-4 w-4 text-dotori-500" />
+								)}
+								⚡ 현재 위치
+							</button>
+						</div>
 
 					{/* ── 최근 검색 & 인기 검색어 패널 ── */}
 					{showSuggestionPanel && (
@@ -538,7 +660,26 @@ function ExploreContent() {
 						{resultLabel}
 					</span>
 
-					{/* TO 토글 */}
+					{/* 현재 위치 */}
+					<button
+						onClick={handleUseCurrentLocation}
+						disabled={useGPS.loading}
+						className={cn(
+							"inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[14px] font-medium transition-all active:scale-[0.97]",
+							useGPS.loading
+								? "bg-dotori-100 text-dotori-500 opacity-70"
+								: "bg-dotori-50 text-dotori-600 hover:bg-dotori-100",
+						)}
+					>
+						{useGPS.loading ? (
+							<span className="h-4 w-4 animate-spin rounded-full border-2 border-dotori-300 border-t-dotori-700" />
+						) : (
+							<MapPinIcon className="h-4 w-4 text-dotori-500" />
+						)}
+						내 위치
+					</button>
+
+						{/* TO 토글 */}
 					<button
 						onClick={() => setToOnly(!toOnly)}
 						aria-pressed={toOnly}
@@ -706,13 +847,18 @@ function ExploreContent() {
 			</header>
 
 			{/* ── 지도뷰 ── */}
-			{showMap && facilities.length > 0 && (
-			<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
-				<MapEmbed
-					facilities={mapFacilityPoints}
-					height="h-48 sm:h-64"
-				/>
-			</div>
+			{showMap &&
+			(mapFacilityPoints.length > 0 || (useGPS.lat !== null && useGPS.lng !== null)) && (
+				<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
+					<MapEmbed
+						facilities={mapFacilityPoints}
+						{...(mapCenter ? { center: mapCenter } : {})}
+						{...(useGPS.lat !== null && useGPS.lng !== null
+							? { userLocation: { lat: useGPS.lat, lng: useGPS.lng } }
+							: {})}
+						height="h-48 sm:h-64"
+					/>
+				</div>
 			)}
 
 				{/* ── 시설 리스트 ── */}
