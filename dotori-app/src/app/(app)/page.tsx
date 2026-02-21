@@ -9,12 +9,17 @@ import {
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { motion, type Variants } from "motion/react";
+import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
+import { Heading } from "@/components/catalyst/heading";
+import { Text } from "@/components/catalyst/text";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { EmptyState } from "@/components/dotori/EmptyState";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { useToast } from "@/components/dotori/ToastProvider";
 import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -24,6 +29,18 @@ import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 const AI_BRIEFING_MONTHLY_LIMIT = 5;
 const AI_BRIEFING_USAGE_KEY = "dotori-ai-briefing-usage";
 const PREMIUM_BANNER_DISMISSED_KEY_PREFIX = "dotori-premium-upgrade-banner-dismissed";
+const SERVICE_FACILITY_COUNT = "20,027";
+const MOVE_CONCERN_PROMPT = "/chat?prompt=%EC%9D%B4%EB%8F%99";
+const MOVE_CONCERN_NBA: NBAItem = {
+	id: "move-concern",
+	title: "이동 고민 중이세요?",
+	description: "AI 토리가 인근 빈자리 시설을 바로 찾아드려요",
+	action: {
+		label: "이동 고민 시작",
+		href: MOVE_CONCERN_PROMPT,
+	},
+	priority: 10,
+};
 
 const quickActions = [
 	{ icon: "🔍", label: "내 주변 탐색", href: "/explore", bg: "bg-dotori-100" },
@@ -79,9 +96,14 @@ interface HomeData {
 	};
 }
 
+interface FacilitiesResponse {
+	data: Facility[];
+}
+
 export default function HomePage() {
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const [data, setData] = useState<HomeData | null>(null);
+	const [liveInterestFacilities, setLiveInterestFacilities] = useState<Facility[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [dismissedNBAs, setDismissedNBAs] = useState<Set<string>>(new Set());
@@ -89,19 +111,56 @@ export default function HomePage() {
 	const [isRequestingLocation, setIsRequestingLocation] = useState(false);
 	const [isPremiumBannerVisible, setIsPremiumBannerVisible] = useState(false);
 	const [freeAiUsageThisMonth, setFreeAiUsageThisMonth] = useState(0);
+	const [isInterestStatusReady, setIsInterestStatusReady] = useState(false);
+	const { addToast } = useToast();
+	const availableInterestToastShown = useRef(false);
+
+	const fetchInterestStatuses = useCallback(async (interests: Facility[]) => {
+		setIsInterestStatusReady(false);
+
+		if (interests.length === 0) {
+			setLiveInterestFacilities([]);
+			setIsInterestStatusReady(true);
+			return;
+		}
+
+		const ids = [...new Set(interests.map((facility) => facility.id))];
+		if (ids.length === 0) {
+			setLiveInterestFacilities([]);
+			setIsInterestStatusReady(true);
+			return;
+		}
+
+		try {
+			const params = new URLSearchParams({ ids: ids.join(",") });
+			const response = await apiFetch<FacilitiesResponse>(`/api/facilities?${params}`);
+			const facilityMap = new Map(response.data.map((facility) => [facility.id, facility]));
+			const synced = ids
+				.map((id) => facilityMap.get(id))
+				.filter((facility): facility is Facility => facility !== undefined);
+			setLiveInterestFacilities(synced.length > 0 ? synced : interests);
+		} catch {
+			setLiveInterestFacilities(interests);
+		} finally {
+			setIsInterestStatusReady(true);
+		}
+	}, []);
 
 	const fetchHome = useCallback(async () => {
 		setIsLoading(true);
 		setError(null);
+		setIsInterestStatusReady(false);
 		try {
 			const res = await apiFetch<{ data: HomeData }>("/api/home");
 			setData(res.data);
+			await fetchInterestStatuses(res.data.interestFacilities);
 		} catch {
 			setError("홈 정보를 불러오지 못했어요");
 		} finally {
+			setIsInterestStatusReady(true);
 			setIsLoading(false);
 		}
-	}, []);
+	}, [fetchInterestStatuses]);
 
 	useEffect(() => {
 		fetchHome();
@@ -131,11 +190,23 @@ export default function HomePage() {
 				: [],
 		[data, user, dismissedNBAs],
 	);
+	const orderedNBAs = useMemo(
+		() =>
+			[MOVE_CONCERN_NBA, ...nbas.filter((nba) => nba.id !== MOVE_CONCERN_NBA.id)],
+		[nbas],
+	);
+	const interestFacilities = useMemo(
+		() =>
+			liveInterestFacilities.length > 0
+				? liveInterestFacilities
+				: data?.interestFacilities ?? [],
+		[liveInterestFacilities, data?.interestFacilities],
+	);
 
 	const urgentFacility = data?.nearbyFacilities.find(
 		(f) =>
 			f.status === "available" &&
-			!data.interestFacilities.some((i) => i.id === f.id),
+			!interestFacilities.some((i) => i.id === f.id),
 	);
 	const realtimeAvailableFacilities = useMemo(() => {
 		if (!data) return [];
@@ -153,19 +224,19 @@ export default function HomePage() {
 	const hotPost = data?.hotPosts[0] ?? null;
 	const nearbyFacilities = data?.nearbyFacilities ?? [];
 	const greetingTitle = user?.nickname
-		? `${user.nickname}님, 이동 고민이 있으신가요?`
-		: "안녕하세요! 어린이집 쉽게 찾아드릴게요";
+		? `${user.nickname}맘, 관심 시설 현황을 확인해보세요`
+		: "어린이집 이동 고민, 도토리가 해결해드려요";
 	const hasAiBriefingContent = Boolean(
 		data &&
-			(data.interestFacilities.length > 0 ||
+			(interestFacilities.length > 0 ||
 				data.alertCount > 0 ||
 				data.waitlistCount > 0),
 	);
 	const aiUpdatedAt =
 		data?.sources?.isalang?.updatedAt ?? new Date().toISOString();
-	const waitingInterests = data?.interestFacilities.filter(
+	const waitingInterests = interestFacilities.filter(
 		(f) => f.status === "waiting",
-	) ?? [];
+	);
 	const todayTip = (() => {
 		const month = new Date().getMonth() + 1;
 		if (month === 2 || month === 3) {
@@ -179,6 +250,28 @@ export default function HomePage() {
 		}
 		return "어린이집 정보를 AI로 분석해보세요";
 	})();
+
+	const availableInterestCount = interestFacilities.filter(
+		(facility) => facility.status === "available",
+	).length;
+	const hasAvailableInterestFacility = availableInterestCount > 0;
+
+	useEffect(() => {
+		if (!hasAvailableInterestFacility || interestFacilities.length === 0) {
+			availableInterestToastShown.current = false;
+			return;
+		}
+
+		if (availableInterestToastShown.current) {
+			return;
+		}
+
+		addToast({
+			type: "success",
+			message: "빈자리 있어요!",
+		});
+		availableInterestToastShown.current = true;
+	}, [addToast, hasAvailableInterestFacility, interestFacilities.length]);
 
 	const handleDismiss = useCallback((id: string) => {
 		setDismissedNBAs((prev) => new Set(prev).add(id));
@@ -344,7 +437,31 @@ export default function HomePage() {
 						className="text-[14px] text-dotori-500"
 					>
 						이동 고민은 지금, 빈자리와 조건을 바로 체크하고
-					</motion.p>
+						</motion.p>
+				</motion.section>
+
+				{/* ── 서비스 통계 카드 ── */}
+				<motion.section
+					className="mt-6"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<motion.div variants={cardReveal}>
+						<div className="rounded-3xl bg-white p-4 ring-1 ring-dotori-100">
+							<div className="flex items-center justify-between">
+								<Heading level={3} className="font-semibold text-dotori-900">
+									서비스 통계
+								</Heading>
+								<Badge color="dotori" className="text-xs">
+									실시간 AI 분석 중
+								</Badge>
+							</div>
+							<Text className="mt-2 text-dotori-700">
+								시설 수: {SERVICE_FACILITY_COUNT}
+							</Text>
+						</div>
+					</motion.div>
 				</motion.section>
 
 				{/* ── 빠른 액션 카드 ── */}
@@ -437,7 +554,7 @@ export default function HomePage() {
 							{hasAiBriefingContent ? (
 								<div className="space-y-2 text-dotori-900">
 									<p className="text-[18px] font-semibold leading-snug text-dotori-900">
-										{data?.interestFacilities.some(
+										{interestFacilities.some(
 											(f) => f.status === "available",
 										)
 											? "입소 가능 시설이 있어요"
@@ -445,12 +562,12 @@ export default function HomePage() {
 												? "입소 대기 시설을 실시간으로 모니터링 중입니다"
 												: "토리에게 지금 바로 물어볼 수 있어요"}
 									</p>
-									{data?.interestFacilities.some((f) => f.status === "available") ? (
+									{interestFacilities.some((f) => f.status === "available") ? (
 										<ul className="space-y-1.5 text-[15px] leading-relaxed text-dotori-800">
-											{data.interestFacilities
-												.filter((f) => f.status === "available")
-												.slice(0, 3)
-												.map((f) => {
+									{interestFacilities
+										.filter((f) => f.status === "available")
+										.slice(0, 3)
+										.map((f) => {
 													const toCount =
 														f.capacity.total - f.capacity.current;
 													return (
@@ -468,7 +585,7 @@ export default function HomePage() {
 										</ul>
 									) : waitingInterests.length > 0 ? (
 										<p className="text-[15px] leading-relaxed text-dotori-700">
-											관심 시설 {data?.interestFacilities.length}곳 모두 대기 중이에요.
+											관심 시설 {interestFacilities.length}곳 모두 대기 중이에요.
 											{(data?.waitlistCount ?? 0) > 0 &&
 												` 나의 대기 ${(data?.waitlistCount ?? 0)}건 진행 중`}
 										</p>
@@ -576,8 +693,8 @@ export default function HomePage() {
 									현재 입소 가능한 시설이 없어요.
 								</p>
 								<p className="mt-1 text-[13px] text-dotori-500">
-									{data.interestFacilities.length > 0
-										? `관심 ${data.interestFacilities.length}곳은 지금 대기 중이에요`
+										{interestFacilities.length > 0
+										? `관심 ${interestFacilities.length}곳은 지금 대기 중이에요`
 										: "주변 시설에서 다시 확인해보세요"}
 								</p>
 								<Link
@@ -592,14 +709,14 @@ export default function HomePage() {
 				)}
 
 				{/* ── NBA 카드 ── */}
-				{nbas.length > 0 && (
+				{orderedNBAs.length > 0 && (
 					<motion.section
 						className="mt-5 space-y-2"
 						initial="hidden"
 						animate="show"
 						variants={sectionStagger}
 					>
-						{nbas.map((nba) => (
+						{orderedNBAs.map((nba) => (
 							<motion.div key={nba.id} variants={cardReveal}>
 								<NBACard nba={nba} onDismiss={handleDismiss} />
 							</motion.div>
@@ -608,7 +725,7 @@ export default function HomePage() {
 				)}
 
 				{/* ── 관심 시설 변동 ── */}
-				{data && data.interestFacilities.length > 0 && (
+				{data && interestFacilities.length > 0 && isInterestStatusReady && (
 					<section className="mt-8">
 						<div className="mb-3 flex items-center justify-between">
 							<h2 className="text-[17px] font-bold">관심 시설</h2>
@@ -632,6 +749,14 @@ export default function HomePage() {
 											<span className="absolute -top-1.5 left-3 z-10 rounded-full bg-forest-500 px-2.5 py-1 text-[11px] font-bold text-white">
 												NEW TO
 											</span>
+											{urgentFacility.status === "available" ? (
+												<Badge
+													color="forest"
+													className="absolute left-3 top-3 z-10 px-2 py-0.5 text-xs"
+												>
+													빈자리 있어요!
+												</Badge>
+											) : null}
 											<FacilityCard
 												facility={urgentFacility}
 												compact
@@ -640,7 +765,7 @@ export default function HomePage() {
 									</Link>
 								</div>
 							)}
-							{data.interestFacilities.slice(0, 3).map((f, i) => (
+							{interestFacilities.slice(0, 3).map((f, i) => (
 								<div
 									key={f.id}
 									className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 duration-300"
@@ -650,7 +775,17 @@ export default function HomePage() {
 									}}
 								>
 									<Link href={`/facility/${f.id}`}>
-										<FacilityCard facility={f} compact />
+										<div className="relative">
+											{f.status === "available" ? (
+												<Badge
+													color="forest"
+													className="absolute left-3 top-3 z-10 px-2 py-0.5 text-xs"
+												>
+													빈자리 있어요!
+												</Badge>
+											) : null}
+											<FacilityCard facility={f} compact />
+										</div>
 									</Link>
 								</div>
 							))}
@@ -885,12 +1020,11 @@ const NBACard = memo(function NBACard({
 			</h3>
 			<p className="relative mt-1 text-[13px] leading-snug text-dotori-500">{nba.description}</p>
 			{nba.action && (
-				<Link
-					href={nba.action.href}
-					className="relative mt-3 inline-block rounded-xl bg-dotori-500 px-5 py-2.5 text-[14px] font-semibold text-white transition-all active:scale-[0.97] hover:bg-dotori-600"
-				>
-					{nba.action.label}
-				</Link>
+				<div className="relative mt-3">
+					<Button href={nba.action.href} color="dotori">
+						{nba.action.label}
+					</Button>
+				</div>
 			)}
 		</div>
 	);
