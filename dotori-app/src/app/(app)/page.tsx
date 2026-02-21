@@ -11,8 +11,11 @@ import Link from "next/link";
 import { motion, type Variants } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
+import { Field, Fieldset } from "@/components/catalyst/fieldset";
 import { Heading } from "@/components/catalyst/heading";
 import { Text } from "@/components/catalyst/text";
+import { Input } from "@/components/catalyst/input";
+import { Select } from "@/components/catalyst/select";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
@@ -43,17 +46,40 @@ const MOVE_CONCERN_NBA: NBAItem = {
 };
 
 const quickActions = [
-	{ icon: "🔍", label: "내 주변 탐색", href: "/explore", bg: "bg-dotori-100" },
-	{ icon: "💬", label: "토리에게 물어보기", href: "/chat", bg: "bg-forest-100" },
+	{ icon: "🔍", label: "내 주변 탐색", href: "/explore" },
+	{ icon: "💬", label: "토리에게 물어보기", href: "/chat" },
 	{
 		icon: "📋",
 		label: "입소 체크리스트",
 		href: "/chat",
 		prompt: "체크리스트",
-		bg: "bg-dotori-100",
 	},
-	{ icon: "🔔", label: "대기 현황", href: "/my/waitlist", bg: "bg-dotori-100" },
+	{ icon: "🔔", label: "대기 현황", href: "/my/waitlist" },
 ];
+
+const heroScenarios = [
+	"반편성 시즌엔 지금 움직이면 유리해요",
+	"교사 교체 신호가 보이면 바로 점검해요",
+	"국공립 당첨 후, 이동 전략을 바로 계획해요",
+] as const;
+
+const suggestPrompts = ["반편성", "교사교체", "국공립당첨"] as const;
+
+const serviceStats = [
+	{
+		label: "시설 수",
+		value: `${SERVICE_FACILITY_COUNT}개 시설`,
+		emphasized: true,
+	},
+	{
+		label: "시도 수",
+		value: "17개 시도",
+	},
+	{
+		label: "업데이트",
+		value: "실시간 업데이트",
+	},
+] as const;
 
 const getCurrentMonthKey = (): string => {
 	return new Date().toISOString().slice(0, 7);
@@ -102,6 +128,9 @@ interface FacilitiesResponse {
 
 export default function HomePage() {
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const [heroScenarioIndex, setHeroScenarioIndex] = useState(0);
+	const [heroPrompt, setHeroPrompt] = useState("");
+	const [scenarioFilter, setScenarioFilter] = useState("all");
 	const [data, setData] = useState<HomeData | null>(null);
 	const [liveInterestFacilities, setLiveInterestFacilities] = useState<Facility[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -190,11 +219,15 @@ export default function HomePage() {
 				: [],
 		[data, user, dismissedNBAs],
 	);
-	const orderedNBAs = useMemo(
-		() =>
-			[MOVE_CONCERN_NBA, ...nbas.filter((nba) => nba.id !== MOVE_CONCERN_NBA.id)],
+	const moveConcernNBA = useMemo(
+		() => nbas.find((nba) => nba.id === MOVE_CONCERN_NBA.id) ?? MOVE_CONCERN_NBA,
 		[nbas],
 	);
+	const orderedNBAs = useMemo(
+		() => nbas.filter((nba) => nba.id !== MOVE_CONCERN_NBA.id),
+		[nbas],
+	);
+	const heroScenario = heroScenarios[heroScenarioIndex % heroScenarios.length];
 	const interestFacilities = useMemo(
 		() =>
 			liveInterestFacilities.length > 0
@@ -255,6 +288,13 @@ export default function HomePage() {
 		(facility) => facility.status === "available",
 	).length;
 	const hasAvailableInterestFacility = availableInterestCount > 0;
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setHeroScenarioIndex((prev) => (prev + 1) % heroScenarios.length);
+		}, 2600);
+
+		return () => clearInterval(timer);
+	}, []);
 
 	useEffect(() => {
 		if (!hasAvailableInterestFacility || interestFacilities.length === 0) {
@@ -375,6 +415,304 @@ export default function HomePage() {
 			</div>
 		);
 	}
+
+	if (false) {
+		return (
+		<div className="pb-4">
+			<header className="sticky top-0 z-20 bg-white/80 px-5 pb-3 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
+				<div className="flex items-center justify-between pt-4 pb-3">
+					<div className="flex items-center gap-2.5">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.symbol}
+							alt=""
+							aria-hidden="true"
+							className="h-7 w-7"
+						/>
+						<h1 className="text-xl font-bold tracking-tight">
+							{user?.onboardingCompleted ? `${user.nickname}님` : "도토리"}
+						</h1>
+					</div>
+					<Link
+						href="/my/notifications"
+						aria-label="알림"
+						className="relative rounded-full p-2.5 text-dotori-500 transition-colors hover:bg-dotori-50 hover:text-dotori-600"
+					>
+						<BellAlertIcon className="h-6 w-6" />
+						{(data?.alertCount ?? 0) > 0 && (
+							<span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-dotori-500" />
+						)}
+					</Link>
+				</div>
+
+				<Fieldset className="space-y-2">
+					<Field>
+						<Input
+							type="search"
+							value={heroPrompt}
+							onChange={(event) => setHeroPrompt(event.target.value)}
+							placeholder="반편성, 교사 교체, 국공립 당첨 고민을 입력해보세요"
+						/>
+					</Field>
+					<Field>
+						<Select
+							value={scenarioFilter}
+							onChange={(event) => setScenarioFilter(event.target.value)}
+							aria-label="관심 시나리오"
+						>
+							<option value="all">전체 시나리오</option>
+							<option value="반편성">반편성</option>
+							<option value="교사교체">교사교체</option>
+							<option value="국공립당첨">국공립당첨</option>
+						</Select>
+					</Field>
+				</Fieldset>
+			</header>
+
+			<div className="px-5">
+				<motion.section
+					className="mt-5 rounded-3xl bg-gradient-to-br from-dotori-50 to-white px-5 py-6"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<motion.div variants={cardReveal}>
+						<Heading level={1} className="text-2xl font-extrabold leading-tight text-dotori-900">
+							어린이집 이동, 이제 묻혀 있던 마음을 바로 꺼내보세요
+						</Heading>
+						<motion.div
+							key={heroScenario}
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.35 }}
+							className="mt-4"
+						>
+							<Badge color="dotori" className="rounded-full px-3 py-1 text-xs">
+								{heroScenario}
+							</Badge>
+						</motion.div>
+						<Text className="mt-3 text-sm text-dotori-600">
+							이동 고민 3가지 핵심 시나리오를 빠르게 점검해
+							지금 바로 다음 결정을 내려보세요
+						</Text>
+					</motion.div>
+				</motion.section>
+
+				<motion.section
+					className="mt-4"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<motion.div variants={cardReveal}>
+						<Link
+							href="/chat"
+							className="block rounded-3xl bg-dotori-900 px-5 py-4 text-white"
+						>
+							<div className="flex items-center gap-2">
+								<SparklesIcon className="h-5 w-5 text-white/90" />
+								<Heading level={3} className="font-semibold text-white">
+									토리에게 물어보세요
+								</Heading>
+							</div>
+							<Text className="mt-2 text-sm text-white/85">
+								반편성/교사교체/국공립당첨 고민을
+								지금 바로 정리해드려요
+							</Text>
+							<div className="mt-3 flex flex-wrap gap-2">
+								{suggestPrompts.map((prompt) => (
+									<Link
+										key={prompt}
+										href={`/chat?prompt=${encodeURIComponent(prompt)}`}
+										className="rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs text-white"
+									>
+										{prompt}
+									</Link>
+								))}
+							</div>
+						</Link>
+					</motion.div>
+				</motion.section>
+
+				<section className="mt-5">
+					<motion.div
+						ref={scrollRef}
+						className="hide-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						{quickActions.map((action) => {
+							const href = action.prompt
+								? `${action.href}?prompt=${encodeURIComponent(action.prompt)}`
+								: action.href;
+							return (
+								<motion.div key={action.label} variants={cardReveal}>
+									<Link
+										href={href}
+										className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border border-dotori-100 bg-white px-4 py-2.5 text-sm font-medium shadow-sm"
+									>
+										<span aria-hidden="true">{action.icon}</span>
+										<span>{action.label}</span>
+									</Link>
+								</motion.div>
+							);
+						})}
+						<div className="w-2 shrink-0" />
+					</motion.div>
+				</section>
+
+				<motion.section
+					className="mt-5"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<Heading level={2} className="text-base font-semibold text-dotori-900">
+						서비스 통계
+					</Heading>
+					<motion.div
+						variants={cardReveal}
+						className="mt-3 flex gap-2.5 overflow-x-auto pb-1"
+					>
+						{serviceStats.map((stat) => (
+							<div
+								key={stat.label}
+								className="min-w-[170px] rounded-full border border-dotori-100 bg-white px-4 py-3 shadow-sm"
+							>
+								<Text className="text-xs text-dotori-500">{stat.label}</Text>
+								<Text
+									className={cn(
+										"mt-1.5 text-sm font-semibold text-dotori-900",
+										stat.emphasized ? "text-3xl" : "text-base",
+									)}
+								>
+									{stat.value}
+								</Text>
+							</div>
+						))}
+					</motion.div>
+				</motion.section>
+
+				{data && (
+					<motion.section
+						className="mt-5 space-y-2.5"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						<Heading level={2} className="text-base font-semibold text-dotori-900">
+							이동 고민 AI 제안
+						</Heading>
+						<motion.div variants={cardReveal}>
+							<NBACard nba={moveConcernNBA} onDismiss={handleDismiss} />
+						</motion.div>
+					</motion.section>
+				)}
+
+				<motion.section
+					className="mt-6 space-y-3"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<motion.div variants={cardReveal}>
+						<AiBriefingCard source="아이사랑" updatedAt={aiUpdatedAt}>
+							<Text className="text-sm text-dotori-700">{aiBriefingUsageHint}</Text>
+							<Text className="mt-2 text-base font-semibold leading-snug text-dotori-900">
+								{hasAiBriefingContent
+									? "토리와 함께 이동 기준을 지금 점검해보세요"
+									: "AI 브리핑을 준비 중이에요"}
+							</Text>
+							<Button href="/chat" color="dotori" className="mt-3">
+								지금 바로 토리와 이어보기
+							</Button>
+						</AiBriefingCard>
+					</motion.div>
+				</motion.section>
+
+				{data && (
+					<motion.section
+						className="mt-5"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						<div className="mb-2 flex items-center justify-between">
+							<Heading level={2} className="text-base font-semibold text-dotori-900">
+								실시간 입소 가능 시설
+							</Heading>
+							<Link
+								href="/explore"
+								className="flex items-center gap-1 text-sm text-dotori-500"
+							>
+								실시간 확인
+								<ChevronRightIcon className="h-4 w-4" />
+							</Link>
+						</div>
+						{realtimeAvailableFacilities.length > 0 ? (
+							<div className="space-y-2.5">
+								{realtimeAvailableFacilities.slice(0, 2).map((facility) => (
+									<motion.div key={facility.id} variants={cardReveal}>
+										<Link href={`/facility/${facility.id}`}>
+											<FacilityCard facility={facility} compact />
+										</Link>
+									</motion.div>
+								))}
+							</div>
+						) : (
+							<EmptyState
+								title="현재 입소 가능한 시설이 없어요"
+								description="주변 시설 업데이트를 잠시만 기다려주세요."
+							/>
+						)}
+					</motion.section>
+				)}
+
+				{orderedNBAs.length > 0 && (
+					<motion.section
+						className="mt-4 space-y-2"
+						initial="hidden"
+						animate="show"
+						variants={sectionStagger}
+					>
+						{orderedNBAs.map((nba) => (
+							<motion.div key={nba.id} variants={cardReveal}>
+								<NBACard nba={nba} onDismiss={handleDismiss} />
+							</motion.div>
+						))}
+					</motion.section>
+				)}
+
+				{data && (
+					<section className="mt-5">
+						<Link
+							href="/community"
+							className="flex items-center gap-2 rounded-full border border-dotori-100 bg-white px-4 py-2.5"
+						>
+							<Text className="min-w-0 flex-1 truncate text-sm text-dotori-700">
+								커뮤니티 소식: {hotPost ? `${hotPost.author.nickname} · ${hotPost.content}` : "아직 소식이 없어요"}
+							</Text>
+							<ChevronRightIcon className="h-4 w-4 text-dotori-300" />
+						</Link>
+					</section>
+				)}
+
+				{!user && (
+					<section className="mt-5">
+						<div className="flex items-center justify-between gap-3 rounded-full border border-dotori-100 bg-dotori-50 px-4 py-2.5">
+							<Text className="text-sm text-dotori-700">
+								로그인하면 이동 우선 추천을 받을 수 있어요
+							</Text>
+							<Button href="/login" color="dotori">
+								로그인
+							</Button>
+						</div>
+					</section>
+				)}
+			</div>
+		</div>
+	);
 
 	return (
 		<div className="pb-4">
@@ -993,6 +1331,7 @@ export default function HomePage() {
 	);
 }
 
+	}
 const NBACard = memo(function NBACard({
 	nba,
 	onDismiss,
