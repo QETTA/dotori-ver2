@@ -20,8 +20,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY dotori-app/ .
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV SKIP_ENV_VALIDATION=1
-RUN npm run build
+RUN SKIP_ENV_VALIDATION=1 npm run build
 
 # ── Stage 3: Production runner ──
 FROM base AS runner
