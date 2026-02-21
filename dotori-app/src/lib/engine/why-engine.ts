@@ -17,6 +17,54 @@ export interface WhyInsight {
 	source: string;
 }
 
+export type TransferReasonCategory =
+	| "class_dissatisfaction"
+	| "teacher_turnover"
+	| "director_distrust"
+	| "facility_poor"
+	| "public_waitlist"
+	| "relocation"
+	| "sibling_separation"
+	| "program_dissatisfaction"
+	| "safety_concern";
+
+export interface TransferReason {
+	category: TransferReasonCategory;
+	text: string;
+	sentiment: "positive" | "neutral" | "caution";
+	source: string;
+}
+
+export interface TransferReasonContext {
+	/** 이동 대상 시설 */
+	facility: Facility;
+	/** 기존 시설(이사/이동 전) 정보 */
+	previousFacility?: Facility | null;
+	/** 형제 자녀 수 */
+	siblingCount?: number;
+	/** 국공립 대기 당첨이 이미 난 경우 */
+	publicWaitlistWon?: boolean;
+}
+
+function getLocationUnit(address?: string): string {
+	if (!address) return "";
+	return address.trim().split(/\s+/).slice(0, 2).join(" ");
+}
+
+function hasKeywordFeature(
+	facility: Facility,
+	keywords: string[],
+): boolean {
+	return facility.features.some((feature) =>
+		keywords.some((keyword) => feature.includes(keyword)),
+	);
+}
+
+function isHighCrowdByTeacher(facility: Facility): boolean {
+	if (!facility.teacherCount || facility.teacherCount <= 0) return facility.capacity.current > 35;
+	return facility.capacity.current / facility.teacherCount >= 10;
+}
+
 /** 시설에 대한 데이터 기반 인사이트 목록 생성 (최대 5개) */
 export function generateWhyInsights(
 	facility: Facility,
@@ -215,4 +263,131 @@ export function generateWhyInsights(
 		.slice(0, 5);
 }
 
+export function generateTransferReasons({
+	facility,
+	previousFacility,
+	siblingCount,
+	publicWaitlistWon = false,
+}: TransferReasonContext): TransferReason[] {
+	const reasons: TransferReason[] = [];
+	const totalCapacity = facility.capacity.total || 1;
+	const occupancyRate = facility.capacity.current / totalCapacity;
 
+	const addIfMissing = (reason: TransferReason) => {
+		if (!reasons.some((item) => item.category === reason.category)) {
+			reasons.push(reason);
+		}
+	};
+
+	if (isHighCrowdByTeacher(facility) && occupancyRate >= 0.85) {
+		addIfMissing({
+			category: "class_dissatisfaction",
+			text: "현재 반/교사 배치가 빠듯해 반 편성이 불안정할 수 있어요",
+			sentiment: "caution",
+			source: "보육 운영 데이터",
+		});
+	}
+
+	if (facility.teacherCount !== undefined && facility.teacherCount <= 2 && facility.capacity.total > 40) {
+		addIfMissing({
+			category: "teacher_turnover",
+			text: "교사 인력이 적어 교체 리스크가 높을 수 있어요",
+			sentiment: "caution",
+			source: "인력 구성 분석",
+		});
+	}
+
+	if (facility.evaluationGrade === "D" && facility.rating > 0) {
+		addIfMissing({
+			category: "director_distrust",
+			text: "평가등급이 낮아 운영 신뢰도 점검이 필요해요",
+			sentiment: "caution",
+			source: "평가인증 데이터",
+		});
+	}
+
+	if ((facility.rating > 0 && facility.rating < 3.0 && facility.reviewCount >= 3) || facility.evaluationGrade === "D") {
+		addIfMissing({
+			category: "facility_poor",
+			text: "시설 평점이 낮아 시설 상태·청결 점검이 필요해요",
+			sentiment: "caution",
+			source: "이용자 리뷰/평가",
+		});
+	}
+
+	if (facility.type === "국공립" && facility.capacity.waiting > 0 && !publicWaitlistWon) {
+		addIfMissing({
+			category: "public_waitlist",
+			text: "국공립 대기자 우선순위 이슈로 이동 일정이 밀릴 수 있어요",
+			sentiment: "neutral",
+			source: "대기열 운영 데이터",
+		});
+	}
+
+	if (facility.distance && Number(facility.distance.replace(/[^0-9.]/g, "")) {
+		const distance = Number.parseFloat(facility.distance.replace(/[^0-9.]/g, ""));
+		if (!Number.isNaN(distance) && distance >= 2) {
+			addIfMissing({
+				category: "relocation",
+				text: "현재 거주시설 대비 이동 거리 이슈가 있어요",
+				sentiment: "neutral",
+				source: "거리 데이터",
+			});
+		}
+	}
+
+	if (facility.status === "waiting" && facility.capacity.waiting >= 10 && facility.type !== "국공립") {
+		addIfMissing({
+			category: "relocation",
+			text: "현재 대기 인원이 많아 빠른 입소 전환이 어려울 수 있어요",
+			sentiment: "caution",
+			source: "대기열 분석",
+		});
+	}
+
+	if (previousFacility && getLocationUnit(previousFacility.address) && getLocationUnit(facility.address) && getLocationUnit(previousFacility.address) !== getLocationUnit(facility.address)) {
+		addIfMissing({
+			category: "relocation",
+			text: "이동 전 기존 시설과 행정동이 다르므로 통학 동선 재설정이 필요해요",
+			sentiment: "neutral",
+			source: "주소 비교",
+		});
+	}
+
+	if (typeof siblingCount === "number" && siblingCount > 1) {
+		addIfMissing({
+			category: "sibling_separation",
+			text: "형제가 2명 이상이면 형제 분리 방지를 위해 동반 입소 여부를 먼저 확인하세요",
+			sentiment: "neutral",
+			source: "입소 계획 안내",
+		});
+	}
+
+	const hasProgramAnchor = hasKeywordFeature(facility, [
+		"누리과정",
+		"영어",
+		"예술",
+		"과학",
+		"체험",
+		"사회성",
+	]);
+	if (!hasProgramAnchor && (facility.features.length <= 2 || facility.features.length >= 10)) {
+		addIfMissing({
+			category: "program_dissatisfaction",
+			text: "프로그램 정보가 제한적이라 아이 성장단계별 활동 적합성 점검이 필요해요",
+			sentiment: "neutral",
+			source: "시설 특징",
+		});
+	}
+
+	if (!hasKeywordFeature(facility, ["CCTV", "안심", "보안", "안전"]) && occupancyRate >= 0.75) {
+		addIfMissing({
+			category: "safety_concern",
+			text: "안전 안내 항목에 대한 확인이 필요해 보이고 아이사랑에서 운영계획 재확인이 필요해요",
+			sentiment: "caution",
+			source: "안전 체크",
+		});
+	}
+
+	return reasons;
+}

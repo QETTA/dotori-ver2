@@ -222,6 +222,8 @@ export interface ChecklistItem {
 	checked: boolean;
 }
 
+export type TransferChecklistItem = ChecklistItem;
+
 export interface EnrollmentChecklist {
 	title: string;
 	facilityName?: string;
@@ -332,6 +334,47 @@ export function generateChecklist(
 
 	categories.push({ title: "시설 확인", items: facilityCheck });
 
+	// ── 이동 체크리스트 ──
+	const transferChecklist: TransferChecklistItem[] = [
+		{
+			id: "transfer_1",
+			text: "새 시설 방문 예약",
+			detail: "방문 일정과 가능 시간을 미리 확정해 둔 뒤 입소 계획을 세워요",
+			checked: false,
+		},
+		{
+			id: "transfer_2",
+			text: "현 시설 퇴소 통보 (최소 1개월 전)",
+			detail: "퇴소 사유와 시작일을 알려 계약 조건을 확인하세요",
+			checked: false,
+		},
+		{
+			id: "transfer_3",
+			text: "아이사랑포털 퇴소 처리",
+			detail: "아이사랑 앱/웹에서 퇴소 신청을 마무리해요",
+			checked: false,
+		},
+		{
+			id: "transfer_4",
+			text: "새 시설 입소 신청 서류 준비",
+			detail: "주민센터 발급서류 및 예방접종 증명서를 미리 준비하세요",
+			checked: false,
+		},
+		{
+			id: "transfer_5",
+			text: "입소 일정 조율 (공백 최소화)",
+			detail: "현 시설 퇴소일과 새 시설 시작일이 이어지도록 조율해요",
+			checked: false,
+		},
+		{
+			id: "transfer_6",
+			text: "아이 감정 케어 준비 (새 환경 적응)",
+			detail: "낯선 환경 적응을 위한 루틴/안심 물건을 준비하면 좋아요",
+			checked: false,
+		},
+	];
+	categories.push({ title: "이동 체크리스트", items: transferChecklist });
+
 	// ── 3. 아이 준비물 ──
 	const childPrep: ChecklistItem[] = [
 		{ id: "child_1", text: "낮잠 이불세트", checked: false },
@@ -406,4 +449,3 @@ export function generateChecklist(
 		generatedAt: new Date().toISOString(),
 	};
 }
-
