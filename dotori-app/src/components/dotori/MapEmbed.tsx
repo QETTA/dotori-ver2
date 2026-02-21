@@ -86,12 +86,13 @@ export function MapEmbed({
 		if (!window.kakao?.maps || !containerRef.current) return;
 
 		const maps = window.kakao.maps;
+		const mapCenter = center ?? (facilities.length > 0
+			? { lat: facilities[0].lat, lng: facilities[0].lng }
+			: null);
 
-		const defaultCenter = center
-			? new maps.LatLng(center.lat, center.lng)
-			: facilities.length > 0
-				? new maps.LatLng(facilities[0].lat, facilities[0].lng)
-				: new maps.LatLng(37.5665, 126.978); // Seoul fallback
+		if (!mapCenter) return;
+
+		const defaultCenter = new maps.LatLng(mapCenter.lat, mapCenter.lng);
 
 		if (!mapRef.current) {
 			mapRef.current = new maps.Map(containerRef.current, {
@@ -187,7 +188,7 @@ export function MapEmbed({
 		};
 	}, [clearMarkers]);
 
-	// No API key — show fallback
+		// No API key — show fallback
 	if (!KAKAO_MAP_KEY) {
 		return (
 			<div
@@ -199,7 +200,25 @@ export function MapEmbed({
 				)}
 			>
 				<span className="text-[14px] text-dotori-500">
-					지도를 표시할 수 없어요
+					지도를 불러올 수 없어요. 주소로 검색해보세요
+				</span>
+			</div>
+		);
+	}
+
+	// Cannot build map center from data (no Seoul fallback)
+	if (!center && facilities.length === 0) {
+		return (
+			<div
+				role="region"
+				aria-label="지도"
+				className={cn(
+					"relative flex items-center justify-center overflow-hidden rounded-2xl border border-dotori-100 bg-dotori-100",
+					height || "h-48",
+				)}
+			>
+				<span className="text-[14px] text-dotori-500">
+					지도를 불러올 수 없어요. 주소로 검색해보세요
 				</span>
 			</div>
 		);
@@ -250,7 +269,7 @@ export function MapEmbed({
 			{mapError && (
 				<div className="absolute inset-0 flex items-center justify-center bg-dotori-100">
 					<span className="text-[14px] text-dotori-500">
-						지도를 표시할 수 없어요
+						지도를 불러올 수 없어요. 주소로 검색해보세요
 					</span>
 				</div>
 			)}
