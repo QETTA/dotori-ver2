@@ -36,6 +36,16 @@ const suggestedPrompts = [
 ];
 
 const RETRY_ACTION_ID = "chat:retry-last-message";
+const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
+	transfer: ["근처 대안 시설 찾기", "전원 절차 안내", "서류 체크리스트"],
+	recommend: ["더 보기", "지도에서 보기", "비교하기"],
+	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
+};
+
+function getQuickReplies(intent?: string): string[] {
+	if (!intent || !QUICK_REPLIES_BY_INTENT[intent]) return [];
+	return QUICK_REPLIES_BY_INTENT[intent];
+}
 
 function LoadingSpinner() {
 	return (
@@ -53,6 +63,7 @@ interface StreamEvent {
 	text?: string;
 	timestamp?: string;
 	error?: string;
+	quick_replies?: string[];
 }
 
 function parseSseEvent(rawEvent: string): StreamEvent | null {
@@ -108,11 +119,12 @@ export default function ChatPage() {
 function ChatContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const [input, setInput] = useState("");
-	const [messages, setMessages] = useState<ChatMessage[]>([]);
-	const [isHistoryLoading, setIsHistoryLoading] = useState(true);
-	const [isLoading, setIsLoading] = useState(false);
-	const messagesEndRef = useRef<HTMLDivElement>(null);
+		const [input, setInput] = useState("");
+		const [messages, setMessages] = useState<ChatMessage[]>([]);
+		const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+		const [isLoading, setIsLoading] = useState(false);
+		const [isResetting, setIsResetting] = useState(false);
+		const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const promptHandled = useRef(false);
 	const lastPromptRef = useRef("");
@@ -241,20 +253,29 @@ function ChatContent() {
 			}
 
 			const streamingMessageId = streamingMsg.id;
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder();
-			let buffer = "";
-			let assistantContent = "";
-			let assistantBlocks: ChatBlock[] = [];
-			let done = false;
+				const reader = res.body.getReader();
+				const decoder = new TextDecoder();
+				let buffer = "";
+				let assistantContent = "";
+				let assistantBlocks: ChatBlock[] = [];
+				let done = false;
+				let currentIntent: string | undefined;
+				let quickReplies: string[] = [];
 
-			const parseEvent = (event: StreamEvent) => {
-				switch (event.type) {
-					case "start":
-						return;
-					case "block":
-						if (!event.block) return;
-						assistantBlocks = [...assistantBlocks, event.block];
+				const parseEvent = (event: StreamEvent) => {
+					switch (event.type) {
+						case "start":
+							currentIntent = event.intent;
+							quickReplies = event.quick_replies?.length
+								? event.quick_replies
+								: getQuickReplies(event.intent);
+							patchStreamingMessage(streamingMessageId, {
+								quick_replies: quickReplies,
+							});
+							return;
+						case "block":
+							if (!event.block) return;
+							assistantBlocks = [...assistantBlocks, event.block];
 						patchStreamingMessage(streamingMessageId, {
 							isStreaming: false,
 							blocks: assistantBlocks,
@@ -273,15 +294,21 @@ function ChatContent() {
 									: undefined,
 						});
 						return;
-					case "done":
-						patchStreamingMessage(streamingMessageId, {
-							isStreaming: false,
-							content: assistantContent,
-							blocks: assistantBlocks,
-							timestamp: event.timestamp ?? new Date().toISOString(),
-						});
-						done = true;
-						return;
+						case "done":
+							const finalQuickReplies = event.quick_replies?.length
+								? event.quick_replies
+								: quickReplies.length > 0
+									? quickReplies
+									: getQuickReplies(currentIntent);
+							patchStreamingMessage(streamingMessageId, {
+								isStreaming: false,
+								content: assistantContent,
+								blocks: assistantBlocks,
+								timestamp: event.timestamp ?? new Date().toISOString(),
+								quick_replies: finalQuickReplies,
+							});
+							done = true;
+							return;
 					case "error":
 						throw new Error(event.error || "스트리밍이 중단되었습니다.");
 				}
@@ -341,6 +368,16 @@ function ChatContent() {
 		sendMessage(prompt);
 	}
 
+	const handleClearHistory = async () => {
+		setIsResetting(true);
+		try {
+			await apiFetch("/api/chat/history", { method: "DELETE" });
+			setMessages([]);
+		} finally {
+			setIsResetting(false);
+		}
+	};
+
 	return (
 		<div className="flex h-[calc(100dvh-8rem)] flex-col">
 			{/* ── Header ── */}
@@ -352,6 +389,16 @@ function ChatContent() {
 					<span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-forest-500" />
 					온라인
 				</Badge>
+				<button
+					onClick={handleClearHistory}
+					disabled={isResetting || isLoading}
+					className={cn(
+						"ml-auto inline-flex min-h-[34px] min-w-[102px] items-center justify-center rounded-full px-3 text-xs font-medium transition-all",
+						isResetting ? "bg-dotori-100 text-dotori-300" : "bg-dotori-50 text-dotori-600 hover:bg-dotori-100",
+					)}
+				>
+					대화 초기화
+				</button>
 			</header>
 
 			{/* ── Messages ── */}
@@ -411,16 +458,19 @@ function ChatContent() {
 				) : (
 					<div className="px-4 pt-4">
 						{messages.map((msg) => (
-							<ChatBubble
-								key={msg.id}
-								role={msg.role}
+								<ChatBubble
+									key={msg.id}
+									role={msg.role}
 								timestamp={msg.timestamp}
 								sources={msg.sources}
 								actions={msg.actions}
 								blocks={msg.blocks}
-								isStreaming={msg.isStreaming}
-								onBlockAction={handleBlockAction}
-							>
+									isStreaming={msg.isStreaming}
+									onBlockAction={handleBlockAction}
+									onQuickReply={sendMessage}
+									quickReplies={msg.quick_replies}
+									isRead={msg.role === "user"}
+								>
 								{msg.role === "assistant" ? (
 									<MarkdownText content={msg.content} />
 								) : (

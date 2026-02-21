@@ -60,6 +60,15 @@ const INTENT_GUIDANCE: Record<string, string> = {
 		"[상담 맥락: 보육 정책/입소 기준 문의. 정확한 보육 정보를 제공하세요.]",
 	checklist: "[상담 맥락: 입소 준비 체크리스트 요청.]",
 };
+const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
+	transfer: ["근처 대안 시설 찾기", "전원 절차 안내", "서류 체크리스트"],
+	recommend: ["더 보기", "지도에서 보기", "비교하기"],
+	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
+};
+
+function getQuickReplies(intent: ChatIntent): string[] {
+	return QUICK_REPLIES_BY_INTENT[intent] ?? [];
+}
 
 type StartEvent = {
 	type: "start";
@@ -79,6 +88,7 @@ type TextEvent = {
 type DoneEvent = {
 	type: "done";
 	timestamp: string;
+	quick_replies?: string[];
 };
 
 type ErrorEvent = {
@@ -207,6 +217,7 @@ export const POST = async (req: NextRequest) => {
 				const intent = classifyIntent(message, {
 					previousMessages: conversationContext.previousMessages,
 				});
+				const quickReplies = getQuickReplies(intent);
 
 				emitEvent(controller, encoder, {
 					type: "start",
@@ -295,6 +306,10 @@ export const POST = async (req: NextRequest) => {
 					content: assistantContent,
 					timestamp: assistantTimestamp,
 					blocks: response.blocks,
+					metadata: {
+						intent,
+						quickReplies,
+					},
 				};
 
 				if (chatHistory) {
@@ -314,6 +329,7 @@ export const POST = async (req: NextRequest) => {
 				emitEvent(controller, encoder, {
 					type: "done",
 					timestamp: assistantTimestamp.toISOString(),
+					quick_replies: quickReplies,
 				});
 				controller.close();
 			} catch (err) {

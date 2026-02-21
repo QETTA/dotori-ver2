@@ -140,6 +140,7 @@ export interface ChatMessage {
 	content: string;
 	timestamp: string;
 	sources?: SourceInfo[];
+	quick_replies?: string[];
 	cards?: EmbeddedCard[];
 	actions?: ActionButton[];
 	blocks?: ChatBlock[];

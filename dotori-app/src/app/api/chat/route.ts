@@ -3,7 +3,7 @@ import { withApiHandler } from "@/lib/api-handler";
 import { strictLimiter } from "@/lib/rate-limit";
 import { chatMessageSchema } from "@/lib/validations";
 import { sanitizeString } from "@/lib/sanitize";
-import { classifyIntent } from "@/lib/engine/intent-classifier";
+import { type ChatIntent, classifyIntent } from "@/lib/engine/intent-classifier";
 import {
 	buildResponse,
 	extractConversationContext,
@@ -11,6 +11,15 @@ import {
 import ChatHistory from "@/models/ChatHistory";
 
 const MAX_CHAT_MESSAGES = 200;
+const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
+	transfer: ["근처 대안 시설 찾기", "전원 절차 안내", "서류 체크리스트"],
+	recommend: ["더 보기", "지도에서 보기", "비교하기"],
+	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
+};
+
+function getQuickReplies(intent: ChatIntent): string[] {
+	return QUICK_REPLIES_BY_INTENT[intent] ?? [];
+}
 
 export const POST = withApiHandler(async (_req, { userId, body }) => {
 	const message = sanitizeString(body.message);
@@ -56,6 +65,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 	const intent = classifyIntent(message, {
 		previousMessages: conversationContext.previousMessages,
 	});
+	const quickReplies = getQuickReplies(intent);
 
 	// Build response
 	const response = await buildResponse(
@@ -71,6 +81,10 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 		content: response.content,
 		timestamp: new Date(),
 		blocks: response.blocks,
+		metadata: {
+			intent,
+			quickReplies,
+		},
 	};
 
 	if (chatHistory) {
@@ -89,6 +103,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 			blocks: response.blocks,
 			timestamp: assistantMessage.timestamp.toISOString(),
 			intent,
+			quick_replies: quickReplies,
 		},
 	});
 }, { auth: false, schema: chatMessageSchema, rateLimiter: strictLimiter });
