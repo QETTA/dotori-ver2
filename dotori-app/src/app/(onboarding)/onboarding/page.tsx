@@ -4,6 +4,7 @@ import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/catalyst/button";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -14,6 +15,25 @@ const features = [
 	"급식자체조리",
 	"영아전문",
 	"장애아통합",
+];
+const sidoFallbackOptions = [
+	"서울특별시",
+	"부산광역시",
+	"대구광역시",
+	"인천광역시",
+	"광주광역시",
+	"대전광역시",
+	"울산광역시",
+	"세종특별자치시",
+	"경기도",
+	"강원특별자치도",
+	"충청북도",
+	"충청남도",
+	"전라북도",
+	"전라남도",
+	"경상북도",
+	"경상남도",
+	"제주특별자치도",
 ];
 
 export default function OnboardingPage() {
@@ -64,7 +84,7 @@ export default function OnboardingPage() {
 			.then((res) => setSidoList(res.data))
 			.catch(() => {
 				// Fallback to common regions
-				setSidoList(["서울특별시", "경기도", "인천광역시"]);
+				setSidoList(sidoFallbackOptions);
 			})
 			.finally(() => setIsLoadingSido(false));
 	}, []);
@@ -207,14 +227,14 @@ export default function OnboardingPage() {
 				</button>
 			</header>
 
-			{/* ── 프로그레스 바 ── */}
-			<div className="mt-2 flex gap-1.5">
+			{/* ── 단계 인디케이터 ── */}
+			<div className="mt-2 flex justify-center gap-2">
 				{Array.from({ length: totalSteps }).map((_, i) => (
 					<div
 						key={i}
 						className={cn(
-							"h-1 flex-1 rounded-full transition-all duration-300",
-							i <= step ? "bg-dotori-500" : "bg-dotori-100",
+							"h-2.5 w-2.5 rounded-full transition-all duration-300",
+							i <= step ? "bg-dotori-500" : "bg-dotori-200",
 						)}
 					/>
 				))}
@@ -479,11 +499,12 @@ export default function OnboardingPage() {
 						{saveError}
 					</div>
 				)}
-				<button
+				<Button
+					color="dotori"
 					onClick={next}
 					disabled={isSaving}
 					className={cn(
-						"w-full rounded-3xl bg-dotori-900 py-4.5 text-[16px] font-semibold text-white transition-all active:scale-[0.98]",
+						"w-full py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
 						isSaving && "opacity-60",
 					)}
 				>
@@ -492,7 +513,7 @@ export default function OnboardingPage() {
 						: step === totalSteps - 1
 							? "시작하기"
 							: "다음"}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

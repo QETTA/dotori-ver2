@@ -8,7 +8,16 @@ interface FacilityDocument {
 	type: string;
 	status: string;
 	address: string;
+	dataQuality?: {
+		score?: number;
+		missing?: string[];
+		updatedAt?: Date | string;
+	};
 	location?: { coordinates?: [number, number] };
+	roomCount?: number;
+	teacherCount?: number;
+	establishmentYear?: number;
+	homepage?: string;
 	distance?: number;
 	phone?: string;
 	capacity: { total: number; current: number; waiting: number };
@@ -74,6 +83,21 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 		features: doc.features ?? [],
 		rating: doc.rating ?? 0,
 		reviewCount: doc.reviewCount ?? 0,
+		dataQuality: doc.dataQuality
+			? {
+					score: doc.dataQuality.score,
+					missing: doc.dataQuality.missing,
+					updatedAt:
+						doc.dataQuality.updatedAt instanceof Date
+							? doc.dataQuality.updatedAt.toISOString()
+							: doc.dataQuality.updatedAt,
+				}
+			: undefined,
+		roomCount: doc.roomCount,
+		teacherCount: doc.teacherCount,
+		establishmentYear: doc.establishmentYear,
+		homepage: doc.homepage,
+		website: doc.homepage,
 		lastSyncedAt:
 			doc.lastSyncedAt instanceof Date
 				? doc.lastSyncedAt.toISOString()

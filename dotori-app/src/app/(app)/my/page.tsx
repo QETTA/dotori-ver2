@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -35,6 +36,13 @@ function calculateAge(birthDate: string) {
 	return rem > 0 ? `${years}세 ${rem}개월` : `${years}세`;
 }
 
+function formatRegion(region: { sido: string; sigungu: string; dong?: string }) {
+	return [region.sido, region.sigungu, region.dong]
+		.filter(Boolean)
+		.join(" ")
+		|| "지역 미설정";
+}
+
 const menuSections = [
 	{
 		items: [
@@ -42,7 +50,6 @@ const menuSections = [
 				label: "알림",
 				href: "/my/notifications",
 				icon: BellIcon,
-				badgeKey: "alertCount" as const,
 			},
 			{
 				label: "알림 설정",
@@ -79,10 +86,10 @@ export default function MyPage() {
 	if (isLoading) {
 		return (
 			<div className="pb-8">
-				<header className="px-4 pt-6 pb-2">
+				<header className="px-5 pt-6 pb-2">
 					<Skeleton variant="text" count={2} />
 				</header>
-				<div className="mt-4 px-4">
+				<div className="mt-4 px-5">
 					<Skeleton variant="card" count={2} />
 				</div>
 			</div>
@@ -105,32 +112,32 @@ export default function MyPage() {
 		);
 	}
 
+	const benefits = [
+		{
+			icon: BellIcon,
+			title: "실시간 TO 알림",
+			subtitle: "빈자리 즉시 알림 받기",
+			bg: "bg-forest-50",
+			iconColor: "text-forest-500",
+		},
+		{
+			icon: SparklesIcon,
+			title: "AI 맞춤 추천",
+			subtitle: "우리 아이에 맞는 어린이집",
+			bg: "bg-dotori-50",
+			iconColor: "text-dotori-500",
+		},
+		{
+			icon: ClipboardDocumentListIcon,
+			title: "대기순번 관리",
+			subtitle: "한눈에 대기 현황 확인",
+			bg: "bg-dotori-50",
+			iconColor: "text-dotori-500",
+		},
+	];
+
 	// Not logged in
 	if (!user) {
-		const benefits = [
-			{
-				icon: BellIcon,
-				title: "실시간 TO 알림",
-				subtitle: "빈자리 즉시 알림 받기",
-				bg: "bg-forest-50",
-				iconColor: "text-forest-500",
-			},
-			{
-				icon: SparklesIcon,
-				title: "AI 맞춤 추천",
-				subtitle: "우리 아이에 맞는 어린이집",
-				bg: "bg-dotori-50",
-				iconColor: "text-dotori-500",
-			},
-			{
-				icon: ClipboardDocumentListIcon,
-				title: "대기순번 관리",
-				subtitle: "한눈에 대기 현황 확인",
-				bg: "bg-blue-50",
-				iconColor: "text-blue-500",
-			},
-		];
-
 		return (
 			<div className="pb-8">
 				<header className="px-5 pt-8 pb-2">
@@ -148,17 +155,16 @@ export default function MyPage() {
 					</div>
 				</header>
 
-				{/* 카카오 로그인 버튼 */}
 				<div className="mt-6 px-5">
-					<Link
+					<Button
 						href="/login"
-						className="block w-full rounded-3xl bg-[#FEE500] py-4 text-center text-[16px] font-semibold text-[#191919] transition-all active:scale-[0.97]"
+						color="amber"
+						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
 					>
 						카카오로 로그인
-					</Link>
+					</Button>
 				</div>
 
-				{/* 회원 혜택 카드 */}
 				<section className="mt-6 px-5">
 					<h2 className="mb-3 text-[15px] font-bold text-dotori-900">
 						회원 혜택
@@ -191,7 +197,6 @@ export default function MyPage() {
 					</div>
 				</section>
 
-				{/* 메뉴 (비로그인도 접근 가능한 항목) */}
 				{publicMenuSections.map((section, si) => (
 					<section key={si} className="mt-5 px-5">
 						<div className="rounded-3xl bg-white shadow-sm">
@@ -221,76 +226,91 @@ export default function MyPage() {
 		);
 	}
 
-	const badgeValues: Record<string, number> = { alertCount };
+	const quickStats = [
+		{
+			label: "관심",
+			value: interestsCount,
+			href: "/my/interests",
+		},
+		{
+			label: "대기",
+			value: waitlistCount,
+			href: "/my/waitlist",
+		},
+		{
+			label: "알림",
+			value: alertCount,
+			href: "/my/notifications",
+		},
+	];
+
+	const planLabel = user.plan === "free" ? "무료" : "프리미엄";
+	const userLabel = user.nickname?.trim() ? user.nickname : "도토리 회원";
 
 	return (
 		<div className="pb-8">
-			{/* ── 프로필 헤더 ── */}
+			{/* 프로필 헤더 */}
 			<header className="px-5 pt-8 pb-2">
 				<div className="flex items-center gap-4">
-					<div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-dotori-100 text-2xl font-bold text-dotori-600">
-						{user.nickname[0]}
+					<div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-dotori-100">
+						{user.image ? (
+							/* eslint-disable-next-line @next/next/no-img-element */
+							<img
+								src={user.image}
+								alt=""
+								className="h-full w-full object-cover"
+							/>
+						) : (
+							/* eslint-disable-next-line @next/next/no-img-element */
+							<img
+								src={BRAND.appIconDark}
+								alt=""
+								className="h-9 w-9 rounded-full"
+							/>
+						)}
 					</div>
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-2">
-							<h1 className="text-xl font-bold">{user.nickname}</h1>
+							<h1 className="text-xl font-bold">{userLabel}</h1>
 							<Badge
 								color={user.plan === "free" ? "dotori" : "forest"}
 								className="text-[10px]"
 							>
-								{user.plan === "free" ? "무료" : "프리미엄"}
+								{planLabel}
 							</Badge>
 						</div>
-						{user.region.sigungu && (
-							<p className="text-[14px] text-dotori-400">
-								{user.region.sigungu} {user.region.dong}
-							</p>
-						)}
+						<p className="mt-0.5 text-[14px] text-dotori-400">
+							{formatRegion(user.region)}
+						</p>
 					</div>
 				</div>
 			</header>
 
-			{/* ── 주요 수치 ── */}
+			{/* 핵심 지표 */}
 			<section className="mt-5 px-5">
-				<div className="flex gap-3">
-					<Link
-						href="/my/interests"
-						className={cn(
-							"flex flex-1 items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm transition-all",
-							"active:scale-[0.98] hover:shadow-md",
-						)}
-					>
-						<div className="grid h-12 w-12 place-items-center rounded-2xl bg-red-50">
-							<HeartIcon className="h-6 w-6 text-red-400" />
-						</div>
-						<div>
-							<span className="block text-2xl font-bold text-dotori-900">
-								{interestsCount}
+				<div className="grid grid-cols-3 gap-2.5">
+					{quickStats.map((stat) => (
+						<Link
+							key={stat.label}
+							href={stat.href}
+							className={cn(
+								"rounded-full border border-dotori-200 bg-white px-3 py-2.5",
+								"flex flex-col items-center justify-center gap-0.5 text-center",
+								"active:scale-[0.98] active:bg-dotori-50",
+							)}
+						>
+							<span className="text-[20px] font-bold leading-none text-dotori-900">
+								{stat.value}
 							</span>
-							<span className="text-[14px] text-dotori-400">관심 시설</span>
-						</div>
-					</Link>
-					<Link
-						href="/my/waitlist"
-						className={cn(
-							"flex flex-1 items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm transition-all",
-							"active:scale-[0.98] hover:shadow-md",
-						)}
-					>
-						<div className="grid h-12 w-12 place-items-center rounded-2xl bg-forest-50">
-							<BellIcon className="h-6 w-6 text-forest-500" />
-						</div>
-						<div>
-							<span className="block text-2xl font-bold text-dotori-900">
-								{waitlistCount}
+							<span className="text-[12px] text-dotori-500">
+								{stat.label} {stat.value}개
 							</span>
-							<span className="text-[14px] text-dotori-400">대기 신청</span>
-						</div>
-					</Link>
+						</Link>
+					))}
 				</div>
 			</section>
 
-			{/* ── 내 아이 ── */}
+			{/* 내 아이 */}
 			<section className="mt-5 px-5">
 				<h2 className="mb-2.5 text-[15px] font-bold">내 아이</h2>
 				{user.children.length > 0 ? (
@@ -329,17 +349,14 @@ export default function MyPage() {
 						<p className="text-[15px] text-dotori-500">
 							아이를 등록하면 맞춤 전략을 받을 수 있어요
 						</p>
-						<Link
-							href="/onboarding"
-							className="mt-3 inline-block rounded-xl bg-dotori-900 px-6 py-3 text-[15px] font-semibold text-white transition-all active:scale-[0.97]"
-						>
+						<Button href="/onboarding" color="dotori" className="mt-3">
 							등록하기
-						</Link>
+						</Button>
 					</div>
 				)}
 			</section>
 
-			{/* ── 아이사랑 데이터 가져오기 ── */}
+			{/* 아이사랑 데이터 가져오기 */}
 			<section className="mt-5 px-5">
 				<Link
 					href="/my/import"
@@ -363,16 +380,12 @@ export default function MyPage() {
 				</Link>
 			</section>
 
-			{/* ── 메뉴 ── */}
+			{/* 메뉴 */}
 			{menuSections.map((section, si) => (
 				<section key={si} className="mt-5 px-5">
-					<div className="rounded-3xl bg-white shadow-sm">
+					<div className="overflow-hidden rounded-3xl bg-white shadow-sm">
 						{section.items.map((item, i) => {
 							const Icon = item.icon;
-							const badgeCount =
-								"badgeKey" in item && item.badgeKey
-									? badgeValues[item.badgeKey]
-									: 0;
 							return (
 								<Link
 									key={item.label}
@@ -386,11 +399,6 @@ export default function MyPage() {
 								>
 									<Icon className="h-6 w-6 text-dotori-400" />
 									<span className="flex-1 text-[15px]">{item.label}</span>
-									{badgeCount > 0 && (
-										<span className="grid h-5 min-w-5 place-items-center rounded-full bg-dotori-500 px-1.5 text-[11px] font-bold text-white">
-											{badgeCount}
-										</span>
-									)}
 									<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
 								</Link>
 							);
@@ -399,16 +407,17 @@ export default function MyPage() {
 				</section>
 			))}
 
-			{/* ── 로그아웃 + 버전 ── */}
-			<div className="mt-6 px-5 text-center">
-				<button
+			{/* 로그아웃 */}
+			<div className="mt-6 px-5">
+				<Button
+					color="amber"
 					onClick={handleLogout}
-					className="py-2 text-[14px] text-dotori-400 transition-colors hover:text-dotori-500"
+					className="w-full py-3"
 				>
-					로그아웃
-				</button>
-				<p className="mt-2 text-[12px] text-dotori-300">버전 1.0.0</p>
+					카카오 로그아웃
+				</Button>
 			</div>
+			<p className="mt-2 text-center text-[12px] text-dotori-300">버전 1.0.0</p>
 		</div>
 	);
 }

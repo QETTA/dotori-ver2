@@ -7,8 +7,9 @@ import { apiFetch } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import {
 	ArrowLeftIcon,
-	BellAlertIcon,
-	BuildingOffice2Icon,
+	BellIcon,
+	DocumentCheckIcon,
+	HeartIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,17 +30,57 @@ interface Notification {
 	createdAt: string;
 }
 
-const typeLabels: Record<string, string> = {
-	vacancy: "빈자리 알림",
-	waitlist_change: "대기 변동",
-	review: "리뷰 알림",
+const typeLabels: Record<string, { label: string; icon: "bell" | "heart" | "check"; tone: "positive" | "standard" | "urgent" }> = {
+	vacancy: { label: "빈자리 알림", icon: "bell", tone: "positive" },
+	waitlist_change: { label: "대기열 알림", icon: "check", tone: "urgent" },
+	review: { label: "리뷰 알림", icon: "heart", tone: "standard" },
+	interest: { label: "관심 알림", icon: "heart", tone: "standard" },
+};
+
+const toneStyles: Record<
+	"positive" | "standard" | "urgent",
+	{ titleColor: string; iconBg: string; iconText: string; border: string; badge: string }
+> = {
+	positive: {
+		titleColor: "text-forest-600",
+		iconBg: "bg-forest-50",
+		iconText: "text-forest-600",
+		border: "border-forest-200",
+		badge: "bg-forest-50 text-forest-600",
+	},
+	standard: {
+		titleColor: "text-dotori-600",
+		iconBg: "bg-dotori-50",
+		iconText: "text-dotori-600",
+		border: "border-dotori-200",
+		badge: "bg-dotori-50 text-dotori-600",
+	},
+	urgent: {
+		titleColor: "text-red-600",
+		iconBg: "bg-red-50",
+		iconText: "text-red-600",
+		border: "border-red-200",
+		badge: "bg-red-50 text-red-600",
+	},
 };
 
 const statusLabels: Record<string, { text: string; color: string }> = {
 	available: { text: "여석 있음", color: "text-forest-600 bg-forest-50" },
-	waiting: { text: "대기 중", color: "text-warning bg-amber-50" },
-	full: { text: "마감", color: "text-danger bg-red-50" },
+	waiting: { text: "대기 중", color: "text-amber-700 bg-amber-50" },
+	full: { text: "마감", color: "text-red-600 bg-red-50" },
 };
+
+function renderTypeIcon(icon: "bell" | "heart" | "check", colorClass: string) {
+	if (icon === "heart") {
+		return <HeartIcon className={cn("h-5 w-5", colorClass)} />;
+	}
+
+	if (icon === "check") {
+		return <DocumentCheckIcon className={cn("h-5 w-5", colorClass)} />;
+	}
+
+	return <BellIcon className={cn("h-5 w-5", colorClass)} />;
+}
 
 export default function NotificationsPage() {
 	const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -66,7 +107,9 @@ export default function NotificationsPage() {
 	useEffect(() => {
 		mountedRef.current = true;
 		fetchNotifications();
-		return () => { mountedRef.current = false; };
+		return () => {
+			mountedRef.current = false;
+		};
 	}, [fetchNotifications]);
 
 	return (
@@ -89,9 +132,8 @@ export default function NotificationsPage() {
 					/>
 				) : notifications.length === 0 ? (
 					<EmptyState
-						icon={<BellAlertIcon className="h-10 w-10" />}
-						title="아직 알림이 없어요"
-						description="관심 시설에 TO가 발생하면 알려드릴게요"
+						title="알림 없음"
+						description="현재는 도착한 알림이 없어요. 시설을 저장하거나 관심 설정을 하면 새 소식을 받을 수 있어요."
 						actionLabel="탐색하기"
 						actionHref="/explore"
 					/>
@@ -99,24 +141,21 @@ export default function NotificationsPage() {
 					<div className="space-y-3">
 						{notifications.map((notification, index) => {
 							const facility = notification.facility;
-							const status = facility
-								? statusLabels[facility.status]
-								: null;
+							const status = facility ? statusLabels[facility.status] : null;
+							const typeMeta = typeLabels[notification.type] ??
+								{ label: "알림", icon: "bell", tone: "standard" as const };
+							const tone = toneStyles[typeMeta.tone];
 							const toCount = facility
-								? facility.capacity.total -
-									facility.capacity.current
+								? facility.capacity.total - facility.capacity.current
 								: 0;
 
 							return (
 								<Link
 									key={notification.id}
-									href={
-										facility
-											? `/facility/${facility._id}`
-											: "#"
-									}
+									href={facility ? `/facility/${facility._id}` : "/my"}
 									className={cn(
-										"block rounded-3xl bg-white p-5 shadow-sm transition-all hover:shadow-md active:scale-[0.99]",
+										"block rounded-3xl border bg-white p-5 shadow-sm transition-all hover:shadow-md active:scale-[0.99]",
+										tone.border,
 										"motion-safe:animate-in motion-safe:fade-in duration-300",
 									)}
 									style={{
@@ -125,30 +164,16 @@ export default function NotificationsPage() {
 									}}
 								>
 									<div className="flex items-start gap-3.5">
-										<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-dotori-100">
-											{facility?.status ===
-											"available" ? (
-												<span className="text-lg">
-													🎉
-												</span>
-											) : (
-												<BuildingOffice2Icon className="h-5 w-5 text-dotori-500" />
-											)}
+										<div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-2xl", tone.iconBg, tone.iconText)}>
+											{renderTypeIcon(typeMeta.icon, tone.iconText)}
 										</div>
 										<div className="min-w-0 flex-1">
 											<div className="flex items-center gap-2">
-												<span className="text-[13px] font-medium text-dotori-500">
-													{typeLabels[
-														notification.type
-													] ?? "알림"}
+												<span className={cn("text-[13px] font-semibold", tone.titleColor)}>
+													{typeMeta.label}
 												</span>
 												{status && (
-													<span
-														className={cn(
-															"rounded-full px-2 py-0.5 text-[11px] font-medium",
-															status.color,
-														)}
-													>
+													<span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", tone.badge, status.color)}>
 														{status.text}
 													</span>
 												)}
@@ -159,8 +184,7 @@ export default function NotificationsPage() {
 														{facility.name}
 													</h3>
 													<p className="mt-0.5 text-[13px] text-dotori-500">
-														{facility.status ===
-														"available"
+														{facility.status === "available"
 															? `TO ${toCount}석 (정원 ${facility.capacity.total}명)`
 															: `대기 ${facility.capacity.waiting}명 · ${facility.type}`}
 													</p>
@@ -170,13 +194,8 @@ export default function NotificationsPage() {
 													시설 정보를 확인할 수 없어요
 												</h3>
 											)}
-											<span
-												className="mt-1.5 block text-[12px] text-dotori-400"
-												suppressHydrationWarning
-											>
-												{formatRelativeTime(
-													notification.triggeredAt,
-												)}
+											<span className="mt-1.5 block text-[12px] text-dotori-400" suppressHydrationWarning>
+												{formatRelativeTime(notification.triggeredAt)}
 											</span>
 										</div>
 									</div>

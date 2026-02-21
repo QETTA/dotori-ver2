@@ -36,6 +36,7 @@ const ChatHistorySchema = new Schema<IChatHistory>(
 
 ChatHistorySchema.index({ userId: 1, createdAt: -1 });
 ChatHistorySchema.index({ userId: 1, updatedAt: -1 });
+ChatHistorySchema.index({ createdAt: 1 }, { expireAfterSeconds: 15552000 });
 
 const ChatHistory: Model<IChatHistory> =
 	mongoose.models.ChatHistory ||

@@ -9,6 +9,9 @@ import User from "@/models/User";
 import Waitlist from "@/models/Waitlist";
 
 export const GET = withApiHandler(async (_req, { userId }) => {
+	const INTEREST_FACILITY_LIMIT = 3;
+	const NEARBY_FACILITY_LIMIT = 5;
+
 	let user = null;
 	let interestFacilities: ReturnType<typeof toFacilityDTO>[] = [];
 	let alertCount = 0;
@@ -57,15 +60,17 @@ export const GET = withApiHandler(async (_req, { userId }) => {
 			}
 
 			// Run all user-dependent queries in parallel
-			const [interestDocs, counts, activeWaitlists] = await Promise.all([
+		const [interestDocs, counts, activeWaitlists] = await Promise.all([
 				// Fetch interest facilities
 				user.interests.length > 0
-					? Facility.find({ _id: { $in: user.interests } }).lean()
-					: Promise.resolve([]),
-				// Fetch alert + waitlist counts
-				Promise.all([
-					Alert.countDocuments({ userId, active: true }),
-					Waitlist.countDocuments({ userId, status: { $ne: "cancelled" } }),
+					? Facility.find({ _id: { $in: user.interests.slice(0, INTEREST_FACILITY_LIMIT) } })
+							.limit(INTEREST_FACILITY_LIMIT)
+							.lean()
+						: Promise.resolve([]),
+					// Fetch alert + waitlist counts
+					Promise.all([
+						Alert.countDocuments({ userId, active: true }),
+						Waitlist.countDocuments({ userId, status: { $ne: "cancelled" } }),
 				]),
 				// Fetch best waitlist position for NBA personalization
 				Waitlist.find({ userId, status: "pending" })
@@ -92,7 +97,7 @@ export const GET = withApiHandler(async (_req, { userId }) => {
 		Facility.find(regionFilter)
 			.select("name type status address location capacity features rating lastSyncedAt")
 			.sort({ updatedAt: -1 })
-			.limit(5)
+			.limit(NEARBY_FACILITY_LIMIT)
 			.lean(),
 		sharedPromise,
 	]);

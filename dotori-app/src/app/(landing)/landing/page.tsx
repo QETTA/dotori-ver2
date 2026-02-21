@@ -2,6 +2,7 @@
 
 import { FAQ } from '@/components/landing/FAQ'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
+import { Button } from '@/components/catalyst/button'
 import { BRAND } from '@/lib/brand-assets'
 import { cn } from '@/lib/utils'
 const FAQ_ITEMS = [
@@ -138,18 +139,27 @@ export default function LandingPage() {
               FAQ
             </a>
           </nav>
-          <Link
+          <Button
             href="/onboarding"
-            className="shrink-0 rounded-full bg-dotori-500 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-dotori-600 active:scale-[0.97] md:px-5 md:text-[15px]"
+            color="dotori"
+            className="shrink-0 rounded-full px-4 py-2 text-sm font-medium md:px-5 md:text-[15px]"
           >
             시작하기
-          </Link>
+          </Button>
         </div>
       </header>
 
       {/* Hero */}
       <section className="px-6 py-28 text-center md:py-40 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-600">
         <div className="mx-auto max-w-3xl">
+          <div className="mb-6 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={BRAND.lockupHorizontalKr}
+              alt="도토리"
+              className="h-9 md:h-10"
+            />
+          </div>
           <h1 className="text-4xl font-bold leading-tight md:text-5xl">
             우리 아이 어린이집,
             <br />
@@ -160,18 +170,20 @@ export default function LandingPage() {
             빈자리 알림부터 대기 신청까지, 토리가 도와드려요.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <Link
+            <Button
               href="/onboarding"
-              className="rounded-full bg-dotori-900 px-8 py-3 font-medium text-white transition-all duration-200 hover:bg-dotori-900/90 active:scale-[0.97]"
+              color="dotori"
+              className="px-8 py-3 text-white"
             >
               무료로 시작하기
-            </Link>
-            <Link
+            </Button>
+            <Button
               href="/explore"
-              className="rounded-full border-none bg-dotori-50 px-8 py-3 font-medium text-dotori-900 transition-all duration-200 hover:bg-dotori-100 active:scale-[0.97]"
+              color="dotori"
+              className="px-8 py-3"
             >
               둘러보기
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -296,17 +308,15 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link
+                <Button
                   href="/onboarding"
+                  color="dotori"
                   className={cn(
-                    'mt-6 block rounded-full py-3 text-center font-medium transition-all duration-200 active:scale-[0.97]',
-                    plan.highlighted
-                      ? 'bg-white text-dotori-700 hover:bg-dotori-50'
-                      : 'border border-dotori-300 text-dotori-700 hover:bg-dotori-50',
+                    'mt-6 block w-full rounded-full py-3 text-center font-medium transition-all duration-200 active:scale-[0.97]',
                   )}
                 >
                   {plan.cta}
-                </Link>
+                </Button>
               </div>
             ))}
           </div>
@@ -337,12 +347,13 @@ export default function LandingPage() {
           <p className="mt-3 text-lg opacity-90">
             우리 아이에게 맞는 어린이집, 토리가 찾아드릴게요
           </p>
-          <Link
+          <Button
             href="/onboarding"
-            className="mt-8 inline-block rounded-full bg-white px-8 py-3 font-medium text-forest-700 shadow-md transition-all duration-200 hover:bg-dotori-50 active:scale-[0.97]"
+            color="dotori"
+            className="mt-8 inline-block rounded-full px-8 py-3 font-medium shadow-md transition-all duration-200 active:scale-[0.97]"
           >
             무료로 시작하기
-          </Link>
+          </Button>
         </div>
       </Wallpaper>
 

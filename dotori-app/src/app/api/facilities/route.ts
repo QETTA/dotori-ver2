@@ -6,6 +6,8 @@ import { sanitizeSearchQuery } from "@/lib/sanitize";
 import { toFacilityDTO } from "@/lib/dto";
 import Facility from "@/models/Facility";
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const GET = withApiHandler(async (req) => {
 	const { searchParams } = req.nextUrl;
 
@@ -19,13 +21,21 @@ export const GET = withApiHandler(async (req) => {
 			.slice(0, 50);
 
 		if (idList.length === 0) {
-			return NextResponse.json({ data: [], pagination: { page: 1, limit: 0, total: 0, totalPages: 0 } });
+			return NextResponse.json({
+				data: [],
+				pagination: { page: 1, limit: 0, total: 0, totalPages: 0 },
+			});
 		}
 
 		const facilities = await Facility.find({ _id: { $in: idList } }).lean();
 		return NextResponse.json({
 			data: facilities.map((f) => toFacilityDTO(f)),
-			pagination: { page: 1, limit: facilities.length, total: facilities.length, totalPages: 1 },
+			pagination: {
+				page: 1,
+				limit: facilities.length,
+				total: facilities.length,
+				totalPages: 1,
+			},
 		});
 	}
 
@@ -36,33 +46,126 @@ export const GET = withApiHandler(async (req) => {
 	);
 	const rawSearch = searchParams.get("search") || "";
 	const search = rawSearch ? sanitizeSearchQuery(rawSearch) : "";
+	const rawQ = searchParams.get("q") || "";
+	const q = rawQ ? sanitizeSearchQuery(rawQ) : "";
 	const type = searchParams.get("type") || "";
 	const status = searchParams.get("status") || "";
 	const sido = searchParams.get("sido") || "";
 	const sigungu = searchParams.get("sigungu") || "";
+	const rawSort = searchParams.get("sort") || "distance";
+	const rawLat = Number(searchParams.get("lat"));
+	const rawLng = Number(searchParams.get("lng"));
+
+	const sort = ["distance", "rating", "capacity"].includes(rawSort)
+		? (rawSort as "distance" | "rating" | "capacity")
+		: "distance";
 
 	const filter: Record<string, unknown> = {};
 
+	const keywordFilters: Array<Record<string, unknown>> = [];
 	if (search) {
-		filter.$text = { $search: search };
+		keywordFilters.push({ $text: { $search: search } });
 	}
-	if (type) filter.type = type;
+	if (q) {
+		const safeKeyword = escapeRegex(q);
+		keywordFilters.push({
+			$or: [
+				{ name: { $regex: safeKeyword, $options: "i" } },
+				{ address: { $regex: safeKeyword, $options: "i" } },
+			],
+		});
+	}
+	if (keywordFilters.length === 1) {
+		Object.assign(filter, keywordFilters[0]);
+	} else if (keywordFilters.length > 1) {
+		filter.$and = keywordFilters;
+	}
+	if (type) {
+		const types = type
+			.split(",")
+			.map((value) => value.trim())
+			.filter(Boolean);
+		if (types.length === 1) filter.type = types[0];
+		else if (types.length > 1) filter.type = { $in: types };
+	}
 	if (status) filter.status = status;
 	if (sido) filter["region.sido"] = sido;
 	if (sigungu) filter["region.sigungu"] = sigungu;
 
+	const hasValidLatLng =
+		typeof rawLat === "number" &&
+		typeof rawLng === "number" &&
+		Number.isFinite(rawLat) &&
+		Number.isFinite(rawLng) &&
+		rawLat >= -90 &&
+		rawLat <= 90 &&
+		rawLng >= -180 &&
+		rawLng <= 180;
+
+	const useDistanceSort = sort === "distance" && hasValidLatLng;
+
+	const facilitiesQuery =
+		useDistanceSort
+			? Facility.aggregate([
+					{
+						$geoNear: {
+							near: {
+								type: "Point",
+								coordinates: [rawLng, rawLat],
+							},
+							distanceField: "distance",
+							spherical: true,
+							query: filter,
+							key: "location",
+						},
+					},
+					{ $skip: (page - 1) * limit },
+					{ $limit: limit },
+				]).exec()
+			: Facility.aggregate([
+					{ $match: filter },
+					...(sort === "capacity"
+						? [
+								{
+									$addFields: {
+										availableSeats: {
+											$max: [
+												{ $subtract: ["$capacity.total", "$capacity.current"] },
+												0,
+											],
+										},
+									},
+								},
+							]
+						: []),
+					{
+						$sort:
+							sort === "rating"
+								? { rating: -1, reviewCount: -1, lastSyncedAt: -1 }
+								: sort === "capacity"
+									? { availableSeats: -1, lastSyncedAt: -1 }
+									: { lastSyncedAt: -1 },
+					},
+					{ $skip: (page - 1) * limit },
+					{ $limit: limit },
+				]).exec();
+
 	const [facilities, total] = await Promise.all([
-		Facility.find(filter)
-			.skip((page - 1) * limit)
-			.limit(limit)
-			.sort(search ? { score: { $meta: "textScore" } } : { lastSyncedAt: -1 })
-			.lean(),
+		facilitiesQuery,
 		Facility.countDocuments(filter),
 	]);
+	const facilityData = facilities as Array<
+		Record<string, unknown> & { distance?: unknown }
+	>;
 
 	return NextResponse.json(
 		{
-			data: facilities.map((f) => toFacilityDTO(f)),
+			data: facilityData.map((f) =>
+				toFacilityDTO(
+					f as unknown as Parameters<typeof toFacilityDTO>[0],
+					typeof f.distance === "number" ? f.distance : undefined,
+				),
+			),
 			pagination: {
 				page,
 				limit,

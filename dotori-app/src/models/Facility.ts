@@ -13,6 +13,15 @@ export interface IFacility extends Document {
 	programs: string[];
 	rating: number;
 	reviewCount: number;
+	dataQuality?: {
+		score?: number;
+		missing?: string[];
+		updatedAt?: Date;
+	};
+	roomCount?: number;
+	teacherCount?: number;
+	establishmentYear?: number;
+	homepage?: string;
 	evaluationGrade?: string;
 	operatingHours?: { open: string; close: string; extendedCare: boolean };
 	images: string[];
@@ -55,6 +64,15 @@ const FacilitySchema = new Schema<IFacility>(
 		},
 		features: { type: [String], default: [] },
 		programs: { type: [String], default: [] },
+		dataQuality: {
+			score: { type: Number, min: 0, max: 100 },
+			missing: { type: [String], default: [] },
+			updatedAt: Date,
+		},
+		roomCount: Number,
+		teacherCount: Number,
+		establishmentYear: Number,
+		homepage: String,
 		rating: { type: Number, default: 0, min: 0, max: 5 },
 		reviewCount: { type: Number, default: 0 },
 		evaluationGrade: { type: String, enum: ["A", "B", "C", "D", null] },
@@ -75,7 +93,9 @@ const FacilitySchema = new Schema<IFacility>(
 FacilitySchema.index({ location: "2dsphere" });
 FacilitySchema.index({ "region.sido": 1, "region.sigungu": 1 });
 FacilitySchema.index({ status: 1, type: 1 });
+FacilitySchema.index({ type: 1 });
 FacilitySchema.index({ name: "text", address: "text" });
+FacilitySchema.index({ kakaoPlaceId: 1 }, { unique: true, sparse: true });
 FacilitySchema.index({ updatedAt: 1 });
 FacilitySchema.index({ lastSyncedAt: -1 });
 

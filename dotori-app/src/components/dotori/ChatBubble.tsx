@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, isValidElement } from 'react'
 import { Button } from '@/components/catalyst/button'
 import { BRAND } from '@/lib/brand-assets'
 import { cn, formatRelativeTime } from '@/lib/utils'
@@ -8,7 +8,6 @@ import type { ActionButton, ChatBlock, ChatRole, SourceInfo } from '@/types/doto
 import type { ReactNode } from 'react'
 import { BlockRenderer } from './blocks/BlockRenderer'
 import { SourceChip } from './SourceChip'
-import { StreamingIndicator } from './StreamingIndicator'
 
 export const ChatBubble = memo(function ChatBubble({
   role,
@@ -29,6 +28,12 @@ export const ChatBubble = memo(function ChatBubble({
   blocks?: ChatBlock[]
   onBlockAction?: (actionId: string) => void
 }) {
+  const childProps = isValidElement(children) ? (children.props as Record<string, unknown>) : null;
+  const hasStreamingContent =
+    typeof childProps?.["content"] === "string"
+      ? (childProps["content"] as string).trim().length > 0
+      : Boolean(childProps?.["children"]);
+
   if (role === 'user') {
     return (
       <div
@@ -74,8 +79,16 @@ export const ChatBubble = memo(function ChatBubble({
             'rounded-2xl rounded-bl-sm border-none bg-dotori-50 px-4 py-3 shadow-none'
           )}
         >
-          {isStreaming ? (
-            <StreamingIndicator />
+          {isStreaming && !hasStreamingContent ? (
+            <div className="flex gap-1.5 py-1">
+              {[0, 150, 300].map((delay) => (
+                <span
+                  key={delay}
+                  className="h-2 w-2 rounded-full bg-dotori-300 animate-bounce"
+                  style={{ animationDelay: `${delay}ms` }}
+                />
+              ))}
+            </div>
           ) : blocks && blocks.length > 0 ? (
             <BlockRenderer blocks={blocks} onAction={onBlockAction} />
           ) : (

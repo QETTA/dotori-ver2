@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 const publicPaths = [
   "/login",
   "/landing",
+  "/chat",
   "/explore",
   "/community",
   "/facility",

@@ -8,6 +8,14 @@ import dbConnect from "@/lib/db";
 import { generateChatResponse } from "@/lib/ai/claude";
 import { generateChecklist } from "./report-engine";
 
+export interface ConversationContext {
+	previousMessages?: { role: string; content: string }[];
+	mentionedFacilityIds?: string[];
+	mentionedFacilityNames?: string[];
+	establishedRegion?: { sido?: string; sigungu?: string };
+	establishedFacilityType?: string;
+}
+
 type UserContext = {
 	nickname?: string;
 	children?: Array<{ name: string; birthDate: string }>;
@@ -42,7 +50,7 @@ function extractRegion(message: string): { sido?: string; sigungu?: string } {
 		노원: { sido: "서울특별시", sigungu: "노원구" },
 		은평: { sido: "서울특별시", sigungu: "은평구" },
 		서대문: { sido: "서울특별시", sigungu: "서대문구" },
-		// 중구 제외 — 서울/부산/대구/인천/대전/울산 중복
+		중구: { sido: "서울특별시", sigungu: "중구" },
 		// 경기 주요 20시
 		성남: { sido: "경기도", sigungu: "성남시" },
 		수원: { sido: "경기도", sigungu: "수원시" },
@@ -68,6 +76,16 @@ function extractRegion(message: string): { sido?: string; sigungu?: string } {
 		판교: { sido: "경기도", sigungu: "성남시" },
 		일산: { sido: "경기도", sigungu: "고양시" },
 		동탄: { sido: "경기도", sigungu: "화성시" },
+		포천: { sido: "경기도", sigungu: "포천시" },
+		양주: { sido: "경기도", sigungu: "양주시" },
+		구리: { sido: "경기도", sigungu: "구리시" },
+		의왕: { sido: "경기도", sigungu: "의왕시" },
+		과천: { sido: "경기도", sigungu: "과천시" },
+		연천: { sido: "경기도", sigungu: "연천군" },
+		가평: { sido: "경기도", sigungu: "가평군" },
+		양평: { sido: "경기도", sigungu: "양평군" },
+		여주: { sido: "경기도", sigungu: "여주시" },
+		안성: { sido: "경기도", sigungu: "안성시" },
 		// 부산 주요 구
 		해운대: { sido: "부산광역시", sigungu: "해운대구" },
 		수영: { sido: "부산광역시", sigungu: "수영구" },
@@ -82,6 +100,9 @@ function extractRegion(message: string): { sido?: string; sigungu?: string } {
 		미추홀: { sido: "인천광역시", sigungu: "미추홀구" },
 		연수: { sido: "인천광역시", sigungu: "연수구" },
 		부평: { sido: "인천광역시", sigungu: "부평구" },
+		남동: { sido: "인천광역시", sigungu: "남동구" },
+		송도: { sido: "인천광역시", sigungu: "연수구" },
+		청라: { sido: "인천광역시", sigungu: "서구" },
 		// 대전 주요 구
 		유성: { sido: "대전광역시", sigungu: "유성구" },
 		서구: { sido: "대전광역시", sigungu: "서구" },
@@ -90,6 +111,7 @@ function extractRegion(message: string): { sido?: string; sigungu?: string } {
 		// 제주
 		제주시: { sido: "제주특별자치도", sigungu: "제주시" },
 		서귀포: { sido: "제주특별자치도", sigungu: "서귀포시" },
+		세종: { sido: "세종특별자치시", sigungu: "" },
 		// 남구, 서구, 중구 제외 — 여러 시도에 중복
 	};
 
@@ -119,10 +141,11 @@ function extractRegion(message: string): { sido?: string; sigungu?: string } {
 		경남: "경상남도",
 		제주: "제주특별자치도",
 	};
+	const sidoOnlyFallback = new Set(["인천", "대구", "대전", "광주", "울산"]);
 
 	for (const [key, value] of Object.entries(sidoMap)) {
 		if (message.includes(key)) {
-			return { sido: value };
+			return { sido: value, sigungu: sidoOnlyFallback.has(key) ? "" : undefined };
 		}
 	}
 
@@ -134,11 +157,67 @@ function extractFacilityType(message: string): string | undefined {
 	return types.find((t) => message.includes(t));
 }
 
+export function extractConversationContext(
+	messages: { role: string; content: string; blocks?: unknown[] }[],
+): ConversationContext {
+	const mentionedFacilityIds: string[] = [];
+	const mentionedFacilityNames: string[] = [];
+	let establishedRegion: { sido?: string; sigungu?: string } | undefined;
+	let establishedFacilityType: string | undefined;
+
+	for (const msg of messages) {
+		if (msg.role === "user") {
+			const region = extractRegion(msg.content);
+			if (region.sigungu || region.sido) {
+				establishedRegion = region;
+			}
+			const type = extractFacilityType(msg.content);
+			if (type) establishedFacilityType = type;
+		}
+		if (msg.role === "assistant" && Array.isArray(msg.blocks)) {
+			for (const block of msg.blocks as {
+				type: string;
+				facilities?: { id: string; name: string }[];
+				markers?: { id: string }[];
+			}[]) {
+				if (block.type === "facility_list" || block.type === "compare") {
+					for (const f of block.facilities ?? []) {
+						if (f.id && !mentionedFacilityIds.includes(f.id)) {
+							mentionedFacilityIds.push(f.id);
+						}
+						if (f.name && !mentionedFacilityNames.includes(f.name)) {
+							mentionedFacilityNames.push(f.name);
+						}
+					}
+				}
+				if (block.type === "map") {
+					for (const m of block.markers ?? []) {
+						if (m.id && !mentionedFacilityIds.includes(m.id)) {
+							mentionedFacilityIds.push(m.id);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return {
+		mentionedFacilityIds: mentionedFacilityIds.slice(-15),
+		mentionedFacilityNames,
+		establishedRegion:
+			establishedRegion && Object.keys(establishedRegion).length > 0
+				? establishedRegion
+				: undefined,
+		establishedFacilityType,
+	};
+}
+
 /** Claude AI 텍스트 + DB 데이터 블록 하이브리드 응답 생성 */
 export async function buildResponse(
 	intent: ChatIntent,
 	message: string,
 	userId?: string,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	try {
 		await dbConnect();
@@ -179,42 +258,89 @@ export async function buildResponse(
 
 	switch (intent) {
 		case "recommend":
-			return buildRecommendResponse(message, userProfile);
+			return buildRecommendResponse(
+				message,
+				userProfile,
+				conversationContext,
+			);
 
 		case "compare":
-			return buildCompareResponse(message, userProfile);
+			return buildCompareResponse(
+				message,
+				userProfile,
+				conversationContext,
+			);
 
 		case "explain":
-			return buildExplainResponse(message, userProfile);
+			return buildExplainResponse(
+				message,
+				userProfile,
+				conversationContext,
+			);
+
+		case "knowledge":
+			return buildKnowledgeResponse(
+				message,
+				userProfile,
+				conversationContext,
+			);
 
 		case "status":
-			return buildStatusResponse(message, userId, userProfile);
+			return buildStatusResponse(
+				message,
+				userId,
+				userProfile,
+				conversationContext,
+			);
 
 		case "checklist":
-			return buildChecklistResponse(message, userId, userProfile);
+			return buildChecklistResponse(
+				message,
+				userId,
+				userProfile,
+				conversationContext,
+			);
 
 		case "general":
 		default:
-			return buildGeneralResponse(message, userProfile);
+			return buildGeneralResponse(message, userProfile, conversationContext);
 	}
 }
 
 async function buildRecommendResponse(
 	message: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	try {
 		const region = extractRegion(message);
-		const type = extractFacilityType(message);
+		const type = extractFacilityType(message) ?? conversationContext?.establishedFacilityType;
 		const filter: Record<string, unknown> = {};
 		if (region.sido) filter["region.sido"] = region.sido;
 		if (region.sigungu) filter["region.sigungu"] = region.sigungu;
 		if (type) filter.type = type;
 
-		// Use user's region as fallback
-		if (!region.sido && userProfile?.region?.sido) {
+		if (!region.sido && conversationContext?.establishedRegion?.sido) {
+			filter["region.sido"] = conversationContext.establishedRegion.sido;
+			if (conversationContext.establishedRegion.sigungu) {
+				filter["region.sigungu"] =
+					conversationContext.establishedRegion.sigungu;
+			}
+		} else if (!region.sido && userProfile?.region?.sido) {
 			filter["region.sido"] = userProfile.region.sido;
 			filter["region.sigungu"] = userProfile.region.sigungu;
+		}
+
+		const hasDeictic = [
+			"이 중",
+			"여기서",
+			"이들",
+			"그 중",
+			"거기",
+			"이것들",
+		].some((w) => message.includes(w));
+		if (hasDeictic && conversationContext?.mentionedFacilityIds?.length) {
+			filter["_id"] = { $in: conversationContext.mentionedFacilityIds };
 		}
 
 		const facilities = await Facility.find(filter)
@@ -226,6 +352,7 @@ async function buildRecommendResponse(
 			const aiResponse = await generateChatResponse(message, {
 				userProfile,
 				intent: "recommend",
+				previousMessages: conversationContext?.previousMessages,
 			});
 			const content =
 				aiResponse.success && aiResponse.content
@@ -266,9 +393,14 @@ async function buildRecommendResponse(
 			})),
 			userProfile,
 			intent: "recommend",
+			previousMessages: conversationContext?.previousMessages,
 		});
 
-		const regionLabel = region.sigungu || userProfile?.region?.sigungu || "주변";
+		const regionLabel =
+			region.sigungu ||
+			conversationContext?.establishedRegion?.sigungu ||
+			userProfile?.region?.sigungu ||
+			"주변";
 		const fallbackContent = `${regionLabel} 어린이집 ${dtos.length}곳을 찾았어요!`;
 		const content =
 			aiResponse.success && aiResponse.content
@@ -303,13 +435,23 @@ async function buildRecommendResponse(
 async function buildCompareResponse(
 	message: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	try {
 		const region = extractRegion(message);
+		const type = extractFacilityType(message) ?? conversationContext?.establishedFacilityType;
 		const filter: Record<string, unknown> = {};
 		if (region.sigungu) {
 			filter["region.sido"] = region.sido;
 			filter["region.sigungu"] = region.sigungu;
+		}
+		if (type) filter.type = type;
+
+		const hasDeictic = ["이 중", "여기서", "이들", "그 중", "거기"].some((w) =>
+			message.includes(w),
+		);
+		if (hasDeictic && conversationContext?.mentionedFacilityIds?.length) {
+			filter["_id"] = { $in: conversationContext.mentionedFacilityIds };
 		}
 
 		const facilities = await Facility.find(filter)
@@ -335,6 +477,7 @@ async function buildCompareResponse(
 			})),
 			userProfile,
 			intent: "compare",
+			previousMessages: conversationContext?.previousMessages,
 		});
 
 		const fallbackContent = `${dtos.map((f) => f.name).join(", ")}을(를) 비교해드릴게요.`;
@@ -364,6 +507,7 @@ async function buildCompareResponse(
 async function buildExplainResponse(
 	message: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	// Try to find a specific facility by name
 	const facilities = await Facility.find({
@@ -372,6 +516,15 @@ async function buildExplainResponse(
 		.limit(1)
 		.lean()
 		.catch(() => []);
+
+	const facilityNameHint =
+		/["“”'][^"“”']+["“”']/.test(message) ||
+		/[가-힣]+\s*(어린이집|유치원|보육원|보육센터)/.test(message) ||
+		/[A-Za-z]+\s*(daycare|kindergarten|center|facility)/i.test(message);
+
+	if (facilities.length === 0 && !facilityNameHint) {
+		return buildKnowledgeResponse(message, userProfile, conversationContext);
+	}
 
 	const aiResponse = await generateChatResponse(message, {
 		facilities:
@@ -391,6 +544,7 @@ async function buildExplainResponse(
 				: undefined,
 		userProfile,
 		intent: "explain",
+		previousMessages: conversationContext?.previousMessages,
 	});
 
 	const content =
@@ -424,6 +578,7 @@ async function buildStatusResponse(
 	message: string,
 	userId?: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	if (!userId) {
 		const content =
@@ -475,6 +630,7 @@ async function buildStatusResponse(
 			userProfile,
 			intent: "status",
 			statusInfo,
+			previousMessages: conversationContext?.previousMessages,
 		});
 
 		const fallbackContent =
@@ -520,8 +676,13 @@ async function buildStatusResponse(
 async function buildGeneralResponse(
 	message: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
-	const aiResponse = await generateChatResponse(message, { userProfile, intent: "general" });
+	const aiResponse = await generateChatResponse(message, {
+		userProfile,
+		intent: "general",
+		previousMessages: conversationContext?.previousMessages,
+	});
 
 	const content =
 		aiResponse.success && aiResponse.content
@@ -563,6 +724,7 @@ async function buildChecklistResponse(
 	message: string,
 	userId?: string,
 	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
 	try {
 		// Try to find a facility the user is asking about
@@ -589,7 +751,11 @@ async function buildChecklistResponse(
 
 		const aiResponse = await generateChatResponse(
 			`${message}\n[체크리스트 생성됨: ${checklist.categories.length}개 카테고리, ${checklist.categories.reduce((sum, c) => sum + c.items.length, 0)}개 항목]`,
-			{ userProfile, intent: "checklist" },
+			{
+				userProfile,
+				intent: "checklist",
+				previousMessages: conversationContext?.previousMessages,
+			},
 		);
 
 		const content =
@@ -615,6 +781,47 @@ async function buildChecklistResponse(
 			"체크리스트를 만드는 중 오류가 발생했어요. 다시 시도해주세요.",
 		);
 	}
+}
+
+async function buildKnowledgeResponse(
+	message: string,
+	userProfile?: UserContext,
+	conversationContext?: ConversationContext,
+): Promise<{ content: string; blocks: ChatBlock[] }> {
+	const aiResponse = await generateChatResponse(message, {
+		userProfile,
+		intent: "knowledge",
+		previousMessages: conversationContext?.previousMessages,
+	});
+
+	const content =
+		aiResponse.success && aiResponse.content
+			? aiResponse.content
+			: "보육 정책에 대해 궁금한 점이 있으시군요! 아이사랑포털(childcare.go.kr)에서도 확인하실 수 있어요.";
+
+	return {
+		content,
+		blocks: [
+			{ type: "text", content },
+			{
+				type: "actions",
+				buttons: [
+					{
+						id: "explore",
+						label: "시설 탐색하기",
+						action: "compare",
+						variant: "outline",
+					},
+					{
+						id: "checklist",
+						label: "입소 체크리스트",
+						action: "generate_checklist",
+						variant: "outline",
+					},
+				],
+			},
+		],
+	};
 }
 
 function fallbackResponse(

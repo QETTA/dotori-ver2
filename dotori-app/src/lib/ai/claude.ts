@@ -67,6 +67,7 @@ const TOKEN_BUDGETS: Record<string, number> = {
 	compare: 500,
 	explain: 600,
 	status: 300,
+	knowledge: 700,
 	checklist: 400,
 	general: 350,
 };

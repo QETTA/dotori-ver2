@@ -12,47 +12,41 @@ import type { CommunityPost } from "@/types/dotori";
 import {
 	ChatBubbleLeftIcon,
 	HeartIcon,
+	EyeIcon,
 	MapPinIcon,
 	PencilSquareIcon,
 	SparklesIcon,
-	UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
 
-const tabs = ["최신", "인기", "질문", "후기", "정보"];
+const tabs = ["전체", "정보공유", "질문", "후기", "모임"];
 
 const categoryLabel: Record<string, string> = {
+	feedback: "모임",
 	question: "질문",
 	review: "후기",
-	info: "정보",
+	info: "정보공유",
 };
 
 const categoryStyle: Record<string, string> = {
+	feedback: "bg-dotori-100 text-dotori-600",
 	question: "bg-blue-50 text-blue-600",
 	review: "bg-forest-50 text-forest-600",
 	info: "bg-dotori-100 text-dotori-600",
 };
 
-const AVATAR_COLORS = [
-	{ bg: "bg-dotori-100", text: "text-dotori-600" },
-	{ bg: "bg-forest-100", text: "text-forest-600" },
-	{ bg: "bg-blue-100", text: "text-blue-600" },
-	{ bg: "bg-purple-100", text: "text-purple-600" },
-	{ bg: "bg-rose-100", text: "text-rose-600" },
-	{ bg: "bg-amber-100", text: "text-amber-600" },
-	{ bg: "bg-teal-100", text: "text-teal-600" },
-];
+const tabToCategoryParam: Record<string, string> = {
+	전체: "",
+	정보공유: "info",
+	질문: "question",
+	후기: "review",
+	모임: "feedback",
+};
 
-function getAvatarColor(key: string) {
-	let hash = 0;
-	for (let i = 0; i < key.length; i++) {
-		hash = hash + key.charCodeAt(i);
-	}
-	return AVATAR_COLORS[hash % AVATAR_COLORS.length];
-}
+type CommunityPostWithViews = CommunityPost & { viewCount?: number };
 
 const facilityTypes = new Set(["국공립", "민간", "가정", "직장", "협동", "사회복지"]);
 
@@ -61,14 +55,8 @@ function tagStyle(tag: string): string {
 	return "bg-sky-50 text-sky-600"; // 지역명
 }
 
-const tabToCategoryParam: Record<string, string> = {
-	질문: "question",
-	후기: "review",
-	정보: "info",
-};
-
 interface PostsResponse {
-	data: CommunityPost[];
+	data: CommunityPostWithViews[];
 	pagination: {
 		page: number;
 		limit: number;
@@ -92,11 +80,11 @@ export default function CommunityPage() {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const { addToast } = useToast();
-	const [activeTab, setActiveTab] = useState("최신");
+	const [activeTab, setActiveTab] = useState("전체");
 	const [showAiSummary, setShowAiSummary] = useState<Record<string, boolean>>(
 		{},
 	);
-	const [posts, setPosts] = useState<CommunityPost[]>([]);
+	const [posts, setPosts] = useState<CommunityPostWithViews[]>([]);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [isLoading, setIsLoading] = useState(true);
@@ -130,11 +118,7 @@ export default function CommunityPage() {
 				params.set("page", String(pageNum));
 				params.set("limit", "20");
 
-				if (activeTab === "인기") {
-					params.set("sort", "likes");
-				} else {
-					params.set("sort", "createdAt");
-				}
+				params.set("sort", "createdAt");
 
 				const category = tabToCategoryParam[activeTab];
 				if (category) {
@@ -407,14 +391,17 @@ export default function CommunityPage() {
 								>
 									{/* 작성자 + 카테고리 */}
 									<div className="flex items-center gap-2.5">
-										{(() => {
-											const avatarColor = getAvatarColor(post.id || post.author.nickname);
-											return (
-												<div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-full text-[13px] font-bold", avatarColor.bg, avatarColor.text)}>
-													{post.author.nickname[0]}
-												</div>
-											);
-										})()}
+										{post.author.avatar ? (
+											<img
+												src={post.author.avatar}
+												alt={`${post.author.nickname} 프로필`}
+												className="h-10 w-10 shrink-0 rounded-full object-cover"
+											/>
+										) : (
+											<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-[13px] font-bold text-dotori-700">
+												{post.author.nickname.trim().charAt(0) || "익"}
+											</div>
+										)}
 										<div className="min-w-0 flex-1">
 											<div className="flex items-center gap-1.5">
 												<span className="text-[15px] font-semibold text-dotori-900">
@@ -528,6 +515,10 @@ export default function CommunityPage() {
 											<ChatBubbleLeftIcon className="h-5 w-5" />
 											{post.commentCount}
 										</Link>
+										<div className="flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 text-dotori-400">
+											<EyeIcon className="h-5 w-5" />
+											조회 {post.viewCount ?? 0}
+										</div>
 									</div>
 								</article>
 							))}
@@ -545,9 +536,8 @@ export default function CommunityPage() {
 					</>
 				) : (
 					<EmptyState
-						icon={<UserGroupIcon className="h-10 w-10" />}
 						title="아직 게시물이 없어요"
-						description="첫 글을 작성하고 이웃과 소통해보세요"
+						description="첫 글을 작성해 이웃과 이야기를 시작해보세요"
 						actionLabel="글 작성하기"
 						actionHref="/community/write"
 						secondaryLabel="탐색 페이지 가기"
@@ -560,7 +550,7 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-24 right-5 z-50 mb-[env(safe-area-inset-bottom)] flex items-center gap-2 rounded-full bg-dotori-900 pl-5 pr-6 py-4 text-white shadow-lg transition-all hover:shadow-xl active:scale-[0.97]"
+				className="fixed bottom-24 right-5 z-50 mb-[env(safe-area-inset-bottom)] flex items-center gap-2 rounded-full bg-dotori-500 px-5 py-4 text-white shadow-lg transition-all hover:bg-dotori-600 hover:shadow-xl active:scale-[0.97]"
 			>
 				<PencilSquareIcon className="h-5 w-5" />
 				<span className="text-[14px] font-medium">글쓰기</span>

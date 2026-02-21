@@ -20,6 +20,7 @@ interface UseFacilitiesParams {
 	status?: string;
 	sido?: string;
 	sigungu?: string;
+	sort?: "distance" | "rating" | "capacity";
 	limit?: number;
 }
 
@@ -58,9 +59,18 @@ export function useFacilities(
 			if (params.status) sp.set("status", params.status);
 			if (params.sido) sp.set("sido", params.sido);
 			if (params.sigungu) sp.set("sigungu", params.sigungu);
+			if (params.sort) sp.set("sort", params.sort);
 			return `/api/facilities?${sp.toString()}`;
 		},
-		[params.search, params.type, params.status, params.sido, params.sigungu, params.limit],
+		[
+			params.search,
+			params.type,
+			params.status,
+			params.sido,
+			params.sigungu,
+			params.sort,
+			params.limit,
+		],
 	);
 
 	const fetchPage = useCallback(

@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { FacilityStatus } from "@/types/dotori";
 
@@ -27,6 +27,7 @@ function markerSvgUrl(status: FacilityStatus) {
 }
 
 const KAKAO_MAP_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+const KAKAO_MAP_SDK_SCRIPT_ID = "kakao-maps-sdk";
 
 // Global flag: SDK script is already appended (prevents duplicate Script tags)
 let sdkScriptLoaded = false;
@@ -59,7 +60,6 @@ export function MapEmbed({
 	height?: string;
 	onMarkerClick?: (id: string) => void;
 }) {
-	const instanceId = useId();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<KakaoMapsMap | null>(null);
 	const markersRef = useRef<KakaoMapsMarker[]>([]);
@@ -265,7 +265,7 @@ export function MapEmbed({
 			{/* Kakao Maps SDK Script — only first instance loads it */}
 			{!sdkScriptLoaded && !sdkLoadError && (
 				<Script
-					id={`kakao-maps-sdk-${instanceId}`}
+					id={KAKAO_MAP_SDK_SCRIPT_ID}
 					strategy="afterInteractive"
 					src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_KEY}&autoload=false`}
 					onReady={onSdkReady}

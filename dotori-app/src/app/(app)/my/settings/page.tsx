@@ -19,28 +19,30 @@ import {
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const alertSettings = [
+const alertChannelSettings = [
 	{
-		key: "push",
+		key: "push" as const,
 		label: "푸시 알림",
-		desc: "빈자리, 대기 순번 변동 알림",
+		desc: "빈자리, 대기순번 변동 알림을 앱 알림으로 받기",
 		defaultOn: true,
 	},
 	{
-		key: "kakao",
+		key: "kakao" as const,
 		label: "카카오톡 알림",
-		desc: "카카오톡으로 알림 수신",
+		desc: "카카오톡으로 알림을 받기",
 		defaultOn: false,
 	},
 	{
-		key: "email",
+		key: "email" as const,
 		label: "이메일 알림",
-		desc: "주간 리포트 이메일 수신",
+		desc: "주간 요약 이메일 알림을 받기",
 		defaultOn: false,
 	},
-];
+] as const;
+
+type AlertChannelKey = (typeof alertChannelSettings)[number]["key"];
 
 interface AlertData {
 	_id: string;
@@ -90,15 +92,26 @@ function formatBirthMonth(birthDate: string) {
 	return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
 }
 
+function isSupportedAlertChannel(channel: string): channel is AlertChannelKey {
+	return alertChannelSettings.some((setting) => setting.key === channel);
+}
+
 export default function SettingsPage() {
-	const [alerts, setAlerts] = useState<Record<string, boolean>>(() =>
-		Object.fromEntries(alertSettings.map((s) => [s.key, s.defaultOn])),
+	const [alerts, setAlerts] = useState<Record<AlertChannelKey, boolean>>(() =>
+		alertChannelSettings.reduce<Record<AlertChannelKey, boolean>>(
+			(acc, setting) => {
+				acc[setting.key] = setting.defaultOn;
+				return acc;
+			},
+			{ push: false, kakao: false, email: false },
+		),
 	);
 	const [alimtalkOptIn, setAlimtalkOptIn] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
 	const mountedRef = useRef(true);
 
-	// ── 아이 관리 상태 ──
+	// 아이 관리 상태
 	const [children, setChildren] = useState<ChildData[]>([]);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -106,24 +119,30 @@ export default function SettingsPage() {
 	const [formBirthDate, setFormBirthDate] = useState("");
 	const [formGender, setFormGender] = useState<GenderOption>("unspecified");
 	const [isSaving, setIsSaving] = useState(false);
+	const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
-	const loadAlertSettings = useCallback(async () => {
+	const loadSettings = useCallback(async () => {
+		setErrorMessage("");
 		try {
 			const [alertRes, userRes] = await Promise.all([
 				apiFetch<{ data: AlertData[] }>("/api/alerts").catch(() => ({ data: [] as AlertData[] })),
 				apiFetch<{ data: UserProfile }>("/api/users/me").catch(() => ({ data: {} as UserProfile })),
 			]);
+
 			if (!mountedRef.current) return;
 
+			const loadedAlerts: Record<AlertChannelKey, boolean> = {
+				push: false,
+				kakao: false,
+				email: false,
+			};
+
 			if (alertRes.data.length > 0) {
-				const channels = new Set(
-					alertRes.data.flatMap((a) => a.channels),
-				);
-				setAlerts({
-					push: channels.has("push"),
-					kakao: channels.has("kakao"),
-					email: channels.has("email"),
-				});
+				const channels = new Set(alertRes.data.flatMap((a) => a.channels));
+				for (const key of alertChannelSettings) {
+					loadedAlerts[key.key] = channels.has(key.key);
+				}
+				setAlerts(loadedAlerts);
 			}
 
 			if (userRes.data?.alimtalkOptIn != null) {
@@ -134,7 +153,7 @@ export default function SettingsPage() {
 				setChildren(userRes.data.children);
 			}
 		} catch {
-			// Use defaults if not logged in
+			// 사용 가능한 데이터가 없으면 기본값을 사용합니다.
 		} finally {
 			if (mountedRef.current) setIsLoaded(true);
 		}
@@ -142,29 +161,31 @@ export default function SettingsPage() {
 
 	useEffect(() => {
 		mountedRef.current = true;
-		loadAlertSettings();
-		return () => { mountedRef.current = false; };
-	}, [loadAlertSettings]);
+		loadSettings();
+		return () => {
+			mountedRef.current = false;
+		};
+	}, [loadSettings]);
 
-	async function toggleAlert(key: string) {
+	async function toggleAlert(key: AlertChannelKey) {
 		const newValue = !alerts[key];
 		setAlerts((prev) => ({ ...prev, [key]: newValue }));
 
-		// Persist to server — update channels on all active alerts
 		try {
 			const activeChannels = Object.entries({
 				...alerts,
 				[key]: newValue,
 			})
 				.filter(([, v]) => v)
-				.map(([k]) => k);
+				.map(([channel]) => channel)
+				.filter(isSupportedAlertChannel);
 
 			await apiFetch("/api/alerts/channels", {
 				method: "PATCH",
 				body: JSON.stringify({ channels: activeChannels }),
 			});
 		} catch {
-			// Revert on error
+			setErrorMessage("알림 설정 변경에 실패했습니다.");
 			setAlerts((prev) => ({ ...prev, [key]: !newValue }));
 		}
 	}
@@ -172,13 +193,15 @@ export default function SettingsPage() {
 	async function toggleAlimtalk() {
 		const newValue = !alimtalkOptIn;
 		setAlimtalkOptIn(newValue);
+
 		try {
 			await apiFetch("/api/users/me", {
 				method: "PATCH",
 				body: JSON.stringify({ alimtalkOptIn: newValue }),
 			});
 		} catch {
-			setAlimtalkOptIn(!newValue); // revert
+			setErrorMessage("알림톡 설정 변경에 실패했습니다.");
+			setAlimtalkOptIn(!newValue);
 		}
 	}
 
@@ -186,7 +209,24 @@ export default function SettingsPage() {
 		await signOut({ callbackUrl: "/login" });
 	}
 
-	// ── 아이 관리 함수 ──
+	async function handleDeleteAccount() {
+		if (!window.confirm("계정을 영구 삭제하시겠어요? 이 작업은 되돌릴 수 없습니다.")) return;
+
+		setIsDeletingAccount(true);
+		setErrorMessage("");
+
+		try {
+			await apiFetch("/api/users/me", { method: "DELETE" });
+			await signOut({ callbackUrl: "/login" });
+		} catch {
+			setErrorMessage(
+				"아직 계정 삭제 API가 준비되지 않았습니다. 고객센터로 문의해 주세요.",
+			);
+		} finally {
+			setIsDeletingAccount(false);
+		}
+	}
+
 	function openAddDialog() {
 		setEditingIndex(null);
 		setFormName("");
@@ -199,7 +239,6 @@ export default function SettingsPage() {
 		const child = children[index];
 		setEditingIndex(index);
 		setFormName(child.name);
-		// Convert birthDate (ISO string) to YYYY-MM for month input
 		const d = new Date(child.birthDate);
 		const yyyy = d.getFullYear();
 		const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -212,14 +251,10 @@ export default function SettingsPage() {
 		if (!formName.trim() || !formBirthDate) return;
 
 		setIsSaving(true);
-
-		// Convert YYYY-MM to ISO date string (first day of month)
 		const birthDateISO = `${formBirthDate}-01T00:00:00.000Z`;
-
 		const updatedChildren = [...children];
 
 		if (editingIndex !== null) {
-			// Edit existing
 			updatedChildren[editingIndex] = {
 				...updatedChildren[editingIndex],
 				name: formName.trim(),
@@ -227,7 +262,6 @@ export default function SettingsPage() {
 				gender: formGender,
 			};
 		} else {
-			// Add new
 			updatedChildren.push({
 				id: generateId(),
 				name: formName.trim(),
@@ -252,7 +286,6 @@ export default function SettingsPage() {
 
 	async function handleDeleteChild(index: number) {
 		const updatedChildren = children.filter((_, i) => i !== index);
-
 		const prev = [...children];
 		setChildren(updatedChildren);
 
@@ -262,13 +295,15 @@ export default function SettingsPage() {
 				body: JSON.stringify({ children: updatedChildren }),
 			});
 		} catch {
-			setChildren(prev); // revert
+			setChildren(prev);
 		}
 	}
 
+	const hasChildren = useMemo(() => children.length > 0, [children.length]);
+
 	return (
 		<div className="pb-8">
-			{/* ── 헤더 ── */}
+			{/* 헤더 */}
 			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
 				<Link
 					href="/my"
@@ -280,22 +315,27 @@ export default function SettingsPage() {
 				<h1 className="text-[17px] font-bold">설정</h1>
 			</header>
 
-			{/* ── 알림 설정 ── */}
-			<section className="mt-2 px-5">
-				<h2 className="mb-3 text-[14px] font-medium text-dotori-400">
-					알림
-				</h2>
+			{errorMessage && (
+				<section className="mt-3 px-5">
+					<div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+						{errorMessage}
+					</div>
+				</section>
+			)}
+
+			{/* 알림 설정 */}
+			<section className="mt-4 px-5">
+				<h2 className="mb-2 text-[15px] font-bold">알림 설정</h2>
 				<div className="rounded-3xl bg-white shadow-sm">
-					{alertSettings.map((setting, i) => (
+					{alertChannelSettings.map((setting, i) => (
 						<div
 							key={setting.key}
 							className={cn(
-								"flex items-center justify-between px-5 py-4.5",
-								i < alertSettings.length - 1 &&
-									"border-b border-dotori-100/40",
+								"flex items-center justify-between gap-3 px-5 py-4.5",
+								i < alertChannelSettings.length - 1 && "border-b border-dotori-100/40",
 							)}
 						>
-							<div>
+							<div className="min-w-0">
 								<p className="text-[15px] font-medium">{setting.label}</p>
 								<p className="text-[13px] text-dotori-400">{setting.desc}</p>
 							</div>
@@ -309,18 +349,9 @@ export default function SettingsPage() {
 							</SwitchField>
 						</div>
 					))}
-				</div>
-			</section>
-
-			{/* ── 카카오 알림톡 ── */}
-			<section className="mt-6 px-5">
-				<h2 className="mb-3 text-[14px] font-medium text-dotori-400">
-					카카오 알림톡
-				</h2>
-				<div className="rounded-3xl bg-white shadow-sm">
-					<div className="flex items-center justify-between px-5 py-4.5">
-						<div>
-							<p className="text-[15px] font-medium">알림톡 수신</p>
+					<div className="flex items-center justify-between gap-3 px-5 py-4.5">
+						<div className="min-w-0">
+							<p className="text-[15px] font-medium">카카오 알림톡 수신</p>
 							<p className="text-[13px] text-dotori-400">
 								빈자리 알림을 카카오 알림톡으로 받기
 							</p>
@@ -337,90 +368,128 @@ export default function SettingsPage() {
 				</div>
 			</section>
 
-			{/* ── 내 아이 관리 ── */}
+			{/* 계정 */}
 			<section className="mt-6 px-5">
-				<div className="mb-3 flex items-center justify-between">
-					<h2 className="text-[14px] font-medium text-dotori-400">
-						내 아이 관리
-					</h2>
-					<button
-						onClick={openAddDialog}
-						className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-medium text-dotori-500 transition-colors hover:bg-dotori-50 active:scale-[0.97]"
-					>
-						<PlusIcon className="h-4 w-4" />
-						아이 추가
-					</button>
+				<div className="mb-2.5 flex items-center justify-between">
+					<h2 className="text-[15px] font-bold">계정</h2>
 				</div>
-
-				{children.length > 0 ? (
-					<div className="rounded-3xl bg-white shadow-sm">
-						{children.map((child, i) => (
-							<div
-								key={child.id}
-								className={cn(
-									"flex items-center gap-3.5 px-5 py-4.5",
-									i < children.length - 1 &&
-										"border-b border-dotori-100/40",
-								)}
-							>
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 text-[13px] font-bold text-dotori-500">
-									{child.gender === "female"
-										? "👧"
-										: child.gender === "male"
-											? "👦"
-											: "👶"}
-								</div>
-								<div className="min-w-0 flex-1">
-									<p className="text-[15px] font-semibold">
-										{child.name}
-									</p>
-									<p className="text-[13px] text-dotori-400">
-										{formatBirthMonth(child.birthDate)}
-										{" · "}
-										{calculateAge(child.birthDate)}
-									</p>
-								</div>
-								<div className="flex items-center gap-1">
-									<button
-										onClick={() => openEditDialog(i)}
-										className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
-										aria-label={`${child.name} 수정`}
-									>
-										<PencilIcon className="h-4.5 w-4.5" />
-									</button>
-									<button
-										onClick={() => handleDeleteChild(i)}
-										className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-[0.97]"
-										aria-label={`${child.name} 삭제`}
-									>
-										<TrashIcon className="h-4.5 w-4.5" />
-									</button>
-								</div>
-							</div>
-						))}
-					</div>
-				) : (
-					<div className="rounded-3xl bg-white shadow-sm">
-						<div className="px-5 py-8 text-center">
-							<p className="text-[15px] text-dotori-400">
-								등록된 아이가 없어요
+				<div className="rounded-3xl bg-white shadow-sm">
+					<div className="flex items-center justify-between px-5 py-4.5">
+						<div className="min-w-0">
+							<p className="text-[15px] font-medium">내 아이 관리</p>
+							<p className="text-[13px] text-dotori-400">
+								아이 정보를 추가하고 맞춤 추천을 관리하세요
 							</p>
+						</div>
+						<button
+							onClick={openAddDialog}
+							className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] font-medium text-dotori-500 transition-colors hover:bg-dotori-50 active:scale-[0.97]"
+						>
+							<PlusIcon className="h-4 w-4" />
+							아이 추가
+						</button>
+					</div>
+
+					{hasChildren ? (
+						<div className="rounded-b-3xl bg-white">
+							{children.map((child, i) => (
+								<div
+									key={child.id}
+									className={cn(
+										"flex items-center gap-3.5 px-5 py-4.5",
+										i < children.length - 1 &&
+											"border-b border-dotori-100/40",
+									)}
+								>
+									<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 text-[13px] font-bold text-dotori-500">
+										{child.gender === "female"
+											? "👧"
+											: child.gender === "male"
+												? "👦"
+												: "👶"}
+									</div>
+									<div className="min-w-0 flex-1">
+										<p className="text-[15px] font-semibold">{child.name}</p>
+										<p className="text-[13px] text-dotori-400">
+											{formatBirthMonth(child.birthDate)}
+											{" · "}
+											{calculateAge(child.birthDate)}
+										</p>
+									</div>
+									<div className="flex items-center gap-1">
+										<button
+											onClick={() => openEditDialog(i)}
+											className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
+											aria-label={`${child.name} 수정`}
+										>
+											<PencilIcon className="h-4.5 w-4.5" />
+										</button>
+										<button
+											onClick={() => handleDeleteChild(i)}
+											className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-[0.97]"
+											aria-label={`${child.name} 삭제`}
+										>
+											<TrashIcon className="h-4.5 w-4.5" />
+										</button>
+									</div>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className="rounded-b-3xl px-5 py-8 text-center">
+							<p className="text-[15px] text-dotori-400">등록된 아이가 없어요</p>
 							<p className="mt-1 text-[13px] text-dotori-300">
 								아이를 등록하면 맞춤 전략을 받을 수 있어요
 							</p>
 						</div>
-					</div>
-				)}
+					)}
+				</div>
+
+				<div className="mt-3 flex flex-col gap-2">
+					<button
+						onClick={handleLogout}
+						className="rounded-2xl border border-dotori-100 bg-white px-4 py-3 text-left text-[15px] font-medium text-dotori-600 transition-colors hover:bg-dotori-50 active:scale-[0.98]"
+					>
+						로그아웃
+					</button>
+					<button
+						onClick={handleDeleteAccount}
+						disabled={isDeletingAccount}
+						className={cn(
+							"rounded-2xl px-4 py-3 text-left text-[15px] font-semibold",
+							"disabled:opacity-60",
+							isDeletingAccount
+								? "bg-red-50 text-red-400"
+								: "bg-red-50 text-red-600 hover:bg-red-100 active:scale-[0.98]",
+						)}
+					>
+						{isDeletingAccount ? "계정 삭제 진행 중..." : "계정 삭제"}
+					</button>
+				</div>
 			</section>
 
-			{/* ── 아이 추가/수정 다이얼로그 ── */}
+			{/* 앱 정보 */}
+			<section className="mt-6 px-5">
+				<h2 className="mb-2.5 text-[15px] font-bold">앱 정보</h2>
+				<div className="rounded-3xl bg-white shadow-sm">
+					<div className="flex items-center justify-between px-5 py-4 border-b border-dotori-100/40">
+						<span className="text-[15px]">버전</span>
+						<span className="text-[15px] text-dotori-400">1.0.0</span>
+					</div>
+					<div className="flex items-center justify-between px-5 py-4">
+						<span className="text-[15px]">빌드</span>
+						<span className="text-[15px] text-dotori-400">2026.02.20</span>
+					</div>
+				</div>
+			</section>
+
+			{/* 아이 추가/수정 다이얼로그 */}
 			<Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} size="sm">
 				<DialogTitle>
 					{editingIndex !== null ? "아이 정보 수정" : "아이 추가"}
 				</DialogTitle>
 				<DialogBody>
 					<div className="space-y-5">
-						{/* 이름 */}
 						<div>
 							<label className="mb-1.5 block text-[14px] font-medium text-dotori-900">
 								이름
@@ -434,8 +503,6 @@ export default function SettingsPage() {
 								}
 							/>
 						</div>
-
-						{/* 생년월 */}
 						<div>
 							<label className="mb-1.5 block text-[14px] font-medium text-dotori-900">
 								생년월
@@ -448,8 +515,6 @@ export default function SettingsPage() {
 								}
 							/>
 						</div>
-
-						{/* 성별 */}
 						<div>
 							<label className="mb-2 block text-[14px] font-medium text-dotori-900">
 								성별
@@ -498,33 +563,6 @@ export default function SettingsPage() {
 					</Button>
 				</DialogActions>
 			</Dialog>
-
-			{/* ── 앱 정보 ── */}
-			<section className="mt-6 px-5">
-				<h2 className="mb-3 text-[14px] font-medium text-dotori-400">
-					정보
-				</h2>
-				<div className="rounded-3xl bg-white shadow-sm">
-					<div className="flex items-center justify-between px-5 py-4 border-b border-dotori-100/40">
-						<span className="text-[15px]">버전</span>
-						<span className="text-[15px] text-dotori-400">1.0.0</span>
-					</div>
-					<div className="flex items-center justify-between px-5 py-4">
-						<span className="text-[15px]">빌드</span>
-						<span className="text-[15px] text-dotori-400">2026.02.20</span>
-					</div>
-				</div>
-			</section>
-
-			{/* ── 로그아웃 ── */}
-			<div className="mt-6 px-4 text-center">
-				<button
-					onClick={handleLogout}
-					className="py-2 text-[14px] text-dotori-400 transition-colors hover:text-dotori-500"
-				>
-					로그아웃
-				</button>
-			</div>
 		</div>
 	);
 }

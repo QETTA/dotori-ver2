@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/dotori/Skeleton";
 import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { MarkdownText } from "@/components/dotori/MarkdownText";
 import type { ChatBlock, ChatMessage } from "@/types/dotori";
 
 const suggestedPrompts = [
@@ -18,13 +19,47 @@ const suggestedPrompts = [
 	{ label: "서류 준비", prompt: "입소 서류 체크리스트 알려줘" },
 ];
 
-interface ChatResponse {
-	data: {
-		role: "assistant";
-		content: string;
-		blocks?: ChatBlock[];
-		timestamp: string;
-	};
+interface StreamEvent {
+	type: "start" | "block" | "text" | "done" | "error";
+	intent?: string;
+	block?: ChatBlock;
+	text?: string;
+	timestamp?: string;
+	error?: string;
+}
+
+function parseSseEvent(rawEvent: string): StreamEvent | null {
+	const lines = rawEvent.split("\n");
+	const dataLines = lines.filter((line) => line.startsWith("data:"));
+	if (dataLines.length === 0) return null;
+
+	const data = dataLines.map((line) => line.replace(/^data:\s?/, "")).join("\n");
+	let payload: unknown;
+	try {
+		payload = JSON.parse(data);
+	} catch {
+		return null;
+	}
+
+	if (typeof payload !== "object" || payload === null || !("type" in payload)) {
+		return null;
+	}
+
+	const typed = payload as { type: string; [key: string]: unknown };
+	if (
+		typed.type !== "start" &&
+		typed.type !== "block" &&
+		typed.type !== "text" &&
+		typed.type !== "done" &&
+		typed.type !== "error"
+	) {
+		return null;
+	}
+
+	return {
+		type: typed.type,
+		...(typed as Record<string, unknown>),
+	} as StreamEvent;
 }
 
 export default function ChatPage() {
@@ -131,9 +166,8 @@ function ChatContent() {
 		setInput("");
 		setIsLoading(true);
 
-		// Add streaming indicator
 		const streamingMsg: ChatMessage = {
-			id: `assistant-streaming`,
+			id: `assistant-${Date.now()}`,
 			role: "assistant",
 			content: "",
 			timestamp: new Date().toISOString(),
@@ -142,36 +176,111 @@ function ChatContent() {
 		setMessages((prev) => [...prev, streamingMsg]);
 
 		try {
-			const res = await apiFetch<ChatResponse>("/api/chat", {
+			const res = await fetch("/api/chat/stream", {
 				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
 				body: JSON.stringify({ message: text }),
 			});
 
-			const assistantMsg: ChatMessage = {
-				id: `assistant-${Date.now()}`,
-				role: "assistant",
-				content: res.data.content,
-				timestamp: res.data.timestamp,
-				blocks: res.data.blocks,
+			if (!res.ok || !res.body) {
+				throw new Error("스트리밍 응답을 받을 수 없습니다.");
+			}
+
+			const streamingMessageId = streamingMsg.id;
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			let buffer = "";
+			let assistantContent = "";
+			let assistantBlocks: ChatBlock[] = [];
+			let done = false;
+
+			const patchStreamingMessage = (patch: Partial<ChatMessage>) => {
+				setMessages((prev) =>
+					prev.map((message) =>
+						message.id === streamingMessageId
+							? { ...message, ...patch }
+							: message,
+					),
+				);
 			};
 
-			// Replace streaming indicator with actual response
-			setMessages((prev) =>
-				prev
-					.filter((m) => m.id !== "assistant-streaming")
-					.concat(assistantMsg),
-			);
+			const parseEvent = (event: StreamEvent) => {
+				switch (event.type) {
+					case "start":
+						return;
+					case "block":
+						if (!event.block) return;
+						assistantBlocks = [...assistantBlocks, event.block];
+						patchStreamingMessage({
+							isStreaming: false,
+							blocks: assistantBlocks,
+							content: assistantContent,
+						});
+						return;
+					case "text":
+						if (!event.text) return;
+						assistantContent += event.text;
+						patchStreamingMessage({
+							isStreaming: true,
+							content: assistantContent,
+							blocks:
+								assistantBlocks.length > 0
+									? assistantBlocks
+									: undefined,
+						});
+						return;
+					case "done":
+						patchStreamingMessage({
+							isStreaming: false,
+							content: assistantContent,
+							blocks: assistantBlocks,
+							timestamp: event.timestamp ?? new Date().toISOString(),
+						});
+						done = true;
+						return;
+					case "error":
+						throw new Error(event.error || "스트리밍이 중단되었습니다.");
+				}
+			};
+
+			while (!done) {
+				const { value, done: streamDone } = await reader.read();
+				if (streamDone) break;
+
+				buffer += decoder.decode(value, { stream: true });
+
+				let separatorIndex = buffer.indexOf("\n\n");
+				while (separatorIndex !== -1 && !done) {
+					const eventChunk = buffer.slice(0, separatorIndex);
+					buffer = buffer.slice(separatorIndex + 2);
+					const event = parseSseEvent(eventChunk);
+					if (event) {
+						parseEvent(event);
+					}
+					separatorIndex = buffer.indexOf("\n\n");
+				}
+			}
+			// Parse final chunk (no trailing delimiter)
+			const tail = decoder.decode();
+			if (tail) {
+				buffer += tail;
+				const tailEvent = parseSseEvent(buffer);
+				if (tailEvent) {
+					parseEvent(tailEvent);
+				}
+			}
 		} catch {
 			// Remove streaming indicator and show error
 			setMessages((prev) =>
-				prev
-					.filter((m) => m.id !== "assistant-streaming")
-					.concat({
-						id: `error-${Date.now()}`,
-						role: "assistant",
-						content: "죄송해요, 응답을 생성하지 못했어요. 다시 시도해주세요.",
-						timestamp: new Date().toISOString(),
-					}),
+				prev.filter((m) => m.id !== streamingMsg.id).concat({
+					id: `error-${Date.now()}`,
+					role: "assistant",
+					content:
+						"죄송해요, 응답을 생성하지 못했어요. 다시 시도해주세요.",
+					timestamp: new Date().toISOString(),
+				}),
 			);
 		} finally {
 			setIsLoading(false);
@@ -201,7 +310,11 @@ function ChatContent() {
 				{messages.length === 0 && (
 					<div className="relative flex flex-col items-center px-6 pb-4 pt-10 text-center">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.symbolMonoWhite} alt="" className="absolute top-6 left-1/2 -translate-x-1/2 h-28 w-28 opacity-[0.04]" />
+						<img
+							src={BRAND.symbolMonoWhite}
+							alt=""
+							className="absolute top-6 left-1/2 -translate-x-1/2 h-28 w-28 opacity-[0.04]"
+						/>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.appIconWarm}
@@ -251,7 +364,11 @@ function ChatContent() {
 							isStreaming={msg.isStreaming}
 							onBlockAction={handleBlockAction}
 						>
-							<p className="text-[15px]">{msg.content}</p>
+							{msg.role === "assistant" ? (
+								<MarkdownText content={msg.content} />
+							) : (
+								<p className="text-[15px]">{msg.content}</p>
+							)}
 						</ChatBubble>
 					))}
 					<div ref={messagesEndRef} />

@@ -26,6 +26,16 @@ export interface Facility {
 	features: string[];
 	rating: number;
 	reviewCount: number;
+	dataQuality?: {
+		score?: number;
+		missing?: string[];
+		updatedAt?: string;
+	};
+	roomCount?: number;
+	teacherCount?: number;
+	establishmentYear?: number;
+	homepage?: string;
+	website?: string;
 	lastSyncedAt: string;
 	images?: string[];
 	kakaoPlaceUrl?: string;
@@ -52,6 +62,7 @@ export interface ChildProfile {
 export interface UserProfile {
 	id: string;
 	nickname: string;
+	image?: string;
 	children: ChildProfile[];
 	region: {
 		sido: string;
@@ -258,4 +269,3 @@ export interface CommunityPost {
 	createdAt: string;
 	category: "question" | "review" | "info" | "feedback";
 }
-

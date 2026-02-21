@@ -15,6 +15,7 @@ import {
 	Suspense,
 	useCallback,
 	useEffect,
+	type FormEvent,
 	useMemo,
 	useRef,
 	useState,
@@ -23,18 +24,21 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { apiFetch } from "@/lib/api";
 import { useFacilities } from "@/hooks/use-facilities";
 import { useFacilityActions } from "@/hooks/use-facility-actions";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { cn, facilityTypeBadgeColor } from "@/lib/utils";
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
+import { Select } from "@/components/catalyst/select";
 
-const typeFilters = ["국공립", "민간", "가정", "직장"];
-type SortKey = "distance" | "rating" | "to";
+const typeFilters = ["국공립", "민간", "가정", "직장", "공공형"];
+type SortKey = "distance" | "rating" | "capacity";
 const sortOptions: { key: SortKey; label: string }[] = [
-	{ key: "distance", label: "가까운순" },
+	{ key: "distance", label: "거리순" },
 	{ key: "rating", label: "평점순" },
-	{ key: "to", label: "빈자리순" },
+	{ key: "capacity", label: "정원순" },
 ];
 
 const RECENT_SEARCHES_KEY = "dotori_recent_searches";
@@ -68,7 +72,6 @@ function saveRecentSearch(term: string) {
 	if (!trimmed) return;
 	try {
 		const prev = getRecentSearches();
-		// Remove duplicate, prepend new term, cap at MAX
 		const next = [trimmed, ...prev.filter((s) => s !== trimmed)].slice(
 			0,
 			MAX_RECENT_SEARCHES,
@@ -86,6 +89,29 @@ function clearRecentSearches() {
 	} catch {
 		// silently fail
 	}
+}
+
+function buildResultLabel({
+	selectedSido,
+	selectedSigungu,
+	selectedTypes,
+	total,
+	isLoading,
+}: {
+	selectedSido: string;
+	selectedSigungu: string;
+	selectedTypes: string[];
+	total: number;
+	isLoading: boolean;
+}): string {
+	if (isLoading) return "검색 중...";
+	const district = selectedSigungu || selectedSido || "전국";
+	const typeLabel = selectedTypes.length === 1 ? `${selectedTypes[0]} ` : "";
+	return `${district} ${typeLabel}어린이집 ${total.toLocaleString()}개`;
+}
+
+function isValidFacilityType(value: string, allowed: string[]): value is string {
+	return allowed.includes(value);
 }
 
 export default function ExplorePage() {
@@ -108,29 +134,43 @@ function ExploreContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
+	const sidoFromQuery = searchParams.get("sido") || "";
+	const sigunguFromQuery = searchParams.get("sigungu") || "";
+
 	// Initialize state from URL params
-	const [searchInput, setSearchInput] = useState(
-		searchParams.get("q") ?? "",
-	);
-	const [debouncedSearch, setDebouncedSearch] = useState(
-		searchParams.get("q") ?? "",
-	);
+	const [searchInput, setSearchInput] = useState(searchParams.get("q") ?? "");
+	const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("q") ?? "");
 	const [selectedTypes, setSelectedTypes] = useState<string[]>(() => {
-		const t = searchParams.get("type");
-		return t ? t.split(",").filter((v) => typeFilters.includes(v)) : [];
+		const typesFromQuery = searchParams.get("type")?.split(",").map((value) => value.trim()) ?? [];
+		const validTypes = typesFromQuery.filter((value): value is string =>
+			isValidFacilityType(value, typeFilters),
+		);
+		return validTypes.length > 0 ? validTypes : [];
 	});
 	const [toOnly, setToOnly] = useState(searchParams.get("to") === "1");
 	const [sortBy, setSortBy] = useState<SortKey>(() => {
-		const s = searchParams.get("sort");
-		return s && ["distance", "rating", "to"].includes(s)
-			? (s as SortKey)
+		const s = searchParams.get("sort") || "";
+		return s === "distance" || s === "rating" || s === "capacity"
+			? s
 			: "distance";
 	});
+	const [selectedSido, setSelectedSido] = useState(sidoFromQuery);
+	const [selectedSigungu, setSelectedSigungu] = useState(sigunguFromQuery);
 	const [showMap, setShowMap] = useState(false);
 	const [showFilters, setShowFilters] = useState(() => {
-		// Auto-open filter panel if URL has type/to params
-		return !!(searchParams.get("type") || searchParams.get("to"));
+		return !!(
+			searchParams.get("type") ||
+			searchParams.get("to") ||
+			searchParams.get("sido") ||
+			searchParams.get("sigungu")
+		);
 	});
+
+	// District lists
+	const [sidoOptions, setSidoOptions] = useState<string[]>([]);
+	const [sigunguOptions, setSigunguOptions] = useState<string[]>([]);
+	const [isLoadingSido, setIsLoadingSido] = useState(false);
+	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
 
 	// ── Recent searches & suggestion panel ──
 	const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
@@ -149,8 +189,7 @@ function ExploreContent() {
 		}
 		if (isSearchFocused) {
 			document.addEventListener("mousedown", handleClickOutside);
-			return () =>
-				document.removeEventListener("mousedown", handleClickOutside);
+			return () => document.removeEventListener("mousedown", handleClickOutside);
 		}
 	}, [isSearchFocused]);
 
@@ -162,6 +201,63 @@ function ExploreContent() {
 		isLoading: isActionLoading,
 	} = useFacilityActions();
 
+	// ── Region options ──
+	useEffect(() => {
+		let active = true;
+		setIsLoadingSido(true);
+		apiFetch<{ data: string[] }>("/api/regions/sido")
+			.then((res) => {
+				if (!active) return;
+				setSidoOptions(res.data);
+			})
+			.catch(() => {
+				if (!active) return;
+				setSidoOptions(["서울특별시", "경기도", "부산광역시"]);
+			})
+			.finally(() => {
+				if (active) setIsLoadingSido(false);
+			});
+		return () => {
+			active = false;
+		};
+	}, []);
+
+	useEffect(() => {
+		let active = true;
+		setIsLoadingSigungu(true);
+		setSigunguOptions([]);
+
+		if (!selectedSido) {
+			setIsLoadingSigungu(false);
+			if (selectedSigungu) setSelectedSigungu("");
+			return () => {
+				active = false;
+			};
+		}
+
+		apiFetch<{ data: string[] }>(
+			`/api/regions/sigungu?sido=${encodeURIComponent(selectedSido)}`,
+		)
+			.then((res) => {
+				if (!active) return;
+				setSigunguOptions(res.data);
+				if (selectedSigungu && !res.data.includes(selectedSigungu)) {
+					setSelectedSigungu("");
+				}
+			})
+			.catch(() => {
+				if (!active) return;
+				setSigunguOptions([]);
+			})
+			.finally(() => {
+				if (active) setIsLoadingSigungu(false);
+			});
+
+		return () => {
+			active = false;
+		};
+	}, [selectedSido]);
+
 	// Sync state → URL params (skip initial mount)
 	const syncURL = useCallback(() => {
 		if (isInitialMount.current) {
@@ -170,13 +266,14 @@ function ExploreContent() {
 		}
 		const params = new URLSearchParams();
 		if (debouncedSearch) params.set("q", debouncedSearch);
-		if (selectedTypes.length > 0)
-			params.set("type", selectedTypes.join(","));
+		if (selectedTypes.length > 0) params.set("type", selectedTypes.join(","));
 		if (toOnly) params.set("to", "1");
+		if (selectedSido) params.set("sido", selectedSido);
+		if (selectedSigungu) params.set("sigungu", selectedSigungu);
 		if (sortBy !== "distance") params.set("sort", sortBy);
 		const qs = params.toString();
 		router.replace(`/explore${qs ? `?${qs}` : ""}`, { scroll: false });
-	}, [debouncedSearch, selectedTypes, toOnly, sortBy, router]);
+	}, [debouncedSearch, selectedTypes, toOnly, selectedSido, selectedSigungu, sortBy, router]);
 
 	useEffect(() => {
 		syncURL();
@@ -204,40 +301,27 @@ function ExploreContent() {
 		hasMore,
 	} = useFacilities({
 		search: debouncedSearch || undefined,
-		type: selectedTypes.length === 1 ? selectedTypes[0] : undefined,
+		type: selectedTypes.length > 0 ? selectedTypes.join(",") : undefined,
 		status: toOnly ? "available" : undefined,
+		sido: selectedSido || undefined,
+		sigungu: selectedSigungu || undefined,
+		sort: sortBy,
 	});
 
-	// Client-side sort + multi-type filter
-	const filtered = useMemo(() => {
-		let result = facilities;
-
-		// Multi-type filter (API only supports single type)
-		if (selectedTypes.length > 1) {
-			result = result.filter((f) => selectedTypes.includes(f.type));
-		}
-
-		// Sort
-		result = [...result].sort((a, b) => {
-			if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
-			if (sortBy === "to") {
-				const aTo =
-					a.status === "available"
-						? a.capacity.total - a.capacity.current
-						: 0;
-				const bTo =
-					b.status === "available"
-						? b.capacity.total - b.capacity.current
-						: 0;
-				return bTo - aTo;
-			}
-			return 0;
-		});
-
-		return result;
-	}, [facilities, selectedTypes, sortBy]);
-
 	const toCount = facilities.filter((f) => f.status === "available").length;
+	const resultLabel = useMemo(
+		() =>
+			buildResultLabel({
+				selectedSido,
+				selectedSigungu,
+				selectedTypes,
+				total,
+				isLoading,
+			}),
+		[selectedSido, selectedSigungu, selectedTypes, total, isLoading],
+	);
+	const activeFilterCount =
+		selectedTypes.length + (toOnly ? 1 : 0) + (selectedSigungu ? 1 : 0) + (selectedSido ? 1 : 0);
 
 	const toggleType = useCallback((type: string) => {
 		setSelectedTypes((prev) =>
@@ -247,29 +331,20 @@ function ExploreContent() {
 		);
 	}, []);
 
-	const activeFilterCount = selectedTypes.length + (toOnly ? 1 : 0);
+	const handleSearchSubmit = useCallback((term: string) => {
+		const trimmed = term.trim();
+		if (!trimmed) return;
+		setSearchInput(trimmed);
+		setDebouncedSearch(trimmed);
+		saveRecentSearch(trimmed);
+		setRecentSearches(getRecentSearches());
+		setIsSearchFocused(false);
+	}, []);
 
-	// ── Search submit handler (saves to recent) ──
-	const handleSearchSubmit = useCallback(
-		(term: string) => {
-			const trimmed = term.trim();
-			if (!trimmed) return;
-			setSearchInput(trimmed);
-			setDebouncedSearch(trimmed); // immediate for explicit submit
-			saveRecentSearch(trimmed);
-			setRecentSearches(getRecentSearches());
-			setIsSearchFocused(false);
-		},
-		[],
-	);
-
-	const handleFormSubmit = useCallback(
-		(e: React.FormEvent) => {
+	const handleFormSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			handleSearchSubmit(searchInput);
-		},
-		[searchInput, handleSearchSubmit],
-	);
+	}, [searchInput, handleSearchSubmit]);
 
 	const handleClearRecent = useCallback(() => {
 		clearRecentSearches();
@@ -282,6 +357,21 @@ function ExploreContent() {
 		},
 		[handleSearchSubmit],
 	);
+
+	const handleResetFilters = useCallback(() => {
+		setSearchInput("");
+		setDebouncedSearch("");
+		setSelectedTypes([]);
+		setToOnly(false);
+		setSortBy("distance");
+		setSelectedSido("");
+		setSelectedSigungu("");
+	}, []);
+
+	const handleSidoChange = useCallback((nextSido: string) => {
+		setSelectedSido(nextSido);
+		setSelectedSigungu("");
+	}, []);
 
 	// Show suggestion panel when focused and search is empty
 	const showSuggestionPanel = isSearchFocused && !searchInput;
@@ -343,9 +433,7 @@ function ExploreContent() {
 											<button
 												key={term}
 												type="button"
-												onClick={() =>
-													handleChipClick(term)
-												}
+												onClick={() => handleChipClick(term)}
 												className="flex items-center gap-1.5 rounded-full bg-dotori-50 px-3.5 py-2 text-[13px] text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-100"
 											>
 												<ClockIcon className="h-3.5 w-3.5 text-dotori-300" />
@@ -369,9 +457,7 @@ function ExploreContent() {
 										<button
 											key={term}
 											type="button"
-											onClick={() =>
-												handleChipClick(term)
-											}
+											onClick={() => handleChipClick(term)}
 											className="rounded-full bg-white px-3.5 py-2 text-[13px] font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all active:scale-[0.97] hover:bg-dotori-50 hover:text-dotori-700"
 										>
 											{term}
@@ -387,7 +473,7 @@ function ExploreContent() {
 				<div className="mt-3 flex items-center gap-2">
 					{/* 결과 수 */}
 					<span className="mr-auto shrink-0 whitespace-nowrap text-[14px] text-dotori-400">
-						{isLoading ? "검색 중..." : `${total.toLocaleString()}개 시설`}
+						{resultLabel}
 					</span>
 
 					{/* TO 토글 */}
@@ -411,7 +497,7 @@ function ExploreContent() {
 
 					{/* 필터 */}
 					<button
-						onClick={() => setShowFilters(!showFilters)}
+						onClick={() => setShowFilters((p) => !p)}
 						className={cn(
 							"relative flex items-center gap-1 rounded-full px-4 py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
 							activeFilterCount > 0
@@ -430,7 +516,7 @@ function ExploreContent() {
 
 					{/* 지도/리스트 토글 */}
 					<button
-						onClick={() => setShowMap(!showMap)}
+						onClick={() => setShowMap((p) => !p)}
 						className={cn(
 							"flex items-center gap-1 rounded-full px-4 py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
 							showMap
@@ -475,6 +561,47 @@ function ExploreContent() {
 								))}
 							</div>
 						</div>
+
+						{/* 지역 필터 */}
+						<div className="mt-3">
+							<span className="mb-2 block text-[13px] font-medium text-dotori-500">
+								지역 필터
+							</span>
+							<div className="grid gap-2 sm:grid-cols-2">
+								<div>
+									<Select
+										value={selectedSido}
+										onChange={(e) => handleSidoChange(e.target.value)}
+									>
+										<option value="">
+											{isLoadingSido ? "시도 불러오는 중" : "시도 선택"}
+										</option>
+										{sidoOptions.map((sido) => (
+											<option key={sido} value={sido}>
+												{sido}
+											</option>
+										))}
+									</Select>
+								</div>
+								<div>
+									<Select
+										value={selectedSigungu}
+										disabled={!selectedSido || isLoadingSigungu}
+										onChange={(e) => setSelectedSigungu(e.target.value)}
+									>
+										<option value="">
+											{isLoadingSigungu ? "구군 불러오는 중" : "구/군 선택"}
+										</option>
+										{sigunguOptions.map((sigungu) => (
+											<option key={sigungu} value={sigungu}>
+												{sigungu}
+											</option>
+										))}
+									</Select>
+								</div>
+							</div>
+						</div>
+
 						{/* 정렬 */}
 						<div className="mt-3">
 							<span className="mb-2 block text-[13px] font-medium text-dotori-500">
@@ -494,31 +621,27 @@ function ExploreContent() {
 									>
 										{opt.label}
 									</button>
-								))}
+									))}
 							</div>
 						</div>
+
 						{/* 필터 초기화 */}
 						{activeFilterCount > 0 && (
-							<button
-								onClick={() => {
-									setSelectedTypes([]);
-									setToOnly(false);
-									setSortBy("distance");
-								}}
-								className="mt-3 py-1 text-[13px] text-dotori-400 underline"
-							>
-								필터 초기화
-							</button>
+							<div className="mt-3 flex items-center justify-between gap-2">
+								<Button plain onClick={handleResetFilters}>
+									필터 초기화
+								</Button>
+							</div>
 						)}
 					</div>
 				)}
 			</header>
 
 			{/* ── 지도뷰 ── */}
-			{showMap && filtered.length > 0 && (
+			{showMap && facilities.length > 0 && (
 				<div className="px-4 pt-2 motion-safe:animate-in motion-safe:fade-in duration-200">
 					<MapEmbed
-						facilities={filtered.map((f) => ({
+						facilities={facilities.map((f) => ({
 							id: f.id,
 							name: f.name,
 							lat: f.lat,
@@ -552,10 +675,17 @@ function ExploreContent() {
 					</div>
 				)}
 
+				{/* 추가 로딩 스켈레톤 */}
+				{isLoadingMore && (
+					<div className="pb-4">
+						<Skeleton variant="facility-card" count={2} />
+					</div>
+				)}
+
 				{/* 결과 있음 */}
-				{!isLoading && !error && filtered.length > 0 && (
+				{!isLoading && !error && facilities.length > 0 && (
 					<div className="space-y-3 pb-4">
-						{filtered.map((f, index) => (
+						{facilities.map((f, index) => (
 							<Link key={f.id} href={`/facility/${f.id}`}>
 								<div
 									className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 duration-300"
@@ -567,152 +697,147 @@ function ExploreContent() {
 									<div className={cn(
 										"relative overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-200 hover:shadow-md",
 									)}>
-									<div className={cn(
-										"absolute left-0 top-3 bottom-3 w-[3px] rounded-full",
-										f.type === "국공립" ? "bg-blue-400" :
-										f.type === "민간" ? "bg-amber-400" :
-										f.type === "가정" ? "bg-forest-400" :
-										f.type === "직장" ? "bg-purple-400" :
-										"bg-dotori-200",
-									)} />
-									<div className="flex items-center gap-3.5 p-5 pb-3">
-										<div className="min-w-0 flex-1">
-											<div className="flex items-center gap-1.5">
-												<span
-													className={cn(
-														"h-2 w-2 shrink-0 rounded-full",
-														f.status === "available"
-															? "bg-forest-500"
-															: f.status ===
-																  "waiting"
-																? "bg-warning"
-																: "bg-dotori-300",
+										<div className={cn(
+											"absolute left-0 top-3 bottom-3 w-[3px] rounded-full",
+											f.type === "국공립" ? "bg-blue-400" :
+												f.type === "민간" ? "bg-amber-400" :
+												f.type === "가정" ? "bg-forest-400" :
+												f.type === "직장" ? "bg-purple-400" :
+												"bg-dotori-200",
+										)} />
+										<div className="flex items-center gap-3.5 p-5 pb-3">
+											<div className="min-w-0 flex-1">
+												<div className="flex items-center gap-1.5">
+													<span
+														className={cn(
+															"h-2 w-2 shrink-0 rounded-full",
+															f.status === "available"
+																? "bg-forest-500"
+																: f.status === "waiting"
+																	? "bg-warning"
+																	: "bg-dotori-300",
+														)}
+													/>
+													<span className="truncate font-semibold">
+														{f.name}
+													</span>
+													{f.rating > 0 && (
+														<span className="ml-1 text-[13px] text-dotori-400">
+															★ {f.rating}
+														</span>
 													)}
-												/>
-												<span className="truncate font-semibold">
-													{f.name}
-												</span>
-												{f.rating > 0 && (
-													<span className="ml-1 text-[13px] text-dotori-400">
-														★ {f.rating}
-													</span>
-												)}
-											</div>
-											<div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-dotori-500">
-												{f.distance && (
-													<span>{f.distance}</span>
-												)}
-												{f.distance && (
-													<span className="text-dotori-200">
-														·
-													</span>
-												)}
-												<Badge color={facilityTypeBadgeColor(f.type)} className="px-1.5 py-0 text-[11px]/[18px]">{f.type}</Badge>
-												{f.features
-													.slice(0, 2)
-													.map((feat) => (
+												</div>
+												<div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-dotori-500">
+													{f.distance && (
+														<span>{f.distance}</span>
+													)}
+													{f.distance && (
+														<span className="text-dotori-200">·</span>
+													)}
+													<Badge
+														color={facilityTypeBadgeColor(f.type)}
+														className="px-1.5 py-0 text-[11px]/[18px]"
+													>
+														{f.type}
+													</Badge>
+													{f.features.slice(0, 2).map((feat) => (
 														<span key={feat}>
-															<span className="text-dotori-200">
-																·
-															</span>{" "}
-															{feat}
+															<span className="text-dotori-200">·</span> {feat}
 														</span>
 													))}
+												</div>
 											</div>
-										</div>
-										<div className="shrink-0 text-right">
-											<span
-												className={cn(
-													"block text-[15px] font-bold",
-													f.status === "available"
-														? "text-forest-700"
-														: f.status ===
-															  "waiting"
-															? "text-dotori-700"
-															: "text-dotori-400",
-												)}
-											>
-												{f.status === "available"
-													? `TO ${f.capacity.total - f.capacity.current}`
-													: f.status === "waiting"
-														? `대기 ${f.capacity.waiting ?? 0}`
-														: "마감"}
-											</span>
-										</div>
-									</div>
-									{/* 정원·대기 미니바 */}
-									{f.capacity.total > 0 && (
-										<div className="mx-5 mb-3">
-											<div className="flex items-center justify-between text-[11px] text-dotori-400">
-												<span>정원 {f.capacity.total}명</span>
-												<span>
+											<div className="shrink-0 text-right">
+												<span
+													className={cn(
+														"block text-[15px] font-bold",
+														f.status === "available"
+															? "text-forest-700"
+															: f.status === "waiting"
+																? "text-dotori-700"
+																: "text-dotori-400",
+													)}
+												>
 													{f.status === "available"
-														? `여석 ${f.capacity.total - f.capacity.current}석`
-														: f.capacity.waiting > 0
-															? `대기 ${f.capacity.waiting}명`
+														? `TO ${f.capacity.total - f.capacity.current}`
+														: f.status === "waiting"
+															? `대기 ${f.capacity.waiting ?? 0}`
 															: "마감"}
 												</span>
 											</div>
-											<div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-dotori-100">
-												<div
-													className={cn(
-														"h-full rounded-full transition-all duration-500",
-														f.status === "available"
-															? "bg-forest-500"
-															: f.status === "waiting"
-																? "bg-warning"
-																: "bg-dotori-300",
-													)}
-													style={{
-														width: `${f.status === "available"
-															? Math.max(20, 100 - Math.round(((f.capacity.total - f.capacity.current) / f.capacity.total) * 100))
-															: f.status === "waiting"
-																? Math.min(100, Math.max(60, 60 + Math.min(40, (f.capacity.waiting / f.capacity.total) * 100)))
-																: 100}%`,
-													}}
-												/>
-											</div>
 										</div>
-									)}
-									{/* 퀵 액션 — 카드 내부 */}
-									<div className="mx-4 flex items-center justify-end gap-2 border-t border-dotori-100/60 py-2">
-										<button
-											type="button"
-											disabled={isActionLoading(f.id)}
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												registerInterest(f.id);
-											}}
-											className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] text-dotori-500 transition-all active:scale-[0.97] hover:bg-dotori-50"
-										>
-											<HeartIcon className="h-3.5 w-3.5" />
-											관심
-										</button>
-										<button
-											type="button"
-											disabled={isActionLoading(f.id)}
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												applyWaiting(f.id);
-											}}
-											className={cn(
-												"rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all active:scale-[0.97]",
-												f.status === "available"
-													? "bg-gradient-to-r from-forest-600 to-forest-500 text-white hover:from-forest-700 hover:to-forest-600"
-													: f.status === "full"
-														? "bg-dotori-100 text-dotori-600 hover:bg-dotori-200"
-														: "bg-gradient-to-r from-dotori-800 to-dotori-600 text-white hover:from-dotori-900 hover:to-dotori-700",
-												isActionLoading(f.id) &&
-													"opacity-50",
-											)}
-										>
-											{f.status === "available"
-												? "입소신청"
-												: "대기신청"}
-										</button>
-									</div>
+										{/* 정원·대기 미니바 */}
+										{f.capacity.total > 0 && (
+											<div className="mx-5 mb-3">
+												<div className="flex items-center justify-between text-[11px] text-dotori-400">
+													<span>정원 {f.capacity.total}명</span>
+													<span>
+														{f.status === "available"
+															? `여석 ${f.capacity.total - f.capacity.current}석`
+															: f.capacity.waiting > 0
+																? `대기 ${f.capacity.waiting}명`
+																: "마감"}
+													</span>
+												</div>
+												<div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-dotori-100">
+													<div
+														className={cn(
+															"h-full rounded-full transition-all duration-500",
+															f.status === "available"
+																? "bg-forest-500"
+																: f.status === "waiting"
+																	? "bg-warning"
+																	: "bg-dotori-300",
+														)}
+														style={{
+															width: `${f.status === "available"
+																? Math.max(20, 100 - Math.round(((f.capacity.total - f.capacity.current) / f.capacity.total) * 100))
+																: f.status === "waiting"
+																	? Math.min(100, Math.max(60, 60 + Math.min(40, (f.capacity.waiting / f.capacity.total) * 100)))
+																	: 100}%`,
+														}}
+													/>
+												</div>
+											</div>
+										)}
+										{/* 퀵 액션 — 카드 내부 */}
+										<div className="mx-4 flex items-center justify-end gap-2 border-t border-dotori-100/60 py-2">
+											<button
+												type="button"
+												disabled={isActionLoading(f.id)}
+												onClick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													registerInterest(f.id);
+												}}
+												className="flex items-center gap-1 rounded-full px-3 py-1.5 text-[13px] text-dotori-500 transition-all active:scale-[0.97] hover:bg-dotori-50"
+											>
+												<HeartIcon className="h-3.5 w-3.5" />
+												관심
+											</button>
+											<button
+												type="button"
+												disabled={isActionLoading(f.id)}
+												onClick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													applyWaiting(f.id);
+												}}
+												className={cn(
+													"rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all active:scale-[0.97]",
+													f.status === "available"
+														? "bg-gradient-to-r from-forest-600 to-forest-500 text-white hover:from-forest-700 hover:to-forest-600"
+														: f.status === "full"
+															? "bg-dotori-100 text-dotori-600 hover:bg-dotori-200"
+															: "bg-gradient-to-r from-dotori-800 to-dotori-600 text-white hover:from-dotori-900 hover:to-dotori-700",
+													isActionLoading(f.id) && "opacity-50",
+												)}
+											>
+												{f.status === "available"
+													? "입소신청"
+													: "대기신청"}
+											</button>
+										</div>
 									</div>
 								</div>
 							</Link>
@@ -720,34 +845,32 @@ function ExploreContent() {
 
 						{/* 더 보기 버튼 */}
 						{hasMore && (
-							<button
-								onClick={loadMore}
-								disabled={isLoadingMore}
-								className="w-full rounded-2xl bg-dotori-50 py-3.5 text-[15px] font-medium text-dotori-600 transition-all active:scale-[0.98] hover:bg-dotori-100"
-							>
-								{isLoadingMore ? "불러오는 중..." : "더 보기"}
-							</button>
+							<div className="pt-2">
+								<Button
+									color="dotori"
+									onClick={loadMore}
+									disabled={isLoadingMore}
+									className={cn(
+										"w-full rounded-2xl py-3.5 text-[15px] font-medium transition-all active:scale-[0.98]",
+									)}
+								>
+									{isLoadingMore ? "불러오는 중..." : "더 보기"}
+								</Button>
+							</div>
 						)}
 					</div>
 				)}
 
 				{/* 빈 결과 */}
-				{!isLoading && !error && filtered.length === 0 && (
-					<div className="motion-safe:animate-in motion-safe:fade-in duration-300">
-						<EmptyState
-							title="검색 결과가 없어요"
-							description="다른 이름이나 지역으로 검색해보세요"
-							actionLabel="필터 초기화"
-							onAction={() => {
-								setSearchInput("");
-								setDebouncedSearch("");
-								setSelectedTypes([]);
-								setToOnly(false);
-							}}
-							secondaryLabel="AI에게 추천받기"
-							secondaryHref="/chat?prompt=추천"
-						/>
-					</div>
+				{!isLoading && !error && facilities.length === 0 && (
+					<EmptyState
+						title="이 지역에 시설이 없어요"
+						description="다른 지역이나 검색어를 바꿔서 다시 찾아보세요."
+						actionLabel="필터 초기화"
+						onAction={handleResetFilters}
+						secondaryLabel="AI에게 추천받기"
+						secondaryHref="/chat?prompt=추천"
+					/>
 				)}
 			</div>
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/components/shared/AuthProvider";
 
 export const metadata: Metadata = {
 	title: "로그인",
@@ -11,8 +12,10 @@ export default function AuthLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<main className="relative mx-auto flex min-h-dvh max-w-md flex-col bg-dotori-50 px-6 pt-[22vh]">
-			{children}
-		</main>
+		<AuthProvider>
+			<main className="relative mx-auto flex min-h-dvh max-w-md flex-col bg-dotori-50 px-6 pt-[22vh]">
+				{children}
+			</main>
+		</AuthProvider>
 	);
 }
