@@ -403,9 +403,9 @@ export default function WaitlistPage() {
 								{/* 서류 제출 현황 */}
 								{item.requiredDocs &&
 									item.requiredDocs.length > 0 && (() => {
-										const total = item.requiredDocs!.length;
-										const submitted = item.requiredDocs!.filter(
-											(d) => d.submitted,
+										const total = item.requiredDocs?.length ?? 0;
+										const submitted = (
+											item.requiredDocs?.filter((d) => d.submitted) ?? []
 										).length;
 										const pct =
 											total > 0

@@ -67,8 +67,8 @@ export default function HomePage() {
 
 	const user = homeData?.user ?? null;
 	const greeting =
-		user != null && user!.nickname
-			? `${user!.nickname}님, 안녕하세요`
+		user?.nickname
+			? `${user.nickname}님, 안녕하세요`
 			: "도토리에 오신 것을 환영해요";
 
 	const nbaItems = useMemo(
