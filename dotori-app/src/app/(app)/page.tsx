@@ -11,7 +11,7 @@ import {
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { ErrorState } from "@/components/dotori/ErrorState";
@@ -24,8 +24,8 @@ import { generateNBAs, type NBAItem } from "@/lib/engine/nba-engine";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
 const quickActions = [
-	{ label: "이동 고민", href: "/chat?prompt=이동고민", Icon: ArrowPathIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
-	{ label: "반편성 비교", href: "/chat?prompt=반편성", Icon: ScaleIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
+	{ label: "이동 고민", prompt: "지금 다니는 어린이집에서 이동하고 싶어요. 어떻게 시작해야 할까요?", href: "/chat", Icon: ArrowPathIcon, bg: "bg-dotori-50", iconColor: "text-dotori-600" },
+	{ label: "반편성 비교", prompt: "아이 나이와 반편성 기준으로 다음 입소 가능 시설을 비교해줘", href: "/chat", Icon: ScaleIcon, bg: "bg-forest-50", iconColor: "text-forest-500" },
 	{ label: "빈자리 탐색", href: "/explore", Icon: MagnifyingGlassIcon, bg: "bg-dotori-50", iconColor: "text-dotori-500" },
 	{ label: "TO 알림", href: "/my/settings", Icon: BellAlertIcon, bg: "bg-red-50", iconColor: "text-red-400" },
 ];
@@ -101,17 +101,23 @@ export default function HomePage() {
 				data.alertCount > 0 ||
 				data.waitlistCount > 0),
 	);
-	const isTransitionMonth = (() => {
+	const todayTip = (() => {
 		const month = new Date().getMonth() + 1;
-		return month === 2 || month === 3;
+		if (month === 2 || month === 3) {
+			return "반편성 시즌이에요. 이동 고민이 있다면 지금이 골든타임이에요";
+		}
+		if (month === 4 || month === 5) {
+			return "봄 입소 시즌이에요. 국공립 대기 현황을 확인해보세요";
+		}
+		if (month === 9 || month === 10) {
+			return "하반기 입소 준비 시즌이에요. 지금 바로 탐색해보세요";
+		}
+		return "어린이집 정보를 AI로 분석해보세요";
 	})();
-	const todayTip = isTransitionMonth
-		? "반편성 결과가 마음에 들지 않는다면 지금이 바로 이동 골든타임이에요. 3월 첫 2주 안에 결정하는 게 유리해요."
-		: "반편성 결과가 마음에 들지 않는다면 지금이 바로 이동 골든타임이에요. 3월 첫 2주 안에 결정하는 게 유리해요.";
 
-	function dismissNBA(id: string) {
+	const handleDismiss = useCallback((id: string) => {
 		setDismissedNBAs((prev) => new Set(prev).add(id));
-	}
+	}, []);
 
 	const requestLocationAccess = useCallback(() => {
 		if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -299,7 +305,7 @@ export default function HomePage() {
 							<NBACard
 								key={nba.id}
 								nba={nba}
-								onDismiss={() => dismissNBA(nba.id)}
+								onDismiss={handleDismiss}
 							/>
 						))}
 					</section>
@@ -315,7 +321,13 @@ export default function HomePage() {
 							{quickActions.map((action, i) => (
 								<Link
 									key={action.label}
-									href={action.href}
+									href={
+										action.prompt
+											? `${action.href}?prompt=${encodeURIComponent(
+													action.prompt,
+											  )}`
+											: action.href
+									}
 									className={cn(
 										"flex shrink-0 items-center gap-2.5 rounded-full bg-white px-5 py-3.5 shadow-sm",
 										"text-[15px] font-medium text-dotori-700 transition-all",
@@ -590,12 +602,12 @@ export default function HomePage() {
 	);
 }
 
-function NBACard({
+const NBACard = memo(function NBACard({
 	nba,
 	onDismiss,
 }: {
 	nba: NBAItem;
-	onDismiss: () => void;
+	onDismiss: (id: string) => void;
 }) {
 	return (
 		<div
@@ -605,7 +617,7 @@ function NBACard({
 			)}
 		>
 			<button
-				onClick={onDismiss}
+				onClick={() => onDismiss(nba.id)}
 				aria-label="닫기"
 				className="absolute right-2 top-2 rounded-full p-2 text-dotori-500 transition-colors hover:bg-dotori-100 hover:text-dotori-600"
 			>
@@ -626,4 +638,4 @@ function NBACard({
 			)}
 		</div>
 	);
-}
+});
