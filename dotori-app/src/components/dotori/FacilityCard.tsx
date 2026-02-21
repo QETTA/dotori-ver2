@@ -18,6 +18,11 @@ export const FacilityCard = memo(function FacilityCard({
   onAction?: (action: ActionType, facilityId: string) => void
   compact?: boolean
 }) {
+  const availableSeats = facility.capacity.total - facility.capacity.current
+  const lastSyncedAtTime = new Date(facility.lastSyncedAt).getTime()
+  const hasRecentUpdate =
+    Number.isFinite(lastSyncedAtTime) && Date.now() - lastSyncedAtTime <= 7 * 24 * 60 * 60 * 1000
+
   const statusColor = {
     available: 'border-l-4 border-l-forest-500/90',
     waiting: 'border-l-4 border-l-warning/90',
@@ -56,13 +61,22 @@ export const FacilityCard = memo(function FacilityCard({
           </span>
         </div>
         <div className="text-right">
-          <span className="block text-[15px] font-bold">
-            {facility.status === 'available'
-              ? `TO ${facility.capacity.total - facility.capacity.current}`
-              : facility.status === 'waiting'
-                ? `대기 ${facility.capacity.waiting}`
-                : '마감'}
-          </span>
+          {facility.status === 'available' ? (
+            <span className="inline-flex items-center rounded-full bg-forest-100 px-2.5 py-0.5 text-[12px] font-bold uppercase tracking-wide text-forest-500">
+              TO 있음
+            </span>
+          ) : (
+            <span className="block text-[15px] font-bold">
+              {facility.status === 'waiting' ? `대기 ${facility.capacity.waiting}` : '마감'}
+            </span>
+          )
+          }
+          {facility.status === 'available' && (
+            <span className="mt-1 block text-[11px] text-forest-500">자리 {availableSeats}석</span>
+          )}
+          {hasRecentUpdate && (
+            <span className="mt-0.5 block text-[11px] text-forest-600">최근 업데이트</span>
+          )}
           <span className="text-[11px] text-dotori-500" suppressHydrationWarning>{formatRelativeTime(facility.lastSyncedAt)}</span>
         </div>
       </div>

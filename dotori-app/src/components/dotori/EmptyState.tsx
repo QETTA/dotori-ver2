@@ -51,6 +51,7 @@ export default function EmptyStateFallback({
 export function EmptyState({
 	icon,
 	title,
+	variant = "default",
 	description,
 	actionLabel,
 	actionHref,
@@ -60,6 +61,7 @@ export function EmptyState({
 }: {
 	icon?: ReactNode;
 	title: string;
+	variant?: "search" | "transfer" | "default";
 	description?: string;
 	actionLabel?: string;
 	actionHref?: string;
@@ -67,6 +69,24 @@ export function EmptyState({
 	secondaryLabel?: string;
 	secondaryHref?: string;
 }) {
+	const resolvedDescription =
+		description ??
+		(variant === "transfer"
+			? "요청하신 이동 조건에 맞는 시설을 찾지 못했습니다. 조건을 조정해 다시 검색해 보세요."
+			: undefined)
+
+	const transferIcon = (
+		<div className="mb-5 rounded-full bg-forest-100 px-5 py-3 text-2xl text-forest-500">
+			↔️
+		</div>
+	)
+
+	const resolvedIcon =
+		icon ??
+		(variant === "transfer"
+			? transferIcon
+			: null)
+
 	return (
 		<div
 			className={cn(
@@ -74,9 +94,9 @@ export function EmptyState({
 				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-300"
 			)}
 		>
-			{icon ? (
+			{resolvedIcon ? (
 				<div className="mb-5 rounded-full bg-dotori-100 p-6 text-dotori-500">
-					{icon}
+					{resolvedIcon}
 				</div>
 			) : (
 				// eslint-disable-next-line @next/next/no-img-element
@@ -88,9 +108,9 @@ export function EmptyState({
 				/>
 			)}
 			<h3 className="text-lg font-semibold text-dotori-800">{title}</h3>
-			{description && (
+			{resolvedDescription && (
 				<p className="mt-2 max-w-xs text-[15px] leading-relaxed text-dotori-500">
-					{description}
+					{resolvedDescription}
 				</p>
 			)}
 			{actionLabel && (
