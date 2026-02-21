@@ -6,9 +6,12 @@
 function required(name: string): string {
 	const value = process.env[name];
 	if (!value) {
-		// During next build, server modules are evaluated but runtime env vars may not exist
-		if (process.env.NEXT_PHASE === "phase-production-build") {
-			return `__BUILD_PLACEHOLDER_${name}__`;
+		// During Docker/CI build, server modules are evaluated but runtime env vars may not exist
+		if (
+			process.env.SKIP_ENV_VALIDATION === "1" ||
+			process.env.NEXT_PHASE === "phase-production-build"
+		) {
+			return "";
 		}
 		throw new Error(
 			`${name} 환경변수를 .env.local에 설정해주세요`,
