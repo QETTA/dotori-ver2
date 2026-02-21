@@ -26,6 +26,51 @@ type UserContext = {
 	region?: { sido: string; sigungu: string };
 };
 
+type TransferScenario =
+	| "반편성"
+	| "교사교체"
+	| "설명회실망"
+	| "국공립당첨"
+	| "이사예정"
+	| "일반";
+
+const transferScenarioEmpathy: Record<TransferScenario, string> = {
+	반편성: "반편성 결과가 실망스러우셨군요. 이동 골든타임은 3월 초예요...",
+	교사교체: "교사 교체 후 불안한 마음이 드실 수 있어요...",
+	설명회실망:
+		"설명회에서 기대와 다르게 느껴져 많이 당황스럽고 실망스러우셨겠어요. 일단 지금 상황을 다시 한 번 차분히 정리해봐요.",
+	국공립당첨:
+		"국공립 당첨 축하해요! 현재 시설과 비교해볼게요..."
+	,	이사예정:
+		"이사 예정이라 생활권 변화가 커서 걱정이 클 거예요. 이동 준비를 같이 정리해드릴게요.",
+	일반:
+		"어린이집 이동 고민이 크시겠어요. 이동 이유를 먼저 파악하고, 지역·우선순위·시기까지 같이 확인해 다음 단계를 잡아드릴게요.",
+};
+
+function detectTransferScenario(message: string): TransferScenario {
+	const lower = message.toLowerCase();
+	if (lower.includes("반편성") || lower.includes("반 배정") || lower.includes("같은 반") || lower.includes("친한 친구")) {
+		return "반편성";
+	}
+	if (lower.includes("선생님 바뀌") || lower.includes("교사 교체") || lower.includes("담임 바뀌")) {
+		return "교사교체";
+	}
+	if (lower.includes("설명회") || lower.includes("원장 태도") || lower.includes("시설이 낡")) {
+		return "설명회실망";
+	}
+	if (lower.includes("국공립 당첨") || lower.includes("대기 당첨") || lower.includes("연락 왔")) {
+		return "국공립당첨";
+	}
+	if (
+		lower.includes("이사") ||
+		lower.includes("이사 예정") ||
+		lower.includes("통원 거리")
+	) {
+		return "이사예정";
+	}
+	return "일반";
+}
+
 type RegionMatch = { sido: string; sigungu: string; confidence: number };
 type ExtractedRegion = { sido?: string; sigungu?: string; confidence: number };
 
@@ -415,6 +460,8 @@ async function buildTransferResponse(
 	userProfile?: UserContext,
 	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
+	const scenario = detectTransferScenario(message);
+	const empathyPrefix = transferScenarioEmpathy[scenario];
 	const aiResponse = await generateChatResponse(
 		`사용자 상황: ${message}
 다음 톤과 순서로 상담해주세요:
@@ -433,8 +480,8 @@ async function buildTransferResponse(
 
 	const content =
 		aiResponse.success && aiResponse.content
-			? aiResponse.content
-			: "어린이집 이동 고민이 크시겠어요. 이동 이유를 먼저 파악하고, 지역·우선순위·시기까지 같이 확인해 다음 단계를 잡아드릴게요.";
+			? `${empathyPrefix}\n\n${aiResponse.content}`
+			: empathyPrefix;
 
 	return {
 		content,
