@@ -126,4 +126,9 @@
 	.hide-scrollbar::-webkit-scrollbar {
 		display: none;
 	}
+
+	:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [role='option'], [role='menuitem'], [role='checkbox'], [role='radio'])[tabindex]:focus-visible,
+	:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [role='option'], [role='menuitem'], [role='checkbox'], [role='radio']):focus-visible {
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400;
+	}
 }

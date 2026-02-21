@@ -166,14 +166,16 @@ export default function MyPage() {
 							<img
 								src={BRAND.appIconDark}
 								alt=""
+								aria-hidden="true"
 								className="h-10 w-10 blur-[1px]"
 							/>
 							<div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
 						</div>
 						<div>
 							<h1 className="text-xl font-bold">어린이집 찾고 계신가요?</h1>
-							<p className="mt-0.5 text-[15px] text-dotori-400">
+							<p className="mt-0.5 text-[15px] text-dotori-500">
 								도토리가 수도권 20,027개 시설을 분석해드려요
+
 							</p>
 						</div>
 					</div>
@@ -217,6 +219,7 @@ export default function MyPage() {
 											</p>
 										</div>
 									</div>
+
 								</div>
 							);
 						})}
@@ -254,7 +257,8 @@ export default function MyPage() {
 												"border-b border-dotori-100/40",
 										)}
 									>
-										<Icon className="h-5 w-5 text-dotori-400" />
+										<Icon className="h-5 w-5 text-dotori-500" />
+
 										<span className="flex-1 text-[15px]">{item.label}</span>
 										<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
 									</Link>
@@ -320,7 +324,7 @@ export default function MyPage() {
 								{planLabel}
 							</Badge>
 						</div>
-						<p className="mt-0.5 text-[14px] text-dotori-400">
+						<p className="mt-0.5 text-[14px] text-dotori-500">
 							{formatRegion(user.region)}
 						</p>
 					</div>
@@ -372,13 +376,13 @@ export default function MyPage() {
 									<span className="text-[15px] font-semibold">
 										{child.name}
 									</span>
-									<span className="ml-1.5 text-[14px] text-dotori-400">
+									<span className="ml-1.5 text-[14px] text-dotori-500">
 										{calculateAge(child.birthDate)}
 									</span>
 								</div>
 								<Link
 									href="/my/settings"
-									className="py-1 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
+									className="py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
 								>
 									수정
 								</Link>
@@ -413,7 +417,7 @@ export default function MyPage() {
 						<span className="block text-[15px] font-semibold text-dotori-900">
 							아이사랑 데이터 가져오기
 						</span>
-						<span className="text-[13px] text-dotori-400">
+						<span className="text-[13px] text-dotori-500">
 							스크린샷 AI 분석으로 대기현황 자동 등록
 						</span>
 					</div>
@@ -440,7 +444,8 @@ export default function MyPage() {
 											"border-b border-dotori-100/40",
 									)}
 								>
-									<Icon className="h-5 w-5 text-dotori-400" />
+									<Icon className="h-5 w-5 text-dotori-500" />
+
 									<span className="flex-1 text-[15px]">{item.label}</span>
 									<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
 								</Link>

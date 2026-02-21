@@ -84,7 +84,7 @@ export default function InterestsPage() {
 				</Link>
 				<h1 className="text-base font-bold">관심 시설</h1>
 				{facilities.length > 0 && (
-					<span className="ml-auto text-[14px] text-dotori-400">
+					<span className="ml-auto text-[14px] text-dotori-500">
 						{facilities.length}곳
 					</span>
 				)}
@@ -106,7 +106,7 @@ export default function InterestsPage() {
 					<p className="mt-6 text-center text-[15px] font-medium text-dotori-500">
 						아직 관심 등록한 시설이 없어요
 					</p>
-					<p className="mt-1.5 text-center text-[14px] text-dotori-400">
+					<p className="mt-1.5 text-center text-[14px] text-dotori-500">
 						탐색에서 마음에 드는 어린이집에 하트를 눌러보세요
 					</p>
 					<Link
@@ -128,7 +128,7 @@ export default function InterestsPage() {
 							<button
 								onClick={() => removeInterest(facility.id)}
 								disabled={removingIds.has(facility.id)}
-								aria-label="관심 해제"
+								aria-label="관심 시설 추가/제거"
 								className={cn(
 									"absolute right-3 top-3 rounded-full p-2",
 									"bg-white/90 shadow-sm transition-all",

@@ -222,18 +222,27 @@ function CommunityWriteForm() {
 
 			{/* 제목 입력 */}
 			<div className="flex gap-2 px-5 pt-4">
+				<label htmlFor="community-post-title" className="sr-only">
+					제목
+				</label>
 				<input
+					id="community-post-title"
 					value={title}
 					onChange={(e) => setTitle(e.target.value)}
 					placeholder="제목을 입력해주세요"
 					maxLength={120}
-					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-[15px] outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
+					aria-required="true"
+					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-[15px] outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
 				/>
 			</div>
 
 			{/* 본문 입력 */}
 			<div className="mt-2 px-5">
+				<label htmlFor="community-post-content" className="sr-only">
+					내용
+				</label>
 				<textarea
+					id="community-post-content"
 					value={content}
 					onChange={(e) => setContent(e.target.value)}
 					placeholder={
@@ -243,12 +252,13 @@ function CommunityWriteForm() {
 					}
 					rows={10}
 					maxLength={5000}
-					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-[15px] leading-relaxed outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
+					aria-required="true"
+					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-[15px] leading-relaxed outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
 				/>
 				{content.trim().length > 0 && content.trim().length < 10 ? (
 					<p className="mt-1.5 text-[12px] text-dotori-600">내용은 최소 10자 이상이어야 합니다.</p>
 				) : null}
-				<div className="mt-1 text-right text-[12px] text-dotori-400">
+				<div className="mt-1 text-right text-[12px] text-dotori-500">
 					{content.length}/5000
 				</div>
 			</div>
@@ -293,7 +303,7 @@ function CommunityWriteForm() {
 						))}
 					</ul>
 				) : (
-					<p className="mt-2 text-[12px] text-dotori-400">
+					<p className="mt-2 text-[12px] text-dotori-500">
 						첨부한 이미지가 없습니다. 현재는 첨부 UI만 제공합니다.
 					</p>
 				)}
@@ -315,7 +325,7 @@ function CommunityWriteForm() {
 							}
 						}}
 						placeholder="시설 이름 입력"
-						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
+						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
 					/>
 					<button
 						onClick={addTag}
@@ -324,7 +334,7 @@ function CommunityWriteForm() {
 							"shrink-0 rounded-xl px-4 py-3 text-[14px] font-medium transition-all active:scale-[0.97]",
 							tagInput.trim()
 								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-400",
+								: "bg-dotori-100 text-dotori-500",
 						)}
 					>
 						추가
@@ -339,7 +349,7 @@ function CommunityWriteForm() {
 								className="flex items-center gap-1 rounded-full bg-dotori-100 px-3 py-1.5 text-[13px] font-medium text-dotori-600 transition-all active:scale-[0.97]"
 							>
 								{tag}
-								<span className="text-dotori-400">&times;</span>
+								<span className="text-dotori-500">&times;</span>
 							</button>
 						))}
 					</div>

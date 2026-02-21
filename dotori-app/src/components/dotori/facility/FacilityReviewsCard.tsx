@@ -25,7 +25,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 				{posts.length > 0 && (
 					<Link
 						href="/community"
-						className="text-[14px] text-dotori-400 hover:text-dotori-600"
+						className="text-[14px] text-dotori-500 hover:text-dotori-600"
 					>
 						더보기
 					</Link>
@@ -50,7 +50,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 									{post.author.nickname}
 								</span>
 								<span
-									className="text-[11px] text-dotori-400"
+									className="text-[11px] text-dotori-500"
 									suppressHydrationWarning
 								>
 									{formatRelativeTime(post.createdAt)}
@@ -60,7 +60,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 					))}
 				</div>
 			) : (
-				<p className="py-4 text-center text-[14px] text-dotori-400">
+				<p className="py-4 text-center text-[14px] text-dotori-500">
 					아직 후기가 없어요
 				</p>
 			)}

@@ -37,7 +37,7 @@ export function FacilityInsights({ facility }: FacilityInsightsProps) {
 						/>
 						<div className="min-w-0 flex-1">
 							<span>{insight.text}</span>
-							<span className="ml-1 text-[12px] text-dotori-400">
+							<span className="ml-1 text-[12px] text-dotori-500">
 								({insight.source})
 							</span>
 						</div>

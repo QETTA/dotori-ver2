@@ -240,8 +240,8 @@ export default function ImportPage() {
 								</div>
 							</div>
 							<div className="mt-3 rounded-2xl bg-dotori-50 p-4 text-center">
-								<CameraIcon className="mx-auto h-8 w-8 text-dotori-400" />
-								<p className="mt-2 text-[12px] text-dotori-400">
+								<CameraIcon className="mx-auto h-8 w-8 text-dotori-500" />
+								<p className="mt-2 text-[12px] text-dotori-500">
 									Android: 전원 + 볼륨↓ · iPhone: 전원 + 볼륨↑
 								</p>
 							</div>
@@ -285,11 +285,11 @@ export default function ImportPage() {
 						<section className="rounded-3xl bg-white p-5 shadow-sm">
 							<div className="flex items-center justify-between">
 								<h3 className="font-semibold">업로드한 스크린샷</h3>
-								<button
-									onClick={resetAll}
-									aria-label="다시하기"
-									className="p-1 text-dotori-400"
-								>
+							<button
+								onClick={resetAll}
+								aria-label="닫기"
+								className="p-1 text-dotori-500"
+							>
 									<XMarkIcon className="h-5 w-5" />
 								</button>
 							</div>
@@ -324,7 +324,7 @@ export default function ImportPage() {
 						<p className="text-[15px] font-medium text-dotori-700">
 							AI가 대기 정보를 읽고 있어요...
 						</p>
-						<p className="text-[13px] text-dotori-400">
+						<p className="text-[13px] text-dotori-500">
 							보통 5~10초 소요됩니다
 						</p>
 					</div>
@@ -339,7 +339,7 @@ export default function ImportPage() {
 							</h2>
 							<button
 								onClick={resetAll}
-								className="text-[13px] text-dotori-400 underline"
+								className="text-[13px] text-dotori-500 underline"
 							>
 								다시하기
 							</button>
@@ -394,7 +394,7 @@ export default function ImportPage() {
 														? "text-dotori-700"
 														: item.status === "입소확정"
 															? "text-forest-600"
-															: "text-dotori-400",
+															: "text-dotori-500",
 												)}
 											>
 												{item.status}
@@ -404,7 +404,7 @@ export default function ImportPage() {
 											)}
 										</div>
 										{(item.childName || item.childClass) && (
-											<div className="mt-1 text-[12px] text-dotori-400">
+											<div className="mt-1 text-[12px] text-dotori-500">
 												{item.childName && <span>{item.childName}</span>}
 												{item.childClass && (
 													<span> · {item.childClass}</span>

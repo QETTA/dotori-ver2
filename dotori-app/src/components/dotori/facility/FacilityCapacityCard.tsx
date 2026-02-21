@@ -30,7 +30,7 @@ export function FacilityCapacityCard({
 						<span className="text-3xl font-bold text-dotori-900">
 							{facility.capacity.total}
 						</span>
-						<span className="text-[14px] text-dotori-400">명 정원</span>
+						<span className="text-[14px] text-dotori-500">명 정원</span>
 					</div>
 					<span className={cn("rounded-full px-3 py-1.5 text-[13px] font-semibold", config.bgColor, config.textColor)}>
 						{config.label}
@@ -48,7 +48,7 @@ export function FacilityCapacityCard({
 				</div>
 
 				{/* 부가 정보 */}
-				<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-400">
+				<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-500">
 					{hasWaiting && (
 						<span>대기 <strong className="font-semibold text-dotori-700">{facility.capacity.waiting}명</strong></span>
 					)}
@@ -69,7 +69,7 @@ export function FacilityCapacityCard({
 					className={cn(
 						"mt-3 w-full rounded-3xl py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
 						actionStatus === "executing"
-							? "bg-dotori-200 text-dotori-400"
+							? "bg-dotori-200 text-dotori-500"
 							: facility.status === "available"
 								? "bg-gradient-to-r from-forest-600 to-forest-500 text-white shadow-sm hover:from-forest-700 hover:to-forest-600"
 								: "bg-gradient-to-r from-dotori-900 to-dotori-700 text-white shadow-sm hover:from-dotori-800 hover:to-dotori-700",

@@ -103,7 +103,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 										"h-6 w-6 transition-colors duration-200",
 										active
 											? "text-dotori-900"
-											: "text-dotori-400",
+											: "text-dotori-500",
 									)}
 								/>
 							</motion.div>
@@ -112,7 +112,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 									"relative z-10 text-[12px] tracking-tight transition-colors duration-200",
 									active
 										? "font-semibold text-dotori-900"
-										: "text-dotori-400",
+										: "text-dotori-500",
 								)}
 							>
 								{tab.label}

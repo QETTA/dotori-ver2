@@ -53,7 +53,7 @@ export default function NoticesPage() {
 							<h3 className="text-[15px] font-semibold text-dotori-900">
 								{notice.title}
 							</h3>
-							<span className="shrink-0 text-[12px] text-dotori-400">
+							<span className="shrink-0 text-[12px] text-dotori-500">
 								{notice.date}
 							</span>
 						</div>

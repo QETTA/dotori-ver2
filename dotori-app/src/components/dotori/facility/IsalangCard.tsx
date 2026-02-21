@@ -39,7 +39,7 @@ export function IsalangCard() {
 					우선순위 서류제출
 				</button>
 			</div>
-			<p className="mt-2.5 text-center text-[11px] text-dotori-400">
+			<p className="mt-2.5 text-center text-[11px] text-dotori-500">
 				모바일: 앱 실행 · 데스크톱: 웹 포털 (공동인증서 필요)
 			</p>
 		</section>

@@ -198,7 +198,7 @@ export function MapEmbed({
 					height || "h-48",
 				)}
 			>
-				<span className="text-[14px] text-dotori-400">
+				<span className="text-[14px] text-dotori-500">
 					지도를 표시할 수 없어요
 				</span>
 			</div>
@@ -221,7 +221,7 @@ export function MapEmbed({
 			{!sdkReady && !mapError && (
 				<div className="absolute inset-0 flex items-center justify-center bg-dotori-100 motion-safe:animate-pulse">
 					<svg
-						className="mr-2 h-5 w-5 text-dotori-400"
+						className="mr-2 h-5 w-5 text-dotori-500"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -240,7 +240,7 @@ export function MapEmbed({
 							d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
 						/>
 					</svg>
-					<span className="text-[14px] text-dotori-400">
+					<span className="text-[14px] text-dotori-500">
 						지도 로딩 중...
 					</span>
 				</div>
@@ -249,7 +249,7 @@ export function MapEmbed({
 			{/* Error overlay */}
 			{mapError && (
 				<div className="absolute inset-0 flex items-center justify-center bg-dotori-100">
-					<span className="text-[14px] text-dotori-400">
+					<span className="text-[14px] text-dotori-500">
 						지도를 표시할 수 없어요
 					</span>
 				</div>

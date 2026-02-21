@@ -9,9 +9,14 @@ export function Skeleton({
 	variant: "card" | "list" | "chat" | "text" | "facility-card" | "facility-detail" | "community-post" | "home";
 	count?: number;
 }) {
+	const loadingProps = {
+		"aria-busy": true,
+		"aria-label": "로딩 중",
+	};
+
 	if (variant === "card") {
 		return (
-			<div className="space-y-3">
+			<div className="space-y-3" role="status" {...loadingProps}>
 				{Array.from({ length: count }).map((_, i) => (
 					<div key={`sk-${i}`} className={cn(pulse, "h-44")} />
 				))}
@@ -21,7 +26,7 @@ export function Skeleton({
 
 	if (variant === "facility-card") {
 		return (
-			<div className="space-y-3">
+			<div className="space-y-3" role="status" {...loadingProps}>
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
@@ -46,7 +51,7 @@ export function Skeleton({
 
 	if (variant === "facility-detail") {
 		return (
-			<div className="space-y-4 px-4">
+			<div className="space-y-4 px-4" role="status" {...loadingProps}>
 				{/* Photo placeholder */}
 				<div className={cn(pulse, "h-48")} />
 				{/* Info card */}
@@ -74,7 +79,7 @@ export function Skeleton({
 
 	if (variant === "community-post") {
 		return (
-			<div className="space-y-3">
+			<div className="space-y-3" role="status" {...loadingProps}>
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
@@ -103,7 +108,7 @@ export function Skeleton({
 
 	if (variant === "home") {
 		return (
-			<div className="space-y-5 px-4 mt-5">
+			<div className="space-y-5 px-4 mt-5" role="status" {...loadingProps}>
 				{/* AI Briefing */}
 				<div className={cn(pulse, "h-32")} />
 				{/* Quick actions */}
@@ -135,7 +140,7 @@ export function Skeleton({
 
 	if (variant === "list") {
 		return (
-			<div>
+			<div role="status" {...loadingProps}>
 				{Array.from({ length: count }).map((_, i) => (
 					<div key={`sk-${i}`} className="flex items-center gap-3 py-3.5">
 						<div className={cn(pulse, "h-10 w-10 rounded-full")} />
@@ -151,7 +156,7 @@ export function Skeleton({
 
 	if (variant === "chat") {
 		return (
-			<div className="mb-3 flex gap-2.5">
+			<div className="mb-3 flex gap-2.5" role="status" {...loadingProps}>
 				<div className={cn(pulse, "h-9 w-9 shrink-0 rounded-full")} />
 				<div className={cn(pulse, "h-24 w-3/4 rounded-xl rounded-bl-sm")} />
 			</div>
@@ -160,7 +165,7 @@ export function Skeleton({
 
 	// text
 	return (
-		<div>
+		<div role="status" {...loadingProps}>
 			{Array.from({ length: count }).map((_, i) => (
 				<div
 					key={`sk-${i}`}

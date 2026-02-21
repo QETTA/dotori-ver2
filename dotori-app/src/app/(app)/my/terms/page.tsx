@@ -70,7 +70,7 @@ export default function TermsPage() {
 							onClick={() =>
 								setExpanded(expanded === section.id ? null : section.id)
 							}
-							className="mt-3 flex items-center gap-1 text-[14px] font-medium text-dotori-400 transition-colors hover:text-dotori-600"
+							className="mt-3 flex items-center gap-1 text-[14px] font-medium text-dotori-500 transition-colors hover:text-dotori-600"
 						>
 							{expanded === section.id ? "접기" : "전문 보기"}
 							<ChevronDownIcon

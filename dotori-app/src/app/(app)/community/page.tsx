@@ -384,7 +384,7 @@ export default function CommunityPage() {
 				<div className="relative flex items-center justify-between pb-3">
 					<h1 className="text-xl font-bold">이웃</h1>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img src={BRAND.socialCream} alt="" className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 opacity-[0.06]" />
+					<img src={BRAND.socialCream} alt="" aria-hidden="true" className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 opacity-[0.06]" />
 				</div>
 
 				{/* 탭 -- 밑줄 스타일 */}
@@ -399,7 +399,7 @@ export default function CommunityPage() {
 								"flex-1 py-3 text-center text-[15px] font-medium transition-all",
 								activeTab === tab
 									? "border-b-2 border-dotori-900 text-dotori-900"
-									: "text-dotori-400",
+									: "text-dotori-500",
 							)}
 						>
 							{tab}
@@ -511,7 +511,7 @@ export default function CommunityPage() {
 												)}
 											</div>
 											<span
-												className="text-[13px] text-dotori-400"
+												className="text-[13px] text-dotori-500"
 												suppressHydrationWarning
 											>
 												{formatRelativeTime(post.createdAt)}
@@ -555,7 +555,7 @@ export default function CommunityPage() {
 													"flex items-center gap-1.5 py-1 text-[13px] font-medium transition-colors",
 													showAiSummary[post.id]
 														? "text-dotori-600"
-														: "text-dotori-400",
+														: "text-dotori-500",
 												)}
 											>
 												<SparklesIcon className="h-4 w-4" />
@@ -574,7 +574,7 @@ export default function CommunityPage() {
 									)}
 
 									{/* 액션 바 */}
-									<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-400">
+									<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-500">
 										<button
 											onClick={() => toggleLike(post.id)}
 											disabled={likingPosts.has(post.id)}
@@ -601,7 +601,7 @@ export default function CommunityPage() {
 											<ChatBubbleLeftIcon className="h-5 w-5" />
 											{post.commentCount}
 										</Link>
-										<div className="flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 text-dotori-400">
+										<div className="flex min-h-12 items-center gap-1.5 rounded-full px-3 py-2 text-dotori-500">
 											<EyeIcon className="h-5 w-5" />
 											조회 {post.viewCount ?? 0}
 										</div>

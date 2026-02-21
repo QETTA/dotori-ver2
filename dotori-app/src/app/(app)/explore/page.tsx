@@ -433,7 +433,7 @@ function ExploreContent() {
 				{/* 검색바 */}
 				<div ref={searchContainerRef} className="relative">
 					<form onSubmit={handleFormSubmit}>
-						<MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dotori-400" />
+						<MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dotori-500" />
 						<input
 							type="text"
 							value={searchInput}
@@ -450,7 +450,7 @@ function ExploreContent() {
 									setDebouncedSearch("");
 								}}
 								aria-label="검색어 지우기"
-								className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-dotori-400"
+								className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-dotori-500"
 							>
 								<XMarkIcon className="h-5 w-5" />
 							</button>
@@ -465,7 +465,7 @@ function ExploreContent() {
 								<div className="mb-4">
 									<div className="mb-2.5 flex items-center justify-between">
 										<div className="flex items-center gap-1.5">
-											<ClockIcon className="h-4 w-4 text-dotori-400" />
+											<ClockIcon className="h-4 w-4 text-dotori-500" />
 											<span className="text-[13px] font-medium text-dotori-500">
 												최근 검색
 											</span>
@@ -473,7 +473,7 @@ function ExploreContent() {
 										<button
 											type="button"
 											onClick={handleClearRecent}
-											className="text-[12px] text-dotori-400 transition-colors hover:text-dotori-600"
+											className="text-[12px] text-dotori-500 transition-colors hover:text-dotori-600"
 										>
 											전체 삭제
 										</button>
@@ -497,7 +497,7 @@ function ExploreContent() {
 							{/* 인기 검색어 */}
 							<div>
 								<div className="mb-2.5 flex items-center gap-1.5">
-									<MagnifyingGlassIcon className="h-4 w-4 text-dotori-400" />
+									<MagnifyingGlassIcon className="h-4 w-4 text-dotori-500" />
 									<span className="text-[13px] font-medium text-dotori-500">
 										인기 검색어
 									</span>
@@ -522,7 +522,7 @@ function ExploreContent() {
 				{/* 컨트롤 바: 결과 수 + TO 토글 + 필터 + 지도 */}
 				<div className="mt-3 flex items-center gap-2">
 					{/* 결과 수 */}
-					<span className="mr-auto shrink-0 whitespace-nowrap text-[14px] text-dotori-400">
+					<span className="mr-auto shrink-0 whitespace-nowrap text-[14px] text-dotori-500">
 						{resultLabel}
 					</span>
 
@@ -781,7 +781,7 @@ function ExploreContent() {
 														{f.name}
 													</span>
 													{f.rating > 0 && (
-														<span className="ml-1 text-[13px] text-dotori-400">
+														<span className="ml-1 text-[13px] text-dotori-500">
 															★ {f.rating}
 														</span>
 													)}
@@ -814,7 +814,7 @@ function ExploreContent() {
 															? "text-forest-700"
 															: f.status === "waiting"
 																? "text-dotori-700"
-																: "text-dotori-400",
+																: "text-dotori-500",
 													)}
 												>
 													{f.status === "available"
@@ -828,7 +828,7 @@ function ExploreContent() {
 										{/* 정원·대기 미니바 */}
 										{f.capacity.total > 0 && (
 											<div className="mx-5 mb-3">
-												<div className="flex items-center justify-between text-[11px] text-dotori-400">
+												<div className="flex items-center justify-between text-[11px] text-dotori-500">
 													<span>정원 {f.capacity.total}명</span>
 													<span>
 														{f.status === "available"

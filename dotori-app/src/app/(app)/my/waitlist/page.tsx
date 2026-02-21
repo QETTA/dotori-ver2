@@ -146,7 +146,7 @@ export default function WaitlistPage() {
 				</Link>
 				<h1 className="text-base font-bold">대기 신청 현황</h1>
 				{waitlists.length > 0 && (
-					<span className="ml-auto text-[14px] text-dotori-400">
+					<span className="ml-auto text-[14px] text-dotori-500">
 						{waitlists.length}건
 					</span>
 				)}
@@ -175,7 +175,7 @@ export default function WaitlistPage() {
 					<p className="mt-6 text-center text-[15px] font-medium text-dotori-500">
 						대기 중인 어린이집이 없어요
 					</p>
-					<p className="mt-1.5 text-center text-[14px] text-dotori-400">
+					<p className="mt-1.5 text-center text-[14px] text-dotori-500">
 						관심 시설에서 대기 신청을 하면 여기서 현황을 확인할 수 있어요
 					</p>
 					<Link
@@ -221,7 +221,7 @@ export default function WaitlistPage() {
 											{facility?.name || "시설 정보 없음"}
 										</h3>
 										{facility && (
-											<p className="mt-0.5 text-[13px] text-dotori-400">
+											<p className="mt-0.5 text-[13px] text-dotori-500">
 												{facility.type} · {facility.address}
 											</p>
 										)}
@@ -253,7 +253,7 @@ export default function WaitlistPage() {
 								{/* 대기 상태 요약 */}
 								<div className="mt-3 grid grid-cols-2 gap-2">
 									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-										<span className="block text-[12px] text-dotori-400">
+										<span className="block text-[12px] text-dotori-500">
 											현재 대기 순위
 										</span>
 										<span className="mt-0.5 inline-flex items-center justify-center gap-1">
@@ -293,7 +293,7 @@ export default function WaitlistPage() {
 										</span>
 									</div>
 									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-										<span className="block text-[12px] text-dotori-400">
+										<span className="block text-[12px] text-dotori-500">
 											예상 입소 시기
 										</span>
 										<span className="text-[13px] font-bold text-dotori-900">
@@ -306,7 +306,7 @@ export default function WaitlistPage() {
 								{facility && (
 									<div className="mt-3 flex gap-3">
 										<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-											<span className="block text-[13px] text-dotori-400">
+											<span className="block text-[13px] text-dotori-500">
 												정원
 											</span>
 											<span className="text-[14px] font-bold text-dotori-900">
@@ -314,7 +314,7 @@ export default function WaitlistPage() {
 											</span>
 										</div>
 										<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-											<span className="block text-[13px] text-dotori-400">
+											<span className="block text-[13px] text-dotori-500">
 												현원
 											</span>
 											<span className="text-[14px] font-bold text-dotori-900">
@@ -329,7 +329,7 @@ export default function WaitlistPage() {
 													: "bg-dotori-50",
 											)}
 										>
-											<span className="block text-[13px] text-dotori-400">
+											<span className="block text-[13px] text-dotori-500">
 												{facility.status === "available"
 													? "여석"
 													: "대기"}
@@ -390,7 +390,7 @@ export default function WaitlistPage() {
 														}}
 													/>
 												</div>
-												<p className="mt-1.5 text-[12px] text-dotori-400">
+												<p className="mt-1.5 text-[12px] text-dotori-500">
 													{pct === 100
 														? "모든 서류가 준비되었어요"
 														: "탭하여 서류를 확인하세요"}
@@ -442,11 +442,11 @@ export default function WaitlistPage() {
 						<p className="text-[14px] font-semibold text-dotori-900">
 							스크린샷으로 대기현황 가져오기
 						</p>
-						<p className="mt-0.5 text-[12px] text-dotori-400">
+						<p className="mt-0.5 text-[12px] text-dotori-500">
 							아이사랑 앱 스크린샷을 찍으면 AI가 자동으로 분석해요
 						</p>
 					</div>
-					<span className="text-[13px] text-dotori-400">→</span>
+					<span className="text-[13px] text-dotori-500">→</span>
 				</Link>
 			)}
 

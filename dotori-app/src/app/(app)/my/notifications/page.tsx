@@ -194,7 +194,7 @@ export default function NotificationsPage() {
 													시설 정보를 확인할 수 없어요
 												</h3>
 											)}
-											<span className="mt-1.5 block text-[12px] text-dotori-400" suppressHydrationWarning>
+											<span className="mt-1.5 block text-[12px] text-dotori-500" suppressHydrationWarning>
 												{formatRelativeTime(notification.triggeredAt)}
 											</span>
 										</div>

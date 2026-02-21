@@ -98,13 +98,13 @@ function getProgressStateClass(state: ProgressState) {
 			? "bg-dotori-500 text-white"
 			: state === "fail"
 				? "bg-red-500 text-white"
-				: "border border-dotori-200 bg-white text-dotori-400";
+				: "border border-dotori-200 bg-white text-dotori-500";
 }
 
 function getProgressTextClass(state: ProgressState) {
 	return state === "done" || state === "active" || state === "fail"
 		? "text-dotori-700"
-		: "text-dotori-400";
+		: "text-dotori-500";
 }
 
 function getProgressSymbol(state: ProgressState) {
@@ -292,7 +292,7 @@ export default function WaitlistDetailPage() {
 						<h2 className="text-[16px] font-bold text-dotori-900">
 							{facility.name}
 						</h2>
-						<p className="mt-0.5 text-[13px] text-dotori-400">
+						<p className="mt-0.5 text-[13px] text-dotori-500">
 							{facility.type} · {facility.address}
 						</p>
 					</Link>
@@ -300,7 +300,7 @@ export default function WaitlistDetailPage() {
 					{/* 현황 */}
 					<div className="mt-3 flex gap-2.5">
 						<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center">
-							<span className="block text-[12px] text-dotori-400">
+							<span className="block text-[12px] text-dotori-500">
 								정원
 							</span>
 							<span className="text-[15px] font-bold text-dotori-900">
@@ -308,7 +308,7 @@ export default function WaitlistDetailPage() {
 							</span>
 						</div>
 						<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center">
-							<span className="block text-[12px] text-dotori-400">
+							<span className="block text-[12px] text-dotori-500">
 								현원
 							</span>
 							<span className="text-[15px] font-bold text-dotori-900">
@@ -323,7 +323,7 @@ export default function WaitlistDetailPage() {
 									: "bg-dotori-50",
 							)}
 						>
-							<span className="block text-[12px] text-dotori-400">
+							<span className="block text-[12px] text-dotori-500">
 								{facility.status === "available"
 									? "여석"
 									: "대기"}
@@ -406,27 +406,27 @@ export default function WaitlistDetailPage() {
 				</div>
 				<div className="mt-3 space-y-2 text-[14px]">
 					<div className="flex justify-between">
-						<span className="text-dotori-400">아이 이름</span>
+						<span className="text-dotori-500">아이 이름</span>
 						<span className="font-medium text-dotori-900">
 							{data.childName}
 						</span>
 					</div>
 					<div className="flex justify-between">
-						<span className="text-dotori-400">생년월일</span>
+						<span className="text-dotori-500">생년월일</span>
 						<span className="font-medium text-dotori-900">
 							{data.childBirthDate}
 						</span>
 					</div>
 					{data.ageClass && (
 						<div className="flex justify-between">
-							<span className="text-dotori-400">배정 연령반</span>
+							<span className="text-dotori-500">배정 연령반</span>
 							<span className="font-medium text-dotori-900">
 								{data.ageClass}
 							</span>
 						</div>
 					)}
 					<div className="flex justify-between">
-						<span className="text-dotori-400">신청일</span>
+						<span className="text-dotori-500">신청일</span>
 						<span
 							className="font-medium text-dotori-900"
 							suppressHydrationWarning
@@ -486,7 +486,7 @@ export default function WaitlistDetailPage() {
 								</span>
 							</div>
 						) : (
-							<p className="mt-3 text-[13px] text-dotori-400">
+							<p className="mt-3 text-[13px] text-dotori-500">
 								준비된 서류를 체크하세요. 실시간으로 저장됩니다.
 							</p>
 						)}
@@ -530,7 +530,7 @@ export default function WaitlistDetailPage() {
 													className={cn(
 														"text-[14px] leading-snug",
 														doc.submitted
-															? "text-dotori-400 line-through"
+															? "text-dotori-500 line-through"
 															: "text-dotori-900",
 													)}
 												>
@@ -561,11 +561,11 @@ export default function WaitlistDetailPage() {
 			{/* 서류 없는 경우 안내 */}
 			{totalDocs === 0 && (
 				<section className="mx-4 mt-3 rounded-2xl bg-dotori-50 p-5 text-center">
-					<ExclamationTriangleIcon className="mx-auto h-8 w-8 text-dotori-400" />
+					<ExclamationTriangleIcon className="mx-auto h-8 w-8 text-dotori-500" />
 					<p className="mt-2 text-[14px] text-dotori-500">
 						서류 체크리스트가 아직 생성되지 않았어요
 					</p>
-					<p className="mt-1 text-[12px] text-dotori-400">
+					<p className="mt-1 text-[12px] text-dotori-500">
 						이전에 신청한 건이라면 시설에 직접 문의해주세요
 					</p>
 				</section>
@@ -576,7 +576,7 @@ export default function WaitlistDetailPage() {
 				<h3 className="text-[14px] font-semibold text-dotori-700">
 					아이사랑 앱으로 바로가기
 				</h3>
-				<p className="mt-1 text-[12px] text-dotori-400">
+				<p className="mt-1 text-[12px] text-dotori-500">
 					공식 대기현황 조회 및 서류제출은 아이사랑 앱에서 진행해요
 				</p>
 				<button
@@ -600,7 +600,7 @@ export default function WaitlistDetailPage() {
 						서류제출
 					</button>
 				</div>
-				<p className="mt-2 text-center text-[11px] text-dotori-400">
+				<p className="mt-2 text-center text-[11px] text-dotori-500">
 					모바일: 앱 실행 · 데스크톱: 웹 포털 (공동인증서 필요)
 				</p>
 			</section>

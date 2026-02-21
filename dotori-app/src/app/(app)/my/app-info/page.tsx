@@ -37,7 +37,7 @@ export default function AppInfoPage() {
 						</p>
 						<div className="mt-4 flex gap-4">
 							<div className="text-center">
-								<span className="block text-[13px] text-dotori-400">
+								<span className="block text-[13px] text-dotori-500">
 									버전
 								</span>
 								<span className="text-[15px] font-semibold text-dotori-900">
@@ -46,7 +46,7 @@ export default function AppInfoPage() {
 							</div>
 							<div className="h-8 w-px bg-dotori-100" />
 							<div className="text-center">
-								<span className="block text-[13px] text-dotori-400">
+								<span className="block text-[13px] text-dotori-500">
 									빌드
 								</span>
 								<span className="text-[15px] font-semibold text-dotori-900">

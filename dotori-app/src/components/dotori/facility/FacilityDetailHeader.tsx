@@ -62,13 +62,13 @@ export function FacilityDetailHeader({
 				<button
 					onClick={onToggleLike}
 					disabled={isTogglingLike}
-					aria-label={liked ? "관심 해제" : "관심 등록"}
+					aria-label="관심 시설 추가/제거"
 					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
 				>
 					{liked ? (
 						<HeartSolid className="h-6 w-6 text-red-500 motion-safe:animate-in motion-safe:zoom-in duration-200" />
 					) : (
-						<HeartOutline className="h-6 w-6 text-dotori-400" />
+						<HeartOutline className="h-6 w-6 text-dotori-500" />
 					)}
 				</button>
 				<button
@@ -76,7 +76,7 @@ export function FacilityDetailHeader({
 					aria-label="공유"
 					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
 				>
-					<ShareIcon className="h-6 w-6 text-dotori-400" />
+					<ShareIcon className="h-6 w-6 text-dotori-500" />
 				</button>
 			</div>
 		</header>

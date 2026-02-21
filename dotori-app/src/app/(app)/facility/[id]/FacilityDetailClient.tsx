@@ -468,7 +468,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 									key={stat.label}
 									className="rounded-2xl border border-dotori-100 bg-dotori-50/60 px-3 py-3"
 								>
-									<p className="text-[12px] text-dotori-400">{stat.label}</p>
+									<p className="text-[12px] text-dotori-500">{stat.label}</p>
 									<p className="mt-1 text-base font-semibold text-dotori-800">{stat.value}</p>
 								</div>
 							))}
@@ -491,7 +491,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 							))}
 						</div>
 					) : (
-						<p className="mt-3 text-sm text-dotori-400">표시 가능한 특징이 없어요.</p>
+						<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
 					)}
 				</section>
 
@@ -507,7 +507,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 							<span>{facility.phone}</span>
 						</a>
 					) : (
-						<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-400">
+						<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500">
 							<PhoneIcon className="h-5 w-5" />
 							<span>전화번호 미제공</span>
 						</div>
@@ -597,6 +597,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						plain
 						disabled={isTogglingLike}
 						onClick={toggleLike}
+						aria-label="관심 시설 추가/제거"
 						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-2 text-[15px] font-semibold text-dotori-700 transition-all active:scale-[0.97]"
 					>
 						{liked ? (
@@ -604,7 +605,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						) : (
 							<HeartIcon className="h-5 w-5" />
 						)}
-						관심 등록
+						{liked ? "관심 시설 제거" : "관심 시설 추가"}
 					</Button>
 					<Button
 						color="dotori"

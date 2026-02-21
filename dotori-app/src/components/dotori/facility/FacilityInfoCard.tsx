@@ -13,7 +13,7 @@ export function FacilityInfoCard({ facility }: FacilityInfoCardProps) {
 			<div className="flex items-center gap-2">
 				<h2 className="text-xl font-bold">{facility.name}</h2>
 				{facility.rating > 0 && (
-					<span className="text-[14px] text-dotori-400">
+					<span className="text-[14px] text-dotori-500">
 						★ {facility.rating}
 					</span>
 				)}

@@ -232,7 +232,7 @@ export default function CommunityPostPage() {
 								)}
 							</div>
 							<span
-								className="text-[13px] text-dotori-400"
+								className="text-[13px] text-dotori-500"
 								suppressHydrationWarning
 							>
 								{formatRelativeTime(post.createdAt)}
@@ -261,7 +261,7 @@ export default function CommunityPostPage() {
 					)}
 
 					{/* 액션 바 */}
-					<div className="mt-4 flex items-center gap-4 border-b border-dotori-100/40 pb-4 text-[14px] text-dotori-400">
+					<div className="mt-4 flex items-center gap-4 border-b border-dotori-100/40 pb-4 text-[14px] text-dotori-500">
 						<button
 							onClick={toggleLike}
 							disabled={liking}
@@ -295,7 +295,7 @@ export default function CommunityPostPage() {
 						댓글 {comments.length}
 					</h2>
 					{comments.length === 0 ? (
-						<p className="mt-4 text-center text-[14px] text-dotori-400">
+						<p className="mt-4 text-center text-[14px] text-dotori-500">
 							첫 댓글을 남겨보세요
 						</p>
 					) : (
@@ -319,7 +319,7 @@ export default function CommunityPostPage() {
 												</Badge>
 											)}
 											<span
-												className="text-[12px] text-dotori-400"
+												className="text-[12px] text-dotori-500"
 												suppressHydrationWarning
 											>
 												{formatRelativeTime(
@@ -358,16 +358,17 @@ export default function CommunityPostPage() {
 						}
 						disabled={!session?.user}
 						maxLength={2000}
-						className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300"
+						className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-[14px] outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
 					/>
 					<button
 						onClick={submitComment}
+						aria-label="댓글 보내기"
 						disabled={!commentText.trim() || isSubmitting}
 						className={cn(
 							"shrink-0 rounded-full p-3 transition-all active:scale-[0.97]",
 							commentText.trim() && !isSubmitting
 								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-400",
+								: "bg-dotori-100 text-dotori-500",
 						)}
 					>
 						<PaperAirplaneIcon className="h-5 w-5" />

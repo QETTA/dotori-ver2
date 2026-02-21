@@ -120,6 +120,8 @@ export default function SettingsPage() {
 	const [formGender, setFormGender] = useState<GenderOption>("unspecified");
 	const [isSaving, setIsSaving] = useState(false);
 	const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+	const childNameInputId = `child-name-${editingIndex ?? "new"}`;
+	const childBirthDateInputId = `child-birth-${editingIndex ?? "new"}`;
 
 	const loadSettings = useCallback(async () => {
 		setErrorMessage("");
@@ -337,7 +339,7 @@ export default function SettingsPage() {
 						>
 							<div className="min-w-0">
 								<p className="text-[15px] font-medium">{setting.label}</p>
-								<p className="text-[13px] text-dotori-400">{setting.desc}</p>
+								<p className="text-[13px] text-dotori-500">{setting.desc}</p>
 							</div>
 							<SwitchField>
 								<Switch
@@ -352,7 +354,7 @@ export default function SettingsPage() {
 					<div className="flex items-center justify-between gap-3 px-5 py-4.5">
 						<div className="min-w-0">
 							<p className="text-[15px] font-medium">카카오 알림톡 수신</p>
-							<p className="text-[13px] text-dotori-400">
+							<p className="text-[13px] text-dotori-500">
 								빈자리 알림을 카카오 알림톡으로 받기
 							</p>
 						</div>
@@ -377,7 +379,7 @@ export default function SettingsPage() {
 					<div className="flex items-center justify-between px-5 py-4.5">
 						<div className="min-w-0">
 							<p className="text-[15px] font-medium">내 아이 관리</p>
-							<p className="text-[13px] text-dotori-400">
+							<p className="text-[13px] text-dotori-500">
 								아이 정보를 추가하고 맞춤 추천을 관리하세요
 							</p>
 						</div>
@@ -410,7 +412,7 @@ export default function SettingsPage() {
 									</div>
 									<div className="min-w-0 flex-1">
 										<p className="text-[15px] font-semibold">{child.name}</p>
-										<p className="text-[13px] text-dotori-400">
+										<p className="text-[13px] text-dotori-500">
 											{formatBirthMonth(child.birthDate)}
 											{" · "}
 											{calculateAge(child.birthDate)}
@@ -419,14 +421,14 @@ export default function SettingsPage() {
 									<div className="flex items-center gap-1">
 										<button
 											onClick={() => openEditDialog(i)}
-											className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
+											className="rounded-full p-2 text-dotori-500 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
 											aria-label={`${child.name} 수정`}
 										>
 											<PencilIcon className="h-4.5 w-4.5" />
 										</button>
 										<button
 											onClick={() => handleDeleteChild(i)}
-											className="rounded-full p-2 text-dotori-400 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-[0.97]"
+											className="rounded-full p-2 text-dotori-500 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-[0.97]"
 											aria-label={`${child.name} 삭제`}
 										>
 											<TrashIcon className="h-4.5 w-4.5" />
@@ -437,7 +439,7 @@ export default function SettingsPage() {
 						</div>
 					) : (
 						<div className="rounded-b-3xl px-5 py-8 text-center">
-							<p className="text-[15px] text-dotori-400">등록된 아이가 없어요</p>
+							<p className="text-[15px] text-dotori-500">등록된 아이가 없어요</p>
 							<p className="mt-1 text-[13px] text-dotori-300">
 								아이를 등록하면 맞춤 전략을 받을 수 있어요
 							</p>
@@ -468,11 +470,11 @@ export default function SettingsPage() {
 				<div className="rounded-3xl bg-white shadow-sm">
 					<div className="flex items-center justify-between px-5 py-4 border-b border-dotori-100/40">
 						<span className="text-[15px]">버전</span>
-						<span className="text-[15px] text-dotori-400">1.0.0</span>
+						<span className="text-[15px] text-dotori-500">1.0.0</span>
 					</div>
 					<div className="flex items-center justify-between px-5 py-4">
 						<span className="text-[15px]">빌드</span>
-						<span className="text-[15px] text-dotori-400">2026.02.20</span>
+						<span className="text-[15px] text-dotori-500">2026.02.20</span>
 					</div>
 				</div>
 			</section>
@@ -485,28 +487,40 @@ export default function SettingsPage() {
 				<DialogBody>
 					<div className="space-y-5">
 						<div>
-							<label className="mb-1.5 block text-[14px] font-medium text-dotori-900">
+							<label
+								htmlFor={childNameInputId}
+								className="mb-1.5 block text-[14px] font-medium text-dotori-900"
+							>
 								이름
 							</label>
 							<Input
+								id={childNameInputId}
 								type="text"
 								placeholder="아이 이름"
 								value={formName}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setFormName(e.target.value)
 								}
+								required
+								aria-required="true"
 							/>
 						</div>
 						<div>
-							<label className="mb-1.5 block text-[14px] font-medium text-dotori-900">
+							<label
+								htmlFor={childBirthDateInputId}
+								className="mb-1.5 block text-[14px] font-medium text-dotori-900"
+							>
 								생년월
 							</label>
 							<Input
+								id={childBirthDateInputId}
 								type="month"
 								value={formBirthDate}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setFormBirthDate(e.target.value)
 								}
+								required
+								aria-required="true"
 							/>
 						</div>
 						<div>
@@ -525,7 +539,7 @@ export default function SettingsPage() {
 											"flex-1 rounded-xl border py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
 											formGender === g
 												? "border-dotori-400 bg-dotori-50 text-dotori-600"
-												: "border-dotori-100 bg-white text-dotori-400 hover:border-dotori-200",
+												: "border-dotori-100 bg-white text-dotori-500 hover:border-dotori-200",
 										)}
 									>
 										{genderLabels[g]}

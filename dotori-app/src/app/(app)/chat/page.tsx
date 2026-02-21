@@ -343,7 +343,7 @@ function ChatContent() {
 			{/* ── Header ── */}
 			<header className="flex items-center gap-3 border-b border-dotori-100/30 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img src={BRAND.appIconWarm} alt="" className="h-8 w-8" />
+				<img src={BRAND.appIconWarm} alt="" aria-hidden="true" className="h-8 w-8" />
 				<h1 className="text-xl font-bold">토리</h1>
 				<Badge color="forest" className="text-[12px]">
 					<span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-forest-500" />
@@ -455,7 +455,7 @@ function ChatContent() {
 							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-[0.97]",
 							input.trim() && !isLoading
 								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-400",
+								: "bg-dotori-100 text-dotori-500",
 						)}
 					>
 						{isLoading ? (

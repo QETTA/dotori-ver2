@@ -26,6 +26,7 @@ export default function EmptyStateFallback({
 			<img
 				src={BRAND.emptyState}
 				alt=""
+				aria-hidden="true"
 				className="w-28 h-28 mb-6 opacity-50"
 			/>
 			<h3 className="text-base font-semibold text-dotori-900 mb-1">{title}</h3>
@@ -79,7 +80,12 @@ export function EmptyState({
 				</div>
 			) : (
 				// eslint-disable-next-line @next/next/no-img-element
-				<img src={BRAND.emptyState} alt="" className="mb-5 h-36 w-36" />
+				<img
+					src={BRAND.emptyState}
+					alt=""
+					aria-hidden="true"
+					className="mb-5 h-36 w-36"
+				/>
 			)}
 			<h3 className="text-lg font-semibold text-dotori-800">{title}</h3>
 			{description && (
@@ -106,7 +112,7 @@ export function EmptyState({
 			{secondaryLabel && secondaryHref && (
 				<Link
 					href={secondaryHref}
-					className="mt-3 py-2 text-[14px] text-dotori-400 transition-colors hover:text-dotori-600"
+					className="mt-3 py-2 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
 				>
 					{secondaryLabel}
 				</Link>

@@ -34,6 +34,7 @@ export function ErrorState({
 			<img
 				src={illustrations[variant]}
 				alt=""
+				aria-hidden="true"
 				className="mb-5 h-36 w-36"
 			/>
 			<p className="text-lg font-semibold text-dotori-800">{message}</p>

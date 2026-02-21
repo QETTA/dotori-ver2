@@ -116,7 +116,7 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 													className={cn(
 														"text-[14px] leading-snug",
 														isChecked
-															? "text-dotori-400 line-through"
+															? "text-dotori-500 line-through"
 															: "text-dotori-900",
 													)}
 												>
@@ -125,7 +125,7 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 												{item.detail && (
 													<p
 														id={detailId}
-														className="mt-0.5 text-[12px] leading-relaxed text-dotori-400"
+														className="mt-0.5 text-[12px] leading-relaxed text-dotori-500"
 													>
 														{item.detail}
 													</p>

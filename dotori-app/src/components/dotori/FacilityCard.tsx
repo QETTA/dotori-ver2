@@ -120,9 +120,9 @@ export const FacilityCard = memo(function FacilityCard({
           <SourceChip source="아이사랑" updatedAt={facility.lastSyncedAt} freshness="realtime" />
         )}
         <div className="flex gap-2">
-          <Button plain onClick={() => onAction?.('register_interest', facility.id)} aria-label="관심 등록">
-            관심등록
-          </Button>
+					<Button plain onClick={() => onAction?.('register_interest', facility.id)} aria-label="관심 시설 추가/제거">
+						관심등록
+					</Button>
           {facility.status !== 'full' && (
             <Button color="dotori" onClick={() => onAction?.('apply_waiting', facility.id)} aria-label="대기 신청">
               {facility.status === 'available' ? '입소신청' : '대기신청'}

@@ -136,7 +136,7 @@ export default function HomePage() {
 				<header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm px-4 pb-3 pt-[env(safe-area-inset-top)]">
 					<div className="flex items-center gap-2 pt-4 pb-3">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.symbol} alt="" className="h-6 w-6" />
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-6 w-6" />
 						<h1 className="text-lg font-bold tracking-tight">도토리</h1>
 					</div>
 				</header>
@@ -153,7 +153,7 @@ export default function HomePage() {
 				<header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm px-4 pb-3 pt-[env(safe-area-inset-top)]">
 					<div className="flex items-center gap-2 pt-4 pb-3">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.symbol} alt="" className="h-6 w-6" />
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-6 w-6" />
 						<h1 className="text-lg font-bold tracking-tight">도토리</h1>
 					</div>
 				</header>
@@ -174,7 +174,7 @@ export default function HomePage() {
 				<div className="flex items-center justify-between pt-4 pb-3">
 					<div className="flex items-center gap-2.5">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.symbol} alt="" className="h-7 w-7" />
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-7 w-7" />
 						<h1 className="text-xl font-bold tracking-tight">
 							{user?.onboardingCompleted
 								? `${user.nickname}님`
@@ -184,7 +184,7 @@ export default function HomePage() {
 					<Link
 						href="/my/notifications"
 						aria-label="알림"
-						className="relative p-2.5 text-dotori-400 transition-colors hover:text-dotori-600"
+						className="relative p-2.5 text-dotori-500 transition-colors hover:text-dotori-600"
 					>
 						<BellAlertIcon className="h-6 w-6" />
 						{(data?.alertCount ?? 0) > 0 && (
@@ -196,13 +196,14 @@ export default function HomePage() {
 				{/* 검색바 — 탭하면 탐색으로 이동 */}
 				<Link
 					href="/explore"
+					aria-label="검색"
 					className={cn(
 						"flex items-center gap-3 rounded-3xl bg-white/70 px-5 py-3.5 ring-1 ring-dotori-200/40 backdrop-blur-sm",
 						"transition-colors active:bg-dotori-50",
 					)}
 				>
-					<MagnifyingGlassIcon className="h-5 w-5 text-dotori-400" />
-					<span className="text-[15px] text-dotori-400">
+					<MagnifyingGlassIcon className="h-5 w-5 text-dotori-500" />
+					<span className="text-[15px] text-dotori-500">
 						어린이집 이름, 지역 검색
 					</span>
 				</Link>
@@ -339,7 +340,7 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">관심 시설</h2>
 							<Link
 								href="/explore"
-								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
 							>
 								더보기
 								<ChevronRightIcon className="h-4 w-4" />
@@ -390,7 +391,7 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">커뮤니티 소식</h2>
 							<Link
 								href="/community"
-								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
 							>
 								더보기
 								<ChevronRightIcon className="h-4 w-4" />
@@ -425,7 +426,7 @@ export default function HomePage() {
 								<p className="mt-3 line-clamp-2 text-[15px] leading-relaxed text-dotori-700">
 									{hotPost.content}
 								</p>
-								<div className="mt-3 flex items-center gap-3 text-[13px] text-dotori-400">
+								<div className="mt-3 flex items-center gap-3 text-[13px] text-dotori-500">
 									<span>❤️ {hotPost.likes}</span>
 									<span>💬 {hotPost.commentCount}</span>
 								</div>
@@ -451,7 +452,7 @@ export default function HomePage() {
 							<h2 className="text-[17px] font-bold">근처 어린이집</h2>
 							<Link
 								href="/explore"
-								className="flex items-center gap-0.5 py-1 text-sm font-medium text-dotori-400 transition-colors hover:text-dotori-600"
+								className="flex items-center gap-0.5 py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
 							>
 								더보기
 								<ChevronRightIcon className="h-4 w-4" />
@@ -603,7 +604,7 @@ function NBACard({
 			<button
 				onClick={onDismiss}
 				aria-label="닫기"
-				className="absolute right-2 top-2 rounded-full p-2 text-dotori-400 transition-colors hover:bg-dotori-100 hover:text-dotori-600"
+				className="absolute right-2 top-2 rounded-full p-2 text-dotori-500 transition-colors hover:bg-dotori-100 hover:text-dotori-600"
 			>
 				<XMarkIcon className="h-5 w-5" />
 			</button>

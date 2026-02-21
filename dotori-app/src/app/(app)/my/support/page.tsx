@@ -37,7 +37,7 @@ export default function SupportPage() {
 								<EnvelopeIcon className="h-5 w-5 text-dotori-500" />
 							</div>
 							<div>
-								<span className="block text-[13px] text-dotori-400">
+								<span className="block text-[13px] text-dotori-500">
 									이메일
 								</span>
 								<span className="text-[15px] font-medium text-dotori-900">
@@ -50,7 +50,7 @@ export default function SupportPage() {
 								<PhoneIcon className="h-5 w-5 text-dotori-500" />
 							</div>
 							<div>
-								<span className="block text-[13px] text-dotori-400">
+								<span className="block text-[13px] text-dotori-500">
 									전화
 								</span>
 								<span className="text-[15px] font-medium text-dotori-900">
@@ -78,7 +78,7 @@ export default function SupportPage() {
 						<h3 className="text-[15px] font-semibold text-dotori-900">
 							자주 묻는 질문
 						</h3>
-						<p className="mt-0.5 text-[13px] text-dotori-400">
+						<p className="mt-0.5 text-[13px] text-dotori-500">
 							FAQ에서 궁금한 점을 확인해보세요
 						</p>
 					</div>
