@@ -60,4 +60,32 @@ describe("classifyIntent", () => {
 			expect(Array.isArray(expected) ? expected : [expected]).toContain(intent);
 		},
 	);
+
+	it.each([
+		{
+			message: "반편성 결과 실망",
+			expected: ["transfer"],
+		},
+		{
+			message: "교사 바뀌었어요",
+			expected: ["transfer", "general"],
+		},
+		{
+			message: "강남구 빈자리",
+			expected: ["recommend", "status"],
+		},
+		{
+			message: "서류 준비",
+			expected: ["knowledge", "checklist"],
+		},
+		{
+			message: "두 시설 비교해줘",
+			expected: ["compare"],
+		},
+	] as const)(
+		`matches required transfer scenarios: $message`,
+		({ message, expected }) => {
+			expect(expected).toContain(classifyIntent(message));
+		},
+	);
 });

@@ -8,6 +8,12 @@ describe("classifyIntent", () => {
 		{ message: "선생님이 또 바뀌었어요", expected: ["transfer"] },
 		{ message: "국공립 대기 당첨됐어요", expected: ["transfer"] },
 		{ message: "강남구 어린이집 추천해줘", expected: ["recommend"] },
+		{ message: "A와 B 시설 비교해줘", expected: ["compare"] },
+		{ message: "국공립 대기 신청 방법 알려줘", expected: ["knowledge"] },
+		{ message: "반편성 결과 실망", expected: ["transfer"] },
+		{ message: "교사 바뀌었어요", expected: ["transfer", "general"] },
+		{ message: "강남구 빈자리", expected: ["recommend", "status"] },
+		{ message: "서류 준비 어떻게 해?", expected: ["knowledge", "checklist"] },
 		{
 			message: "반편성 결과가 너무 실망스러워요",
 			expected: ["transfer"],

@@ -130,6 +130,13 @@ describe("buildResponse", () => {
 		expect(response.blocks).toEqual([{ type: "text", content: expect.any(String) }]);
 	});
 
+	it("buildTransferResponse includes empathy message for 교사교체 scenario", async () => {
+		const response = await buildResponse("transfer", "선생님 바뀌었어요 불안해요");
+
+		expect(response.content).toContain("교사 교체 후 불안한 마음이 드실 수 있어요");
+		expect(response.blocks).toEqual([{ type: "text", content: expect.any(String) }]);
+	});
+
 	it("buildRecommendResponse returns facility list and map blocks", async () => {
 		mockFacilityFind.mockReturnValue(buildFacilityQuery([sampleFacility, sampleFacility2]));
 
