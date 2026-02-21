@@ -88,8 +88,8 @@ npm run screenshot       # Mobile screenshots
 
 ## Environment Variables (.env.local)
 
-- `MONGODB_URI` — MongoDB Atlas (`R4R2BRi3L0RcMV2e`)
-- `AUTH_SECRET` — `dotori_v2_dev_secret_2026_change_in_production`
+- `MONGODB_URI` — MongoDB Atlas (see .env.local)
+- `AUTH_SECRET` — (see .env.local)
 - `AUTH_KAKAO_ID` / `AUTH_KAKAO_SECRET`
 - `NEXT_PUBLIC_KAKAO_JS_KEY` / `NEXT_PUBLIC_KAKAO_KEY` / `NEXT_PUBLIC_KAKAO_MAP_KEY`
 

@@ -1,13 +1,12 @@
 #!/bin/bash
-# ㄱ 파이프라인 v2 — Codex 병렬 실행 (2026 AI UX + 비즈니스 플랜)
-# Usage: ./scripts/launch.sh [ROUND=r11] [MODEL=gpt-5.3-codex-spark]
-# spark 한도시: CODEX_MODEL=gpt-5.3-codex ./scripts/launch.sh r11
+# ㄱ 파이프라인 v2 — Codex 병렬 실행
+# Usage: ./scripts/launch.sh [ROUND=r13] [MODEL=gpt-5.3-codex]
+# spark 한도시: CODEX_MODEL=gpt-5.3-codex ./scripts/launch.sh r13
 
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r12}
-# 모델 선택: spark 한도 시 gpt-5.3-codex 로 대체
+ROUND=${1:-r13}
 CODEX_MODEL=${CODEX_MODEL:-gpt-5.3-codex}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
@@ -15,8 +14,8 @@ WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(explore-clean facility-clean landing-clean engine-boost e2e-update)
-MERGE_ORDER=(engine-boost explore-clean facility-clean landing-clean e2e-update)
+AGENTS=(sec-users-me sec-subscriptions sec-chat-stream sec-admin middleware-fix search-sanitize nba-null-guard page-null-fix test-dedup waitlist-fix alert-logic)
+MERGE_ORDER=(middleware-fix sec-users-me sec-subscriptions sec-chat-stream sec-admin search-sanitize nba-null-guard page-null-fix waitlist-fix alert-logic test-dedup)
 PIDS=()
 PASS=()
 FAIL=()
@@ -33,181 +32,283 @@ info() { echo "     $1"; }
 get_task() {
   local agent=$1
   case $agent in
-    explore-clean)
-      echo "src/app/(app)/explore/page.tsx 탐색 페이지를 폴리싱해라.
+    sec-users-me)
+      echo "보안 수정: /api/users/me PATCH에서 plan 필드 제거
 
-담당 파일: src/app/(app)/explore/page.tsx 만 수정.
+담당 파일: src/app/api/users/me/route.ts 만 수정.
 
-## 먼저 파일 읽기 (필수)
-cat src/app/(app)/explore/page.tsx | wc -l
-head -150 src/app/(app)/explore/page.tsx
+## 문제 (P0 — 치명)
+PATCH /api/users/me의 allowedFields 배열에 'plan'이 포함되어 있어,
+인증된 사용자가 { \"plan\": \"premium\" }을 보내면 결제 없이 프리미엄 전환 가능.
 
-## 해야 할 것:
+## 수정 방법
+1. allowedFields 배열에서 'plan' 문자열 제거
+2. plan 변경 시도 시 무시되도록 (에러 안 내도 됨, 그냥 필터링)
 
-### 1. 이동 시나리오 칩 확인/추가
-검색창 아래에 이동 시나리오 클릭 가능 칩:
-['반편성 불만', '교사 교체', '국공립 당첨', '이사 예정']
-각 클릭 시 해당 텍스트로 search 상태 업데이트.
-칩 스타일: rounded-full bg-dotori-50 border border-dotori-100 px-3 py-1.5 text-sm text-dotori-700
-
-### 2. 빈 결과 개선
-검색 결과 없을 때:
-- '토리에게 물어보기' 버튼 → Link href={'/chat?prompt=' + encodeURIComponent(search)}
-  color='dotori'
-- EmptyState 컴포넌트 활용
-
-### 3. Button color 수정
-color='forest' 를 Button에서 쓰고 있으면 반드시 color='dotori'로 변경.
-(forest는 Badge 전용 — Button에는 사용 불가)
-
-### 4. 불필요 코드 정리
-사용되지 않는 변수/import 제거.
-과도한 섹션/위젯 단순화.
-
-### 5. TypeScript 확인
-npx tsc --noEmit 오류 0개."
+## 검증
+npx tsc --noEmit 에러 0개."
       ;;
-    facility-clean)
-      echo "시설 상세 페이지 폴리싱:
+    sec-subscriptions)
+      echo "보안+코드품질 수정: /api/subscriptions POST
 
-담당 파일: src/app/(app)/facility/[id]/ 디렉토리 내 파일만 수정.
+담당 파일: src/app/api/subscriptions/route.ts 만 수정.
 
-## 먼저 파일 읽기 (필수)
-ls src/app/(app)/facility/[id]/
-cat src/app/(app)/facility/[id]/page.tsx | wc -l
-head -100 src/app/(app)/facility/[id]/page.tsx
+## 문제 1 (P0 — 치명)
+POST /api/subscriptions에서 { plan: 'premium' }만 보내면 결제 없이 프리미엄 활성화.
+amount: 0으로 하드코딩됨.
 
-## 해야 할 것:
+## 수정 1
+- POST 핸들러 최상단에 현재 사용자의 role이 'admin'인지 체크
+- admin이 아니면 403 반환: { error: '관리자만 구독을 생성할 수 있습니다' }
+- 추후 결제 연동 시 이 체크를 결제 검증으로 교체할 수 있음
 
-### 1. 정원 진행바 확인/개선
-현원/정원 비율 막대:
-- 60% 미만: bg-forest-500
-- 60-90%: bg-warning
-- 90%+: bg-danger
+## 문제 2 (P2 — 코드품질)
+withApiHandler에 schema를 전달하지 않고 핸들러 내부에서 req.json() + safeParse를 직접 수행.
+다른 라우트와 패턴 불일치.
 
-### 2. 액션 버튼 영역 개선
-- '입소 신청' 버튼: color='dotori', 크게 (py-3)
-- '관심 추가' 버튼: plain variant
-- 버튼 사이 간격: gap-3
+## 수정 2
+- withApiHandler의 schema 옵션 사용으로 통일
+- 핸들러에서는 body 파라미터 직접 사용
 
-### 3. 시설 상태 뱃지
-- available: Badge color='forest' '빈자리 있음'
-- waiting: Badge color='amber' '대기 중'
-- full: Badge color='red' '마감'
-
-### 4. 불필요 UI/코드 제거
-- 중복 정보 섹션 통합
-- 사용되지 않는 변수/import 제거
-
-### 5. TypeScript/ESLint
-npx tsc --noEmit 오류 0개."
+## 검증
+npx tsc --noEmit 에러 0개."
       ;;
-    landing-clean)
-      echo "랜딩 페이지 폴리싱 + 정리:
+    sec-chat-stream)
+      echo "보안+안정성 수정: /api/chat/stream
 
-담당 파일: src/app/(landing)/landing/page.tsx 만 수정.
+담당 파일: src/app/api/chat/stream/route.ts 만 수정.
 
-## 먼저 파일 읽기 (필수)
-cat src/app/(landing)/landing/page.tsx | wc -l
-head -100 src/app/(landing)/landing/page.tsx
+## 문제 1 (P0 — 게스트 채팅 제한 우회)
+비인증 사용자의 사용량을 x-chat-guest-usage 헤더에서 파싱하는데,
+이 값은 클라이언트 sessionStorage에서 전송. 공격자가 헤더를 0으로 조작하면 제한 우회.
 
-## 해야 할 것:
+## 수정 1
+x-chat-guest-usage 헤더 의존을 제거.
+대신 IP 기반 서버 측 카운트:
+- 파일 최상단에 const guestUsageMap = new Map<string, { count: number; resetAt: number }>() 추가
+- IP는 req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+- 월별 리셋: resetAt = 다음 달 1일 timestamp
+- GUEST_LIMIT = 3 (기존 값 유지)
+- 헤더 대신 guestUsageMap에서 카운트 확인
 
-### 1. 히어로 섹션 확인
-- 헤드라인 간결한지 확인
-- CTA 버튼: '무료로 시작하기' color='dotori'
-- 통계 숫자: 20,027+ 시설 / 17개 시도
+## 문제 2 (P1 — 스트림 미종료)
+ReadableStream에서 에러 발생 시 스트림이 열린 채 남을 수 있음.
 
-### 2. 기능 카드 단순화
-3개 카드 이하로:
-- 빈자리 실시간 확인
-- AI 이동 상담
-- 맞춤 알림
+## 수정 2
+ReadableStream 생성 시 cancel 콜백 추가:
+cancel() { /* cleanup if needed */ }
 
-### 3. FAQ/후기 섹션 확인
-- FAQ: 3-4개 항목 (아코디언 형태)
-- 후기: 있으면 유지, 과도하면 3개로 축소
+## 문제 3 (P3 — UsageLog 모델 중복)
+usageLogSchema와 UsageLog 모델이 이 파일 내에 인라인 정의됨.
+별도 src/models/UsageLog.ts가 이미 존재.
 
-### 4. 불필요 코드 정리
-- 사용되지 않는 변수/import 삭제
-- 과도한 애니메이션 단순화
+## 수정 3
+인라인 usageLogSchema + UsageLog 모델 정의 제거.
+import UsageLog from '@/models/UsageLog' 추가.
+(먼저 cat src/models/UsageLog.ts로 존재 확인)
 
-### 5. TypeScript/ESLint
-npx tsc --noEmit 오류 0개."
+## 검증
+npx tsc --noEmit 에러 0개."
       ;;
-    engine-boost)
-      echo "엔진 테스트 추가 확장 (최우선):
+    sec-admin)
+      echo "보안 수정: admin API 인증 강화
 
-담당 파일: src/__tests__/engine/, src/lib/engine/__tests__/
-절대 건드리지 않을 파일: 위 test 디렉토리 외 모든 것
+담당 파일: src/app/api/admin/facility/[id]/premium/route.ts 만 수정.
 
-## 현황 파악 (필수)
-npx jest --passWithNoTests 2>&1 | tail -5
-ls src/__tests__/engine/ 2>/dev/null || echo 없음
-ls src/lib/engine/__tests__/ 2>/dev/null || echo 없음
+## 문제 (P1)
+auth: false로 설정된 상태에서 CRON_SECRET Bearer 토큰만으로 인증.
+세션 인증이 완전히 우회됨.
 
-## 현재 테스트 40개. 목표: 50개+
+## 수정
+1. withApiHandler에 auth: true로 변경 (또는 auth 옵션 제거 — 기본이 true)
+2. 핸들러 내부에서 세션의 user.role === 'admin' 체크 추가
+3. CRON_SECRET 체크는 유지 (세션 인증 OR CRON_SECRET 중 하나 통과하면 허용)
+   - 세션 인증 성공 + admin role → 허용
+   - Bearer CRON_SECRET 일치 → 허용 (cron job용)
+   - 둘 다 실패 → 403
 
-### 1. intent-classifier 엣지 케이스 추가
-파일: src/__tests__/engine/intent-classifier.test.ts
-- 빈 문자열 → general
-- 이모지만 → general
-- 매우 긴 문장 → 정상 분류
-- 혼합 의도: '반편성도 맘에 안 들고 국공립 빈자리도 보고 싶어요' → transfer 또는 recommend
-
-### 2. nba-engine 엣지 케이스 추가
-파일: src/__tests__/engine/nba-engine.test.ts
-- 모든 필드 null인 사용자 → crash 없이 기본 NBA 반환
-- 대기중인 시설 있음 → '대기 순번 확인' NBA 포함
-- alertCount > 0 → '알림 확인' NBA 포함
-
-### 3. why-engine 추가 시나리오
-파일: src/lib/engine/__tests__/why-engine.test.ts
-- capacity.waiting === 0 인 시설 → public_waitlist reason 없음
-- 특수문자 시설명 → crash 없음
-
-### 4. response-builder 추가 시나리오
-파일: src/lib/engine/__tests__/response-builder.test.ts
-- explain + 시설 없음 → text + actions 블록
-- status + userId 있음 → 대기 정보 포함
-
-## 완료 기준
-npx jest --passWithNoTests → 50개+ 테스트 pass. 실패 0개."
+## 검증
+npx tsc --noEmit 에러 0개."
       ;;
-    e2e-update)
-      echo "E2E 테스트를 R11 단순화된 UI에 맞게 업데이트해라:
+    middleware-fix)
+      echo "보안+성능 수정: middleware rate limit 메모리 누수
 
-담당 파일: src/__tests__/e2e/ 디렉토리 내 파일만 수정.
+담당 파일: src/middleware.ts 만 수정.
 
-## 현황 파악 (필수)
-ls src/__tests__/e2e/
-cat src/__tests__/e2e/home.spec.ts 2>/dev/null || echo 없음
+## 문제 1 (P1 — 인메모리 rate limit)
+rateLimitMap이 Map<string, number[]>로 선언되어 있는데,
+오래된 IP 항목이 절대 삭제되지 않아 메모리 누수.
 
-## 해야 할 것:
+## 수정
+rateLimitMap에 주기적 정리 로직 추가.
+rate limit 체크 함수 내에서:
+1. 현재 windowMs 밖의 타임스탬프는 배열에서 제거 (기존 로직 확인)
+2. 매 100번째 요청마다 전체 맵 순회하여 빈 배열인 IP 항목 삭제
+3. 맵 크기가 10000 초과하면 가장 오래된 항목부터 정리
 
-### 1. 홈페이지 E2E 업데이트 (home.spec.ts)
-R11에서 page.tsx가 대폭 변경됨:
-- 히어로가 없어짐 → 인사말 + AI 토리 카드 + 빈자리 섹션
-- 확인: '도토리에 오신 것을 환영해요' 텍스트 존재
-- 확인: AI 토리 카드 클릭 → /chat 이동
-- 확인: '내 주변 빈자리' 섹션 존재
-- 확인: 커뮤니티 링크 1줄 존재
+구체적 구현:
+let cleanupCounter = 0 (파일 최상단)
+rate limit 함수 내:
+cleanupCounter++
+if (cleanupCounter % 100 === 0) {
+  const now = Date.now()
+  for (const [ip, timestamps] of rateLimitMap) {
+    const valid = timestamps.filter(t => now - t < windowMs)
+    if (valid.length === 0) rateLimitMap.delete(ip)
+    else rateLimitMap.set(ip, valid)
+  }
+}
 
-### 2. 탐색 E2E 확인 (explore.spec.ts)
-기존 테스트 확인:
-- placeholder: '이동 고민? 내 주변 빈자리 먼저 확인해요'
-- 검색 동작 확인
-- 이동 시나리오 칩 존재 확인 (새로 추가된 경우)
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    search-sanitize)
+      echo "보안 수정: response-builder.ts에서 NoSQL \$text 검색 입력 새니타이즈
 
-### 3. 채팅 E2E 확인 (chat.spec.ts)
-기존 테스트가 sendMessage 변경으로 깨졌는지 확인.
-깨진 셀렉터 업데이트.
+담당 파일: src/lib/engine/response-builder.ts 만 수정.
 
-### 4. 온보딩 E2E 확인 (onboarding.spec.ts)
-기존 테스트 유지 확인. .first() 패턴 유지.
+## 문제 (P1)
+Facility.find({ \$text: { \$search: message } })에서 message가 사용자 채팅 원문.
+MongoDB \$text의 특수문자(-, \", ')가 검색 로직에 영향.
 
-npx playwright test --list 로 테스트 목록 확인.
-npx tsc --noEmit 오류 0개."
+## 수정
+1. 파일 내에 sanitizeSearchQuery 헬퍼 함수 추가:
+function sanitizeSearchQuery(query: string): string {
+  return query
+    .replace(/[\"'\\\\]/g, '')  // 따옴표, 백슬래시 제거
+    .replace(/[-~]/g, ' ')      // negation/fuzzy 연산자를 공백으로
+    .trim()
+    .slice(0, 200);             // 길이 제한
+}
+
+2. \$text: { \$search: message } 를 모두 \$text: { \$search: sanitizeSearchQuery(message) } 로 교체
+   (파일 내 \$search 사용처 전부 찾아서 적용)
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    nba-null-guard)
+      echo "타입안전성 수정: nba-engine.ts에서 non-null assertion 제거
+
+담당 파일: src/lib/engine/nba-engine.ts 만 수정.
+
+## 문제 (P2)
+ctx.user!.children 등 non-null assertion(!)이 8곳에서 사용됨.
+condition과 generate가 분리된 함수이므로 리팩토링 시 크래시 위험.
+
+## 수정
+각 generate 함수의 최상단에 null guard 추가:
+- ctx.user! → if (!ctx.user) return { ... fallback NBA item }
+- ctx.user!.children → ctx.user?.children ?? []
+- ctx.user!.nickname → ctx.user?.nickname ?? '회원'
+
+모든 ! (non-null assertion) 연산자를 optional chaining(?.) 또는
+null guard 패턴으로 교체.
+
+파일에서 '!' 를 grep하여 모든 위치 확인 후 수정.
+
+## 검증
+npx tsc --noEmit 에러 0개.
+npx jest --passWithNoTests 기존 테스트 통과."
+      ;;
+    page-null-fix)
+      echo "타입안전성 수정: 홈/대기 페이지 non-null assertion 제거
+
+담당 파일 2개만 수정:
+- src/app/(app)/page.tsx
+- src/app/(app)/my/waitlist/page.tsx
+
+## 문제 1 (P2 — page.tsx:70-71)
+user != null && user!.nickname — 불필요한 ! assertion.
+
+## 수정 1
+user?.nickname ? \`\${user.nickname}님, 안녕하세요\` : '도토리에 오신 것을 환영해요'
+
+## 문제 2 (P2 — waitlist/page.tsx:406-407)
+item.requiredDocs!.length와 item.requiredDocs!.filter(...)
+
+## 수정 2
+item.requiredDocs?.length ?? 0
+item.requiredDocs?.filter(...) ?? []
+optional chaining으로 교체.
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    test-dedup)
+      echo "코드품질: 중복 테스트 파일 정리
+
+담당 파일: src/__tests__/engine/ 디렉토리 내 파일만 수정/삭제.
+
+## 문제 (P2)
+동일 모듈 테스트가 두 위치에 존재:
+- src/__tests__/engine/nba-engine.test.ts
+- src/lib/engine/__tests__/nba-engine.test.ts
+- src/__tests__/engine/intent-classifier.test.ts
+- src/lib/engine/__tests__/intent-classifier.test.ts
+
+## 수정
+1. 먼저 양쪽 파일 비교:
+   cat src/__tests__/engine/nba-engine.test.ts | wc -l
+   cat src/lib/engine/__tests__/nba-engine.test.ts | wc -l
+   (더 완전한 파일 유지)
+
+2. src/lib/engine/__tests__/ 위치를 정본으로 유지
+3. src/__tests__/engine/의 중복 파일에서 src/lib/engine/__tests__/에 없는 테스트가 있으면
+   정본에 병합(merge)
+4. 병합 후 src/__tests__/engine/의 중복 파일 삭제
+
+## 검증
+npx jest --passWithNoTests → 기존 테스트 수 유지 또는 증가. 실패 0개."
+      ;;
+    waitlist-fix)
+      echo "코드품질: waitlist API 이중 파싱 + 하드코딩 수정
+
+담당 파일 2개만 수정:
+- src/app/api/waitlist/route.ts
+- src/app/api/waitlist/import/route.ts
+
+## 문제 1 (P2 — route.ts)
+const rawBody = await req.clone().json().catch(() => ({}));
+withApiHandler가 이미 body를 파싱하여 body로 제공하는데,
+Zod 스키마에 없는 필드를 위해 원본을 다시 파싱.
+
+## 수정 1
+waitlistCreateSchema에 누락된 필드 추가:
+hasMultipleChildren: z.boolean().optional()
+isDualIncome: z.boolean().optional()
+isSingleParent: z.boolean().optional()
+hasDisability: z.boolean().optional()
+그 후 rawBody 대신 body에서 이 필드들 사용. req.clone().json() 제거.
+
+## 문제 2 (P3 — import/route.ts:143,165)
+childBirthDate ?? '2024-01-01' 하드코딩.
+
+## 수정 2
+아이 정보 없을 시 현재 연도 기준 기본값 사용:
+const defaultBirthDate = new Date().getFullYear() + '-01-01'
+childBirthDate ?? defaultBirthDate
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    alert-logic)
+      echo "비즈니스로직 수정: 비프리미엄 vacancy 알림 처리
+
+담당 파일: src/app/api/alerts/route.ts 만 수정.
+
+## 문제 (P3)
+비프리미엄 사용자가 vacancy 알림을 생성하면 즉시 active: false로 업데이트.
+알림을 만들었다가 바로 비활성화 → DB 쓰기 낭비 + UX 혼란.
+
+## 수정
+비프리미엄 사용자가 vacancy 타입 알림 생성 시도 시:
+1. DB에 저장하지 않고 즉시 응답 반환
+2. 응답: 200 OK + { data: null, message: '빈자리 알림은 프리미엄 기능입니다', requiresPremium: true }
+3. 기존의 알림 생성 후 비활성화 코드 제거
+
+## 검증
+npx tsc --noEmit 에러 0개."
       ;;
     *)
       echo "agent_task_registry.md 에서 $agent 담당 작업을 확인해라."
@@ -219,7 +320,7 @@ npx tsc --noEmit 오류 0개."
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ㄱ 파이프라인 v2 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  목표: 탐색/시설/랜딩 폴리싱 + 엔진 50+ 테스트  ║${NC}"
+echo -e "${BLUE}║  목표: Opus 분석 P0~P2 보안+품질 11개 수정   ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
@@ -243,7 +344,7 @@ LINT_LOG=$(mktemp)
 npm run lint > "$LINT_LOG" 2>&1 || true
 LINT_ERRORS=$(grep -c " error " "$LINT_LOG" || true)
 rm -f "$LINT_LOG"
-[ "$LINT_ERRORS" -gt 0 ] && warn "ESLint errors: ${LINT_ERRORS}개 (r6-eslint-infra가 수정)" || ok "ESLint clean"
+[ "$LINT_ERRORS" -gt 0 ] && warn "ESLint errors: ${LINT_ERRORS}개" || ok "ESLint clean"
 
 npm test > /dev/null 2>&1 && ok "Tests passed" || warn "Tests 불안정"
 
@@ -269,11 +370,8 @@ for AGENT in "${AGENTS[@]}"; do
   printf "  %-28s" "Creating $ROUND-$AGENT..."
   if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
     WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
-    # .env.local 복사
     cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
-    # node_modules 하드링크 복사 (symlink는 Turbopack이 거부)
     cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules"
-    # git 쓰기 권한 (워크트리 전체 + .git 메타)
     chmod -R 777 "$WT_BASE/$ROUND-$AGENT/"
     chmod -R 777 "$REPO/.git/worktrees/$ROUND-$AGENT/" 2>/dev/null || true
     echo "✅"
@@ -303,13 +401,8 @@ $TASK_TEXT
 2. 한국어 UI 텍스트 유지 (코드·변수명은 영어)
 3. framer-motion import 금지 → motion/react 사용
 4. color='dotori' CTA 버튼, color='forest' 성공 상태
-5. **디자인 시스템 필수 사용** (위반 시 빌드 실패 간주):
-   - Catalyst: Button, Badge, Input, Fieldset, Field, Select, Heading, Text
-   - Dotori: Skeleton, EmptyState, ErrorState, FacilityCard, AiBriefingCard
-   - 임의 픽셀값 금지: text-[Npx] → text-xs/sm/base/lg/xl 사용
-   - 커스텀 className 대신 Tailwind 스케일 토큰 사용
-6. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함 (npm run build는 launch.sh가 자동 실행)
-7. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
+5. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
+6. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
 
   codex exec -m "$CODEX_MODEL" -s workspace-write \
     --cd "$WT_APP" \
@@ -330,9 +423,6 @@ step "PHASE 3: 완료 대기 (최대 90분)"
 TIMEOUT=5400
 START=$(date +%s)
 
-TIMEOUT=5400
-START=$(date +%s)
-
 echo "  (완료까지 대기 중 — 모니터: ./scripts/wt-monitor.sh $ROUND --watch)"
 
 ( sleep $TIMEOUT && kill "${PIDS[@]}" 2>/dev/null ) &
@@ -345,7 +435,7 @@ done
 kill "$WATCHDOG" 2>/dev/null || true
 ok "모든 에이전트 완료"
 
-# ─── 에이전트 변경사항 자동 커밋 (sandbox 외부에서 실행) ───
+# ─── 에이전트 변경사항 자동 커밋 ───
 info "에이전트 변경사항 자동 커밋..."
 echo ""
 for AGENT in "${AGENTS[@]}"; do
@@ -354,7 +444,7 @@ for AGENT in "${AGENTS[@]}"; do
   CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l)
   if [[ $CHANGES -gt 0 ]]; then
     git -C "$WT_DIR" add -A 2>/dev/null
-    git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 수익화 퍼널 구현" 2>/dev/null \
+    git -C "$WT_DIR" commit -m "fix($ROUND-$AGENT): Opus P0-P2 보안+품질 수정" 2>/dev/null \
       && echo "✅ ($CHANGES files changed)" \
       || echo "❌ commit 실패"
   else
@@ -362,7 +452,7 @@ for AGENT in "${AGENTS[@]}"; do
   fi
 done
 
-# ─── 빌드 검증 (병렬 4개 동시 — 11×19s → ~40s 병목 해소) ───
+# ─── 빌드 검증 (병렬 4개 동시) ───
 echo ""
 info "빌드 검증 병렬 실행 중 (max 4 concurrent)..."
 MAX_PARALLEL=4
@@ -373,14 +463,12 @@ for AGENT in "${AGENTS[@]}"; do
   BUILD_LOGS[$AGENT]="$WT_BUILD_LOG"
   (cd "$WT_APP" && npm run build > "$WT_BUILD_LOG" 2>&1) &
   BUILD_PIDS[$AGENT]=$!
-  # 동시 실행 수 제한: MAX_PARALLEL 초과 시 가장 오래된 것 대기
   running=$(jobs -p | wc -l)
   while [[ $running -ge $MAX_PARALLEL ]]; do
     sleep 1
     running=$(jobs -p | wc -l)
   done
 done
-# 모든 빌드 완료 대기 + 결과 수집
 for AGENT in "${AGENTS[@]}"; do
   wait "${BUILD_PIDS[$AGENT]}" 2>/dev/null
   WT_BUILD_LOG="${BUILD_LOGS[$AGENT]}"
@@ -413,7 +501,7 @@ for AGENT in "${MERGE_ORDER[@]}"; do
   fi
   if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
     SUMMARY=$(head -1 "$RESULTS/$AGENT.txt" 2>/dev/null | cut -c1-60 || echo "$ROUND-$AGENT")
-    git commit -m "feat($ROUND-$AGENT): $SUMMARY
+    git commit -m "fix($ROUND-$AGENT): $SUMMARY
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
     MERGED+=("$AGENT"); echo "✅"
@@ -440,15 +528,15 @@ git -C "$REPO" worktree prune 2>/dev/null || true
 ok "워크트리 정리 완료"
 
 ### ═══ 최종 리포트 ═══════════════════════════════════════════════════
+ELAPSED=$(( $(date +%s) - START ))
+ELAPSED_MIN=$(( ELAPSED / 60 ))
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  R6 완료 — $(date +%H:%M)  수익화 퍼널 구현              ║${NC}"
+echo -e "${BLUE}║  R13 완료 — ${ELAPSED_MIN}분  Opus P0-P2 보안+품질 수정  ║${NC}"
 printf "${BLUE}║  Merged %-3d  Failed %-3d  Skipped %-3d           ║${NC}\n" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
 echo "  다음 단계:"
-echo "  1. /pr-review-toolkit  — 코드 리뷰"
-echo "  2. /commit-commands    — 최종 커밋"
-echo "  3. git push origin main"
-echo "  4. doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2"
+echo "  1. git push origin main"
+echo "  2. doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2"
 echo ""
