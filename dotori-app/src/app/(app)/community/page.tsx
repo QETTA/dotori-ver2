@@ -20,7 +20,7 @@ import {
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const tabs = ["전체", "정보공유", "질문", "후기", "모임"];
 
@@ -44,6 +44,12 @@ const tabToCategoryParam: Record<string, string> = {
 	질문: "question",
 	후기: "review",
 	모임: "feedback",
+};
+
+const tabEmptyMessages: Record<string, string> = {
+	전체: "아직 이웃 글이 없어요. 첫 글을 작성해보세요!",
+	질문: "궁금한 점을 이웃에게 물어보세요",
+	후기: "어린이집 후기를 공유해보세요",
 };
 
 type CommunityPostWithViews = CommunityPost & { viewCount?: number };
@@ -91,6 +97,11 @@ export default function CommunityPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 	const [likingPosts, setLikingPosts] = useState<Set<string>>(new Set());
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const [hasGeolocationPermission, setHasGeolocationPermission] = useState<boolean | null>(
+		null,
+	);
+	const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
 	// GPS verification state
 	const [gpsVerified, setGpsVerified] = useState<boolean | null>(null);
@@ -108,9 +119,54 @@ export default function CommunityPage() {
 			});
 	}, [userId]);
 
+	// Check browser geolocation permission to avoid showing banner unnecessarily
+	useEffect(() => {
+		if (!userId || typeof navigator === "undefined") return;
+
+		let permission: PermissionStatus | null = null;
+		let isMounted = true;
+
+		const checkPermission = async () => {
+			if (!("permissions" in navigator)) {
+				if (isMounted) setHasGeolocationPermission(false);
+				return;
+			}
+
+			try {
+				permission = await navigator.permissions.query({
+					name: "geolocation",
+				} as PermissionDescriptor);
+
+				if (!isMounted) return;
+
+				setHasGeolocationPermission(permission.state === "granted");
+
+				permission.onchange = () => {
+					if (!isMounted) return;
+					setHasGeolocationPermission(permission?.state === "granted");
+				};
+			} catch {
+				if (isMounted) setHasGeolocationPermission(false);
+			}
+		};
+
+		checkPermission();
+
+		return () => {
+			isMounted = false;
+			if (permission) {
+				permission.onchange = null;
+			}
+		};
+	}, [userId]);
+
 	const fetchPosts = useCallback(
 		async (pageNum: number, append = false) => {
-			if (!append) setIsLoading(true);
+			if (append) {
+				setIsLoadingMore(true);
+			} else {
+				setIsLoading(true);
+			}
 			setError(null);
 
 			try {
@@ -157,6 +213,7 @@ export default function CommunityPage() {
 				setError("게시물을 불러오지 못했어요");
 			} finally {
 				setIsLoading(false);
+				setIsLoadingMore(false);
 			}
 		},
 		[activeTab, userId],
@@ -166,12 +223,6 @@ export default function CommunityPage() {
 		setPage(1);
 		fetchPosts(1);
 	}, [fetchPosts]);
-
-	function loadMore() {
-		const nextPage = page + 1;
-		setPage(nextPage);
-		fetchPosts(nextPage, true);
-	}
 
 	const toggleLike = useCallback(async (postId: string) => {
 		if (likingPosts.has(postId)) return;
@@ -219,6 +270,32 @@ export default function CommunityPage() {
 		}
 	}, [likingPosts, likedPosts, fetchPosts]);
 
+	const loadMore = useCallback(() => {
+		if (isLoading || isLoadingMore || page >= totalPages) return;
+		const nextPage = page + 1;
+		setPage(nextPage);
+		fetchPosts(nextPage, true);
+	}, [fetchPosts, isLoading, isLoadingMore, page, totalPages]);
+
+	useEffect(() => {
+		const trigger = loadMoreTriggerRef.current;
+		const shouldLoadMore = page < totalPages;
+
+		if (!trigger || !shouldLoadMore || isLoading || isLoadingMore || error) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0]?.isIntersecting) {
+					loadMore();
+				}
+			},
+			{ rootMargin: "0px 0px 200px 0px", threshold: 0.1 },
+		);
+
+		observer.observe(trigger);
+		return () => observer.disconnect();
+	}, [error, isLoading, isLoadingMore, loadMore, page, totalPages]);
+
 	async function handleGpsVerify() {
 		if (isVerifying) return;
 
@@ -260,6 +337,7 @@ export default function CommunityPage() {
 
 			// 4. Update local state & show success toast
 			setGpsVerified(true);
+			setHasGeolocationPermission(true);
 			addToast({ type: "success", message: "동네 인증이 완료되었어요" });
 		} catch (err) {
 			if (err instanceof GeolocationPositionError) {
@@ -333,7 +411,9 @@ export default function CommunityPage() {
 			{/* -- 피드 -- */}
 			<div className="px-5 pt-4">
 				{/* GPS 인증 배너 — 로그인 + 미인증 시에만 표시 */}
-				{userId && gpsVerified === false && (
+				{userId &&
+					gpsVerified === false &&
+					hasGeolocationPermission !== true && (
 					<button
 						onClick={handleGpsVerify}
 						disabled={isVerifying}
@@ -368,11 +448,17 @@ export default function CommunityPage() {
 				)}
 
 				{isLoading ? (
-					<Skeleton variant="community-post" count={4} />
+					<Skeleton variant="community-post" count={3} />
 				) : error ? (
 					<ErrorState
 						message={error}
-						action={{ label: "다시 시도", onClick: () => fetchPosts(1) }}
+						action={{
+							label: "새로고침",
+							onClick: () => {
+								setPage(1);
+								fetchPosts(1);
+							},
+						}}
 					/>
 				) : posts.length > 0 ? (
 					<>
@@ -525,19 +611,19 @@ export default function CommunityPage() {
 						</div>
 
 						{/* 더 보기 */}
-						{page < totalPages && (
-							<button
-								onClick={loadMore}
-								className="mt-4 w-full rounded-2xl bg-dotori-50 py-3.5 text-[15px] font-medium text-dotori-600 transition-all active:scale-[0.98] hover:bg-dotori-100"
-							>
-								더 보기
-							</button>
+						{isLoadingMore && (
+							<div className="mt-4 flex justify-center py-2">
+								<div
+									className="h-5 w-5 rounded-full border-2 border-dotori-100 border-t-dotori-500 animate-spin"
+									aria-hidden
+								/>
+							</div>
 						)}
+						<div ref={loadMoreTriggerRef} className="mt-4 h-2" />
 					</>
 				) : (
 					<EmptyState
-						title="아직 게시물이 없어요"
-						description="첫 글을 작성해 이웃과 이야기를 시작해보세요"
+						title={tabEmptyMessages[activeTab] || "아직 게시물이 없어요"}
 						actionLabel="글 작성하기"
 						actionHref="/community/write"
 						secondaryLabel="탐색 페이지 가기"
