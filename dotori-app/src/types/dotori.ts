@@ -161,6 +161,14 @@ export interface ChatMessage {
 	isStreaming?: boolean;
 }
 
+export interface UsageStats {
+	chat: number;
+	alert: number;
+	limits: {
+		chat: number;
+	};
+}
+
 export interface EmbeddedCard {
 	type: EmbeddedCardType;
 	data: unknown;
