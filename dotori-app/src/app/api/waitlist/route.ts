@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { withApiHandler } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 import { toFacilityDTO } from "@/lib/dto";
 import { applyWaitlist } from "@/lib/services/waitlist-service";
 import { waitlistCreateSchema } from "@/lib/validations";
 import Waitlist from "@/models/Waitlist";
+
+const waitlistCreateSchemaWithFlags = waitlistCreateSchema.extend({
+	hasMultipleChildren: z.boolean().optional(),
+	isDualIncome: z.boolean().optional(),
+	isSingleParent: z.boolean().optional(),
+	hasDisability: z.boolean().optional(),
+});
 
 export const GET = withApiHandler(async (req, { userId }) => {
 	// Support ?count=true for dashboard widget
@@ -43,19 +51,16 @@ export const GET = withApiHandler(async (req, { userId }) => {
 	});
 }, { rateLimiter: standardLimiter });
 
-export const POST = withApiHandler(async (req, { userId, body }) => {
-	// Pass extra boolean fields from raw body (not in Zod schema)
-	const rawBody = await req.clone().json().catch(() => ({}));
-
+export const POST = withApiHandler(async (_req, { userId, body }) => {
 	const result = await applyWaitlist({
 		userId,
 		facilityId: body.facilityId,
 		childName: body.childName,
 		childBirthDate: body.childBirthDate,
-		hasMultipleChildren: rawBody.hasMultipleChildren ?? false,
-		isDualIncome: rawBody.isDualIncome ?? false,
-		isSingleParent: rawBody.isSingleParent ?? false,
-		hasDisability: rawBody.hasDisability ?? false,
+		hasMultipleChildren: body.hasMultipleChildren ?? false,
+		isDualIncome: body.isDualIncome ?? false,
+		isSingleParent: body.isSingleParent ?? false,
+		hasDisability: body.hasDisability ?? false,
 	});
 
 	if (!result.success) {
@@ -72,4 +77,4 @@ export const POST = withApiHandler(async (req, { userId, body }) => {
 		},
 		{ status: 201 },
 	);
-}, { schema: waitlistCreateSchema, rateLimiter: standardLimiter });
+}, { schema: waitlistCreateSchemaWithFlags, rateLimiter: standardLimiter });

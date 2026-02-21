@@ -46,6 +46,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 	const childBirthDate = firstChild?.birthDate
 		? new Date(firstChild.birthDate).toISOString().slice(0, 10)
 		: undefined;
+	const defaultBirthDate = `${new Date().getFullYear()}-01-01`;
 
 	// Validate + collect unique facility names
 	const validatedItems: Array<{ item: ImportItem; index: number }> = [];
@@ -140,7 +141,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 				const nextPosition = item.waitlistNumber ?? 0;
 				const update: Record<string, unknown> = {
 					childName: item.childName || childName,
-					childBirthDate: childBirthDate ?? "2024-01-01",
+					childBirthDate: childBirthDate ?? defaultBirthDate,
 					ageClass,
 					status,
 					appliedAt: item.applicationDate
@@ -162,7 +163,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 					userId,
 					facilityId: facility._id,
 					childName: item.childName || childName,
-					childBirthDate: childBirthDate ?? "2024-01-01",
+					childBirthDate: childBirthDate ?? defaultBirthDate,
 					ageClass,
 					position: item.waitlistNumber ?? 0,
 					status,
