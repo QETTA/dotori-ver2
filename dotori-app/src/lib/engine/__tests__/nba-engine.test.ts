@@ -35,6 +35,20 @@ describe("generateNBAs", () => {
     expect(result[0].id).toBe("onboarding_incomplete");
   });
 
+  it("returns child registration CTA first for unregistered user profile", () => {
+    const ctx: NBAContext = {
+      user: { ...baseUser, onboardingCompleted: false, children: [] },
+      interestFacilities: [],
+      alertCount: 0,
+      waitlistCount: 0,
+    };
+    const result = generateNBAs(ctx);
+
+    expect(result[0].id).toBe("onboarding_incomplete");
+    expect(result[0].title).toContain("프로필");
+    expect(result[0].action?.label).toBe("등록하기");
+  });
+
   it("shows vacancy alert when interest facility has availability", () => {
     const ctx: NBAContext = {
       user: baseUser,
@@ -51,6 +65,29 @@ describe("generateNBAs", () => {
     };
     const result = generateNBAs(ctx);
     expect(result.some((r) => r.id.startsWith("vacancy_"))).toBe(true);
+  });
+
+  it("includes vacancy alert for 이동 의향 사용자", () => {
+    const ctx: NBAContext = {
+      user: baseUser,
+      interestFacilities: [
+        {
+          id: "f3", name: "희망어린이집", type: "국공립", status: "available",
+          address: "서울시 서초구", lat: 37.5, lng: 127.01,
+          capacity: { total: 30, current: 22, waiting: 2 },
+          features: [], rating: 4.3, reviewCount: 2, lastSyncedAt: new Date().toISOString(),
+        },
+      ],
+      alertCount: 2,
+      waitlistCount: 1,
+    };
+    const result = generateNBAs(ctx);
+
+    const vacancy = result.find((item) => item.id.startsWith("vacancy_"));
+
+    expect(vacancy).toBeDefined();
+    expect(vacancy?.title).toContain("빈자리");
+    expect(result).toContainEqual(vacancy);
   });
 
   it("returns max 3 NBAs", () => {

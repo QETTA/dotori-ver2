@@ -38,4 +38,26 @@ describe("classifyIntent", () => {
 		};
 		expect(classifyIntent("여기 어떤 곳이야?", context)).toBe("explain");
 	});
+
+	it.each([
+		{ message: "반편성 결과가 너무 실망스러워요", expected: "transfer" },
+		{
+			message: "교사가 또 바뀌었어요 너무 불안해",
+			expected: ["transfer", "general"],
+		},
+		{
+			message: "강남구 국공립 빈자리 있어요?",
+			expected: ["recommend", "status"],
+		},
+		{
+			message: "입소 서류 어떻게 준비하나요?",
+			expected: "checklist",
+		},
+	] as const)(
+		`$message`,
+		({ message, expected }) => {
+			const intent = classifyIntent(message);
+			expect(Array.isArray(expected) ? expected : [expected]).toContain(intent);
+		},
+	);
 });

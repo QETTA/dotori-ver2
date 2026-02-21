@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { buildResponse } from "../response-builder";
 
-const mockDbConnect = jest.fn();
-const mockGenerateChatResponse = jest.fn();
+const mockDbConnect = jest.fn<() => Promise<void>>();
+const mockGenerateChatResponse = jest.fn<
+	(prompt: string, context?: Record<string, unknown>) => Promise<{
+		success: boolean;
+		content: string | undefined;
+	}>
+>();
 const mockFacilityFind = jest.fn();
 const mockUserFindById = jest.fn();
 const mockWaitlistFind = jest.fn();
@@ -14,7 +19,8 @@ jest.mock("@/lib/db", () => ({
 
 jest.mock("@/lib/ai/claude", () => ({
 	__esModule: true,
-	generateChatResponse: (...args: unknown[]) => mockGenerateChatResponse(...args),
+	generateChatResponse: (prompt: string, context?: Record<string, unknown>) =>
+		mockGenerateChatResponse(prompt, context),
 }));
 
 jest.mock("@/models/Facility", () => ({
@@ -58,14 +64,14 @@ jest.mock("@/lib/dto", () => ({
 }));
 
 const buildFacilityQuery = (items: unknown[]) => {
-	const query: {
-		sort: jest.Mock;
-		limit: jest.Mock;
-		lean: jest.Mock;
-	} = {
+	const query = {
 		sort: jest.fn().mockReturnThis(),
 		limit: jest.fn().mockReturnThis(),
-		lean: jest.fn().mockResolvedValue(items),
+		lean: jest.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
+	} as {
+		sort: jest.Mock;
+		limit: jest.Mock;
+		lean: jest.Mock<() => Promise<unknown[]>>;
 	};
 
 	return query;
@@ -114,23 +120,42 @@ describe("buildResponse", () => {
 		expect(response.blocks[0]).toEqual({ type: "text", content: expect.any(String) });
 	});
 
+	it("buildTransferResponse includes empathy message for 반편성 scenario", async () => {
+		const response = await buildResponse(
+			"transfer",
+			"반편성 결과가 너무 실망스러워요",
+		);
+
+		expect(response.content).toContain("반편성 결과가 실망스러우셨군요");
+		expect(response.blocks).toEqual([{ type: "text", content: expect.any(String) }]);
+	});
+
 	it("buildRecommendResponse returns facility list and map blocks", async () => {
 		mockFacilityFind.mockReturnValue(buildFacilityQuery([sampleFacility, sampleFacility2]));
 
 		const response = await buildResponse("recommend", "강남구 어린이집 추천해줘");
+		const mapBlock = response.blocks.find((block) => block.type === "map");
+		const facilityBlock = response.blocks.find((block) => block.type === "facility_list");
 
 		expect(mockDbConnect).toHaveBeenCalledTimes(1);
-		expect(response.blocks).toEqual(
-			expect.arrayContaining([
-				{ type: "text", content: expect.any(String) },
-				{ type: "facility_list", facilities: expect.any(Array) },
+		expect(facilityBlock).toEqual({
+			type: "facility_list",
+			facilities: expect.any(Array),
+		});
+		expect(mapBlock).toMatchObject({
+			type: "map",
+			center: { lat: 37.4952, lng: 127.0266 },
+			markers: expect.arrayContaining([
 				{
-					type: "map",
-					center: { lat: 37.4952, lng: 127.0266 },
-					markers: expect.any(Array),
+					id: expect.any(String),
+					name: expect.any(String),
+					lat: expect.any(Number),
+					lng: expect.any(Number),
+					status: expect.any(String),
 				},
 			]),
-		);
+		});
+		expect(response.blocks).toHaveLength(3);
 	});
 
 	it("buildCompareResponse returns compare block with criteria", async () => {
