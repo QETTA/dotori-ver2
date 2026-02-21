@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
-import { NotFoundError, withApiHandler } from "@/lib/api-handler";
+import { withApiHandler } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 
 const subscriptionCreateSchema = z.object({
@@ -46,17 +46,15 @@ export const GET = withApiHandler(async (_req, { userId }) => {
 	});
 }, { rateLimiter: standardLimiter });
 
-export const POST = withApiHandler(async (req, { userId }) => {
-	const body = await req.json();
-	const parsed = subscriptionCreateSchema.safeParse(body);
-	if (!parsed.success) {
+export const POST = withApiHandler(async (_req, { userId, body }) => {
+	// TODO: 결제 연동 시 관리자 체크를 결제 검증 로직으로 교체
+	const currentUser = await User.findById(userId).select("role").lean<{ role?: string }>();
+	if (currentUser?.role !== "admin") {
 		return NextResponse.json(
-			{ error: parsed.error.issues[0]?.message || "입력값이 올바르지 않습니다." },
-			{ status: 400 },
+			{ error: "관리자만 구독을 생성할 수 있습니다" },
+			{ status: 403 },
 		);
 	}
-
-	await User.findById(userId).orFail(new NotFoundError("사용자를 찾을 수 없습니다"));
 
 	await Subscription.updateMany(
 		{ userId, status: "active" },
@@ -66,7 +64,7 @@ export const POST = withApiHandler(async (req, { userId }) => {
 	const startedAt = new Date();
 	const subscription = await Subscription.create({
 		userId,
-		plan: parsed.data.plan,
+		plan: body.plan,
 		status: "active",
 		startedAt,
 		expiresAt: buildNextMonth(startedAt),
@@ -75,7 +73,7 @@ export const POST = withApiHandler(async (req, { userId }) => {
 
 	await User.findByIdAndUpdate(
 		userId,
-		{ $set: { plan: parsed.data.plan as "free" | "premium" | "partner" } },
+		{ $set: { plan: body.plan as "free" | "premium" | "partner" } },
 		{
 			new: true,
 			runValidators: false,
@@ -83,4 +81,4 @@ export const POST = withApiHandler(async (req, { userId }) => {
 	).lean();
 
 	return NextResponse.json({ data: subscription }, { status: 201 });
-}, { rateLimiter: standardLimiter });
+}, { schema: subscriptionCreateSchema, rateLimiter: standardLimiter });
