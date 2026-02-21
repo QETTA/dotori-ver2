@@ -111,6 +111,13 @@ const pricingPlans = [
 		highlighted: false,
 	},
 	{
+		name: '부모 프리미엄',
+		price: '월 1,900원',
+		features: ['빈자리 즉시 알림', '토리챗 무제한', '이동 전략 리포트'],
+		cta: '무료로 시작하기',
+		highlighted: true,
+	},
+	{
 		name: '인증 파트너',
 		price: '월 33,000원',
 		features: [
@@ -121,9 +128,11 @@ const pricingPlans = [
 			'카카오톡 즉시 알림',
 		],
 		cta: '파트너 시작',
-		highlighted: true,
+		highlighted: false,
 	},
 ]
+
+const SOCIAL_PROOF_PARENT_COUNT = '18,240'
 
 function formatStatValue(value: number, decimals: number, suffix: string) {
 	const normalizedValue =
@@ -242,12 +251,16 @@ export default function LandingPage() {
 							/>
 						</div>
 						<h1 className="text-4xl font-bold leading-tight md:text-5xl">
-							지금 다니는 어린이집,
+							어린이집 이동,
 							<br />
-							정말 괜찮으신가요?
+							더 이상 혼자 고민하지 마세요
 						</h1>
 						<p className="mx-auto mt-6 max-w-xl text-lg text-dotori-600">
-							이미 다니는 곳에서 반편성·교사 이슈로 고민 중이면 이동 가능한 곳을 바로 확인하세요.
+							<span className="font-bold text-dotori-700">20,027개 시설</span>
+							<span className="mx-1">·</span>
+							<span className="font-bold text-dotori-700">AI 맞춤 분석</span>
+							<span className="mx-1">·</span>
+							<span className="font-bold text-dotori-700">실시간 빈자리 알림</span>
 						</p>
 						<div className="mt-8 flex justify-center gap-4">
 							<Button href="/explore" color="dotori" className="px-8 py-3">
@@ -312,10 +325,13 @@ export default function LandingPage() {
 					</div>
 				</section>
 
-				{/* Testimonials */}
+				{/* Social proof */}
 				<section id="testimonials" className="bg-white px-6 py-12 md:py-20">
 					<div className="mx-auto max-w-4xl">
-						<h2 className="text-center text-2xl font-bold md:text-3xl">이동 성공 스토리</h2>
+						<h2 className="text-center text-2xl font-bold md:text-3xl">사회적 증거</h2>
+						<p className="mt-2 text-center text-[15px] text-dotori-600">
+							이미 <span className="font-semibold text-dotori-700">{SOCIAL_PROOF_PARENT_COUNT}명의 부모</span>가 사용 중
+						</p>
 						<div className="mt-6 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
 							{testimonials.map((t, i) => (
 								<div
@@ -340,15 +356,15 @@ export default function LandingPage() {
 				<section id="pricing" className="bg-white px-6 py-12 md:py-20">
 					<div className="mx-auto max-w-3xl">
 						<h2 className="text-center text-2xl font-bold md:text-3xl">어린이집 파트너 플랜</h2>
-						<div className="mt-6 grid gap-4 md:mt-12 md:grid-cols-2 md:gap-6">
-							{pricingPlans.map((plan) => (
+						<div className="mt-6 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
+							{pricingPlans.map((plan, planIndex) => (
 								<div
 									key={plan.name}
 									className={cn(
 										'rounded-2xl p-6 transition-all duration-200 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 duration-400 hover:-translate-y-0.5',
 										plan.highlighted ? 'bg-dotori-900 text-white' : 'bg-dotori-50',
 									)}
-									style={{ animationDelay: `${plan.name === '인증 파트너' ? 200 : 0}ms` }}
+									style={{ animationDelay: `${planIndex * 120}ms` }}
 								>
 									<h3
 										className={cn(
