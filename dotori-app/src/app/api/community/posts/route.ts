@@ -25,7 +25,11 @@ export const GET = withApiHandler(async (req) => {
 		sort: searchParams.get("sort") || undefined,
 		facilityId: searchParams.get("facilityId") || undefined,
 	});
-	const anonymized = result.data.map(({ authorId, ...post }) => post);
+	const anonymized = result.data.map((post) => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { authorId, ...withoutAuthor } = post;
+		return withoutAuthor;
+	});
 	const response = { ...result, data: anonymized };
 
 	return NextResponse.json(response, {

@@ -289,7 +289,6 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		[facility.kakaoPlaceUrl, facility.name, facility.address],
 	);
 
-	const premiumProfile = facility.premiumProfile;
 	const premiumFacility = facility as FacilityPremiumFacility;
 	const isPremiumFacility =
 		premiumFacility.isPremium === true || premiumFacility.premium?.isActive === true;
@@ -480,7 +479,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			setError(getErrorMessage(error, "대기 신청 처리에 실패했어요. 다시 시도해주세요"));
 			setSheetOpen(false);
 		}
-	}, [addToast, intentId]);
+	}, [addToast, facility.status, intentId, router]);
 
 	const toggleLike = useCallback(async () => {
 		if (isTogglingLike) return;

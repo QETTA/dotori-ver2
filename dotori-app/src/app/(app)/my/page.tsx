@@ -589,7 +589,7 @@ export default function MyPage() {
 			</section>
 
 			{/* 메뉴 */}
-			{visibleMenuSections.map((section, si) => (
+				{visibleMenuSections.map((section) => (
 				<section key={section.title} className="mt-5 px-5">
 					<h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-dotori-300">
 						{section.title}

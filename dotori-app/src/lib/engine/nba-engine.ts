@@ -211,13 +211,13 @@ const rules: NBARule[] = [
 		}),
 	},
 
-	{
-		id: "class_assignment_season",
-		priority: 90,
-		condition: (ctx) => {
-			const month = new Date().getMonth(); // 0-indexed
-			return month === 2; // 3월
-		},
+		{
+			id: "class_assignment_season",
+			priority: 90,
+			condition: () => {
+				const month = new Date().getMonth(); // 0-indexed
+				return month === 2; // 3월
+			},
 		generate: () => ({
 			id: "class_assignment_season",
 			title: "반편성 결과 발표 시즌이에요",
@@ -228,13 +228,13 @@ const rules: NBARule[] = [
 		}),
 	},
 
-	{
-		id: "orientation_season",
-		priority: 85,
-		condition: (ctx) => {
-			const month = new Date().getMonth();
-			return month === 1; // 2월
-		},
+		{
+			id: "orientation_season",
+			priority: 85,
+			condition: () => {
+				const month = new Date().getMonth();
+				return month === 1; // 2월
+			},
 		generate: () => ({
 			id: "orientation_season",
 			title: "설명회 다녀오셨나요?",

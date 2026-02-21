@@ -75,10 +75,9 @@ function writeCheckedMap(storageKey: string, checkedMap: Record<string, boolean>
 }
 
 export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
-	const typedBlock = block as ChecklistBlockWithFacilityId;
 	const storageKey = useMemo(
-		() => createStorageKey(typedBlock),
-		[typedBlock.facilityId, typedBlock.title],
+		() => createStorageKey(block as ChecklistBlockWithFacilityId),
+		[block],
 	);
 
 	const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(

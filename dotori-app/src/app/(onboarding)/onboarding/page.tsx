@@ -578,14 +578,15 @@ export default function OnboardingPage() {
 					</div>
 				)}
 
-				{step === 3 && (
-					<div
-						key="step3"
-						className="space-y-6 px-1 pt-2 text-center"
-					>
-						<img
-							src={BRAND.appIconWarm}
-							alt=""
+					{step === 3 && (
+						<div
+							key="step3"
+							className="space-y-6 px-1 pt-2 text-center"
+						>
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img
+								src={BRAND.appIconWarm}
+								alt=""
 							className="mx-auto h-11 w-11"
 						/>
 						<div>

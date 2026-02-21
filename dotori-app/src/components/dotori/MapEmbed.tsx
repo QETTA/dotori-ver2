@@ -220,19 +220,18 @@ export function MapEmbed({
 		}
 
 		setRetryKey((prev) => prev + 1);
-	}, [clearMarkers, hasApiKey, renderMap]);
+	}, [clearMarkers, renderMap]);
 
 	// Register for SDK ready callback or render immediately
-	useEffect(() => {
-		mountedRef.current = true;
+		useEffect(() => {
+			mountedRef.current = true;
 
-		if (!hasMapCenter) {
-			// eslint-disable-next-line react-hooks/set-state-in-effect
-			setMapError(true);
-			// eslint-disable-next-line react-hooks/set-state-in-effect
-			setIsLoading(false);
-			return;
-		}
+			if (!hasMapCenter) {
+				// eslint-disable-next-line react-hooks/set-state-in-effect
+				setMapError(true);
+				setIsLoading(false);
+				return;
+			}
 
 		if (!hasApiKey) {
 			setMapError(true);
@@ -313,11 +312,12 @@ export function MapEmbed({
 			<div ref={containerRef} className="h-full w-full" />
 
 			{/* Loading skeleton */}
-			{isLoading && !mapError && (
-				<div className="absolute inset-0 flex items-center justify-center bg-dotori-100">
-					<img
-						src={BRAND.symbol}
-						alt=""
+				{isLoading && !mapError && (
+					<div className="absolute inset-0 flex items-center justify-center bg-dotori-100">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.symbol}
+							alt=""
 						className="h-10 w-10 animate-bounce"
 						aria-hidden="true"
 					/>

@@ -29,21 +29,22 @@ function sanitizeFacilityListItem(
 	FacilitySearchItem,
 	"dataQuality" | "createdAt" | "updatedAt" | "kakaoPlaceUrl" | "kakaoPlaceId" | "dataSource" | "roomCount" | "teacherCount" | "establishmentYear" | "operatingHours" | "evaluationGrade"
 > {
-	const {
-		dataQuality,
-		kakaoPlaceUrl,
-		kakaoPlaceId,
-		dataSource,
-		roomCount,
-		teacherCount,
-		establishmentYear,
-		operatingHours,
-		evaluationGrade,
-		createdAt,
-		updatedAt,
-		...facilityItem
-	} = facility;
-	return facilityItem;
+	const facilityItem = { ...facility } as Partial<FacilitySearchItem>;
+	delete facilityItem.dataQuality;
+	delete facilityItem.kakaoPlaceUrl;
+	delete facilityItem.kakaoPlaceId;
+	delete facilityItem.dataSource;
+	delete facilityItem.roomCount;
+	delete facilityItem.teacherCount;
+	delete facilityItem.establishmentYear;
+	delete facilityItem.operatingHours;
+	delete facilityItem.evaluationGrade;
+	delete facilityItem.createdAt;
+	delete facilityItem.updatedAt;
+	return facilityItem as Omit<
+		FacilitySearchItem,
+		"dataQuality" | "createdAt" | "updatedAt" | "kakaoPlaceUrl" | "kakaoPlaceId" | "dataSource" | "roomCount" | "teacherCount" | "establishmentYear" | "operatingHours" | "evaluationGrade"
+	>;
 }
 
 function getFacilityPremiumSortScore(facility: FacilitySearchItem): FacilityPremiumSnapshot {

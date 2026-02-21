@@ -104,12 +104,13 @@ export function AiBriefingCard({
 				"relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/40 p-5 shadow-sm ring-1 ring-dotori-200/20",
 				"motion-safe:animate-in motion-safe:fade-in duration-300",
 			)}
-		>
-			{/* 브랜드 워터마크 */}
-			<div className="pointer-events-none absolute inset-0">
-				<img
-					src={BRAND.symbol}
-					alt=""
+			>
+				{/* 브랜드 워터마크 */}
+				<div className="pointer-events-none absolute inset-0">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={BRAND.symbol}
+						alt=""
 					className="absolute -right-4 -bottom-4 h-36 w-36 opacity-[0.08]"
 				/>
 				<div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />

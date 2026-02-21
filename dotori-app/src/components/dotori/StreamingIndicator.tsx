@@ -8,6 +8,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 
 	return (
 		<div className="flex items-center gap-2">
+			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={BRAND.symbol} alt="" className="h-5 w-5 animate-pulse" />
 			<div className="flex items-end gap-1">
 				{[0, 1, 2].map((i) => (

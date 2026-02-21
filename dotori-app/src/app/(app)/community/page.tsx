@@ -10,7 +10,6 @@ import { BRAND } from "@/lib/brand-assets";
 import type { CommunityPost } from "@/types/dotori";
 import {
 	ChatBubbleLeftIcon,
-	ArrowPathIcon,
 	HeartIcon,
 	EyeIcon,
 	MapPinIcon,

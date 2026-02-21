@@ -361,6 +361,7 @@ function ChatContent() {
 
 			sendMessage(actionId);
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[router],
 	);
 
@@ -392,6 +393,7 @@ function ChatContent() {
 			const timer = setTimeout(() => sendMessage(prompt), 300);
 			return () => clearTimeout(timer);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams]);
 
 	useEffect(() => {
@@ -445,7 +447,7 @@ function ChatContent() {
 		return () => {
 			isActive = false;
 		};
-	}, [status, session?.user?.id, session?.user?.plan]);
+	}, [monthKey, status, session?.user?.id, session?.user?.plan]);
 
 	messagesRef.current = messages;
 

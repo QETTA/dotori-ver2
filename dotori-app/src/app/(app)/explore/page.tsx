@@ -253,7 +253,6 @@ function ExploreContent() {
 	// ── Region options ──
 	useEffect(() => {
 		let active = true;
-		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoadingSido(true);
 		apiFetch<{ data: string[] }>("/api/regions/sido")
 			.then((res) => {
@@ -274,7 +273,6 @@ function ExploreContent() {
 
 	useEffect(() => {
 		let active = true;
-		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setIsLoadingSigungu(true);
 		setSigunguOptions([]);
 
@@ -547,7 +545,6 @@ function ExploreContent() {
 
 	useEffect(() => {
 		if (!isLoading || facilities.length > 0 || error) {
-			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setIsTimeout(false);
 			return;
 		}

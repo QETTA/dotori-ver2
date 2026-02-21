@@ -29,11 +29,12 @@ export const SourceChip = memo(function SourceChip({
 				freshnessColor(freshness),
 				selected ? "bg-dotori-100 text-dotori-700" : null,
 			)}
-		>
-			{isIsalangSource ? (
-				<img
-					src={BRAND.symbol}
-					alt="아이사랑 공식"
+			>
+				{isIsalangSource ? (
+					// eslint-disable-next-line @next/next/no-img-element
+					<img
+						src={BRAND.symbol}
+						alt="아이사랑 공식"
 					className="h-3 w-3 rounded-full border border-white/70 bg-white object-contain"
 				/>
 			) : null}
