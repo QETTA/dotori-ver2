@@ -1,11 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { z } from "zod";
 import { withApiHandler } from "@/lib/api-handler";
 import { relaxedLimiter, standardLimiter } from "@/lib/rate-limit";
-import { sanitizeContent, sanitizeString } from "@/lib/sanitize";
-import { toPostDTO } from "@/lib/dto";
-import Post from "@/models/Post";
+import { postService } from "@/lib/services/post.service";
 
 const communityPostCreateSchema = z.object({
 	content: z
@@ -21,62 +18,31 @@ const communityPostCreateSchema = z.object({
 
 export const GET = withApiHandler(async (req) => {
 	const { searchParams } = req.nextUrl;
-	const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
-	const limit = Math.min(
-		100,
-		Math.max(1, parseInt(searchParams.get("limit") || "20") || 20),
-	);
-	const category = searchParams.get("category") || "";
-	const sort = searchParams.get("sort") || "createdAt";
-	const facilityId = searchParams.get("facilityId") || "";
+	const result = await postService.list({
+		page: searchParams.get("page") || undefined,
+		limit: searchParams.get("limit") || undefined,
+		category: searchParams.get("category") || undefined,
+		sort: searchParams.get("sort") || undefined,
+		facilityId: searchParams.get("facilityId") || undefined,
+	});
 
-	const filter: Record<string, unknown> = {};
-	if (category) filter.category = category;
-	if (facilityId && mongoose.Types.ObjectId.isValid(facilityId)) filter.facilityTags = { $in: [facilityId] };
-
-	const sortObj: Record<string, -1 | 1> =
-		sort === "likes" ? { likes: -1 } : { createdAt: -1 };
-
-	const [posts, total] = await Promise.all([
-		Post.find(filter)
-			.select("content category likes likedBy commentCount createdAt authorId facilityTags aiSummary")
-			.skip((page - 1) * limit)
-			.limit(limit)
-			.sort(sortObj)
-			.lean(),
-		Post.countDocuments(filter),
-	]);
-
-	return NextResponse.json(
-		{
-			data: posts.map((p) => toPostDTO(p)),
-			pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+	return NextResponse.json(result, {
+		headers: {
+			"Cache-Control": "public, s-maxage=15, stale-while-revalidate=30",
 		},
-		{
-			headers: {
-				"Cache-Control": "public, s-maxage=15, stale-while-revalidate=30",
-			},
-		},
-	);
+	});
 }, { auth: false, rateLimiter: relaxedLimiter });
 
 export const POST = withApiHandler(async (req: NextRequest, { userId, body }) => {
 	const session = await (await import("@/auth")).auth();
-	const sanitizedContent = sanitizeContent(body.content);
-	const sanitizedTitle = body.title ? sanitizeString(body.title) : undefined;
-	const sanitizedTags = body.facilityTags?.map(sanitizeString);
-	const post = await Post.create({
-		authorId: userId,
-		author: {
-			nickname: session?.user?.name || "익명",
-			avatar: session?.user?.image,
-			verified: false,
-		},
-		...(sanitizedTitle ? { title: sanitizedTitle } : {}),
-		content: sanitizedContent,
+	const post = await postService.create({
+		userId,
+		content: body.content,
 		category: body.category,
-		facilityTags: sanitizedTags,
+		facilityTags: body.facilityTags,
+		authorName: session?.user?.name ?? undefined,
+		authorImage: session?.user?.image ?? undefined,
 	});
 
-	return NextResponse.json({ data: toPostDTO(post) }, { status: 201 });
+	return NextResponse.json({ data: post }, { status: 201 });
 }, { schema: communityPostCreateSchema, rateLimiter: standardLimiter });

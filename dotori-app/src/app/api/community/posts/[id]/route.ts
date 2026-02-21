@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { z } from "zod";
-import { withApiHandler, BadRequestError, NotFoundError, ApiError } from "@/lib/api-handler";
+import { withApiHandler } from "@/lib/api-handler";
 import { relaxedLimiter } from "@/lib/rate-limit";
-import { sanitizeContent, sanitizeString } from "@/lib/sanitize";
-import { toPostDTO } from "@/lib/dto";
-import Post from "@/models/Post";
+import { postService } from "@/lib/services/post.service";
 
 const postUpdateSchema = z.object({
 	content: z.string().min(1).max(5000).optional(),
@@ -15,66 +12,25 @@ const postUpdateSchema = z.object({
 
 export const GET = withApiHandler(async (_req, { params }) => {
 	const { id } = params;
-
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		throw new BadRequestError("유효하지 않은 게시물 ID입니다");
-	}
-
-	const post = await Post.findById(id).lean();
-
-	if (!post) {
-		throw new NotFoundError("게시물을 찾을 수 없습니다");
-	}
-
-	return NextResponse.json({ data: toPostDTO(post) });
+	const post = await postService.findById(id);
+	return NextResponse.json({ data: post });
 }, { auth: false, rateLimiter: relaxedLimiter });
 
 export const PATCH = withApiHandler(async (_req, { userId, body, params }) => {
 	const { id } = params;
+	const post = await postService.update({
+		id,
+		userId,
+		content: body.content,
+		category: body.category,
+		facilityTags: body.facilityTags,
+	});
 
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		throw new BadRequestError("유효하지 않은 게시물 ID입니다");
-	}
-
-	const post = await Post.findById(id);
-	if (!post) {
-		throw new NotFoundError("게시물을 찾을 수 없습니다");
-	}
-
-	if (String(post.authorId) !== userId) {
-		throw new ApiError("권한이 없습니다", 403);
-	}
-
-	if (body.content) {
-		post.content = sanitizeContent(body.content);
-	}
-	if (body.category) {
-		post.category = body.category;
-	}
-	if (body.facilityTags) {
-		post.facilityTags = body.facilityTags.map(sanitizeString);
-	}
-	await post.save();
-
-	return NextResponse.json({ data: toPostDTO(post) });
+	return NextResponse.json({ data: post });
 }, { auth: true, schema: postUpdateSchema });
 
 export const DELETE = withApiHandler(async (_req, { userId, params }) => {
 	const { id } = params;
-
-	if (!mongoose.Types.ObjectId.isValid(id)) {
-		throw new BadRequestError("유효하지 않은 게시물 ID입니다");
-	}
-
-	const post = await Post.findById(id).select("authorId").lean();
-	if (!post) {
-		throw new NotFoundError("게시물을 찾을 수 없습니다");
-	}
-
-	if (String(post.authorId) !== userId) {
-		throw new ApiError("권한이 없습니다", 403);
-	}
-
-	await Post.findByIdAndDelete(id);
+	await postService.remove(id, userId);
 	return NextResponse.json({ data: { deleted: true } });
 }, { auth: true });
