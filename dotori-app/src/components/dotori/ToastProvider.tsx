@@ -63,7 +63,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 			<div className="pointer-events-none fixed inset-x-0 bottom-20 z-[60] flex flex-col-reverse items-center">
 				<AnimatePresence>
 					{toasts.map((t) => (
-						<Toast key={t.id} {...t} />
+						<Toast key={t.id} {...t} onDismiss={() => removeToast(t.id)} />
 					))}
 				</AnimatePresence>
 			</div>
