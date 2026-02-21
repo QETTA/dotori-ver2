@@ -221,33 +221,58 @@ ss -tlnp | grep -E "3000|3001"
 
 **효과**: Codex 파일탐색 시간 제거, 타입 오류 감소, 빌드 성공률 향상
 
-### Codex 워크트리 파이프라인
+### Codex 워크트리 파이프라인 (개선판 v2)
+
+#### ★ 핵심 개선사항 (2026-02-22)
+1. **chmod -R 777** — 워크트리 생성 직후 git 메타데이터 권한 열기 → Codex가 직접 커밋 가능
+2. **검수 에이전트(L)는 마지막** — 나머지 11개 merge 완료 후 단독 실행
+3. **DO 환경변수는 `scripts/do-env-update.sh`로만 변경** — EV 시크릿 손상 방지
+4. **파일 소유권 맵 선점** — 에이전트 배분 전에 공유 파일 소유권 명시
+
 ```bash
-# 워크트리 생성 + 에이전트 실행
-WT="/home/sihu2129/dotori-ver2/dotori-app/.worktrees/wt-NAME"
-git -C /home/sihu2129/dotori-ver2/dotori-app worktree add "$WT/dotori-app" -b codex/TASK
+APP=/home/sihu2129/dotori-ver2/dotori-app
+
+# 1. 워크트리 생성 + ★ 권한 즉시 열기 (Codex 커밋 가능해짐)
+git -C "$APP" worktree add ".worktrees/NAME" -b codex/TASK
+chmod -R 777 /home/sihu2129/dotori-ver2/.git/worktrees/NAME/
 mkdir -p /tmp/wt-results /tmp/wt-logs
-# [Claude가 Serena로 프리분석 후 CONTEXT 변수에 저장]
+
+# 2. 에이전트 실행 (Codex가 직접 commit까지 완료)
 codex exec -s workspace-write \
   -m gpt-5.3-codex-spark \
-  --cd "$WT/dotori-app" \
+  --cd "$APP/.worktrees/NAME" \
   -o /tmp/wt-results/NAME.txt \
-  "# 현재 코드 컨텍스트 (Claude가 Serena로 추출):
-$CONTEXT
-
-# memories:
-$(cat .serena/memories/project_overview.md)
-$(cat .serena/memories/code_style_and_conventions.md)
-
-# 작업:
-[작업 내용]" \
+  "먼저 읽어라: cat .serena/memories/project_overview.md
+   cat .serena/memories/code_style_and_conventions.md
+   담당 파일만 수정. npm run build 0에러 확인.
+   완료 후 반드시: git add -A && git commit -m 'feat: ...'" \
   > /tmp/wt-logs/NAME.log 2>&1 &
 
-# 완료 후: 커밋 → squash merge → 빌드검증 → 정리
-git -C "$WT/dotori-app" add -A && git -C "$WT/dotori-app" commit -m "feat: ..."
-git -C /home/sihu2129/dotori-ver2/dotori-app merge --squash codex/TASK
-npm run build   # 반드시 0 에러 확인
-git worktree remove --force "$WT/dotori-app"
+# 3. 완료 대기 → squash merge (11개 먼저, 검수 마지막)
+# 11개 병렬 → merge → WT-L(검수) 단독 실행 → merge → 빌드 → push → 배포
+
+# 4. 정리
+git -C "$APP" worktree remove --force ".worktrees/NAME"
+git -C "$APP" branch -D codex/TASK
+```
+
+#### 파일 소유권 맵 (충돌 방지)
+```
+공유 파일은 반드시 1개 에이전트만 담당:
+- community/page.tsx → 단일 에이전트만
+- app/(app)/page.tsx → 단일 에이전트만
+- types/dotori.ts → 타입 에이전트만
+엔진 파일은 기능별 분리:
+- nba-engine.ts / intent-classifier.ts → 같은 에이전트
+- why-engine.ts / report-engine.ts → 같은 에이전트
+```
+
+#### 검수 에이전트 순서 (★ 반드시 마지막)
+```bash
+# 잘못된 순서 (현행): 11개와 동시 발사 → 다른 에이전트 변경사항 못 검수
+# 올바른 순서:
+# Step 1: 11개 동시 발사 → 완료 → merge
+# Step 2: WT-L(검수) 단독 발사 → merge된 코드 검수 → 빌드 0에러 확인
 ```
 
 ### 도구 사용 원칙
