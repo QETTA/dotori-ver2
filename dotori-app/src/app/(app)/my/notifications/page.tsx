@@ -134,7 +134,7 @@ export default function NotificationsPage() {
 					<EmptyState
 						title="알림 없음"
 						description="현재는 도착한 알림이 없어요. 시설을 저장하거나 관심 설정을 하면 새 소식을 받을 수 있어요."
-						actionLabel="탐색하기"
+						actionLabel="이동 가능 시설 찾기"
 						actionHref="/explore"
 					/>
 				) : (

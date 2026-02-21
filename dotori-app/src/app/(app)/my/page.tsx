@@ -304,7 +304,7 @@ export default function MyPage() {
 							<div>
 								<h1 className="text-xl font-bold">MY 페이지</h1>
 								<p className="mt-0.5 text-[15px] text-dotori-700">
-									로그인하면 관심 시설, 대기 현황을 모아볼 수 있어요
+									로그인하면 이동 수요 기준으로 시설 비교와 빈자리 체크를 바로 볼 수 있어요
 								</p>
 							</div>
 						</div>
@@ -488,7 +488,7 @@ export default function MyPage() {
 							href="/explore"
 							className="mt-2 inline-flex w-full justify-center rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700"
 						>
-							시설 탐색하기
+								이동할 시설 찾기
 						</Link>
 					</div>
 				)}

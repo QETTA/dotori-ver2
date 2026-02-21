@@ -25,13 +25,13 @@ const organizationSchema = {
 	logo: `${SITE_URL}/brand/dotori-favicon.svg`,
 };
 
-export const metadata: Metadata = {
+	export const metadata: Metadata = {
 	title: {
-		default: "도토리 — 어린이집 이동 탐색 AI",
-		template: "%s | 도토리",
+		default: "도토리 — 어린이집 이동·탐색 AI",
+		template: "%s | 도토리 — 어린이집 이동·탐색 AI",
 	},
 	description:
-		"지금 다니는 어린이집에서 이동을 고민 중이라면, 도토리가 도와드려요. 반편성 불만·교사 교체·빈자리 탐색까지 AI가 해결해드려요.",
+		"이미 다니는 어린이집, 이동 고민? 도토리 AI가 해결해드려요",
 	keywords: [
 		"어린이집이동",
 		"어린이집변경",

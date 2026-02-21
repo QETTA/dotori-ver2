@@ -135,7 +135,7 @@ export default function HomePage() {
 	const hotPost = data?.hotPosts[0] ?? null;
 	const nearbyFacilities = data?.nearbyFacilities ?? [];
 	const greetingTitle = user?.nickname
-		? `${user.nickname}님, 어린이집 찾고 계세요?`
+		? `${user.nickname}님, 이동 고민이 있으신가요?`
 		: "안녕하세요! 어린이집 쉽게 찾아드릴게요";
 	const hasAiBriefingContent = Boolean(
 		data &&
@@ -157,7 +157,7 @@ export default function HomePage() {
 			return "봄 입소 시즌이에요. 국공립 대기 현황을 확인해보세요";
 		}
 		if (month === 9 || month === 10) {
-			return "하반기 입소 준비 시즌이에요. 지금 바로 탐색해보세요";
+			return "2학기 반편성 전에 미리 체크하세요";
 		}
 		return "어린이집 정보를 AI로 분석해보세요";
 	})();
@@ -286,7 +286,7 @@ export default function HomePage() {
 						variants={cardReveal}
 						className="text-[14px] text-dotori-500"
 					>
-						도토리와 함께 우리 아이에게 딱 맞는 어린이집을
+						이동 고민은 지금, 빈자리와 조건을 바로 체크하고
 					</motion.p>
 				</motion.section>
 

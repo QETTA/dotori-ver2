@@ -204,7 +204,7 @@ export default function LandingPage() {
 							color="dotori"
 							className="shrink-0 rounded-full px-4 py-2 text-sm font-medium md:px-5 md:text-[15px]"
 						>
-							시작하기
+							빈자리 있는 곳 지금 찾기
 						</Button>
 					</div>
 				</header>
@@ -247,11 +247,11 @@ export default function LandingPage() {
 							정말 괜찮으신가요?
 						</h1>
 						<p className="mx-auto mt-6 max-w-xl text-lg text-dotori-600">
-							이미 어린이집에 다니고 있지만 이동을 고민 중이라면, 도토리가 더 나은 곳을 찾아드려요.
+							이미 다니는 곳에서 반편성·교사 이슈로 고민 중이면 이동 가능한 곳을 바로 확인하세요.
 						</p>
 						<div className="mt-8 flex justify-center gap-4">
 							<Button href="/explore" color="dotori" className="px-8 py-3">
-								내 아이 맞는 시설 찾기
+								이동할 시설 지금 찾기
 							</Button>
 							<Button href="/chat" color="dotori" className="px-8 py-3">
 								토리에게 물어보기
