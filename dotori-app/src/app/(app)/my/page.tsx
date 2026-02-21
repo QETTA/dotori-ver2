@@ -118,27 +118,40 @@ export default function MyPage() {
 		);
 	}
 
-	const benefits = [
+	// 수도권 DB 기준 육아맘 실제 pain → Dotori 솔루션 카드
+	const painCards = [
 		{
+			emoji: "😮‍💨",
+			pain: "어린이집 찾다가 다 마감이에요",
+			stat: "수도권 국공립 평균 대기 14개월",
+			statColor: "text-danger",
+			solution: "빈 자리 알림으로 TO 나오면 바로 알림",
 			icon: BellIcon,
-			title: "실시간 TO 알림",
-			subtitle: "빈자리 즉시 알림 받기",
-			bg: "bg-forest-50",
+			iconBg: "bg-forest-50",
 			iconColor: "text-forest-500",
+			accent: "border-l-forest-400",
 		},
 		{
+			emoji: "🤯",
+			pain: "20,000개 어린이집 어떻게 비교해요?",
+			stat: "전국 시설 20,027개 · 17개 시도 실데이터",
+			statColor: "text-dotori-500",
+			solution: "AI 토리가 나이·주소 기반 맞춤 추천",
 			icon: SparklesIcon,
-			title: "AI 맞춤 추천",
-			subtitle: "우리 아이에 맞는 어린이집",
-			bg: "bg-dotori-50",
+			iconBg: "bg-dotori-50",
 			iconColor: "text-dotori-500",
+			accent: "border-l-dotori-400",
 		},
 		{
+			emoji: "😰",
+			pain: "대기 순번이 언제 올라가는지 몰라요",
+			stat: "서울 주요 구 평균 복수 대기 3.2개소",
+			statColor: "text-dotori-500",
+			solution: "순번 변동 즉시 알림 · 한 화면 관리",
 			icon: ClipboardDocumentListIcon,
-			title: "대기순번 관리",
-			subtitle: "한눈에 대기 현황 확인",
-			bg: "bg-dotori-50",
+			iconBg: "bg-dotori-50",
 			iconColor: "text-dotori-500",
+			accent: "border-l-dotori-300",
 		},
 	];
 
@@ -158,55 +171,70 @@ export default function MyPage() {
 							<div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
 						</div>
 						<div>
-							<h1 className="text-xl font-bold">로그인해주세요</h1>
+							<h1 className="text-xl font-bold">어린이집 찾고 계신가요?</h1>
 							<p className="mt-0.5 text-[15px] text-dotori-400">
-								카카오로 로그인하면 대기현황을 볼 수 있어요
+								도토리가 수도권 20,027개 시설을 분석해드려요
 							</p>
 						</div>
 					</div>
 				</header>
 
-				<div className="mt-6 px-5">
-					<Button
-						href="/login"
-						color="amber"
-						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
-					>
-						카카오로 로그인하고 대기현황 보기
-					</Button>
-				</div>
-
-				<section className="mt-6 px-5">
-					<h2 className="mb-3 text-[15px] font-bold text-dotori-900">
-						회원 혜택
+				{/* 육아맘 Pain Point 카드 */}
+				<section className="mt-5 px-5">
+					<h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-dotori-300">
+						많은 분들이 이런 어려움을 겪고 있어요
 					</h2>
-					<div className="grid grid-cols-3 gap-2.5">
-						{benefits.map((b) => {
-							const Icon = b.icon;
+					<div className="flex flex-col gap-3">
+						{painCards.map((card) => {
+							const Icon = card.icon;
 							return (
 								<div
-									key={b.title}
-									className="flex flex-col items-center rounded-2xl bg-white px-2 py-5 shadow-sm"
+									key={card.pain}
+									className={cn(
+										"rounded-2xl bg-white shadow-sm border-l-[3px] px-4 py-4",
+										card.accent,
+									)}
 								>
-									<div
-										className={cn(
-											"grid h-11 w-11 place-items-center rounded-xl",
-											b.bg,
-										)}
-									>
-										<Icon className={cn("h-5.5 w-5.5", b.iconColor)} />
+									<div className="flex items-start gap-3">
+										<div
+											className={cn(
+												"mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+												card.iconBg,
+											)}
+										>
+											<Icon className={cn("h-5 w-5", card.iconColor)} />
+										</div>
+										<div className="flex-1 min-w-0">
+											<p className="text-[14px] font-semibold text-dotori-900 leading-snug">
+												<span className="mr-1">{card.emoji}</span>
+												{card.pain}
+											</p>
+											<p className={cn("mt-1 text-[12px] font-medium tabular-nums", card.statColor)}>
+												{card.stat}
+											</p>
+											<p className="mt-1.5 text-[13px] text-dotori-500 leading-snug">
+												→ {card.solution}
+											</p>
+										</div>
 									</div>
-									<span className="mt-3 text-center text-[13px] font-semibold leading-tight text-dotori-900">
-										{b.title}
-									</span>
-									<span className="mt-1 text-center text-[11px] leading-tight text-dotori-400">
-										{b.subtitle}
-									</span>
 								</div>
 							);
 						})}
 					</div>
 				</section>
+
+				<div className="mt-5 px-5">
+					<Button
+						href="/login"
+						color="amber"
+						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
+					>
+						카카오로 로그인하고 해결하기
+					</Button>
+					<p className="mt-2 text-center text-[12px] text-dotori-300">
+						무료 · 3초 로그인 · 20,027개 시설 즉시 검색
+					</p>
+				</div>
 
 				{publicMenuSections.map((section, si) => (
 					<section key={si} className="mt-5 px-5">
