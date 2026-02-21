@@ -35,14 +35,9 @@ export interface FacilityPremiumProfile {
 export interface FacilityPremium {
 	isActive: boolean;
 	plan: "basic" | "pro";
-	startDate: string;
-	endDate: string;
 	features: string[];
 	sortBoost: number;
 	verifiedAt?: string;
-	contactPerson?: string;
-	contactPhone?: string;
-	contactEmail?: string;
 }
 
 export interface Facility {

@@ -18,14 +18,9 @@ interface FacilityDocument {
 	premium?: {
 		isActive: boolean;
 		plan: "basic" | "pro";
-		startDate: Date | string;
-		endDate: Date | string;
 		features: string[];
 		sortBoost: number;
 		verifiedAt?: Date | string;
-		contactPerson?: string;
-		contactPhone?: string;
-		contactEmail?: string;
 	};
 	premiumProfile?: {
 		directorMessage?: string;
@@ -130,21 +125,16 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 					}
 				: undefined,
 			isPremium: doc.isPremium || activePremium,
-			premium: activePremium
-				? {
-						isActive: true,
-						plan: doc.premium?.plan ?? "basic",
-						startDate: toIsoDate(doc.premium?.startDate),
-						endDate: toIsoDate(doc.premium?.endDate),
-						features: doc.premium?.features ?? [],
-						sortBoost: doc.premium?.sortBoost ?? 0,
-						verifiedAt: doc.premium?.verifiedAt
-							? toIsoDate(doc.premium.verifiedAt)
-							: undefined,
-						contactPerson: doc.premium?.contactPerson,
-						contactPhone: doc.premium?.contactPhone,
-						contactEmail: doc.premium?.contactEmail,
-					}
+		premium: activePremium
+			? {
+					isActive: true,
+					plan: doc.premium?.plan ?? "basic",
+					features: doc.premium?.features ?? [],
+					sortBoost: doc.premium?.sortBoost ?? 0,
+					verifiedAt: doc.premium?.verifiedAt
+						? toIsoDate(doc.premium.verifiedAt)
+						: undefined,
+				}
 				: undefined,
 			premiumExpiresAt:
 				doc.premiumExpiresAt instanceof Date
