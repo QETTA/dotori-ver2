@@ -128,6 +128,15 @@ export async function create(input: CreateAlertInput): Promise<AlertRecord> {
 		throw new ApiError("유효하지 않은 시설 ID입니다", 400);
 	}
 
+	const existingAlert = await Alert.exists({
+		userId: input.userId,
+		facilityId: input.facilityId,
+		type: input.type,
+	});
+	if (existingAlert) {
+		throw new ApiError("이미 등록된 알림입니다", 409);
+	}
+
 	const facilityExists = await Facility.exists({ _id: input.facilityId });
 	if (!facilityExists) {
 		throw new NotFoundError("시설을 찾을 수 없습니다");

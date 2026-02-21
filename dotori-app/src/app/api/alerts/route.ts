@@ -6,7 +6,17 @@ import { alertService } from "@/lib/services/alert.service";
 
 export const GET = withApiHandler(async (_req, { userId }) => {
 	const alerts = await alertService.listActive(userId);
-	return NextResponse.json(alerts);
+	const sortedData = [...alerts.data].sort((a, b) => {
+		if (a.type === "vacancy" && b.type !== "vacancy") {
+			return -1;
+		}
+		if (a.type !== "vacancy" && b.type === "vacancy") {
+			return 1;
+		}
+		return b.createdAt.getTime() - a.createdAt.getTime();
+	});
+
+	return NextResponse.json({ ...alerts, data: sortedData });
 }, { rateLimiter: standardLimiter });
 
 export const POST = withApiHandler(async (_req, { userId, body }) => {

@@ -92,9 +92,19 @@ export const communityPostCreateSchema = z.object({
 
 export const alertCreateSchema = z.object({
 	facilityId: objectIdSchema,
-	type: z.enum(["vacancy", "waitlist_change", "review"], {
+	type: z.enum(
+		[
+			"vacancy",
+			"waitlist_change",
+			"review",
+			"transfer_vacancy",
+			"class_assignment",
+			"teacher_change",
+		],
+		{
 		error: "유효하지 않은 알림 타입입니다",
-	}),
+		},
+	),
 	condition: z.record(z.string(), z.unknown()).optional(),
 	channels: z
 		.array(z.enum(["push", "kakao", "email"]))

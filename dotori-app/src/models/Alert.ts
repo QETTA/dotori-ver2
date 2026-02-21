@@ -3,7 +3,13 @@ import mongoose, { type Document, type Model, Schema } from "mongoose";
 export interface IAlert extends Document {
 	userId: mongoose.Types.ObjectId;
 	facilityId: mongoose.Types.ObjectId;
-	type: "vacancy" | "waitlist_change" | "review";
+	type:
+		| "vacancy"
+		| "waitlist_change"
+		| "review"
+		| "transfer_vacancy"
+		| "class_assignment"
+		| "teacher_change";
 	condition: Record<string, unknown>;
 	channels: ("push" | "kakao" | "email")[];
 	active: boolean;
@@ -22,7 +28,14 @@ const AlertSchema = new Schema<IAlert>(
 		},
 		type: {
 			type: String,
-			enum: ["vacancy", "waitlist_change", "review"],
+			enum: [
+				"vacancy",
+				"waitlist_change",
+				"review",
+				"transfer_vacancy",
+				"class_assignment",
+				"teacher_change",
+			],
 			required: true,
 		},
 		condition: { type: Schema.Types.Mixed, default: {} },
