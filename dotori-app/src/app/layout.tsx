@@ -21,25 +21,28 @@ const organizationSchema = {
 	name: "도토리",
 	url: SITE_URL,
 	description:
-		"AI가 추천해주는 어린이집 검색, 실시간 빈자리 알림, 입소 대기 관리 플랫폼입니다.",
+		"어린이집 이동 탐색 플랫폼. 반편성 불만·교사 교체·빈자리 탐색을 AI로 해결합니다.",
 	logo: `${SITE_URL}/brand/dotori-favicon.svg`,
 };
 
 export const metadata: Metadata = {
 	title: {
-		default: "도토리 — 우리 아이 어린이집 찾기",
+		default: "도토리 — 어린이집 이동 탐색 AI",
 		template: "%s | 도토리",
 	},
 	description:
-		"AI가 분석한 어린이집 추천, 실시간 빈자리 알림, 입소 전략까지. 도토리가 우리 아이 어린이집을 찾아드려요.",
+		"지금 다니는 어린이집에서 이동을 고민 중이라면, 도토리가 도와드려요. 반편성 불만·교사 교체·빈자리 탐색까지 AI가 해결해드려요.",
 	keywords: [
-		"어린이집",
+		"어린이집이동",
+		"어린이집변경",
+		"반편성",
 		"도토리",
-		"유치원",
-		"보육시설",
-		"입소신청",
-		"대기순번",
+		"어린이집",
 		"빈자리알림",
+		"어린이집교체",
+		"유보통합",
+		"보육시설",
+		"국공립어린이집",
 	],
 	authors: [{ name: "도토리" }],
 	icons: { icon: "/brand/dotori-favicon.svg" },
@@ -48,9 +51,9 @@ export const metadata: Metadata = {
 		locale: "ko_KR",
 		siteName: "도토리",
 		url: SITE_URL,
-		title: "도토리 — 우리 아이 어린이집 찾기",
+		title: "도토리 — 지금 다니는 어린이집, 이동하고 싶다면",
 		description:
-			"AI가 분석한 어린이집 추천, 실시간 빈자리 알림, 입소 전략까지",
+			"반편성 불만·교사 교체·빈자리 탐색. AI 토리가 이동 상담해드려요.",
 		images: [
 			{
 				url: `${SITE_URL}/api/og?title=${encodeURIComponent("도토리")}&desc=${encodeURIComponent("우리 아이 어린이집, 도토리가 찾아드려요")}`,
