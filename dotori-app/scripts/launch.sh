@@ -6,17 +6,17 @@
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r11}
+ROUND=${1:-r12}
 # 모델 선택: spark 한도 시 gpt-5.3-codex 로 대체
-CODEX_MODEL=${CODEX_MODEL:-gpt-5.3-codex-spark}
+CODEX_MODEL=${CODEX_MODEL:-gpt-5.3-codex}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
 WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(home-simplify eslint-clean engine-tests chat-polish explore-polish facility-polish)
-MERGE_ORDER=(eslint-clean engine-tests home-simplify chat-polish explore-polish facility-polish)
+AGENTS=(explore-clean facility-clean landing-clean engine-boost e2e-update)
+MERGE_ORDER=(engine-boost explore-clean facility-clean landing-clean e2e-update)
 PIDS=()
 PASS=()
 FAIL=()
@@ -33,200 +33,54 @@ info() { echo "     $1"; }
 get_task() {
   local agent=$1
   case $agent in
-    home-simplify)
-      echo "src/app/(app)/page.tsx 의 UI를 단순화하고 혼란 요소를 제거해라.
-
-현재 문제: R10 에이전트가 너무 많은 섹션 추가 → 정보 과부하, 혼란스러움.
-
-목표: 간결하고 명확한 홈 화면. 섹션 제거가 우선.
-
-## 파일 읽기 먼저 (필수)
-cat src/app/(app)/page.tsx | head -100
-
-## 해야 할 것:
-1) **섹션 축소** - 현재 섹션 목록 파악 후 다음만 남겨라:
-   - 헤더 (인사말 + 이름)
-   - AI 토리 입력 카드 (다크 카드 유지 — 핵심)
-   - 빈자리 시설 섹션 (NBA 기반)
-   - 하단 커뮤니티 링크 1줄 (섹션 X)
-   제거 대상: 서비스 통계 가로스크롤, 이동 고민 긴급 섹션, 온보딩 CTA, 그 외 중복 배너
-
-2) **헤더 단순화**:
-   - 인사말: '{user}님, 안녕하세요' 또는 '도토리에 오신 것을 환영해요' 1줄
-   - 부제: '어린이집 이동, 도토리가 함께해요' 1줄
-   - 불필요한 아이콘/배지 제거
-
-3) **AI 토리 카드** (bg-dotori-900 다크 카드 유지):
-   - placeholder: '이동 고민이라면 뭐든 물어보세요'
-   - 클릭 → /chat 이동
-   - 칩 3개: 반편성 불만 / 교사 교체 / 국공립 당첨
-   - 간결하게: 카드 내부 항목 3개 이하
-
-4) **빈자리 섹션** (핵심 기능):
-   - 제목: '내 주변 빈자리'
-   - API 연동 유지 (기존 코드 활용)
-   - FacilityCard compact 형태 유지
-
-5) **TypeScript 오류 없어야 함**: npx tsc --noEmit 확인 필수
-   - user 관련: user != null && user!.xxx 패턴 사용
-   - stat.emphasized 같은 타입 에러: as { emphasized?: boolean } 캐스팅
-
-전체적으로 코드 라인 수를 줄이는 것이 목표.
-기존 기능(NBA, 시설 API, 상태관리)은 유지, UI만 단순화.
-npx tsc --noEmit 최종 확인."
-      ;;
-    eslint-clean)
-      echo "ESLint 경고를 전부 제거해라 (--max-warnings=0 기준):
-
-먼저 현황 확인:
-npx eslint src --format=compact 2>&1 | head -50
-
-담당 범위: src/ 전체 (단, 다른 에이전트 담당 파일과 충돌 주의)
-- home-simplify: src/app/(app)/page.tsx
-- chat-polish: src/app/(app)/chat/page.tsx
-- explore-polish: src/app/(app)/explore/page.tsx
-- facility-polish: src/app/(app)/facility/
-
-위 파일들의 ESLint 수정도 OK (overlap 허용 — ESLint fix는 안전한 수정).
-
-주요 경고 패턴:
-1) unused-vars: 사용하지 않는 변수/import 제거
-   - 예: 'ArrowPathIcon' defined but never used → import 제거
-   - 예: 'premiumProfile' assigned but never used → 변수 제거
-   - 예: 'si' is defined but never used → 제거
-   - 예: 'authorId', 'dataQuality', 'kakaoPlaceUrl', 'roomCount', 'teacherCount', 'establishmentYear', 'operatingHours' 등
-
-2) unused-disable-directive: 불필요한 eslint-disable 주석 제거
-   - 예: 'Unused eslint-disable directive (no problems were reported from react-hooks/set-state-in-effect)'
-   - 해당 줄 eslint-disable 주석 삭제
-
-3) exhaustive-deps: useCallback/useEffect 의존성 배열 수정
-   - sendMessage, monthKey 등 누락된 의존성 추가 (또는 useCallback 밖으로 이동)
-   - 단, 의도적으로 빈 배열인 경우 // eslint-disable-next-line react-hooks/exhaustive-deps 주석 추가
-
-4) no-img-element: <img> → next/image <Image> 교체
-   - import Image from 'next/image' 추가
-   - <img src={...} alt={...} width={N} height={N} /> 형태로 변환
-
-5) @typescript-eslint/no-unused-vars: _ prefix 규칙
-   - 사용 안 되는 파라미터: 언더스코어 prefix 또는 제거
-
-각 파일 수정 후 npx tsc --noEmit 로 TypeScript 에러 없는지 확인.
-최종: npx eslint src --max-warnings=0 통과 목표."
-      ;;
-    engine-tests)
-      echo "엔진 테스트 완전성 확보 (항상 최우선 과제):
-
-담당 파일: src/__tests__/engine/, src/lib/engine/__tests__/
-절대 건드리지 않을 파일: 위 test 디렉토리 외 모든 것
-
-## 먼저 현황 파악
-ls src/__tests__/engine/ 2>/dev/null || echo 없음
-ls src/lib/engine/__tests__/ 2>/dev/null || echo 없음
-npx jest --passWithNoTests 2>&1 | tail -10
-
-## 구현 목표
-
-### 1. intent-classifier 테스트 (src/__tests__/engine/intent-classifier.test.ts)
-파일 있으면 보완, 없으면 신규:
-- import { classifyIntent } from '@/lib/engine/intent-classifier'
-- 이동 시나리오 → transfer/recommend/knowledge/status/checklist/compare intent
-- '반편성 결과 실망' → transfer 포함
-- '교사 바뀌었어요' → transfer 포함
-- '강남구 빈자리' → recommend 포함
-- '서류 준비' → knowledge 또는 checklist 포함
-
-### 2. nba-engine 테스트 (src/__tests__/engine/nba-engine.test.ts)
-파일 있으면 보완, 없으면 신규:
-- import { generateNBA } from '@/lib/engine/nba-engine'
-- 미등록 아이: '아이 등록' NBA 포함
-- 이동 의향 있음: '빈자리 알림' NBA 포함
-- 관심 시설 있음: '시설 비교' NBA 포함
-
-### 3. why-engine 추가 테스트 (src/lib/engine/__tests__/why-engine.test.ts)
-기존 파일에 테스트 추가:
-- 민간 시설 + 교사 1명: teacher_turnover reason 포함 (이미 있으면 skip)
-- 국공립 + 대기 12명: public_waitlist reason 포함 (이미 있으면 skip)
-
-### 4. response-builder 추가 테스트 (src/lib/engine/__tests__/response-builder.test.ts)
-기존 파일에 추가:
-- transfer + 교사교체 → empathy 응답 포함
-- checklist → categories 배열 포함 (이미 있으면 skip)
-
-## 완료 기준
-npx jest --passWithNoTests 2>&1 | grep -E 'Tests:|failed'
-모든 테스트 pass. 새 테스트 최소 5개 추가."
-      ;;
-    chat-polish)
-      echo "채팅 페이지 폴리싱 + ESLint 경고 수정:
-
-담당 파일: src/app/(app)/chat/page.tsx 만 수정.
-
-## 먼저 파일 읽기
-head -100 src/app/(app)/chat/page.tsx
-
-## 해야 할 것:
-
-### 1. ESLint 경고 수정 (우선순위 최고)
-현재 경고:
-- useCallback missing dependency: 'sendMessage'
-- useEffect missing dependency: 'sendMessage'
-- useEffect missing dependency: 'monthKey'
-
-수정 방법:
-- sendMessage가 useCallback으로 만들어진 경우: deps 배열에 추가 또는 useCallback 재구성
-- monthKey: useMemo로 감싸거나 deps 배열에 추가
-- 의도적인 경우: // eslint-disable-next-line react-hooks/exhaustive-deps 주석
-
-### 2. UI 폴리싱 (단순화 방향)
-- 토리 온라인 상태 표시: 헤더에 작은 status dot (animate-pulse bg-forest-500)
-- 사용량 표시: 기존 텍스트 → 간결한 'N/5' 표시 (progress bar는 단순하게)
-- 빈 상태: 토리 아이콘 + '이동 고민이라면 뭐든 물어보세요' (지금도 있으면 개선만)
-
-### 3. TypeScript 확인
-npx tsc --noEmit 오류 없어야 함
-motion/react 사용 시 'use client' 확인."
-      ;;
-    explore-polish)
-      echo "탐색 페이지 폴리싱 + 정리:
+    explore-clean)
+      echo "src/app/(app)/explore/page.tsx 탐색 페이지를 폴리싱해라.
 
 담당 파일: src/app/(app)/explore/page.tsx 만 수정.
 
-## 먼저 파일 읽기
-head -120 src/app/(app)/explore/page.tsx
+## 먼저 파일 읽기 (필수)
+cat src/app/(app)/explore/page.tsx | wc -l
+head -150 src/app/(app)/explore/page.tsx
 
 ## 해야 할 것:
 
-### 1. 이동 시나리오 칩 추가/확인
-검색창 위 또는 바로 아래:
+### 1. 이동 시나리오 칩 확인/추가
+검색창 아래에 이동 시나리오 클릭 가능 칩:
 ['반편성 불만', '교사 교체', '국공립 당첨', '이사 예정']
 각 클릭 시 해당 텍스트로 search 상태 업데이트.
-칩 스타일: rounded-full bg-dotori-50 border border-dotori-100 px-3 py-1 text-sm text-dotori-700
+칩 스타일: rounded-full bg-dotori-50 border border-dotori-100 px-3 py-1.5 text-sm text-dotori-700
 
 ### 2. 빈 결과 개선
 검색 결과 없을 때:
-- '토리에게 물어보기' 버튼 (color='dotori') → Link href={'/chat?prompt=' + encodeURIComponent(search)}
-- '다른 지역 보기' 버튼
+- '토리에게 물어보기' 버튼 → Link href={'/chat?prompt=' + encodeURIComponent(search)}
+  color='dotori'
+- EmptyState 컴포넌트 활용
 
-### 3. Button color 수정 확인
-color='forest' 를 Button에서 쓰고 있으면 color='dotori'로 변경.
-(forest는 Badge 전용)
+### 3. Button color 수정
+color='forest' 를 Button에서 쓰고 있으면 반드시 color='dotori'로 변경.
+(forest는 Badge 전용 — Button에는 사용 불가)
 
-### 4. TypeScript 확인
-npx tsc --noEmit 오류 없어야 함."
+### 4. 불필요 코드 정리
+사용되지 않는 변수/import 제거.
+과도한 섹션/위젯 단순화.
+
+### 5. TypeScript 확인
+npx tsc --noEmit 오류 0개."
       ;;
-    facility-polish)
+    facility-clean)
       echo "시설 상세 페이지 폴리싱:
 
-담당 파일: src/app/(app)/facility/[id]/page.tsx 만 수정.
+담당 파일: src/app/(app)/facility/[id]/ 디렉토리 내 파일만 수정.
 
-## 먼저 파일 읽기
+## 먼저 파일 읽기 (필수)
+ls src/app/(app)/facility/[id]/
+cat src/app/(app)/facility/[id]/page.tsx | wc -l
 head -100 src/app/(app)/facility/[id]/page.tsx
 
 ## 해야 할 것:
 
 ### 1. 정원 진행바 확인/개선
-이미 있으면: 현원/정원 비율 막대 색상 개선
+현원/정원 비율 막대:
 - 60% 미만: bg-forest-500
 - 60-90%: bg-warning
 - 90%+: bg-danger
@@ -241,13 +95,119 @@ head -100 src/app/(app)/facility/[id]/page.tsx
 - waiting: Badge color='amber' '대기 중'
 - full: Badge color='red' '마감'
 
-### 4. 불필요 UI 제거
-- 중복 정보 섹션이 있으면 하나로 통합
-- 지나치게 긴 섹션 축소
+### 4. 불필요 UI/코드 제거
+- 중복 정보 섹션 통합
+- 사용되지 않는 변수/import 제거
 
-### 5. ESLint warnings 해결
-파일 내 unused vars, missing deps 모두 수정.
-npx tsc --noEmit 오류 없어야 함."
+### 5. TypeScript/ESLint
+npx tsc --noEmit 오류 0개."
+      ;;
+    landing-clean)
+      echo "랜딩 페이지 폴리싱 + 정리:
+
+담당 파일: src/app/(landing)/landing/page.tsx 만 수정.
+
+## 먼저 파일 읽기 (필수)
+cat src/app/(landing)/landing/page.tsx | wc -l
+head -100 src/app/(landing)/landing/page.tsx
+
+## 해야 할 것:
+
+### 1. 히어로 섹션 확인
+- 헤드라인 간결한지 확인
+- CTA 버튼: '무료로 시작하기' color='dotori'
+- 통계 숫자: 20,027+ 시설 / 17개 시도
+
+### 2. 기능 카드 단순화
+3개 카드 이하로:
+- 빈자리 실시간 확인
+- AI 이동 상담
+- 맞춤 알림
+
+### 3. FAQ/후기 섹션 확인
+- FAQ: 3-4개 항목 (아코디언 형태)
+- 후기: 있으면 유지, 과도하면 3개로 축소
+
+### 4. 불필요 코드 정리
+- 사용되지 않는 변수/import 삭제
+- 과도한 애니메이션 단순화
+
+### 5. TypeScript/ESLint
+npx tsc --noEmit 오류 0개."
+      ;;
+    engine-boost)
+      echo "엔진 테스트 추가 확장 (최우선):
+
+담당 파일: src/__tests__/engine/, src/lib/engine/__tests__/
+절대 건드리지 않을 파일: 위 test 디렉토리 외 모든 것
+
+## 현황 파악 (필수)
+npx jest --passWithNoTests 2>&1 | tail -5
+ls src/__tests__/engine/ 2>/dev/null || echo 없음
+ls src/lib/engine/__tests__/ 2>/dev/null || echo 없음
+
+## 현재 테스트 40개. 목표: 50개+
+
+### 1. intent-classifier 엣지 케이스 추가
+파일: src/__tests__/engine/intent-classifier.test.ts
+- 빈 문자열 → general
+- 이모지만 → general
+- 매우 긴 문장 → 정상 분류
+- 혼합 의도: '반편성도 맘에 안 들고 국공립 빈자리도 보고 싶어요' → transfer 또는 recommend
+
+### 2. nba-engine 엣지 케이스 추가
+파일: src/__tests__/engine/nba-engine.test.ts
+- 모든 필드 null인 사용자 → crash 없이 기본 NBA 반환
+- 대기중인 시설 있음 → '대기 순번 확인' NBA 포함
+- alertCount > 0 → '알림 확인' NBA 포함
+
+### 3. why-engine 추가 시나리오
+파일: src/lib/engine/__tests__/why-engine.test.ts
+- capacity.waiting === 0 인 시설 → public_waitlist reason 없음
+- 특수문자 시설명 → crash 없음
+
+### 4. response-builder 추가 시나리오
+파일: src/lib/engine/__tests__/response-builder.test.ts
+- explain + 시설 없음 → text + actions 블록
+- status + userId 있음 → 대기 정보 포함
+
+## 완료 기준
+npx jest --passWithNoTests → 50개+ 테스트 pass. 실패 0개."
+      ;;
+    e2e-update)
+      echo "E2E 테스트를 R11 단순화된 UI에 맞게 업데이트해라:
+
+담당 파일: src/__tests__/e2e/ 디렉토리 내 파일만 수정.
+
+## 현황 파악 (필수)
+ls src/__tests__/e2e/
+cat src/__tests__/e2e/home.spec.ts 2>/dev/null || echo 없음
+
+## 해야 할 것:
+
+### 1. 홈페이지 E2E 업데이트 (home.spec.ts)
+R11에서 page.tsx가 대폭 변경됨:
+- 히어로가 없어짐 → 인사말 + AI 토리 카드 + 빈자리 섹션
+- 확인: '도토리에 오신 것을 환영해요' 텍스트 존재
+- 확인: AI 토리 카드 클릭 → /chat 이동
+- 확인: '내 주변 빈자리' 섹션 존재
+- 확인: 커뮤니티 링크 1줄 존재
+
+### 2. 탐색 E2E 확인 (explore.spec.ts)
+기존 테스트 확인:
+- placeholder: '이동 고민? 내 주변 빈자리 먼저 확인해요'
+- 검색 동작 확인
+- 이동 시나리오 칩 존재 확인 (새로 추가된 경우)
+
+### 3. 채팅 E2E 확인 (chat.spec.ts)
+기존 테스트가 sendMessage 변경으로 깨졌는지 확인.
+깨진 셀렉터 업데이트.
+
+### 4. 온보딩 E2E 확인 (onboarding.spec.ts)
+기존 테스트 유지 확인. .first() 패턴 유지.
+
+npx playwright test --list 로 테스트 목록 확인.
+npx tsc --noEmit 오류 0개."
       ;;
     *)
       echo "agent_task_registry.md 에서 $agent 담당 작업을 확인해라."
@@ -259,7 +219,7 @@ npx tsc --noEmit 오류 없어야 함."
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ㄱ 파이프라인 v2 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  목표: 혼란 제거 + ESLint 클린 + 엔진 테스트    ║${NC}"
+echo -e "${BLUE}║  목표: 탐색/시설/랜딩 폴리싱 + 엔진 50+ 테스트  ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
