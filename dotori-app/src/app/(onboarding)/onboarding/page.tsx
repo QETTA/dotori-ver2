@@ -5,7 +5,7 @@ import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/catalyst/button";
-import { motion } from "motion/react";
+import { Badge } from "@/components/catalyst/badge";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -40,7 +40,7 @@ const popularSidoOptions = ["서울특별시", "경기도", "인천광역시"];
 
 export default function OnboardingPage() {
 	const router = useRouter();
-	const totalSteps = 4;
+	const totalSteps = 6;
 	const finalQuestionStep = totalSteps - 2;
 	const [step, setStep] = useState(0);
 	const [isSaving, setIsSaving] = useState(false);
@@ -96,18 +96,6 @@ export default function OnboardingPage() {
 		const rest = sidoList.filter((s) => !pinned.includes(s));
 		return [...pinned, ...rest];
 	}, [sidoList]);
-
-	const confettiParticles = useMemo(
-		() =>
-			Array.from({ length: 24 }, (_, index) => ({
-				id: index,
-				left: (index * 7.5) % 100,
-				xOffset: (index % 2 === 0 ? 1 : -1) * ((index % 12) + 8),
-				duration: 1.7 + (index % 7) * 0.15,
-				delay: (index % 8) * 0.12,
-			})),
-		[],
-	);
 
 	const progressPercent = (Math.min(step + 1, totalSteps) / totalSteps) * 100;
 
@@ -593,58 +581,69 @@ export default function OnboardingPage() {
 				{step === 3 && (
 					<div
 						key="step3"
-						className="relative space-y-6 px-1 pt-2 text-center"
+						className="space-y-6 px-1 pt-2 text-center"
 					>
-						<div className="relative h-56 overflow-hidden rounded-3xl bg-white">
-							<motion.div
-								initial={{ opacity: 0, scale: 0.97 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ duration: 0.4 }}
-								className="absolute inset-0"
+						<img
+							src={BRAND.appIconWarm}
+							alt=""
+							className="mx-auto h-11 w-11"
+						/>
+						<div>
+							<h1 className="text-xl font-bold">
+								빈자리 생기면 바로 알려드려요
+							</h1>
+							<p className="mt-2 text-sm text-dotori-500">
+								관심 시설에 공석이 생기면 즉시 푸시 알림으로 놓치지 않게
+								도와드려요.
+							</p>
+						</div>
+						<div className="rounded-3xl bg-white p-5 text-left shadow-sm">
+							<p className="text-sm font-semibold text-dotori-700">가격 안내</p>
+							<Badge
+								color="forest"
+								className="mt-2 inline-flex text-sm"
 							>
-								{confettiParticles.map((particle) => (
-									<motion.span
-										key={particle.id}
-										className="pointer-events-none absolute top-0 h-2 w-2 rounded-full bg-dotori-300"
-										style={{
-											left: `${particle.left}%`,
-										}}
-										initial={{ y: -20, opacity: 0, scale: 0.5 }}
-										animate={{
-											y: [20, 240],
-											x: [0, particle.xOffset],
-											opacity: [0, 1, 0],
-											scale: [0.7, 1, 0.4],
-										}}
-										transition={{
-											duration: particle.duration,
-											delay: particle.delay,
-											ease: "easeOut",
-										}}
-									/>
-								))}
-								<div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4 text-center">
-									{/* eslint-disable-next-line @next/next/no-img-element */}
-									<img
-										src={BRAND.appIconWarm}
-										alt=""
-										className="h-12 w-12"
-									/>
-									<h2 className="text-2xl font-bold text-dotori-700">
-										도토리와 함께 시작해요!
-									</h2>
-									<p className="text-sm text-dotori-500">
-										온보딩이 완료되었어요. 지금부터 추천을 시작해요.
-									</p>
-									<Button
-										color="dotori"
-										onClick={() => router.push("/")}
-										className="mt-3 w-full max-w-xs py-4.5 text-[16px] font-semibold"
-									>
-										홈으로 이동
-									</Button>
-								</div>
-							</motion.div>
+								월 1,900원으로 시작
+							</Badge>
+							<p className="mt-2 text-[13px] leading-relaxed text-dotori-500">
+								빈자리 알림은 무료 체험 후 원할 경우 계속 이용할 수 있어요.
+							</p>
+						</div>
+					</div>
+				)}
+
+				{step === 4 && (
+					<div
+						key="step4"
+						className="space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-3 duration-300"
+					>
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.appIconWarm}
+							alt=""
+							className="h-10 w-10"
+						/>
+						<div>
+							<h1 className="text-xl font-bold">
+								토리챗 AI가 이동 전략을 짜줘요
+							</h1>
+							<p className="mt-1 text-[14px] text-dotori-400">
+								입소 가능성, 이사 일정, 대기순위까지 한 번에 정리해드려요.
+							</p>
+						</div>
+						<div className="space-y-3 rounded-3xl bg-white p-5 text-left shadow-sm">
+							<div className="rounded-2xl border border-dotori-100 bg-dotori-50 p-4">
+								<p className="text-sm text-dotori-500">
+									전문 상담사가 놓친 부분까지 AI가 점검해서
+									실행 가능한 이동 플랜을 제안해요.
+								</p>
+							</div>
+							<div className="rounded-2xl border border-dotori-100 bg-dotori-50 p-4">
+								<p className="text-sm text-dotori-500">
+									우선순위 시설부터 서류 준비 순서까지 안내받고,
+									부모님의 일정을 더 편하게 관리해보세요.
+								</p>
+							</div>
 						</div>
 					</div>
 				)}
@@ -670,9 +669,7 @@ export default function OnboardingPage() {
 						>
 							{isSaving
 								? "저장 중..."
-								: step === finalQuestionStep
-									? "시작하기"
-									: "다음"}
+								: "다음"}
 						</Button>
 						<button
 							type="button"
@@ -680,10 +677,27 @@ export default function OnboardingPage() {
 							disabled={isSaving}
 							className="mt-2 w-full text-[13px] text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50"
 						>
-							나중에 설정
+							무료로 먼저 체험하기
 						</button>
 					</>
-				) : null}
+				) : (
+					<div className="space-y-3">
+						<Button
+							color="dotori"
+							onClick={() => router.push("/")}
+							className="w-full py-4.5 text-[16px] font-semibold"
+						>
+							무료로 시작하기
+						</Button>
+						<button
+							type="button"
+							onClick={() => router.push("/my/settings")}
+							className="w-full rounded-full border border-forest-200 py-3.5 text-[14px] font-medium text-forest-700 transition-colors hover:border-forest-300 hover:text-forest-800"
+						>
+							프리미엄 보기
+						</button>
+					</div>
+				)}
 			</div>
 		</div>
 	);
