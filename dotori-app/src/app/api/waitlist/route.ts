@@ -20,7 +20,9 @@ export const GET = withApiHandler(async (req, { userId }) => {
 	const filter = { userId, status: { $ne: "cancelled" } as const };
 	const [waitlists, total] = await Promise.all([
 		Waitlist.find(filter)
-			.select("facilityId childName childBirthDate ageClass position status checklist appliedAt estimatedDate")
+			.select(
+				"facilityId childName childBirthDate ageClass position previousPosition status checklist appliedAt estimatedDate",
+			)
 			.populate("facilityId")
 			.sort({ appliedAt: -1 })
 			.lean(),

@@ -302,7 +302,7 @@ export default function SettingsPage() {
 	const hasChildren = useMemo(() => children.length > 0, [children.length]);
 
 	return (
-		<div className="pb-8">
+		<div className="pb-28">
 			{/* 헤더 */}
 			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
 				<Link
@@ -447,12 +447,6 @@ export default function SettingsPage() {
 
 				<div className="mt-3 flex flex-col gap-2">
 					<button
-						onClick={handleLogout}
-						className="rounded-2xl border border-dotori-100 bg-white px-4 py-3 text-left text-[15px] font-medium text-dotori-600 transition-colors hover:bg-dotori-50 active:scale-[0.98]"
-					>
-						로그아웃
-					</button>
-					<button
 						onClick={handleDeleteAccount}
 						disabled={isDeletingAccount}
 						className={cn(
@@ -563,6 +557,15 @@ export default function SettingsPage() {
 					</Button>
 				</DialogActions>
 			</Dialog>
+
+			<div className="fixed inset-x-0 bottom-0 z-20 bg-white/95 px-5 pb-[env(safe-area-inset-bottom)] pt-3">
+				<button
+					onClick={handleLogout}
+					className="w-full rounded-2xl border border-danger/30 bg-white px-4 py-3 text-left text-[15px] font-semibold text-danger transition-colors hover:bg-danger/5 active:scale-[0.98]"
+				>
+					카카오 로그아웃
+				</button>
+			</div>
 		</div>
 	);
 }

@@ -23,6 +23,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 function calculateAge(birthDate: string) {
 	const birth = new Date(birthDate);
@@ -78,10 +79,15 @@ const publicMenuSections = menuSections.slice(1);
 export default function MyPage() {
 	const { user, interestsCount, waitlistCount, alertCount, isLoading, error, refresh } =
 		useUserProfile();
+	const pathname = usePathname();
+	const menuItemClass = "min-h-12 flex items-center gap-3 px-4 py-4";
 
 	async function handleLogout() {
 		await signOut({ callbackUrl: "/login" });
 	}
+
+	const isActiveMenuItem = (href: string) =>
+		pathname === href || pathname.startsWith(`${href}/`);
 
 	if (isLoading) {
 		return (
@@ -142,14 +148,19 @@ export default function MyPage() {
 			<div className="pb-8">
 				<header className="px-5 pt-8 pb-2">
 					<div className="flex items-center gap-4">
-						<div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-dotori-100">
+						<div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-dotori-100">
 							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img src={BRAND.appIconDark} alt="" className="h-10 w-10" />
+							<img
+								src={BRAND.appIconDark}
+								alt=""
+								className="h-10 w-10 blur-[1px]"
+							/>
+							<div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
 						</div>
 						<div>
 							<h1 className="text-xl font-bold">로그인해주세요</h1>
 							<p className="mt-0.5 text-[15px] text-dotori-400">
-								맞춤 서비스를 이용할 수 있어요
+								카카오로 로그인하면 대기현황을 볼 수 있어요
 							</p>
 						</div>
 					</div>
@@ -161,7 +172,7 @@ export default function MyPage() {
 						color="amber"
 						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
 					>
-						카카오로 로그인
+						카카오로 로그인하고 대기현황 보기
 					</Button>
 				</div>
 
@@ -207,13 +218,15 @@ export default function MyPage() {
 										key={item.label}
 										href={item.href}
 										className={cn(
-											"flex min-h-12 items-center gap-3 px-4 py-4 transition-colors",
+											menuItemClass,
+											"transition-colors",
+											isActiveMenuItem(item.href) && "bg-dotori-50",
 											"active:bg-dotori-50 hover:bg-dotori-50/50",
 											i < section.items.length - 1 &&
 												"border-b border-dotori-100/40",
 										)}
 									>
-										<Icon className="h-6 w-6 text-dotori-400" />
+										<Icon className="h-5 w-5 text-dotori-400" />
 										<span className="flex-1 text-[15px]">{item.label}</span>
 										<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
 									</Link>
@@ -391,13 +404,15 @@ export default function MyPage() {
 									key={item.label}
 									href={item.href}
 									className={cn(
-										"flex min-h-12 items-center gap-3 px-4 py-4 transition-colors",
+										menuItemClass,
+										"transition-colors",
+										isActiveMenuItem(item.href) && "bg-dotori-50",
 										"active:bg-dotori-50 hover:bg-dotori-50/50",
 										i < section.items.length - 1 &&
 											"border-b border-dotori-100/40",
 									)}
 								>
-									<Icon className="h-6 w-6 text-dotori-400" />
+									<Icon className="h-5 w-5 text-dotori-400" />
 									<span className="flex-1 text-[15px]">{item.label}</span>
 									<ChevronRightIcon className="h-5 w-5 text-dotori-300" />
 								</Link>

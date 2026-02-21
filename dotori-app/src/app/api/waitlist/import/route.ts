@@ -92,26 +92,14 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 		facilityByName.set(f.name.toLowerCase(), f);
 	}
 
-	// Batch duplicate check: find existing waitlists for this user
 	const facilityIds = matchedFacilities.map((f) => f._id);
-	const existingWaitlists = facilityIds.length > 0
-		? await Waitlist.find({
-			userId,
-			facilityId: { $in: facilityIds },
-			status: { $ne: "cancelled" },
-		})
-			.select("facilityId")
-			.lean()
-		: [];
-	const existingFacilityIds = new Set(
-		existingWaitlists.map((w) => String(w.facilityId)),
-	);
+	const existingFacilityIds = new Set<string>();
 
 	// Process each validated item
 	let successCount = 0;
 	let skipCount = results.length; // already includes invalid items
 
-	for (const { item } of validatedItems) {
+		for (const { item } of validatedItems) {
 		// Find matching facility
 		const facility = facilityByName.get(item.facilityName.toLowerCase());
 		if (!facility) {
@@ -124,7 +112,7 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 			continue;
 		}
 
-		// Check duplicate
+		// Check duplicate within the same request
 		if (existingFacilityIds.has(String(facility._id))) {
 			skipCount++;
 			results.push({
@@ -141,19 +129,50 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 			: item.childClass ?? "만0세반";
 
 		try {
-			await Waitlist.create({
+			const existingWaitlist = await Waitlist.findOne({
 				userId,
 				facilityId: facility._id,
-				childName: item.childName || childName,
-				childBirthDate: childBirthDate ?? "2024-01-01",
-				ageClass,
-				position: item.waitlistNumber ?? 0,
-				status,
-				appliedAt: item.applicationDate
-					? new Date(item.applicationDate)
-					: new Date(),
-				requiredDocs: [],
-			});
+				status: { $ne: "cancelled" },
+			})
+				.select("position")
+				.lean();
+
+			if (existingWaitlist) {
+				const nextPosition = item.waitlistNumber ?? 0;
+				const update: Record<string, unknown> = {
+					childName: item.childName || childName,
+					childBirthDate: childBirthDate ?? "2024-01-01",
+					ageClass,
+					status,
+					appliedAt: item.applicationDate
+						? new Date(item.applicationDate)
+						: new Date(),
+				};
+				if (typeof nextPosition === "number") {
+					update.position = nextPosition;
+					if (typeof existingWaitlist.position === "number") {
+						update.previousPosition = existingWaitlist.position;
+					}
+				}
+
+				await Waitlist.findByIdAndUpdate(existingWaitlist._id, {
+					$set: update,
+				});
+			} else {
+				await Waitlist.create({
+					userId,
+					facilityId: facility._id,
+					childName: item.childName || childName,
+					childBirthDate: childBirthDate ?? "2024-01-01",
+					ageClass,
+					position: item.waitlistNumber ?? 0,
+					status,
+					appliedAt: item.applicationDate
+						? new Date(item.applicationDate)
+						: new Date(),
+					requiredDocs: [],
+				});
+			}
 
 			// Track to prevent duplicates within same batch
 			existingFacilityIds.add(String(facility._id));

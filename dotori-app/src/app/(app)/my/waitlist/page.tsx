@@ -7,7 +7,13 @@ import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { cn, formatRelativeTime } from "@/lib/utils";
-import { ArrowLeftIcon, CameraIcon, DevicePhoneMobileIcon } from "@heroicons/react/24/outline";
+import {
+	ArrowDownIcon,
+	ArrowLeftIcon,
+	ArrowUpIcon,
+	CameraIcon,
+	DevicePhoneMobileIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ISALANG_PORTAL, openIsalangLink, openIsalangApp } from "@/lib/external/isalang-api";
@@ -24,6 +30,7 @@ type WaitlistStatus = "pending" | "accepted" | "confirmed" | "cancelled";
 interface WaitlistItem {
 	_id: string;
 	estimatedDate?: string;
+	previousPosition?: number;
 	facilityId:
 		| {
 				_id: string;
@@ -49,6 +56,20 @@ const statusConfig = {
 	confirmed: { label: "입소 확정", color: "forest" as const },
 	cancelled: { label: "취소됨", color: "zinc" as const },
 };
+
+function formatPositionTrend(current?: number, previous?: number) {
+	if (typeof current !== "number" || typeof previous !== "number") {
+		return null;
+	}
+
+	const diff = current - previous;
+	if (diff === 0) return null;
+
+	return {
+		diff: Math.abs(diff),
+		direction: diff < 0 ? "up" : "down",
+	};
+}
 
 function getEstimatedAdmissionLabel(raw?: string) {
 	if (!raw) return "미정";
@@ -235,8 +256,40 @@ export default function WaitlistPage() {
 										<span className="block text-[12px] text-dotori-400">
 											현재 대기 순위
 										</span>
-										<span className="text-[14px] font-bold text-dotori-900">
-											{item.position ? `${item.position}번째` : "미정"}
+										<span className="mt-0.5 inline-flex items-center justify-center gap-1">
+											<span className="text-[14px] font-bold text-dotori-900">
+												{item.position ? `${item.position}번째` : "미정"}
+											</span>
+											{(() => {
+												const trend = formatPositionTrend(
+													item.position,
+													item.previousPosition,
+												);
+												if (!trend) {
+													return null;
+												}
+												const trendClass =
+													trend.direction === "down"
+														? "text-forest-600"
+														: "text-danger";
+												return (
+													<span
+														className={cn(
+															"text-[11px] font-semibold",
+															trendClass,
+														)}
+													>
+														{trend.direction === "down" ? (
+															<ArrowDownIcon className="h-3.5 w-3.5" />
+														) : (
+															<ArrowUpIcon className="h-3.5 w-3.5" />
+														)}
+														<span className="ml-0.5">
+															{trend.direction === "up" ? `-${trend.diff}` : `+${trend.diff}`}
+														</span>
+													</span>
+												);
+											})()}
 										</span>
 									</div>
 									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
@@ -324,13 +377,13 @@ export default function WaitlistPage() {
 														{submitted}/{total}건 완료
 													</span>
 												</div>
-												<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-dotori-200/60">
+												<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-dotori-400/20">
 													<div
 														className={cn(
 															"h-full rounded-full transition-all duration-300",
 															pct === 100
 																? "bg-forest-500"
-																: "bg-dotori-500",
+																: "bg-dotori-400",
 														)}
 														style={{
 															width: `${pct}%`,
