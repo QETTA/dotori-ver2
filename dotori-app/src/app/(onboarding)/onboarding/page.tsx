@@ -5,8 +5,9 @@ import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/catalyst/button";
+import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const facilityTypes = ["국공립", "민간", "가정", "직장"];
 const features = [
@@ -35,36 +36,23 @@ const sidoFallbackOptions = [
 	"경상남도",
 	"제주특별자치도",
 ];
+const popularSidoOptions = ["서울특별시", "경기도", "인천광역시"];
 
 export default function OnboardingPage() {
 	const router = useRouter();
+	const totalSteps = 4;
+	const finalQuestionStep = totalSteps - 2;
 	const [step, setStep] = useState(0);
-	const totalSteps = 3;
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
 
 	const [childName, setChildName] = useState("");
 	const [birthDate, setBirthDate] = useState("");
-	const [birthYear, setBirthYear] = useState("");
+	const currentYear = new Date().getFullYear();
+	const [birthYear, setBirthYear] = useState(String(currentYear - 2));
 	const [birthMonth, setBirthMonth] = useState("");
 	const [gender, setGender] = useState("");
 
-	// Sync year/month selects → birthDate (YYYY-MM format for API)
-	function handleBirthYear(y: string) {
-		setBirthYear(y);
-		if (y && birthMonth) setBirthDate(`${y}-${birthMonth}`);
-		else setBirthDate("");
-	}
-	function handleBirthMonth(m: string) {
-		setBirthMonth(m);
-		if (birthYear && m) setBirthDate(`${birthYear}-${m}`);
-		else setBirthDate("");
-	}
-
-	const currentYear = new Date().getFullYear();
-	const birthYearOptions = Array.from({ length: 8 }, (_, i) =>
-		String(currentYear - i),
-	);
 	const [sido, setSido] = useState("");
 	const [sigungu, setSigungu] = useState("");
 	const [dong, setDong] = useState("");
@@ -76,6 +64,60 @@ export default function OnboardingPage() {
 	const [sigunguList, setSigunguList] = useState<string[]>([]);
 	const [isLoadingSido, setIsLoadingSido] = useState(false);
 	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
+
+	const birthYearOptionsRange = useMemo(() => {
+		const minYear = currentYear - 12;
+		return {
+			minYear,
+			maxYear: currentYear,
+		};
+	}, [currentYear]);
+
+	const childAge = useMemo(() => {
+		if (!birthYear || !birthMonth) return null;
+		const y = Number(birthYear);
+		const m = Number(birthMonth);
+		if (!y || !m) return null;
+		const today = new Date();
+		const birthYearMonth = new Date(today.getFullYear(), m - 1, 1);
+		let age = today.getFullYear() - y;
+		if (
+			today.getMonth() < birthYearMonth.getMonth() ||
+			(today.getMonth() === birthYearMonth.getMonth() &&
+				today.getDate() < birthYearMonth.getDate())
+		) {
+			age -= 1;
+		}
+		return Math.max(age, 0);
+	}, [birthMonth, birthYear]);
+
+	const orderedSidoList = useMemo(() => {
+		const pinned = popularSidoOptions.filter((s) => sidoList.includes(s));
+		const rest = sidoList.filter((s) => !pinned.includes(s));
+		return [...pinned, ...rest];
+	}, [sidoList]);
+
+	const confettiParticles = useMemo(
+		() =>
+			Array.from({ length: 24 }, (_, index) => ({
+				id: index,
+				left: (index * 7.5) % 100,
+				xOffset: (index % 2 === 0 ? 1 : -1) * ((index % 12) + 8),
+				duration: 1.7 + (index % 7) * 0.15,
+				delay: (index % 8) * 0.12,
+			})),
+		[],
+	);
+
+	const progressPercent = (Math.min(step + 1, totalSteps) / totalSteps) * 100;
+
+	useEffect(() => {
+		if (birthYear && birthMonth) {
+			setBirthDate(`${birthYear}-${birthMonth}`);
+		} else {
+			setBirthDate("");
+		}
+	}, [birthMonth, birthYear]);
 
 	// Fetch sido list on mount
 	useEffect(() => {
@@ -164,7 +206,7 @@ export default function OnboardingPage() {
 				body: JSON.stringify(payload),
 			});
 
-			router.push("/");
+			setStep(finalQuestionStep + 1);
 		} catch {
 			setSaveError("저장에 실패했어요. 다시 시도하거나 건너뛰기를 눌러주세요.");
 		} finally {
@@ -173,15 +215,29 @@ export default function OnboardingPage() {
 	}
 
 	function next() {
-		if (step < totalSteps - 1) {
+		if (step < finalQuestionStep) {
 			setStep((s) => s + 1);
-		} else {
+			return;
+		}
+		if (step === finalQuestionStep) {
+			saveProfile();
+		}
+	}
+
+	function skipStep() {
+		if (step < finalQuestionStep) {
+			setStep((s) => s + 1);
+			return;
+		}
+		if (step === finalQuestionStep) {
 			saveProfile();
 		}
 	}
 
 	function back() {
-		if (step > 0) setStep((s) => s - 1);
+		if (step > 0 && step < totalSteps - 1) {
+			setStep((s) => s - 1);
+		}
 	}
 
 	function toggle(
@@ -198,6 +254,8 @@ export default function OnboardingPage() {
 
 	const inputCls =
 		"w-full rounded-3xl border-none bg-dotori-100/60 px-5 py-4 text-[15px] outline-none transition-all focus:ring-2 focus:ring-dotori-300";
+	const sliderCls =
+		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500";
 
 	return (
 		<div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-hidden bg-dotori-50 px-6">
@@ -209,10 +267,11 @@ export default function OnboardingPage() {
 				aria-hidden="true"
 				className="pointer-events-none absolute -bottom-8 -right-8 h-48 w-48 select-none opacity-[0.04]"
 			/>
+
 			{/* ── 헤더 ── */}
 			<header className="flex items-center justify-between pb-2 pt-[env(safe-area-inset-top)]">
 				<div className="pt-4">
-					{step > 0 ? (
+					{step > 0 && step < totalSteps - 1 ? (
 						<button
 							onClick={back}
 							aria-label="뒤로 가기"
@@ -224,25 +283,19 @@ export default function OnboardingPage() {
 						<div className="h-8 w-8" />
 					)}
 				</div>
-				<button
-					onClick={() => router.push("/")}
-					className="pt-4 py-2 text-[15px] text-dotori-400 transition-colors hover:text-dotori-500"
-				>
-					건너뛰기
-				</button>
+				<p className="pt-4 text-[14px] text-dotori-400">
+					{Math.min(step + 1, totalSteps)}/{totalSteps}
+				</p>
 			</header>
 
 			{/* ── 단계 인디케이터 ── */}
-			<div className="mt-2 flex justify-center gap-2">
-				{Array.from({ length: totalSteps }).map((_, i) => (
+			<div className="mt-2">
+				<div className="h-1 rounded-full bg-dotori-100">
 					<div
-						key={i}
-						className={cn(
-							"h-2.5 w-2.5 rounded-full transition-all duration-300",
-							i === step ? "bg-dotori-500" : "bg-dotori-200",
-						)}
+						className="h-1 rounded-full bg-dotori-500 transition-all duration-300"
+						style={{ width: `${progressPercent}%` }}
 					/>
-				))}
+				</div>
 			</div>
 
 			{/* ── 컨텐츠 ── */}
@@ -281,37 +334,53 @@ export default function OnboardingPage() {
 						</div>
 						<div>
 							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
-								생년월
+								출생년도
 							</label>
-							<div className="flex gap-2">
-								<select
+							<div className="rounded-3xl bg-dotori-100/70 px-4 py-3">
+								<div className="mb-2 flex items-center justify-between">
+									<span className="font-semibold text-dotori-700">
+										{birthYear}년
+									</span>
+									{childAge !== null ? (
+										<span className="text-[13px] text-dotori-500">
+											만 {childAge}세
+										</span>
+									) : (
+										<span className="text-[13px] text-dotori-400">
+											월을 선택해 만 나이를 확인하세요
+										</span>
+									)}
+								</div>
+								<input
+									type="range"
+									min={birthYearOptionsRange.minYear}
+									max={birthYearOptionsRange.maxYear}
+									step={1}
 									value={birthYear}
-									onChange={(e) => handleBirthYear(e.target.value)}
-									className={cn(inputCls, "flex-1", !birthYear && "text-dotori-400")}
-								>
-									<option value="">년도</option>
-									{birthYearOptions.map((y) => (
-										<option key={y} value={y}>
-											{y}년
-										</option>
-									))}
-								</select>
-								<select
-									value={birthMonth}
-									onChange={(e) => handleBirthMonth(e.target.value)}
-									className={cn(inputCls, "flex-1", !birthMonth && "text-dotori-400")}
-								>
-									<option value="">월</option>
-									{Array.from({ length: 12 }, (_, i) => {
-										const m = String(i + 1).padStart(2, "0");
-										return (
-											<option key={m} value={m}>
-												{i + 1}월
-											</option>
-										);
-									})}
-								</select>
+									onChange={(e) => setBirthYear(e.target.value)}
+									className={sliderCls}
+								/>
 							</div>
+						</div>
+						<div>
+							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								생월
+							</label>
+							<select
+								value={birthMonth}
+								onChange={(e) => setBirthMonth(e.target.value)}
+								className={cn(inputCls, !birthMonth && "text-dotori-400")}
+							>
+								<option value="">월 선택</option>
+								{Array.from({ length: 12 }, (_, i) => {
+									const m = String(i + 1).padStart(2, "0");
+									return (
+										<option key={m} value={m}>
+											{i + 1}월
+										</option>
+									);
+								})}
+							</select>
 						</div>
 						<div>
 							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
@@ -365,44 +434,59 @@ export default function OnboardingPage() {
 								시/도
 							</label>
 							<select
-							value={sido}
-							onChange={(e) => handleSidoChange(e.target.value)}
-							disabled={isLoadingSido}
-							className={cn(inputCls, isLoadingSido && "opacity-60")}
-						>
-							<option value="">
-								{isLoadingSido ? "불러오는 중..." : "선택하세요"}
-							</option>
-							{sidoList.map((s) => (
-								<option key={s} value={s}>
-									{s}
+								value={sido}
+								onChange={(e) => handleSidoChange(e.target.value)}
+								disabled={isLoadingSido}
+								className={cn(inputCls, isLoadingSido && "opacity-60")}
+							>
+								<option value="">
+									{isLoadingSido ? "불러오는 중..." : "선택하세요"}
 								</option>
-							))}
-						</select>
-					</div>
-					<div>
-						<label className="mb-2 block text-[14px] font-medium text-dotori-500">
-							시/군/구
-						</label>
-						<select
-							value={sigungu}
-							onChange={(e) => setSigungu(e.target.value)}
-							disabled={!sido || isLoadingSigungu}
-							className={cn(inputCls, (!sido || isLoadingSigungu) && "opacity-60")}
-						>
-							<option value="">
-								{isLoadingSigungu
-									? "불러오는 중..."
-									: !sido
-										? "시/도를 먼저 선택하세요"
-										: "선택하세요"}
-							</option>
-							{sigunguList.map((s) => (
-								<option key={s} value={s}>
-									{s}
+								{popularSidoOptions
+									.filter((s) => orderedSidoList.includes(s))
+									.map((s) => (
+										<option key={`popular-${s}`} value={s}>
+											{`${s} (인기)`}
+										</option>
+									))}
+								{orderedSidoList
+									.filter((s) => !popularSidoOptions.includes(s))
+									.map((s) => (
+										<option key={s} value={s}>
+											{s}
+										</option>
+									))}
+							</select>
+							<p className="mt-2 text-[13px] text-dotori-500">
+								현재 시/도: {sido || "미선택"}
+							</p>
+						</div>
+						<div>
+							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								시/군/구
+							</label>
+							<select
+								value={sigungu}
+								onChange={(e) => setSigungu(e.target.value)}
+								disabled={!sido || isLoadingSigungu}
+								className={cn(inputCls, (!sido || isLoadingSigungu) && "opacity-60")}
+							>
+								<option value="">
+									{isLoadingSigungu
+										? "불러오는 중..."
+										: !sido
+											? "시/도를 먼저 선택하세요"
+											: "선택하세요"}
 								</option>
-							))}
-						</select>
+								{sigunguList.map((s) => (
+									<option key={s} value={s}>
+										{s}
+									</option>
+								))}
+							</select>
+							<p className="mt-2 text-[13px] text-dotori-500">
+								현재 시/군/구: {sigungu || "미선택"}
+							</p>
 						</div>
 						<div>
 							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
@@ -415,6 +499,16 @@ export default function OnboardingPage() {
 								placeholder="역삼동"
 								className={inputCls}
 							/>
+							<p className="mt-2 text-[13px] text-dotori-500">
+								현재 동/읍/면: {dong || "미입력"}
+							</p>
+							{sido || sigungu || dong ? (
+								<p className="mt-3 rounded-2xl bg-white px-4 py-3 text-sm text-dotori-600">
+									선택된 지역: {sido || "미선택"}
+									{sido && sigungu ? ` / ${sigungu}` : ""}
+									{dong ? ` / ${dong}` : ""}
+								</p>
+							) : null}
 						</div>
 					</div>
 				)}
@@ -495,6 +589,65 @@ export default function OnboardingPage() {
 						</div>
 					</div>
 				)}
+
+				{step === 3 && (
+					<div
+						key="step3"
+						className="relative space-y-6 px-1 pt-2 text-center"
+					>
+						<div className="relative h-56 overflow-hidden rounded-3xl bg-white">
+							<motion.div
+								initial={{ opacity: 0, scale: 0.97 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ duration: 0.4 }}
+								className="absolute inset-0"
+							>
+								{confettiParticles.map((particle) => (
+									<motion.span
+										key={particle.id}
+										className="pointer-events-none absolute top-0 h-2 w-2 rounded-full bg-dotori-300"
+										style={{
+											left: `${particle.left}%`,
+										}}
+										initial={{ y: -20, opacity: 0, scale: 0.5 }}
+										animate={{
+											y: [20, 240],
+											x: [0, particle.xOffset],
+											opacity: [0, 1, 0],
+											scale: [0.7, 1, 0.4],
+										}}
+										transition={{
+											duration: particle.duration,
+											delay: particle.delay,
+											ease: "easeOut",
+										}}
+									/>
+								))}
+								<div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4 text-center">
+									{/* eslint-disable-next-line @next/next/no-img-element */}
+									<img
+										src={BRAND.appIconWarm}
+										alt=""
+										className="h-12 w-12"
+									/>
+									<h2 className="text-2xl font-bold text-dotori-700">
+										도토리와 함께 시작해요!
+									</h2>
+									<p className="text-sm text-dotori-500">
+										온보딩이 완료되었어요. 지금부터 추천을 시작해요.
+									</p>
+									<Button
+										color="dotori"
+										onClick={() => router.push("/")}
+										className="mt-3 w-full max-w-xs py-4.5 text-[16px] font-semibold"
+									>
+										홈으로 이동
+									</Button>
+								</div>
+							</motion.div>
+						</div>
+					</div>
+				)}
 			</div>
 
 			{/* ── 하단 CTA ── */}
@@ -504,21 +657,33 @@ export default function OnboardingPage() {
 						{saveError}
 					</div>
 				)}
-				<Button
-					color="dotori"
-					onClick={next}
-					disabled={isSaving}
-					className={cn(
-						"w-full py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
-						isSaving && "opacity-60",
-					)}
-				>
-					{isSaving
-						? "저장 중..."
-						: step === totalSteps - 1
-							? "시작하기"
-							: "다음"}
-				</Button>
+				{step < totalSteps - 1 ? (
+					<>
+						<Button
+							color="dotori"
+							onClick={next}
+							disabled={isSaving}
+							className={cn(
+								"w-full py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
+								isSaving && "opacity-60",
+							)}
+						>
+							{isSaving
+								? "저장 중..."
+								: step === finalQuestionStep
+									? "시작하기"
+									: "다음"}
+						</Button>
+						<button
+							type="button"
+							onClick={skipStep}
+							disabled={isSaving}
+							className="mt-2 w-full text-[13px] text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50"
+						>
+							나중에 설정
+						</button>
+					</>
+				) : null}
 			</div>
 		</div>
 	);
