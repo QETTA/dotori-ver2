@@ -701,13 +701,13 @@ function ExploreContent() {
 									<div className={cn(
 										"relative overflow-hidden rounded-3xl bg-white shadow-sm transition-all duration-200 hover:shadow-md",
 									)}>
-										<div className={cn(
-											"absolute left-0 top-3 bottom-3 w-[3px] rounded-full",
-											f.type === "국공립" ? "bg-blue-400" :
-												f.type === "민간" ? "bg-amber-400" :
-												f.type === "가정" ? "bg-forest-400" :
-												f.type === "직장" ? "bg-purple-400" :
-												"bg-dotori-200",
+											<div className={cn(
+												"absolute left-0 top-3 bottom-3 w-[3px] rounded-full",
+												f.type === "국공립" ? "bg-forest-500 text-white" :
+												f.type === "민간" ? "bg-dotori-400 text-white" :
+												f.type === "가정" ? "bg-dotori-200 text-dotori-800" :
+												f.type === "직장" ? "bg-dotori-600 text-white" :
+												"bg-dotori-100 text-dotori-700",
 										)} />
 										<div className="flex items-center gap-3.5 p-5 pb-3">
 											{f.images?.[0] ? (
