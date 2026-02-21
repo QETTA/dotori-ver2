@@ -21,6 +21,10 @@ import { cn } from "@/lib/utils";
 import { generateNBAs, type NBAItem } from "@/lib/engine/nba-engine";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
+const AI_BRIEFING_MONTHLY_LIMIT = 5;
+const AI_BRIEFING_USAGE_KEY = "dotori-ai-briefing-usage";
+const PREMIUM_BANNER_DISMISSED_KEY_PREFIX = "dotori-premium-upgrade-banner-dismissed";
+
 const quickActions = [
 	{ icon: "🔍", label: "내 주변 탐색", href: "/explore", bg: "bg-dotori-100" },
 	{ icon: "💬", label: "토리에게 물어보기", href: "/chat", bg: "bg-forest-100" },
@@ -33,6 +37,10 @@ const quickActions = [
 	},
 	{ icon: "🔔", label: "대기 현황", href: "/my/waitlist", bg: "bg-dotori-100" },
 ];
+
+const getCurrentMonthKey = (): string => {
+	return new Date().toISOString().slice(0, 7);
+};
 
 const sectionStagger: Variants = {
 	hidden: { opacity: 1 },
@@ -79,6 +87,8 @@ export default function HomePage() {
 	const [dismissedNBAs, setDismissedNBAs] = useState<Set<string>>(new Set());
 	const [locationError, setLocationError] = useState<string | null>(null);
 	const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+	const [isPremiumBannerVisible, setIsPremiumBannerVisible] = useState(false);
+	const [freeAiUsageThisMonth, setFreeAiUsageThisMonth] = useState(0);
 
 	const fetchHome = useCallback(async () => {
 		setIsLoading(true);
@@ -98,6 +108,14 @@ export default function HomePage() {
 	}, [fetchHome]);
 
 	const user = data?.user ?? null;
+	const isPremiumUser = user?.plan === "premium";
+	const isFreeUser = user?.plan === "free";
+	const premiumBannerStorageKey = user?.id
+		? `${PREMIUM_BANNER_DISMISSED_KEY_PREFIX}:${user.id}`
+		: null;
+	const aiBriefingUsageHint = isPremiumUser
+		? "프리미엄 이용 중 · 무제한 AI 대화"
+		: `이번 달 ${freeAiUsageThisMonth}/${AI_BRIEFING_MONTHLY_LIMIT}회 사용 · 프리미엄은 무제한`;
 
 	const nbas = useMemo(
 		() =>
@@ -188,6 +206,45 @@ export default function HomePage() {
 			},
 		);
 	}, [fetchHome]);
+
+	useEffect(() => {
+		if (typeof window === "undefined" || !user) {
+			setFreeAiUsageThisMonth(0);
+			setIsPremiumBannerVisible(false);
+			return;
+		}
+
+		try {
+			const usageRaw = window.localStorage.getItem(
+				`${AI_BRIEFING_USAGE_KEY}:${getCurrentMonthKey()}`,
+			);
+			const usageCount = Number.parseInt(usageRaw ?? "0", 10);
+			setFreeAiUsageThisMonth(
+				Number.isFinite(usageCount)
+					? Math.max(0, Math.min(usageCount, AI_BRIEFING_MONTHLY_LIMIT))
+					: 0,
+			);
+
+			if (isFreeUser && premiumBannerStorageKey) {
+				const dismissed =
+					window.localStorage.getItem(premiumBannerStorageKey) === "1";
+				setIsPremiumBannerVisible(!dismissed);
+			} else {
+				setIsPremiumBannerVisible(false);
+			}
+		} catch {
+			setFreeAiUsageThisMonth(0);
+			setIsPremiumBannerVisible(isFreeUser);
+		}
+	}, [isFreeUser, premiumBannerStorageKey, user]);
+
+	const handleDismissPremiumBanner = useCallback(() => {
+		if (!isFreeUser || !premiumBannerStorageKey || typeof window === "undefined") {
+			return;
+		}
+		window.localStorage.setItem(premiumBannerStorageKey, "1");
+		setIsPremiumBannerVisible(false);
+	}, [isFreeUser, premiumBannerStorageKey]);
 
 	if (isLoading) {
 		return (
@@ -335,6 +392,35 @@ export default function HomePage() {
 					</motion.div>
 				</section>
 
+				{isPremiumBannerVisible && (
+					<motion.section
+						className="mt-5"
+						initial={{ opacity: 0, y: 8 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.3 }}
+					>
+						<div className="relative rounded-2xl bg-dotori-100 px-4 py-3 ring-1 ring-dotori-200">
+							<button
+								type="button"
+								onClick={handleDismissPremiumBanner}
+								aria-label="배너 닫기"
+								className="absolute right-2 top-2 rounded-full p-1.5 text-dotori-600 transition-colors hover:bg-dotori-200/70"
+							>
+								<XMarkIcon className="h-4 w-4" />
+							</button>
+							<Link
+								href="/my/settings"
+								className="block text-[14px] font-semibold text-dotori-900"
+							>
+								<p>빈자리 즉시 알림 서비스 — 월 1,900원</p>
+								<p className="mt-0.5 text-[12px] font-medium text-dotori-700">
+									프리미엄으로 바로 업그레이드해 빈자리 알림을 받아보세요
+								</p>
+							</Link>
+						</div>
+					</motion.section>
+				)}
+
 				{/* ── AI 브리핑 카드 ── */}
 				<motion.section
 					className="mt-6 space-y-3"
@@ -345,6 +431,9 @@ export default function HomePage() {
 					<h2 className="text-[17px] font-bold">AI 브리핑</h2>
 					<motion.div variants={cardReveal}>
 						<AiBriefingCard source="아이사랑" updatedAt={aiUpdatedAt}>
+							<p className="mb-2 text-[13px] text-dotori-700">
+								{aiBriefingUsageHint}
+							</p>
 							{hasAiBriefingContent ? (
 								<div className="space-y-2 text-dotori-900">
 									<p className="text-[18px] font-semibold leading-snug text-dotori-900">
@@ -412,6 +501,37 @@ export default function HomePage() {
 								토리에게 자세히 물어보기
 							</Link>
 						</AiBriefingCard>
+					</motion.div>
+				</motion.section>
+
+				{/* ── 빈자리 알림 섹션 ── */}
+				<motion.section
+					className="mt-6"
+					initial="hidden"
+					animate="show"
+					variants={sectionStagger}
+				>
+					<h2 className="mb-2 text-[17px] font-bold">빈자리 알림</h2>
+					<motion.div variants={cardReveal}>
+						{isPremiumUser ? (
+							<div className="rounded-3xl bg-white p-4 ring-1 ring-dotori-100">
+								<p className="text-[15px] font-semibold text-dotori-800">
+									알림 건수: {data?.alertCount ?? 0}건
+								</p>
+								<p className="mt-1 text-[13px] text-forest-700">
+									실시간 빈자리 상태를 확인할 수 있어요
+								</p>
+							</div>
+						) : (
+							<div className="rounded-3xl bg-dotori-50 p-4 ring-1 ring-dotori-100">
+								<p className="text-[14px] font-semibold text-dotori-800">
+									프리미엄 전용 기능
+								</p>
+								<p className="mt-1 text-[13px] text-dotori-700">
+									빈자리 즉시 알림은 월 1,900원 프리미엄에서 이용할 수 있어요
+								</p>
+							</div>
+						)}
 					</motion.div>
 				</motion.section>
 
