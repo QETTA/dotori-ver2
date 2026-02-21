@@ -73,4 +73,4 @@ export const GET = withApiHandler(async (req) => {
 			dong: region.region_3depth_name,
 		},
 	});
-}, { auth: true, rateLimiter: standardLimiter, skipDb: true });
+}, { auth: false, rateLimiter: standardLimiter, skipDb: true });
