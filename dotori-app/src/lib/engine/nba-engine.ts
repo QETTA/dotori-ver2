@@ -122,7 +122,16 @@ const rules: NBARule[] = [
 		condition: (ctx) =>
 			ctx.waitlistCount > 0 && ctx.bestWaitlistPosition !== undefined,
 		generate: (ctx) => {
-			const pos = ctx.bestWaitlistPosition!;
+			const pos = ctx.bestWaitlistPosition;
+			if (pos === undefined) {
+				return {
+					id: "waitlist_position",
+					title: "대기 현황을 확인하세요",
+					description: "대기 순번이 반영되면 바로 안내해드릴게요",
+					action: { label: "대기 현황", href: "/my/waitlist" },
+					priority: 88,
+				};
+			}
 			const facilityName = ctx.waitlistFacilityName || "시설";
 			const waitlistMessage =
 				pos <= 3
@@ -160,10 +169,30 @@ const rules: NBARule[] = [
 			return ageMonths >= 0 && ageMonths < 72;
 		},
 		generate: (ctx) => {
-			const child = youngestChild(ctx.user!.children)!;
+			const user = ctx.user;
+			if (!user) {
+				return {
+					id: "enrollment_season",
+					title: "입소 신청 시즌 정보를 보려면 로그인하세요",
+					description: "로그인 후 아이 맞춤 입소 전략을 받아보세요",
+					action: { label: "로그인", href: "/login" },
+					priority: 85,
+				};
+			}
+			const children = user.children ?? [];
+			const child = youngestChild(children);
 			const nextYear = new Date().getFullYear() + 1;
+			if (!child) {
+				return {
+					id: "enrollment_season",
+					title: `${nextYear}년 3월 입소 신청 시즌이에요`,
+					description: "아이 정보를 등록하면 연령별 입소 전략을 알려드릴게요",
+					action: { label: "아이 정보 등록", href: "/onboarding" },
+					priority: 85,
+				};
+			}
 			const { className } = getClassAge(child.birthDate, nextYear);
-			const childLabel = getChildDisplayName(ctx.user!.children);
+			const childLabel = getChildDisplayName(children);
 			return {
 				id: "enrollment_season",
 				title: `${nextYear}년 3월 입소 신청 시즌이에요`,
@@ -257,10 +286,30 @@ const rules: NBARule[] = [
 			return getChildAgeMonths(child.birthDate) >= 0;
 		},
 		generate: (ctx) => {
-			const child = youngestChild(ctx.user!.children)!;
+			const user = ctx.user;
+			if (!user) {
+				return {
+					id: "age_based_recommend",
+					title: "맞춤 추천을 받으려면 로그인하세요",
+					description: "로그인 후 우리 아이 연령에 맞는 시설을 추천해드릴게요",
+					action: { label: "로그인", href: "/login" },
+					priority: 75,
+				};
+			}
+			const children = user.children ?? [];
+			const child = youngestChild(children);
+			if (!child) {
+				return {
+					id: "age_based_recommend",
+					title: "아이 정보 등록 후 맞춤 추천을 받아보세요",
+					description: "아이 나이를 등록하면 반 연령에 맞는 시설을 추천해드려요",
+					action: { label: "아이 정보 등록", href: "/onboarding" },
+					priority: 75,
+				};
+			}
 			const months = getChildAgeMonths(child.birthDate);
 			const age = formatAge(months);
-			const childLabel = getChildDisplayName(ctx.user!.children);
+			const childLabel = getChildDisplayName(children);
 			let suggestion: string;
 			let prompt: string;
 
@@ -301,9 +350,20 @@ const rules: NBARule[] = [
 			ctx.user.onboardingCompleted &&
 			ctx.interestFacilities.length === 0,
 		generate: (ctx) => {
-			const child = youngestChild(ctx.user!.children);
-			const region = ctx.user!.region?.sigungu || "우리 동네";
-			const childLabel = getChildDisplayName(ctx.user!.children);
+			const user = ctx.user;
+			if (!user) {
+				return {
+					id: "no_interests",
+					title: "관심 시설을 저장하려면 로그인하세요",
+					description: "로그인하면 관심 시설과 빈자리 알림을 받을 수 있어요",
+					action: { label: "로그인", href: "/login" },
+					priority: 70,
+				};
+			}
+			const children = user.children ?? [];
+			const child = youngestChild(children);
+			const region = user.region?.sigungu || "우리 동네";
+			const childLabel = getChildDisplayName(children);
 			const desc = child
 				? `${region}에서 ${childLabel}에게 맞는 어린이집을 찾아보세요`
 				: `${region} 어린이집을 탐색하고 관심 등록하세요`;
@@ -351,7 +411,17 @@ const rules: NBARule[] = [
 		priority: 30,
 		condition: (ctx) => !!ctx.user && ctx.user.onboardingCompleted,
 		generate: (ctx) => {
-			const region = ctx.user!.region?.sigungu;
+			const user = ctx.user;
+			if (!user) {
+				return {
+					id: "weekly_report",
+					title: "주간 리포트를 보려면 로그인하세요",
+					description: "로그인 후 우리 동네 어린이집 변동 사항을 확인해보세요",
+					action: { label: "로그인", href: "/login" },
+					priority: 30,
+				};
+			}
+			const region = user.region?.sigungu;
 			const title = region
 				? `${region} 이번 주 어린이집 현황`
 				: "이번 주 어린이집 현황";
