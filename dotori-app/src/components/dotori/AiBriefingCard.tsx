@@ -17,6 +17,7 @@ export function AiBriefingCard({
 	children?: ReactNode;
 }) {
 	const hasMessage = typeof message === "string" && message.trim().length > 0;
+	const sourceLabel = source ?? "AI분석";
 
 	return (
 		<div
@@ -38,7 +39,7 @@ export function AiBriefingCard({
 				<div className="mb-2 flex items-center gap-2">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.symbol} alt="" className="h-7 w-7" />
-					<span className="text-[15px] font-semibold text-dotori-800">오늘의 AI 브리핑</span>
+					<span className="text-[15px] font-semibold text-dotori-800">오늘의 이동 브리핑</span>
 				</div>
 				<div className="prose prose-sm max-w-none">
 					{hasMessage ? (
@@ -53,11 +54,13 @@ export function AiBriefingCard({
 						</div>
 					)}
 				</div>
-				{source && updatedAt && (
-					<div className="mt-3">
-						<SourceChip source={source} updatedAt={updatedAt} freshness="realtime" />
-					</div>
-				)}
+				<div className="mt-3">
+					<SourceChip
+						source={sourceLabel}
+						updatedAt={updatedAt}
+						freshness="realtime"
+					/>
+				</div>
 			</div>
 		</div>
 	);
