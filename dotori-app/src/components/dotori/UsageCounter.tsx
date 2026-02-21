@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Text } from "@/components/catalyst/text";
 
 interface UsageCounterProps {
 	current: number;
@@ -14,17 +15,21 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 	const percent = Math.max(0, Math.min(1, ratio)) * 100;
 
 	const trackColor = isOverLimit
-		? "bg-danger/20 text-danger"
+		? "bg-red-100 text-red-700"
 		: isUnlimited || ratio >= 0.8
 			? "bg-amber-100 text-amber-700"
 			: "bg-forest-100 text-forest-600";
 
-	const barColor = isOverLimit ? "bg-danger" : isUnlimited || ratio >= 0.8 ? "bg-amber-500" : "bg-forest-500";
+	const barColor = isOverLimit
+		? "bg-red-500"
+		: isUnlimited || ratio >= 0.8
+			? "bg-amber-500"
+			: "bg-forest-500";
 
 	return (
-		<div className="space-y-2 rounded-2xl border border-dotori-100 bg-white p-4">
+			<div className="space-y-2 rounded-2xl border border-dotori-100 bg-white p-4">
 			<div className="flex items-end justify-between gap-3">
-				<p className="text-sm font-medium text-dotori-700">{label}</p>
+				<Text className="text-sm font-medium text-dotori-700">{label}</Text>
 				<div className={cn("rounded-full px-3 py-1 text-xs font-semibold", trackColor)}>
 					{isUnlimited ? "무제한" : `${current}/${limit}`}
 				</div>
@@ -36,14 +41,13 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 				/>
 			</div>
 			{isOverLimit ? (
-				<div className="text-sm text-dotori-700">
+				<Text className="text-sm text-dotori-700">
 					현재 사용량을 초과했습니다.{" "}
-					<Link href="/my/settings" className="font-semibold text-danger">
+					<Link href="/my/settings" className="font-semibold text-red-700">
 						업그레이드
 					</Link>
-				</div>
+				</Text>
 			) : null}
 		</div>
 	);
 }
-

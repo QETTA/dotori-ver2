@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/catalyst/button";
+import { Text, Strong } from "@/components/catalyst/text";
 
 interface PremiumGateProps {
 	feature: string;
@@ -23,8 +24,8 @@ export function PremiumGate({ feature, description, children, isPremium }: Premi
 					<LockClosedIcon className="h-6 w-6" />
 				</div>
 				<div>
-					<h3 className="text-sm font-semibold text-dotori-900">{feature}</h3>
-					<p className="text-sm text-dotori-600">{description}</p>
+					<Strong className="text-dotori-900">{feature}</Strong>
+					<Text className="text-dotori-600">{description}</Text>
 				</div>
 				<Button color="dotori" href="/my/settings">
 					프리미엄으로 업그레이드
@@ -33,4 +34,3 @@ export function PremiumGate({ feature, description, children, isPremium }: Premi
 		</div>
 	);
 }
-

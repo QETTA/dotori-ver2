@@ -2,6 +2,8 @@
 
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
+import { Heading } from "@/components/catalyst/heading";
+import { Text } from "@/components/catalyst/text";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { apiFetch } from "@/lib/api";
 import type { UserPlan } from "@/types/dotori";
@@ -120,8 +122,8 @@ export default function SettingsPage() {
 		return (
 			<div className="pb-8">
 				<div className="px-5 pt-8">
-					<h1 className="text-xl font-bold">설정</h1>
-					<p className="mt-2 text-sm text-dotori-500">{error}</p>
+					<Heading level={1}>설정</Heading>
+					<Text className="mt-2 text-dotori-500">{error}</Text>
 					<Button href="/login" color="dotori" className="mt-4 w-full">
 						로그인하기
 					</Button>
@@ -134,8 +136,8 @@ export default function SettingsPage() {
 		return (
 			<div className="pb-8">
 				<div className="px-5 pt-8">
-					<h1 className="text-xl font-bold">설정</h1>
-					<p className="mt-2 text-sm text-dotori-500">로그인 후 플랜 관리가 가능합니다.</p>
+					<Heading level={1}>설정</Heading>
+					<Text className="mt-2 text-dotori-500">로그인 후 플랜 관리가 가능합니다.</Text>
 					<Button href="/login" color="dotori" className="mt-4 w-full">
 						로그인하기
 					</Button>
@@ -147,16 +149,18 @@ export default function SettingsPage() {
 	return (
 		<div className="pb-8">
 			<header className="px-5 pt-8 pb-2">
-				<h1 className="text-xl font-bold">플랜 설정</h1>
-				<p className="mt-1 text-xs text-dotori-500">
+				<Heading level={1}>플랜 설정</Heading>
+				<Text className="mt-1 text-dotori-500">
 					현재 플랜과 혜택을 확인하고 관리해요
-				</p>
+				</Text>
 			</header>
 
 			<section className="mt-5 px-5">
 				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
 					<div className="flex items-center justify-between gap-3">
-						<h2 className="text-sm font-semibold">현재 플랜</h2>
+						<Heading level={2} className="text-base">
+							현재 플랜
+						</Heading>
 						<Badge color={isPremium ? "forest" : "dotori"} className="text-xs">
 							{planLabel}
 						</Badge>
@@ -172,7 +176,9 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl bg-dotori-50 px-4 py-4">
-					<h2 className="text-sm font-semibold">프리미엄 혜택</h2>
+					<Heading level={2} className="text-base">
+						프리미엄 혜택
+					</Heading>
 					<ul className="mt-2 space-y-2">
 						{PREMIUM_BENEFITS.map((benefit) => (
 							<li key={benefit} className="flex items-start gap-2">
@@ -228,10 +234,12 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
-					<h2 className="text-sm font-semibold">고객센터</h2>
-					<p className="mt-1 text-xs text-dotori-500">
+					<Heading level={2} className="text-base">
+						고객센터
+					</Heading>
+					<Text className="mt-1 text-dotori-500">
 						결제가 안 되거나 궁금한 점이 있으면 채널로 연락해 주세요.
-					</p>
+					</Text>
 					<a
 						href={supportChannelUrl}
 						target="_blank"
