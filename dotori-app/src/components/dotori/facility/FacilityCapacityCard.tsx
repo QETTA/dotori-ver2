@@ -13,13 +13,23 @@ export function FacilityCapacityCard({
 	onApplyClick,
 }: FacilityCapacityCardProps) {
 	const hasWaiting = facility.capacity.waiting != null && facility.capacity.waiting > 0;
+	const occupancyRate = facility.capacity.total > 0
+		? Math.round((facility.capacity.current / facility.capacity.total) * 100)
+		: 0;
+	const boundedOccupancyRate = Math.min(100, Math.max(0, occupancyRate));
 
 	const statusConfig = {
 		available: { label: "여석 있음", color: "bg-forest-500", barColor: "bg-forest-400", textColor: "text-forest-600", bgColor: "bg-forest-50" },
 		waiting: { label: "대기 접수중", color: "bg-warning", barColor: "bg-amber-400", textColor: "text-amber-700", bgColor: "bg-amber-50" },
-		full: { label: "마감", color: "bg-danger", barColor: "bg-red-400", textColor: "text-red-600", bgColor: "bg-red-50" },
+		full: { label: "마감", color: "bg-danger", barColor: "bg-danger", textColor: "text-danger", bgColor: "bg-danger/10" },
 	};
 	const config = statusConfig[facility.status] || statusConfig.full;
+	const occupancyBarColor =
+		boundedOccupancyRate > 90
+			? "bg-danger"
+			: boundedOccupancyRate > 60
+				? "bg-warning"
+				: "bg-forest-500";
 
 	return (
 		<section>
@@ -40,9 +50,12 @@ export function FacilityCapacityCard({
 				{/* 상태 바 */}
 				<div className="mt-3.5 h-2 w-full overflow-hidden rounded-full bg-dotori-100">
 					<div
-						className={cn("h-full rounded-full transition-all duration-700", config.barColor)}
+						className={cn(
+							"h-full rounded-full transition-all duration-700",
+							occupancyBarColor,
+						)}
 						style={{
-							width: `${facility.status === "available" ? 40 : facility.status === "waiting" ? 80 : 100}%`,
+							width: `${boundedOccupancyRate}%`,
 						}}
 					/>
 				</div>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
 	ArrowLeftIcon,
 	GlobeAltIcon,
@@ -11,6 +12,9 @@ import {
 	HeartIcon,
 	MapPinIcon,
 	PhoneIcon,
+	ArrowTopRightOnSquareIcon,
+	ArrowPathIcon,
+	CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
@@ -155,6 +159,28 @@ function getSafeNumber(value?: number | null): number | null {
 	return value;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+	if (typeof error === "string") return error.trim() || fallback;
+	if (error instanceof Error) return error.message.trim() || fallback;
+	return fallback;
+}
+
+function getWaitingHintText(facility: FacilityDetailClientFacility): string {
+	if (facility.status === "available") {
+		return "현재 입소 가능 상태로, 신청 후 곧바로 처리될 수 있어요.";
+	}
+
+	if (facility.capacity.waiting <= 0) {
+		return "현재 대기 인원이 없어 입소까지 빠르게 마감될 수 있어요.";
+	}
+
+	if (facility.capacity.waiting <= 5) {
+		return `현재 대기 ${facility.capacity.waiting}명이며 보통 1~3주 내로 처리될 수 있어요.`;
+	}
+
+	return `현재 대기 ${facility.capacity.waiting}명, 입소까지 3~8주가량 소요될 수 있어요.`;
+}
+
 function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
 	const [sheetOpen, setSheetOpen] = useState(false);
 	const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
@@ -216,6 +242,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		Number.isFinite(facility.lat) &&
 		Number.isFinite(facility.lng) &&
 		!(facility.lat === 0 && facility.lng === 0);
+	const waitingHintText = useMemo(() => getWaitingHintText(facility), [facility]);
 
 	const websiteUrl = useMemo(() => {
 		const raw = facility.website || facility.homepage;
@@ -321,6 +348,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		setActionStatus("executing");
 		setSheetOpen(true);
 		setError(null);
+		setIntentId(null);
 
 		try {
 			const child = userChildren?.[0];
@@ -341,9 +369,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			setIntentId(res.data.intentId);
 			setSheetPreview(res.data.preview);
 			setActionStatus("idle");
-		} catch {
+		} catch (error) {
 			setActionStatus("error");
-			setError("신청이 실패했어요");
+			setError(
+				getErrorMessage(
+					error,
+					"대기 신청 시작에 실패했어요. 잠시 후 다시 시도해주세요",
+				),
+			);
+			setSheetOpen(false);
 		}
 	}, [facility.id, userChildren]);
 
@@ -364,25 +398,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				setActionStatus("success");
 				addToast({
 					type: "success",
-					message:
-						facility.status === "available"
-							? "입소 신청이 완료되었어요"
-							: "대기 신청이 완료되었어요 · 대기 현황에서 확인할 수 있어요",
+					message: "대기 신청이 완료되었어요",
 				});
-				setTimeout(() => {
-					setSheetOpen(false);
-					setActionStatus("idle");
-					setIntentId(null);
-				}, 1500);
+				setSheetOpen(false);
 			} else {
 				setActionStatus("error");
-				setError(res.data.error || "신청에 실패했어요");
+				setError(
+					getErrorMessage(
+						res.data.error,
+						"대기 신청 처리에 실패했어요. 다시 시도해주세요",
+					),
+				);
+				setSheetOpen(false);
 			}
-		} catch {
+		} catch (error) {
 			setActionStatus("error");
-			setError("신청에 실패했어요. 다시 시도해주세요");
+			setError(getErrorMessage(error, "대기 신청 처리에 실패했어요. 다시 시도해주세요"));
+			setSheetOpen(false);
 		}
-	}, [addToast, facility.status, intentId]);
+	}, [addToast, intentId]);
 
 	const toggleLike = useCallback(async () => {
 		if (isTogglingLike) return;
@@ -409,16 +443,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		}
 	}, [addToast, facility.id, isTogglingLike, liked]);
 
-	if (error) {
-		return (
-			<div className="pb-4">
-				<ErrorState
-					message={error}
-					action={{ label: "확인", onClick: () => setError(null) }}
-				/>
-			</div>
-		);
-	}
+	const resetActionStatus = useCallback(() => {
+		setError(null);
+		setActionStatus("idle");
+		setIntentId(null);
+	}, []);
 
 	return (
 		<div className="pb-32">
@@ -654,32 +683,107 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					facilityName={facility.name}
 				/>
 				<FacilityInsights facility={facility} />
+				<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5">
+					<h2 className="text-sm font-semibold text-dotori-900">입소 설명회 안내</h2>
+					<p className="mt-2 text-[14px] leading-6 text-dotori-600">
+						이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
+						시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
+					</p>
+					<a
+						href="https://www.childcare.go.kr"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200"
+					>
+						아이사랑포털에서 확인
+						<ArrowTopRightOnSquareIcon className="h-4 w-4" />
+					</a>
+				</div>
 			</div>
 
 			<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
-				<div className="flex gap-3">
-					<Button
-						plain
-						disabled={isTogglingLike}
-						onClick={toggleLike}
-						aria-label="관심 시설 추가/제거"
-						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-2 text-[15px] font-semibold text-dotori-700 transition-all active:scale-[0.97]"
-					>
-						{liked ? (
-							<HeartSolid className="h-5 w-5 text-red-500" />
-						) : (
-							<HeartIcon className="h-5 w-5" />
-						)}
-						{liked ? "관심 시설 제거" : "관심 시설 추가"}
-					</Button>
-					<Button
-						color="dotori"
-						disabled={actionStatus === "executing"}
-						onClick={handleApplyClick}
-						className="min-h-12 flex-1 text-[15px] font-semibold"
-					>
-						{actionStatus === "executing" ? "처리 중..." : "대기 신청"}
-					</Button>
+				<div className="space-y-2">
+					<div className="flex gap-3">
+						<Button
+							plain
+							disabled={isTogglingLike}
+							onClick={toggleLike}
+							aria-label="관심 시설 추가/제거"
+							className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-2 text-[15px] font-semibold text-dotori-700 transition-all active:scale-[0.97]"
+						>
+							{liked ? (
+								<HeartSolid className="h-5 w-5 text-red-500" />
+							) : (
+								<HeartIcon className="h-5 w-5" />
+							)}
+							{liked ? "관심 시설 제거" : "관심 시설 추가"}
+						</Button>
+						<div className="flex-1">
+							{actionStatus === "executing" ? (
+								<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
+									<div className="flex h-full items-center justify-center gap-2">
+										<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
+										<span className="text-[14px] font-semibold text-dotori-700">
+											신청 처리 중...
+										</span>
+									</div>
+								</div>
+							) : actionStatus === "success" ? (
+								<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center">
+									<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300" />
+									<p className="mt-2 text-sm font-semibold text-dotori-900">
+										대기 신청 완료!
+									</p>
+									<Link
+										href="/my/waitlist"
+										className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900"
+									>
+										MY &gt; 대기 현황에서 확인하세요
+									</Link>
+									<Button
+										plain
+										onClick={resetActionStatus}
+										className="mt-2 min-h-10 w-full rounded-2xl"
+									>
+										확인
+									</Button>
+								</div>
+							) : actionStatus === "error" ? (
+								<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left">
+									<p className="text-sm font-semibold text-danger">
+										{error ?? "대기 신청 중 오류가 발생했어요."}
+									</p>
+									<div className="mt-2 flex gap-2">
+										<Button
+											plain
+											onClick={resetActionStatus}
+											className="min-h-10 flex-1 rounded-2xl"
+										>
+											닫기
+										</Button>
+										<Button
+											color="dotori"
+											onClick={handleApplyClick}
+											className="min-h-10 flex-1 rounded-2xl"
+										>
+											다시 신청
+										</Button>
+									</div>
+								</div>
+							) : (
+								<>
+									<Button
+										color="dotori"
+										onClick={handleApplyClick}
+										className="min-h-12 w-full text-[15px] font-semibold"
+									>
+										대기 신청하기
+									</Button>
+									<p className="mt-1 text-[12px] text-dotori-500">{waitingHintText}</p>
+								</>
+							)}
+						</div>
+					</div>
 				</div>
 			</div>
 
