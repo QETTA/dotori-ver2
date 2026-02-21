@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import {
 	ArrowLeftIcon,
 	GlobeAltIcon,
 	ClipboardDocumentIcon,
+	ShareIcon,
 	HeartIcon,
 	MapPinIcon,
 	PhoneIcon,
@@ -60,8 +61,68 @@ type FacilityDetailClientFacility = Facility & {
 };
 
 type FacilityDetailClientProps = {
-	facility: FacilityDetailClientFacility;
+	facility?: FacilityDetailClientFacility;
+	loadError?: string;
 };
+
+function FacilityDetailErrorState({ message }: { message: string }) {
+	const router = useRouter();
+
+	const handleBack = useCallback(() => {
+		if (typeof window !== "undefined" && window.history.length > 1) {
+			router.back();
+			return;
+		}
+
+		router.push("/explore");
+	}, [router]);
+
+	const handleRetry = useCallback(() => {
+		router.refresh();
+	}, [router]);
+
+	return (
+		<div className="pb-4">
+			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
+				<button
+					type="button"
+					onClick={handleBack}
+					aria-label="뒤로 가기"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+				>
+					<ArrowLeftIcon className="h-6 w-6" />
+				</button>
+				<h1 className="min-w-0 flex-1 truncate text-base font-semibold text-dotori-900">
+					시설 상세정보
+				</h1>
+				<span className="w-11" aria-hidden="true" />
+			</header>
+			<div className="px-5">
+				<ErrorState message={message} />
+				<Button
+					type="button"
+					onClick={handleRetry}
+					className="mt-5 min-h-12 w-full rounded-3xl bg-dotori-400 font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
+				>
+					다시 시도
+				</Button>
+			</div>
+		</div>
+	);
+}
+
+export default function FacilityDetailClient({
+	facility,
+	loadError,
+}: FacilityDetailClientProps) {
+	if (!facility || loadError) {
+		return (
+			<FacilityDetailErrorState message={loadError ?? "시설 정보를 불러오지 못했어요"} />
+		);
+	}
+
+	return <FacilityDetailClientContent facility={facility} />;
+}
 
 function getTypeBadgeColor(type: string): "dotori" | "blue" | "amber" | "forest" | "pink" | "emerald" {
 	switch (type) {
@@ -94,7 +155,7 @@ function getSafeNumber(value?: number | null): number | null {
 	return value;
 }
 
-export default function FacilityDetailClient({ facility }: FacilityDetailClientProps) {
+function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
 	const [sheetOpen, setSheetOpen] = useState(false);
 	const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
 	const [intentId, setIntentId] = useState<string | null>(null);
@@ -108,6 +169,7 @@ export default function FacilityDetailClient({ facility }: FacilityDetailClientP
 	const [showChecklist, setShowChecklist] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const { addToast } = useToast();
+	const router = useRouter();
 
 	const activeFeatures = useMemo(() => {
 		return FEATURE_OPTIONS.filter((feature) => facility.features.includes(feature.key));
@@ -181,6 +243,35 @@ export default function FacilityDetailClient({ facility }: FacilityDetailClientP
 			setCopyingAddress(false);
 		}
 	}, [addToast, copyableAddress]);
+
+	const handleBack = useCallback(() => {
+		if (window.history.length > 1) {
+			router.back();
+			return;
+		}
+
+		router.push("/explore");
+	}, [router]);
+
+	const handleShare = useCallback(async () => {
+		const shareData = {
+			title: facility.name,
+			text: `${facility.name} - ${facility.type} | 도토리`,
+			url: `${window.location.origin}/facility/${facility.id}`,
+		};
+
+		try {
+			if (navigator.share) {
+				await navigator.share(shareData);
+				return;
+			}
+
+			await navigator.clipboard.writeText(shareData.url);
+			addToast({ type: "success", message: "링크가 복사되었어요" });
+		} catch {
+			// User cancelled share or clipboard failed — ignore
+		}
+	}, [addToast, facility.id, facility.name, facility.type]);
 
 	useEffect(() => {
 		apiFetch<{ data: { children?: ChildProfile[]; interests?: string[] } }>("/api/users/me")
@@ -323,29 +414,36 @@ export default function FacilityDetailClient({ facility }: FacilityDetailClientP
 	return (
 		<div className="pb-32">
 			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
-				<Link
-					href="/explore"
+				<button
+					type="button"
+					onClick={handleBack}
 					aria-label="뒤로 가기"
 					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
-				</Link>
-				<div className="min-w-0">
-					<h1 className="max-w-[21rem] truncate text-[18px] font-bold leading-6 text-dotori-900">
+				</button>
+				<div className="min-w-0 max-w-[21rem]">
+					<h1 className="truncate text-[18px] font-bold leading-6 text-dotori-900">
 						{facility.name}
 					</h1>
-					<div className="mt-1.5 flex flex-wrap gap-1.5">
-						<Badge color={getTypeBadgeColor(facility.type)}>
-							{facility.type}
-						</Badge>
-						<Badge color={getQualityColor(qualityScore)}>
-							{qualityScore == null
-								? "데이터 품질 미공개"
-								: `데이터 품질 점수 ${qualityScore}점`}
-						</Badge>
-					</div>
 				</div>
+				<button
+					type="button"
+					onClick={handleShare}
+					aria-label="공유"
+					className="ml-auto rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+				>
+					<ShareIcon className="h-6 w-6" />
+				</button>
 			</header>
+			<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
+				<Badge color={getTypeBadgeColor(facility.type)}>{facility.type}</Badge>
+				<Badge color={getQualityColor(qualityScore)}>
+					{qualityScore == null
+						? "데이터 품질 미공개"
+						: `데이터 품질 점수 ${qualityScore}점`}
+				</Badge>
+			</div>
 
 			<div className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
 				{/* eslint-disable-next-line @next/next/no-img-element */}

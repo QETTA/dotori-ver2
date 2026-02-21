@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ErrorState } from "@/components/dotori/ErrorState";
 import dbConnect from "@/lib/db";
 import { toFacilityDTO } from "@/lib/dto";
 import FacilityDetailClient from "./FacilityDetailClient";
@@ -54,7 +53,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		notFound();
 	}
 
-	let facility;
+	let facility: ReturnType<typeof toFacilityDTO> | null = null;
 	try {
 		await dbConnect();
 		const facilityDoc = await Facility.findById(facilityId).lean();
@@ -68,9 +67,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		);
 	} catch {
 		return (
-			<div className="pb-4">
-				<ErrorState message="시설 정보를 불러오지 못했어요" />
-			</div>
+			<FacilityDetailClient loadError="시설 정보를 불러오지 못했어요" />
 		);
 	}
 
