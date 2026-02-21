@@ -448,7 +448,7 @@ function ExploreContent() {
 							value={searchInput}
 							onChange={(e) => setSearchInput(e.target.value)}
 							onFocus={() => setIsSearchFocused(true)}
-							placeholder="시설 이름, 지역 검색"
+							placeholder="이동할 시설 검색 (이름, 지역)"
 							className="w-full rounded-3xl bg-white/70 py-3.5 pl-11 pr-10 text-[15px] ring-1 ring-dotori-200/40 outline-none backdrop-blur-sm transition-all focus:ring-2 focus:ring-dotori-300"
 						/>
 						{searchInput && (
@@ -551,7 +551,7 @@ function ExploreContent() {
 								toOnly ? "bg-white" : "bg-forest-500",
 							)}
 						/>
-						빈자리{toCount > 0 ? ` ${toCount}` : ""}
+						이동 가능 시설{toCount > 0 ? ` ${toCount}` : ""}
 					</button>
 
 					{/* 필터 */}
@@ -935,15 +935,13 @@ function ExploreContent() {
 					<EmptyState
 						title={
 							hasSearchInput
-								? `"${debouncedSearch}"로 찾은 결과가 없어요`
+								? `"${debouncedSearch}"로 이동할 시설을 찾지 못했어요`
 								: hasFilterApplied
-									? "필터 조건에 맞는 시설이 없어요"
-									: "조건에 맞는 시설이 없어요"
+									? "필터 조건에 맞는 이동할 시설을 찾지 못했어요"
+									: "이동할 시설을 찾지 못했어요"
 						}
 						description={
-							hasSearchInput
-								? "검색어를 바꾸거나 검색 초기화를 해보세요."
-								: "검색 조건을 수정해서 다시 찾아보세요."
+							"다른 지역이나 시설 유형으로 검색해보세요. 반경을 넓히거나 필터를 변경해보세요."
 						}
 						actionLabel={
 							hasSearchInput
