@@ -90,9 +90,7 @@ test("온보딩 페이지 렌더 확인", async ({ page }) => {
 	await expect(page.getByRole("heading", { name: ONBOARDING_STEP_HEADING })).toBeVisible();
 	await expect(page.getByText(/\b[1-6]\/6\b/)).toBeVisible();
 	await expect(
-		page.getByRole("button", {
-			name: /다음|무료로 먼저 체험하기|무료로 시작하기|시작하기/,
-		}),
+		page.getByRole("button", { name: "다음" }).first(),
 	).toBeVisible();
 });
 

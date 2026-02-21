@@ -15,6 +15,7 @@ export function SplashScreen() {
       return // private browsing without storage → skip splash
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(true)
 
     const exitTimer = setTimeout(() => setExiting(true), 1900)

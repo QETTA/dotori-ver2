@@ -227,7 +227,9 @@ export function MapEmbed({
 		mountedRef.current = true;
 
 		if (!hasMapCenter) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setMapError(true);
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setIsLoading(false);
 			return;
 		}

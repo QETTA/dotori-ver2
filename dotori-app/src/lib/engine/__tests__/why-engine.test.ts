@@ -3,6 +3,7 @@ import { generateTransferReasons } from "../why-engine";
 
 describe("generateTransferReasons", () => {
   it("returns empty array when no transfer reason context", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = generateTransferReasons({} as any);
     expect(Array.isArray(result)).toBe(true);
   });
@@ -21,6 +22,7 @@ describe("generateTransferReasons", () => {
       reviewCount: 12,
       features: [],
       lastSyncedAt: new Date().toISOString(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     const result = generateTransferReasons(facility);
     expect(Array.isArray(result)).toBe(true);

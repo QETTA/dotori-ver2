@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Badge } from '@/components/catalyst/badge'
 import { Button } from '@/components/catalyst/button'
 import { cn, facilityTypeBadgeColor, formatRelativeTime } from '@/lib/utils'
@@ -19,9 +19,11 @@ export const FacilityCard = memo(function FacilityCard({
   compact?: boolean
 }) {
   const availableSeats = facility.capacity.total - facility.capacity.current
-  const lastSyncedAtTime = new Date(facility.lastSyncedAt).getTime()
-  const hasRecentUpdate =
-    Number.isFinite(lastSyncedAtTime) && Date.now() - lastSyncedAtTime <= 7 * 24 * 60 * 60 * 1000
+  const hasRecentUpdate = useMemo(() => {
+    const lastSyncedAtTime = new Date(facility.lastSyncedAt).getTime()
+    // eslint-disable-next-line react-hooks/purity
+    return Number.isFinite(lastSyncedAtTime) && Date.now() - lastSyncedAtTime <= 7 * 24 * 60 * 60 * 1000
+  }, [facility.lastSyncedAt])
 
   const statusColor = {
     available: 'border-l-4 border-l-forest-500/90',

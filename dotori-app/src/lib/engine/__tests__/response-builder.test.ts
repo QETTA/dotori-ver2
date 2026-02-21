@@ -40,7 +40,7 @@ jest.mock("@/models/Waitlist", () => ({
 
 jest.mock("@/lib/dto", () => ({
 	__esModule: true,
-	toFacilityDTO: (facility: any) => ({
+	toFacilityDTO: (facility: Record<string, unknown>) => ({
 		id: facility.id ?? facility._id ?? "facility-id",
 		name: facility.name ?? "시설",
 		type: facility.type ?? "국공립",
