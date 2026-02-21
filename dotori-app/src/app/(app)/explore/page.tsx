@@ -55,6 +55,10 @@ const MIN_BAR_WIDTH = 20;
 const MIN_WAITING_WIDTH = 60;
 const MAX_WIDTH = 100;
 const POPULAR_SEARCHES = [
+	"반편성 불만",
+	"교사 교체",
+	"국공립 당첨",
+	"이사 예정",
 	"국공립",
 	"강남구",
 	"연장보육",
@@ -555,8 +559,8 @@ function ExploreContent() {
 							value={searchInput}
 							onChange={(e) => setSearchInput(e.target.value)}
 							onFocus={() => setIsSearchFocused(true)}
-							placeholder="이동할 시설 검색 (이름, 지역)"
-							className="w-full rounded-3xl bg-white/70 py-3.5 pl-11 pr-10 text-[15px] ring-1 ring-dotori-200/40 outline-none backdrop-blur-sm transition-all focus:ring-2 focus:ring-dotori-300"
+							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
+							className="w-full rounded-3xl bg-white/70 py-3.5 pl-11 pr-10 text-base ring-1 ring-dotori-200/40 outline-none backdrop-blur-sm transition-all focus:ring-2 focus:ring-dotori-300"
 						/>
 						{searchInput && (
 							<button
@@ -684,10 +688,10 @@ function ExploreContent() {
 						onClick={() => setToOnly(!toOnly)}
 						aria-pressed={toOnly}
 						className={cn(
-							"flex items-center gap-1 rounded-full px-4 py-2.5 text-[14px] font-medium transition-all active:scale-[0.97]",
+							"flex items-center gap-1 rounded-full px-4 py-2.5 text-sm font-medium transition-all active:scale-[0.97]",
 							toOnly
-								? "bg-forest-500 text-white"
-								: "bg-dotori-50 text-dotori-600",
+								? "bg-forest-600 ring-2 ring-forest-500/70 text-white shadow-sm"
+								: "bg-forest-50 text-forest-700",
 						)}
 					>
 						<span
@@ -696,7 +700,7 @@ function ExploreContent() {
 								toOnly ? "bg-white" : "bg-forest-500",
 							)}
 						/>
-						이동 가능 시설{toCount > 0 ? ` ${toCount}` : ""}
+						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
 					</button>
 
 					{/* 필터 */}
@@ -1106,10 +1110,10 @@ function ExploreContent() {
 					<EmptyState
 						title={
 							hasSearchInput
-								? `"${debouncedSearch}"로 이동할 시설을 찾지 못했어요`
+								? `"${debouncedSearch}"로 이동 가능 시설을 찾지 못했어요. 조건을 바꿔보세요`
 								: hasFilterApplied
-									? "필터 조건에 맞는 이동할 시설을 찾지 못했어요"
-									: "이동할 시설을 찾지 못했어요"
+									? "이 조건의 이동 가능 시설이 없어요. 조건을 바꿔보세요"
+									: "이 조건의 이동 가능 시설이 없어요. 조건을 바꿔보세요"
 						}
 						description={
 							!hasSearchInput && !hasFilterApplied
