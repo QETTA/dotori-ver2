@@ -1,6 +1,8 @@
 'use client'
 
-import { FAQ } from '@/components/landing/FAQ'
+import { Badge } from '@/components/catalyst/badge'
+import { Heading } from '@/components/catalyst/heading'
+import { Text } from '@/components/catalyst/text'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
 import { Button } from '@/components/catalyst/button'
 import { PageTransition } from '@/components/dotori/PageTransition'
@@ -35,32 +37,16 @@ const STATS: CountStat[] = [
 
 const FAQ_ITEMS = [
 	{
-		question: '이미 어린이집에 다니고 있는데 이동할 수 있나요?',
-		answer: '가능하며, 도토리로 빈자리 시설을 먼저 확인한 뒤 현 시설 퇴소 + 신규 입소 신청을 진행하면 됩니다.',
+		question: '지금 다니는 어린이집에서 이동하려면 어떻게 해야 하나요?',
+		answer: '도토리 탐색에서 빈자리 시설을 찾고, 관심 등록 후 연락해보세요. 이동 절차 가이드도 제공해요.',
 	},
 	{
-		question: '현재 다니는 어린이집에서 이동할 수 있나요?',
-		answer: '네, 가능합니다. 퇴소 절차를 준비하면서 입소 신청서를 먼저 진행하면 이동할 수 있는 여유를 확보할 수 있어요.',
+		question: '반편성 결과가 맘에 안들면 이동할 수 있나요?',
+		answer: '가능해요. 3월 초가 이동 최적 시기이며, 도토리가 인근 빈자리 시설을 바로 보여드려요.',
 	},
 	{
-		question: '반편성이 마음에 안 들면 어떻게 해야 하나요?',
-		answer: '3월 첫 2주가 이동 골든타임이에요. 바로 토리와 함께 빈자리 시설 탐색을 시작해 지금 떠나야 할지 판단해 보세요.',
-	},
-	{
-		question: '국공립 대기 당첨됐는데 지금 다니는 곳이랑 어떻게 비교해요?',
-		answer: '토리 AI로 거리, 비용, 교사비율을 기준해 지금 시설과 국공립 시설을 즉시 비교해드려요.',
-	},
-	{
-		question: '이동 시 서류는 어떻게 되나요?',
-		answer: '현 시설 퇴소 통보(1개월 전)와 새 시설 입소 신청서류를 순서대로 안내드려요. 토리가 단계별로 체크리스트를 관리해드려요.',
-	},
-	{
-		question: '어떤 지역을 지원하나요?',
-		answer: '수도권(서울·경기·인천) 기준 20,027개 시설로 운영 중이며 전국 확대를 진행 중입니다.',
-	},
-	{
-		question: '개인정보는 안전한가요?',
-		answer: '모든 데이터는 암호화되어 저장되며, 개인정보보호법을 준수합니다. 아이 정보는 입소 전략 분석에만 사용되며 제3자에게 제공되지 않아요.',
+		question: '국공립 대기번호가 당첨됐는데 현재 민간 어린이집과 어떻게 비교하나요?',
+		answer: '토리챗에 물어보면 AI가 두 시설을 비교 분석해드려요.',
 	},
 ]
 
@@ -86,19 +72,19 @@ const features = [
 
 const testimonials = [
 	{
-		name: '서연맘',
-		region: '마포구 성산동',
-		content: '반편성 발표 후 너무 실망했는데, 도토리로 바로 다른 어린이집 빈자리 찾아서 이동했어요! 전화 한 통도 안 하고 해결됐어요.',
+		name: '강남맘',
+		initial: '강',
+		content: '반편성 불만으로 이동 고민하다 도토리로 3일 만에 새 시설 찾았어요',
 	},
 	{
-		name: '민준맘',
-		region: '서초구 방배동',
-		content: '선생님이 세 달 만에 또 바뀌어서 이동 결심했어요. 도토리 탐색으로 교사 교체 이력 적은 국공립 찾았어요.',
+		name: '성동맘',
+		initial: '성',
+		content: '국공립 당첨됐는데 현재 민간이랑 토리챗으로 비교해보니 답이 나오더라고요',
 	},
 	{
-		name: '하은맘',
-		region: '분당구 정자동',
-		content: '국공립 대기 당첨됐는데 지금 다니는 곳이랑 비교가 너무 어려웠어요. 토리한테 물어봤더니 5분 만에 정리해줬어요.',
+		name: '서초맘',
+		initial: '서',
+		content: '교사 교체 후 불안했는데 빈자리 알림 걸어두고 기다렸다가 이동했어요',
 	},
 ]
 
@@ -147,6 +133,7 @@ export default function LandingPage() {
 			stat.animated ? formatStatValue(0, stat.decimals, stat.suffix) : stat.staticValue ?? '',
 		),
 	)
+	const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0)
 
 	useEffect(() => {
 		const duration = 1600
@@ -325,33 +312,6 @@ export default function LandingPage() {
 					</div>
 				</section>
 
-				{/* Social proof */}
-				<section id="testimonials" className="bg-white px-6 py-12 md:py-20">
-					<div className="mx-auto max-w-4xl">
-						<h2 className="text-center text-2xl font-bold md:text-3xl">사회적 증거</h2>
-						<p className="mt-2 text-center text-[15px] text-dotori-600">
-							이미 <span className="font-semibold text-dotori-700">{SOCIAL_PROOF_PARENT_COUNT}명의 부모</span>가 사용 중
-						</p>
-						<div className="mt-6 grid gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
-							{testimonials.map((t, i) => (
-								<div
-									key={t.name}
-									className="rounded-2xl border-none bg-dotori-50 p-6 transition-all duration-200 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 hover:-translate-y-0.5"
-									style={{ animationDelay: `${i * 160}ms`, animationFillMode: 'both' }}
-								>
-									<p className="text-[15px] leading-relaxed text-dotori-700">
-										&ldquo;{t.content}&rdquo;
-									</p>
-									<div className="mt-4">
-										<span className="font-medium">{t.name}</span>
-										<span className="ml-2 text-[11px] text-dotori-500">{t.region}</span>
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				</section>
-
 				{/* Pricing */}
 				<section id="pricing" className="bg-white px-6 py-12 md:py-20">
 					<div className="mx-auto max-w-3xl">
@@ -416,12 +376,81 @@ export default function LandingPage() {
 					</div>
 				</section>
 
+				{/* Testimonials */}
+				<section id="testimonials" className="bg-dotori-50 px-6 py-12 md:py-20">
+					<div className="mx-auto max-w-4xl">
+						<Heading level={3} className="text-center font-bold text-2xl text-dotori-950">
+							이용자 후기
+						</Heading>
+						<Text className="mt-2 text-center text-dotori-600">
+							실제 이동 고민이었던 부모님들의 이야기
+						</Text>
+						<div className="mt-6 grid gap-4 md:grid-cols-3 md:gap-6">
+							{testimonials.map((t) => (
+								<article
+									key={t.name}
+									className="rounded-3xl border border-dotori-100 bg-white p-4"
+								>
+									<div className="flex items-center gap-3">
+										<span className="grid h-10 w-10 place-items-center rounded-full bg-dotori-100 text-sm font-semibold text-dotori-700">
+											{t.initial}
+										</span>
+										<Text className="font-medium text-dotori-900">{t.name}</Text>
+									</div>
+									<Text className="mt-3 text-sm leading-relaxed text-dotori-700">&ldquo;{t.content}&rdquo;</Text>
+								</article>
+							))}
+						</div>
+					</div>
+				</section>
+
 				{/* FAQ */}
 				<section id="faq" className="bg-white px-6 py-12 md:py-20">
 					<div className="mx-auto max-w-2xl">
-						<h2 className="text-center text-2xl font-bold md:text-3xl">자주 묻는 질문</h2>
+						<div className="mb-2 flex items-center justify-center gap-2">
+							<Badge color="dotori">이동 수요 FAQ</Badge>
+							<Heading level={3} className="text-2xl font-bold text-dotori-950">
+								자주 묻는 질문
+							</Heading>
+						</div>
 						<div className="mt-8 md:mt-16">
-							<FAQ items={FAQ_ITEMS} />
+							<div className="space-y-3">
+								{FAQ_ITEMS.map((item, index) => {
+									const isOpen = openFaqIndex === index
+									return (
+										<div
+											key={item.question}
+											className="overflow-hidden rounded-2xl border border-dotori-100 bg-white"
+										>
+											<button
+												type="button"
+												onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+												aria-expanded={isOpen}
+												aria-controls={`faq-answer-${index}`}
+												className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-dotori-900"
+											>
+												<span>{item.question}</span>
+												<span
+													className={cn(
+														'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-dotori-100 text-xs font-semibold text-dotori-700 transition-transform',
+														isOpen && 'rotate-45',
+													)}
+												>
+													＋
+												</span>
+											</button>
+											{isOpen && (
+												<div
+													id={`faq-answer-${index}`}
+													className="border-t border-dotori-100 px-4 py-3"
+												>
+													<Text className="text-sm leading-relaxed text-dotori-600">{item.answer}</Text>
+												</div>
+											)}
+										</div>
+									)
+								})}
+							</div>
 						</div>
 					</div>
 				</section>
