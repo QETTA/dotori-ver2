@@ -210,12 +210,12 @@ export default function CommunityPostPage() {
 					{/* 작성자 */}
 					<div className="flex items-center gap-3">
 						<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-[14px] font-bold text-dotori-600">
-							{post.author.nickname[0]}
+							?
 						</div>
 						<div>
 							<div className="flex items-center gap-1.5">
 								<span className="text-[16px] font-semibold text-dotori-900">
-									{post.author.nickname}
+									익명 이웃
 								</span>
 								{post.author.verified && (
 									<Badge
@@ -300,16 +300,16 @@ export default function CommunityPostPage() {
 						</p>
 					) : (
 						<div className="mt-3 space-y-4">
-							{comments.map((comment) => (
-								<div key={comment.id} className="flex gap-3">
-									<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-[12px] font-bold text-dotori-500">
-										{comment.author.nickname[0]}
-									</div>
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center gap-1.5">
-											<span className="text-[14px] font-semibold text-dotori-800">
-												{comment.author.nickname}
-											</span>
+								{comments.map((comment) => (
+									<div key={comment.id} className="flex gap-3">
+										<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-[12px] font-bold text-dotori-500">
+											?
+										</div>
+										<div className="min-w-0 flex-1">
+											<div className="flex items-center gap-1.5">
+												<span className="text-[14px] font-semibold text-dotori-800">
+													익명 이웃
+												</span>
 											{comment.author.verified && (
 												<Badge
 													color="forest"

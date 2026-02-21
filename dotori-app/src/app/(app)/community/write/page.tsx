@@ -225,6 +225,9 @@ function CommunityWriteForm() {
 					<p className="mt-2 text-[12px] text-dotori-600">카테고리를 선택해주세요.</p>
 				)}
 			</div>
+			<p className="text-[13px] text-dotori-500">
+				이 게시글은 이웃들에게 익명으로 표시됩니다.
+			</p>
 
 			{/* 제목 입력 */}
 			<div className="flex gap-2 px-5 pt-4">

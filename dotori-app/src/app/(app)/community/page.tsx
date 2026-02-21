@@ -487,24 +487,16 @@ export default function CommunityPage() {
 										animationFillMode: "both",
 									}}
 								>
-									{/* 작성자 + 카테고리 */}
-									<div className="flex items-center gap-2.5">
-										{post.author.avatar ? (
-											<img
-												src={post.author.avatar}
-												alt={`${post.author.nickname} 프로필`}
-												className="h-10 w-10 shrink-0 rounded-full object-cover"
-											/>
-										) : (
-											<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-[13px] font-bold text-dotori-700">
-												{post.author.nickname.trim().charAt(0) || "익"}
-											</div>
-										)}
-										<div className="min-w-0 flex-1">
-											<div className="flex items-center gap-1.5">
-												<span className="text-[15px] font-semibold text-dotori-900">
-													{post.author.nickname}
-												</span>
+							{/* 작성자 + 카테고리 */}
+							<div className="flex items-center gap-2.5">
+								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-[13px] font-bold text-dotori-700">
+									?
+								</div>
+								<div className="min-w-0 flex-1">
+									<div className="flex items-center gap-1.5">
+										<span className="text-[15px] font-semibold text-dotori-900">
+											익명 이웃
+										</span>
 												{post.author.verified && (
 													<Badge
 														color="forest"
