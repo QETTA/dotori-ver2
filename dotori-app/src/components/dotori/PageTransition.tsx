@@ -4,20 +4,18 @@ import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
-let hasHydrated = false;
-
 export function PageTransition({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
-	const [skipAnimation] = useState(() => !hasHydrated);
+	const [isHydrated, setIsHydrated] = useState(false);
 
 	useEffect(() => {
-		hasHydrated = true;
+		setIsHydrated(true);
 	}, []);
 
 	return (
 		<motion.div
 			key={pathname}
-			initial={skipAnimation ? false : { opacity: 0, y: 8 }}
+			initial={isHydrated ? { opacity: 0, y: 8 } : false}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{
 				duration: 0.25,
