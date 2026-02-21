@@ -8,7 +8,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 			{[0, 1, 2].map((i) => (
 				<motion.span
 					key={i}
-					className="h-2 w-2 rounded-full bg-dotori-400"
+					className="h-2 w-2 rounded-full bg-forest-500"
 					animate={{ y: [0, -6, 0] }}
 					transition={{
 						repeat: Infinity,

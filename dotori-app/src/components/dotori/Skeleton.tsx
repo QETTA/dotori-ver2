@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const pulse = "animate-pulse rounded-lg bg-dotori-100";
+const pulse = "animate-pulse rounded-xl bg-dotori-100";
 
 export function Skeleton({
 	variant,
@@ -13,7 +13,7 @@ export function Skeleton({
 		return (
 			<div className="space-y-3">
 				{Array.from({ length: count }).map((_, i) => (
-					<div key={`sk-${i}`} className={cn(pulse, "h-44 rounded-2xl")} />
+					<div key={`sk-${i}`} className={cn(pulse, "h-44")} />
 				))}
 			</div>
 		);
@@ -25,7 +25,7 @@ export function Skeleton({
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
-						className="flex items-center gap-3 rounded-2xl bg-white p-5 shadow-sm"
+						className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm"
 					>
 						<div className="flex-1 space-y-2.5">
 							<div className="flex items-center gap-2">
@@ -48,9 +48,9 @@ export function Skeleton({
 		return (
 			<div className="space-y-4 px-4">
 				{/* Photo placeholder */}
-				<div className={cn(pulse, "h-48 rounded-2xl")} />
+				<div className={cn(pulse, "h-48")} />
 				{/* Info card */}
-				<div className="rounded-2xl bg-white p-5 shadow-sm space-y-3">
+				<div className="rounded-xl bg-white p-5 shadow-sm space-y-3">
 					<div className={cn(pulse, "h-6 w-3/4")} />
 					<div className="flex gap-2">
 						<div className={cn(pulse, "h-6 w-16 rounded-full")} />
@@ -60,14 +60,14 @@ export function Skeleton({
 				{/* Capacity cards */}
 				<div className="grid grid-cols-3 gap-2.5">
 					{[0, 1, 2].map((i) => (
-						<div key={`sk-${i}`} className="rounded-2xl bg-white p-4 shadow-sm space-y-2">
+						<div key={`sk-${i}`} className="rounded-xl bg-white p-4 shadow-sm space-y-2">
 							<div className={cn(pulse, "mx-auto h-8 w-12")} />
 							<div className={cn(pulse, "mx-auto h-3 w-8")} />
 						</div>
 					))}
 				</div>
 				{/* CTA button */}
-				<div className={cn(pulse, "h-14 rounded-2xl")} />
+				<div className={cn(pulse, "h-14")} />
 			</div>
 		);
 	}
@@ -78,7 +78,7 @@ export function Skeleton({
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
-						className="rounded-2xl bg-white p-5 shadow-sm space-y-3"
+						className="rounded-xl bg-white p-5 shadow-sm space-y-3"
 					>
 						<div className="flex items-center gap-2.5">
 							<div className={cn(pulse, "h-10 w-10 rounded-full")} />
@@ -105,7 +105,7 @@ export function Skeleton({
 		return (
 			<div className="space-y-5 px-4 mt-5">
 				{/* AI Briefing */}
-				<div className={cn(pulse, "h-32 rounded-2xl")} />
+				<div className={cn(pulse, "h-32")} />
 				{/* Quick actions */}
 				<div className="flex gap-2">
 					{[0, 1, 2, 3].map((i) => (
@@ -120,7 +120,7 @@ export function Skeleton({
 				{/* Facility cards */}
 				<div className="space-y-3">
 					{[0, 1, 2].map((i) => (
-						<div key={`sk-${i}`} className="flex items-center gap-3 rounded-2xl bg-white p-5 shadow-sm">
+						<div key={`sk-${i}`} className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm">
 							<div className="flex-1 space-y-2">
 								<div className={cn(pulse, "h-5 w-3/4")} />
 								<div className={cn(pulse, "h-3 w-1/2")} />
@@ -153,7 +153,7 @@ export function Skeleton({
 		return (
 			<div className="mb-3 flex gap-2.5">
 				<div className={cn(pulse, "h-9 w-9 shrink-0 rounded-full")} />
-				<div className={cn(pulse, "h-24 w-3/4 rounded-2xl rounded-bl-sm")} />
+				<div className={cn(pulse, "h-24 w-3/4 rounded-xl rounded-bl-sm")} />
 			</div>
 		);
 	}

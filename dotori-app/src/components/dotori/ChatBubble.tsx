@@ -47,12 +47,12 @@ export const ChatBubble = memo(function ChatBubble({
 			>
 				<div
 					className={cn(
-						'max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-500 px-4 py-3 text-white shadow-none'
+						'max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-400 px-4 py-3 text-white shadow-none'
 					)}
 				>
 					{children}
 					<span
-						className="mt-1 block text-right text-[12px] text-dotori-200"
+						className="mt-1 block text-right text-[12px] text-dotori-100"
 						suppressHydrationWarning
 					>
 						{relativeTime}
@@ -80,7 +80,7 @@ export const ChatBubble = memo(function ChatBubble({
 			<div className="flex max-w-[85%] flex-col gap-2">
 				<div
 					className={cn(
-						'rounded-2xl rounded-bl-sm border-none bg-dotori-50 px-4 py-3 shadow-none'
+						'rounded-2xl rounded-bl-sm border-none bg-white px-4 py-3 shadow-sm'
 					)}
 				>
 					{isStreaming && !hasStreamingContent ? (
@@ -121,7 +121,7 @@ export const ChatBubble = memo(function ChatBubble({
 						)}
 					</div>
 				)}
-				<span className="px-1 text-[12px] text-dotori-400" suppressHydrationWarning>
+				<span className="px-1 text-[12px] text-dotori-500" suppressHydrationWarning>
 					{relativeTime}
 				</span>
 			</div>
