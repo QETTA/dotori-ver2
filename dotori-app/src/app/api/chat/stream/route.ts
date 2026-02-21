@@ -1,5 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import mongoose, { type Model } from "mongoose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
@@ -14,6 +13,7 @@ import {
 	extractConversationContext,
 } from "@/lib/engine/response-builder";
 import ChatHistory, { type IChatHistory } from "@/models/ChatHistory";
+import UsageLog from "@/models/UsageLog";
 import type { ChatBlock } from "@/types/dotori";
 import type { ChatIntent } from "@/lib/engine/intent-classifier";
 
@@ -22,6 +22,7 @@ const AI_MODEL = process.env.AI_MODEL || "claude-sonnet-4-6";
 const AI_TIMEOUT_MS = 15_000;
 const MONTHLY_FREE_CHAT_LIMIT = 5;
 const GUEST_CHAT_LIMIT = 3;
+const guestUsageMap = new Map<string, { count: number; resetAt: number }>();
 const MONTHLY_QUOTA_EXCEEDED_MESSAGE =
 	"이번 달 무료 채팅 횟수를 모두 사용했어요. 프리미엄으로 업그레이드하면 무제한으로 대화할 수 있어요.";
 const STREAM_SYSTEM_PROMPT = `당신은 "토리", 도토리 앱의 어린이집·유치원 AI 어시스턴트입니다.
@@ -71,36 +72,42 @@ const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
 	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
 };
 
-interface IUsageLog {
-	userId: string;
-	month: string;
-	count: number;
-}
-
-const usageLogSchema = new mongoose.Schema<IUsageLog>(
-	{
-		userId: { type: String, required: true, index: true },
-		month: { type: String, required: true, index: true },
-		count: { type: Number, required: true, default: 0, min: 0 },
-	},
-	{ timestamps: true },
-);
-usageLogSchema.index({ userId: 1, month: 1 }, { unique: true });
-
-const UsageLog: Model<IUsageLog> =
-	mongoose.models.UsageLog as Model<IUsageLog> ||
-	mongoose.model<IUsageLog>("UsageLog", usageLogSchema);
-
 function getMonthKey(date = new Date()): string {
 	const month = String(date.getMonth() + 1).padStart(2, "0");
 	return `${date.getFullYear()}-${month}`;
 }
 
-function parseGuestUsage(headerValue: string | null): number {
-	if (!headerValue) return 0;
-	const parsed = Number(headerValue);
-	if (!Number.isFinite(parsed)) return 0;
-	return Math.max(0, Math.floor(parsed));
+function getNextMonthResetAt(date = new Date()): number {
+	return new Date(
+		date.getFullYear(),
+		date.getMonth() + 1,
+		1,
+		0,
+		0,
+		0,
+		0,
+	).getTime();
+}
+
+function getGuestUsage(ip: string): { count: number; resetAt: number } {
+	const now = Date.now();
+	const existing = guestUsageMap.get(ip);
+	if (!existing || now >= existing.resetAt) {
+		const refreshed = {
+			count: 0,
+			resetAt: getNextMonthResetAt(new Date(now)),
+		};
+		guestUsageMap.set(ip, refreshed);
+		return refreshed;
+	}
+
+	return existing;
+}
+
+function incrementGuestUsage(ip: string): void {
+	const usage = getGuestUsage(ip);
+	usage.count += 1;
+	guestUsageMap.set(ip, usage);
 }
 
 function getQuickReplies(intent: ChatIntent): string[] {
@@ -199,7 +206,11 @@ function buildFacilityContext(blocks: ChatBlock[]): string {
 
 async function getMonthlyChatCount(userId: string): Promise<number> {
 	const month = getMonthKey();
-	const usage = await UsageLog.findOne({ userId, month }).lean<{ count: number }>();
+	const usage = await UsageLog.findOne({
+		userId,
+		type: "chat",
+		month,
+	}).lean<{ count?: unknown }>();
 	if (!usage || typeof usage.count !== "number" || Number.isNaN(usage.count)) {
 		return 0;
 	}
@@ -209,10 +220,11 @@ async function getMonthlyChatCount(userId: string): Promise<number> {
 async function incrementMonthlyChatCount(userId: string): Promise<void> {
 	const month = getMonthKey();
 	await UsageLog.findOneAndUpdate(
-		{ userId, month },
+		{ userId, type: "chat", month },
 		{
 			$setOnInsert: {
 				userId,
+				type: "chat",
 				month,
 				count: 0,
 			},
@@ -240,9 +252,7 @@ export const POST = async (req: NextRequest) => {
 	const session = await auth();
 	const userId = session?.user?.id;
 	const isPremiumPlan = session?.user?.plan === "premium";
-	const guestUsageCount = parseGuestUsage(
-		req.headers.get("x-chat-guest-usage"),
-	);
+	const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
 	if (isAuthUserId(userId) && !isPremiumPlan) {
 		await dbConnect();
@@ -256,14 +266,17 @@ export const POST = async (req: NextRequest) => {
 				{ status: 403 },
 			);
 		}
-	} else if (guestUsageCount >= GUEST_CHAT_LIMIT) {
-		return NextResponse.json(
-			{
-				error: "quota_exceeded",
-				message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
-			},
-			{ status: 403 },
-		);
+	} else if (!isAuthUserId(userId)) {
+		const guestUsage = getGuestUsage(clientIp);
+		if (guestUsage.count >= GUEST_CHAT_LIMIT) {
+			return NextResponse.json(
+				{
+					error: "quota_exceeded",
+					message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
+				},
+				{ status: 403 },
+			);
+		}
 	}
 
 	const encoder = new TextEncoder();
@@ -416,6 +429,8 @@ export const POST = async (req: NextRequest) => {
 
 				if (isAuthUserId(userId) && !isPremiumPlan) {
 					await incrementMonthlyChatCount(userId);
+				} else if (!isAuthUserId(userId)) {
+					incrementGuestUsage(clientIp);
 				}
 
 				emitEvent(controller, encoder, {
@@ -439,6 +454,9 @@ export const POST = async (req: NextRequest) => {
 				});
 				controller.close();
 			}
+		},
+		cancel() {
+			// cleanup if needed
 		},
 	});
 
