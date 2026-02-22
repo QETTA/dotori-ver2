@@ -46,7 +46,7 @@ export default function TermsPage() {
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
-				<h1 className="text-[17px] font-bold">이용약관</h1>
+				<h1 className="text-lg font-bold">이용약관</h1>
 			</header>
 
 			<div className="space-y-3 px-5 pt-2">
@@ -59,10 +59,10 @@ export default function TermsPage() {
 							animationFillMode: "both",
 						}}
 					>
-						<h3 className="text-[15px] font-semibold text-dotori-900">
+						<h3 className="text-base font-semibold text-dotori-900">
 							{section.title}
 						</h3>
-						<p className="mt-2 text-[14px] leading-relaxed text-dotori-500">
+						<p className="mt-2 text-sm leading-relaxed text-dotori-500">
 							{section.summary}
 						</p>
 						<button
@@ -70,7 +70,7 @@ export default function TermsPage() {
 							onClick={() =>
 								setExpanded(expanded === section.id ? null : section.id)
 							}
-							className="mt-3 flex items-center gap-1 text-[14px] font-medium text-dotori-500 transition-colors hover:text-dotori-600"
+							className="mt-3 flex items-center gap-1 text-sm font-medium text-dotori-500 transition-colors hover:text-dotori-600"
 						>
 							{expanded === section.id ? "접기" : "전문 보기"}
 							<ChevronDownIcon
@@ -81,7 +81,7 @@ export default function TermsPage() {
 							/>
 						</button>
 						{expanded === section.id && (
-							<div className="mt-3 whitespace-pre-line border-t border-dotori-100 pt-3 text-[13px] leading-relaxed text-dotori-600">
+							<div className="mt-3 whitespace-pre-line border-t border-dotori-100 pt-3 text-sm leading-relaxed text-dotori-600">
 								{section.detail}
 							</div>
 						)}

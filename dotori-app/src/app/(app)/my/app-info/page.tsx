@@ -16,7 +16,7 @@ export default function AppInfoPage() {
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
-				<h1 className="text-[17px] font-bold">앱 정보</h1>
+				<h1 className="text-lg font-bold">앱 정보</h1>
 			</header>
 
 			<div className="px-5 pt-2">
@@ -29,27 +29,27 @@ export default function AppInfoPage() {
 							alt="도토리 앱 아이콘"
 							className="h-20 w-20 rounded-[22px] shadow-md"
 						/>
-						<h2 className="mt-4 text-[18px] font-bold text-dotori-900">
+						<h2 className="mt-4 text-lg font-bold text-dotori-900">
 							도토리
 						</h2>
-						<p className="mt-1 text-[14px] text-dotori-500">
+						<p className="mt-1 text-sm text-dotori-500">
 							AI 어린이집 입소 전략 서비스
 						</p>
 						<div className="mt-4 flex gap-4">
 							<div className="text-center">
-								<span className="block text-[13px] text-dotori-500">
+								<span className="block text-sm text-dotori-500">
 									버전
 								</span>
-								<span className="text-[15px] font-semibold text-dotori-900">
+								<span className="text-base font-semibold text-dotori-900">
 									1.0.0
 								</span>
 							</div>
 							<div className="h-8 w-px bg-dotori-100" />
 							<div className="text-center">
-								<span className="block text-[13px] text-dotori-500">
+								<span className="block text-sm text-dotori-500">
 									빌드
 								</span>
-								<span className="text-[15px] font-semibold text-dotori-900">
+								<span className="text-base font-semibold text-dotori-900">
 									2026.02.20
 								</span>
 							</div>
@@ -59,10 +59,10 @@ export default function AppInfoPage() {
 
 				{/* 오픈소스 라이선스 */}
 				<div className="mt-3 rounded-3xl bg-white p-5 shadow-sm motion-safe:animate-in motion-safe:fade-in duration-300" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
-					<h3 className="text-[15px] font-semibold text-dotori-900">
+					<h3 className="text-base font-semibold text-dotori-900">
 						오픈소스 라이선스
 					</h3>
-					<p className="mt-2 text-[14px] leading-relaxed text-dotori-500">
+					<p className="mt-2 text-sm leading-relaxed text-dotori-500">
 						이 앱은 다양한 오픈소스 소프트웨어를 사용하고 있습니다.
 						각 라이브러리의 라이선스 정보는 추후 업데이트될
 						예정입니다.
@@ -70,7 +70,7 @@ export default function AppInfoPage() {
 				</div>
 
 				{/* 푸터 */}
-				<p className="mt-6 text-center text-[12px] text-dotori-300">
+				<p className="mt-6 text-center text-xs text-dotori-300">
 					&copy; 2026 도토리. All rights reserved.
 				</p>
 			</div>

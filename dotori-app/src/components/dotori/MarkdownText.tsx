@@ -64,11 +64,11 @@ export function MarkdownText({ content }: MarkdownTextProps) {
 	const hasContent = content.trim().length > 0;
 
 	if (!hasContent) {
-		return <p className="text-[15px] leading-relaxed text-dotori-900" />;
+		return <p className="text-base leading-relaxed text-dotori-900" />;
 	}
 
 	return (
-		<div className="max-w-full text-[15px] leading-relaxed text-dotori-900">
+		<div className="max-w-full text-base leading-relaxed text-dotori-900">
 			{blocks.map((block, blockIndex) => {
 				const lines = block.split("\n");
 				const bulletLines = lines.filter((line) => line.trim().length > 0);
@@ -92,7 +92,7 @@ export function MarkdownText({ content }: MarkdownTextProps) {
 					return (
 						<ul
 							key={`list-${blockIndex}`}
-							className="ml-5 list-disc space-y-1 [&>li]:text-[15px] [&>li]:leading-relaxed"
+							className="ml-5 list-disc space-y-1 [&>li]:text-base [&>li]:leading-relaxed"
 						>
 							{bulletLines.map((line, index) => (
 								<li key={`bullet-${index}`}>
