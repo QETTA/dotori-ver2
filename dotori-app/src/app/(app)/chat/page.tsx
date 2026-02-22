@@ -4,13 +4,15 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/catalyst/button";
 import { Field, Fieldset, Label } from "@/components/catalyst/fieldset";
-import { ChatBubble } from "@/components/dotori/ChatBubble";
 import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand-assets";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
+import { BlockRenderer } from "@/components/dotori/blocks/BlockRenderer";
+import { SourceChip } from "@/components/dotori/SourceChip";
 import type { ChatMessage } from "@/types/dotori";
 import { useSession } from "next-auth/react";
 import { Text } from "@/components/catalyst/text";
@@ -39,7 +41,7 @@ export default function ChatPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-[calc(100dvh-8rem)] flex-col">
+				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 dark:bg-dotori-900">
 					<div className="px-5 pt-8">
 						<Skeleton variant="card" count={2} />
 					</div>
@@ -48,6 +50,146 @@ export default function ChatPage() {
 		>
 			<ChatContent />
 		</Suspense>
+	);
+}
+
+function MessageBubble({
+	msg,
+	onBlockAction,
+	onQuickReply,
+}: {
+	msg: ChatMessage;
+	onBlockAction: (actionId: string) => void;
+	onQuickReply: (value: string) => void;
+}) {
+	const relativeTime = formatRelativeTime(msg.timestamp);
+	const normalizedQuickReplies = msg.quick_replies?.slice(0, 4);
+	const showQuickReplies =
+		normalizedQuickReplies && normalizedQuickReplies.length > 0 && !msg.isStreaming;
+	const hasStreamingContent =
+		(typeof msg.content === "string" && msg.content.trim().length > 0) ||
+		Boolean(msg.blocks && msg.blocks.length > 0);
+
+	if (msg.role === "user") {
+		return (
+			<div
+				role="log"
+				aria-label="사용자 메시지"
+				className={cn(
+					"mb-3 flex justify-end",
+					"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-2 duration-300",
+				)}
+			>
+				<div className="max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-100 px-4 py-3 text-dotori-900 shadow-none dark:bg-dotori-800 dark:text-dotori-50">
+					<div className="space-y-1">
+						<Text className="text-dotori-900 dark:text-dotori-50">{msg.content}</Text>
+						<span
+							className="mt-1 flex items-center justify-end gap-1.5 text-xs text-dotori-600 dark:text-dotori-200"
+							suppressHydrationWarning
+						>
+							<svg
+								viewBox="0 0 20 20"
+								aria-hidden="true"
+								className="h-3.5 w-3.5 fill-none stroke-current"
+							>
+								<path
+									strokeWidth="2.2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M16.8 6.4 8.5 14.2 4.2 10.2"
+								/>
+								<path
+									strokeWidth="2.2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M16.8 9.2 8.5 17 4.2 13"
+								/>
+							</svg>
+							<span className="leading-none">읽음</span>
+							{relativeTime}
+						</span>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div
+			role="log"
+			aria-label="어시스턴트 메시지"
+			className={cn(
+				"mb-3 flex justify-start gap-2.5",
+				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2 duration-300",
+			)}
+		>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img src={BRAND.symbol} alt="토리" className="mt-1 h-9 w-9 shrink-0 rounded-full" />
+			<div className="flex max-w-[85%] flex-col gap-2">
+				<div className="rounded-2xl rounded-bl-sm border border-dotori-100 bg-white px-4 py-3 text-dotori-900 shadow-sm dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:shadow-none">
+					{msg.isStreaming && !hasStreamingContent ? (
+						<div className="flex gap-1.5 py-1">
+							{[0, 250, 500].map((delay) => (
+								<span
+									key={delay}
+									className="h-2 w-2 animate-bounce rounded-full bg-dotori-300"
+									style={{ animationDelay: `${delay}ms` }}
+								/>
+							))}
+						</div>
+					) : msg.blocks && msg.blocks.length > 0 ? (
+						<BlockRenderer blocks={msg.blocks} onAction={onBlockAction} />
+					) : (
+						<MarkdownText content={msg.content} />
+					)}
+
+					{msg.isStreaming ? (
+						<span
+							className="ml-1 inline-block h-4 w-0.5 animate-pulse bg-dotori-500"
+							aria-hidden="true"
+						/>
+					) : null}
+				</div>
+
+				{msg.sources && msg.sources.length > 0 ? (
+					<div className="flex flex-wrap gap-1.5 px-1">
+						{msg.sources.map((s, i) => (
+							<SourceChip key={`${s.source}-${i}`} {...s} />
+						))}
+					</div>
+				) : null}
+
+				{msg.actions && msg.actions.length > 0 ? (
+					<div className="flex flex-wrap gap-2 px-1">
+						{msg.actions.map((a) =>
+							a.variant === "outline" ? (
+								<Button key={a.id} plain={true} onClick={() => onBlockAction(a.id)}>
+									{a.label}
+								</Button>
+							) : (
+								<Button key={a.id} color="dotori" onClick={() => onBlockAction(a.id)}>
+									{a.label}
+								</Button>
+							),
+						)}
+					</div>
+				) : null}
+
+				{showQuickReplies ? (
+					<div className="flex flex-wrap gap-2 px-1">
+						{normalizedQuickReplies?.map((text) => (
+							<Button key={text} plain={true} onClick={() => onQuickReply(text)}>
+								{text}
+							</Button>
+						))}
+					</div>
+				) : null}
+
+				<span className="px-1 text-xs text-dotori-500" suppressHydrationWarning>
+					{relativeTime}
+				</span>
+			</div>
+		</div>
 	);
 }
 
@@ -248,23 +390,25 @@ function ChatContent() {
 	};
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col">
+		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
 			{/* ── Header ── */}
-			<header className="flex items-center gap-3 border-b border-dotori-100/30 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-10 flex items-center gap-3 px-5 py-3.5">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img
 					src={TORI_ICON}
 					alt=""
 					aria-hidden="true"
-					className="h-10 w-10 rounded-full border border-dotori-100 bg-white"
+					className="h-10 w-10 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
 				/>
 				<div className="min-w-0">
-					<Heading level={3} className="font-semibold text-dotori-900">
+					<Heading level={3} className="font-semibold text-dotori-900 dark:text-dotori-50">
 						토리
 					</Heading>
 					<div className="mt-0.5 flex items-center gap-1.5">
 						<span className="inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
-						<Text className="text-xs font-medium text-forest-700">온라인</Text>
+						<Text className="text-xs font-medium text-forest-700 dark:text-forest-300">
+							온라인
+						</Text>
 					</div>
 				</div>
 				<Button
@@ -277,7 +421,7 @@ function ChatContent() {
 				</Button>
 			</header>
 			{isTrackingUsage ? (
-				<div className="border-b border-dotori-100/30 bg-white/90 px-5 py-2.5">
+				<div className="border-b border-dotori-100/30 bg-white/90 px-5 py-2.5 dark:border-dotori-800/40 dark:bg-dotori-950/70">
 					<UsageCounter
 						count={usageCount}
 						limit={usageLimit}
@@ -302,25 +446,12 @@ function ChatContent() {
 				) : (
 					<div className="px-4 pt-4">
 						{messages.map((msg) => (
-							<ChatBubble
+							<MessageBubble
 								key={msg.id}
-								role={msg.role}
-								timestamp={msg.timestamp}
-								sources={msg.sources}
-								actions={msg.actions}
-								blocks={msg.blocks}
-								isStreaming={msg.isStreaming}
+								msg={msg}
 								onBlockAction={handleBlockAction}
 								onQuickReply={sendMessage}
-								quickReplies={msg.quick_replies}
-								isRead={msg.role === "user"}
-							>
-								{msg.role === "assistant" ? (
-									<MarkdownText content={msg.content} />
-								) : (
-									<Text>{msg.content}</Text>
-								)}
-							</ChatBubble>
+							/>
 						))}
 						<div ref={messagesEndRef} />
 					</div>
@@ -328,7 +459,7 @@ function ChatContent() {
 			</div>
 
 			{/* ── Input area ── */}
-			<div className="border-t border-dotori-100/30 bg-white/80 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
+			<div className="border-t border-dotori-100/30 bg-white/80 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl dark:border-dotori-800/40 dark:bg-dotori-950/70">
 				{isTrackingUsage && isUsageLimitReached ? (
 					<PremiumGate usageLimit={usageLimit} message={PREMIUM_GATE_HINT} />
 				) : null}
@@ -342,7 +473,7 @@ function ChatContent() {
 								value={input}
 								onChange={(event) => setInput(event.target.value)}
 								placeholder="토리에게 물어보세요..."
-								className="min-h-12 bg-dotori-100/60 text-sm"
+								className="min-h-12 bg-dotori-100/60 text-sm text-dotori-900 placeholder:text-dotori-400 dark:bg-dotori-800/60 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 								onKeyDown={(event) => {
 									if (event.key === "Enter" && input.trim()) {
 										sendMessage(input);
@@ -361,8 +492,8 @@ function ChatContent() {
 						className={cn(
 							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95",
 							input.trim() && !isLoading && !isUsageLoading && !isUsageLimitReached
-								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-500",
+								? "bg-dotori-900 text-white dark:bg-dotori-50 dark:text-dotori-900"
+								: "bg-dotori-100 text-dotori-500 dark:bg-dotori-800 dark:text-dotori-300",
 						)}
 					>
 						{isLoading ? (
