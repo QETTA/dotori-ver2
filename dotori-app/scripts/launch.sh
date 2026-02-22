@@ -1,17 +1,20 @@
 #!/bin/bash
-# ㄱ 파이프라인 v4 — Codex 병렬 실행
-# Usage: ./scripts/launch.sh [ROUND=r18] [MODEL=gpt-5.2]
+# ㄱ 파이프라인 v5 — Codex 병렬 실행 + Serena HTTP Hub
+# Usage: ./scripts/launch.sh [ROUND=r20] [MODEL=gpt-5.2]
 
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r19}
+ROUND=${1:-r20}
 CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
 WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
+SERENA_HUB_PORT=8765
+SERENA_HUB_URL="http://localhost:$SERENA_HUB_PORT"
+SERENA_HUB_PID=""
 
 AGENTS=(polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-shared polish-waitlist polish-onboarding polish-comp)
 MERGE_ORDER=(polish-comp polish-shared polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-waitlist polish-onboarding)
@@ -478,8 +481,8 @@ npx tsc --noEmit 에러 0개."
 ### ═══════════════════════════════════════════════════════════════════
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  ㄱ 파이프라인 v4 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  R19: UX 풀가동 — 레이아웃 + 인터랙션 완성  ║${NC}"
+printf "${BLUE}║  ㄱ 파이프라인 v5 — ROUND: %-17s║${NC}\n" "$ROUND"
+printf "${BLUE}║  Serena HTTP Hub + Codex %-19s║${NC}\n" "병렬 $(echo ${#AGENTS[@]})개"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
@@ -521,6 +524,40 @@ ok "워크트리 정리 완료"
 mkdir -p "$RESULTS" "$LOGS"
 ok "디렉토리 준비: $RESULTS, $LOGS"
 
+### ═══ PHASE 0.5: Serena HTTP Hub 시작 ════════════════════════════════
+step "PHASE 0.5: Serena HTTP Hub 시작 ($SERENA_HUB_URL)"
+
+# 기존 프로세스 정리
+lsof -ti :$SERENA_HUB_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
+sleep 1
+
+uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
+  --project "$APP" \
+  --transport streamable-http \
+  --port "$SERENA_HUB_PORT" \
+  --enable-web-dashboard false \
+  --open-web-dashboard false \
+  > "$LOGS/serena-hub.log" 2>&1 &
+SERENA_HUB_PID=$!
+
+# 서버 준비 대기 (최대 20초)
+SERENA_READY=0
+for i in $(seq 1 20); do
+  sleep 1
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "$SERENA_HUB_URL/mcp" \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json, text/event-stream" \
+    -d '{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"launch","version":"1"}}}' \
+    2>/dev/null || echo "0")
+  if [ "$HTTP_CODE" = "200" ]; then
+    ok "Serena Hub 준비 완료 (${i}초) — $SERENA_HUB_URL"
+    SERENA_READY=1
+    break
+  fi
+done
+[ $SERENA_READY -eq 0 ] && warn "Serena Hub 응답 없음 — 메모리 읽기만 cat 폴백으로 진행"
+
 ### ═══ PHASE 1: 워크트리 생성 ═════════════════════════════════════════
 step "PHASE 1: 워크트리 생성 (${#AGENTS[@]}개)"
 mkdir -p "$WT_BASE"
@@ -547,10 +584,28 @@ for AGENT in "${AGENTS[@]}"; do
   WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
   TASK_TEXT=$(get_task "$AGENT")
 
-  PROMPT="먼저 이 파일들을 읽어라 (필수):
-  cat .serena/memories/project_overview.md
-  cat .serena/memories/code_style_and_conventions.md
-  cat .serena/memories/agent_task_registry.md
+  PROMPT="# Serena 허브 사용 가이드 (필독)
+Serena HTTP Hub가 $SERENA_HUB_URL 에서 실행 중이다.
+cat 대신 아래 방법으로 메모리·심볼에 접근해라:
+
+## 메모리 읽기 (반드시 이 순서대로):
+  python3 scripts/serena-hub.py read_memory project_overview.md
+  python3 scripts/serena-hub.py read_memory code_style_and_conventions.md
+  python3 scripts/serena-hub.py read_memory agent_task_registry.md
+
+## 심볼 검색 (파일 전체 읽기 전 먼저 시도):
+  python3 scripts/serena-hub.py find_symbol <컴포넌트명>
+  python3 scripts/serena-hub.py find_symbol <컴포넌트명> src/path/file.tsx
+
+## 패턴 검색:
+  python3 scripts/serena-hub.py search 'glass-header'
+
+## 작업 완료 후 노트 저장 (필수):
+  python3 scripts/serena-hub.py write_memory $ROUND-$AGENT-notes.md '변경 요약...'
+
+---
+
+## motion.ts 읽기 (변경 없음, 참고용):
   cat src/lib/motion.ts
 
 ## 담당 작업 ($ROUND-$AGENT)
@@ -564,7 +619,8 @@ $TASK_TEXT
 5. text-[Npx] 임의 픽셀값 금지 → Tailwind 스케일 토큰
 6. dark: 클래스 추가 시 dotori 팔레트만 사용 (bg-gray-* 금지)
 7. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
-8. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
+8. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)
+9. 작업 완료 후 python3 scripts/serena-hub.py write_memory $ROUND-$AGENT-notes.md '요약' 실행"
 
   codex exec -m "$CODEX_MODEL" -s workspace-write \
     --cd "$WT_APP" \
@@ -684,6 +740,28 @@ for AGENT in "${AGENTS[@]}"; do
 done
 git -C "$REPO" worktree prune 2>/dev/null || true
 ok "워크트리 정리 완료"
+
+# ─── 에이전트 노트 집계 ───
+info "에이전트 Serena 허브 노트 집계..."
+NOTES_SUMMARY=""
+for AGENT in "${AGENTS[@]}"; do
+  NOTE=$(python3 "$APP/scripts/serena-hub.py" read_memory "$ROUND-$AGENT-notes.md" 2>/dev/null || echo "")
+  if [ -n "$NOTE" ] && [[ "$NOTE" != *"not found"* ]]; then
+    NOTES_SUMMARY="$NOTES_SUMMARY\n### $AGENT\n$NOTE\n"
+  fi
+done
+if [ -n "$NOTES_SUMMARY" ]; then
+  python3 "$APP/scripts/serena-hub.py" write_memory "$ROUND-summary.md" \
+    "# $ROUND 에이전트 작업 요약\n$(date)\n\n$NOTES_SUMMARY" 2>/dev/null || true
+  ok "에이전트 노트 → Serena 메모리 ($ROUND-summary.md)"
+fi
+
+# ─── Serena Hub 종료 ───
+if [ -n "$SERENA_HUB_PID" ]; then
+  kill "$SERENA_HUB_PID" 2>/dev/null || true
+  lsof -ti :$SERENA_HUB_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
+  ok "Serena Hub 종료 (PID: $SERENA_HUB_PID)"
+fi
 
 ### ═══ 최종 리포트 ═══════════════════════════════════════════════════
 ELAPSED=$(( $(date +%s) - START ))
