@@ -26,7 +26,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 					/>
 				))}
 			</div>
-			<span className="text-sm text-dotori-500">{message}</span>
+			<span className="text-sm font-medium text-dotori-600">{message}</span>
 		</div>
 	);
 }
