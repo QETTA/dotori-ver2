@@ -9,13 +9,11 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
-import type { ExploreResultActions, ExploreResultState } from "./useExploreSearch";
-
-interface ExploreResultInteraction {
-	loadingAction: string | null;
-	onRegisterInterest: (facilityId: string) => void;
-	onApplyWaiting: (facilityId: string) => void;
-}
+import type {
+	ExploreResultActions,
+	ExploreResultInteraction,
+	ExploreResultState,
+} from "./useExploreSearch";
 
 interface ExploreResultListProps {
 	state: ExploreResultState;

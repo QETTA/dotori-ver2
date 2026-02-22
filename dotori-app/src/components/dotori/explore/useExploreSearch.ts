@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
+import { useFacilityActions } from "@/hooks/use-facility-actions";
 import { useFacilities } from "@/hooks/use-facilities";
 import { apiFetch } from "@/lib/api";
 import type { Facility, FacilityStatus } from "@/types/dotori";
@@ -98,6 +99,12 @@ export interface ExploreResultActions {
 	onResetFilters: () => void;
 }
 
+export interface ExploreResultInteraction {
+	loadingAction: string | null;
+	onRegisterInterest: (facilityId: string) => void;
+	onApplyWaiting: (facilityId: string) => void;
+}
+
 export interface ExploreMapState {
 	showMap: boolean;
 	hasMapContent: boolean;
@@ -112,6 +119,37 @@ export interface UseExploreSearchReturn {
 	resultState: ExploreResultState;
 	resultActions: ExploreResultActions;
 	mapState: ExploreMapState;
+}
+
+export function useExploreResultInteraction(): ExploreResultInteraction {
+	const { registerInterest, applyWaiting, loadingAction } = useFacilityActions();
+	const registerInterestRef = useRef(registerInterest);
+	const applyWaitingRef = useRef(applyWaiting);
+
+	useEffect(() => {
+		registerInterestRef.current = registerInterest;
+	}, [registerInterest]);
+
+	useEffect(() => {
+		applyWaitingRef.current = applyWaiting;
+	}, [applyWaiting]);
+
+	const onRegisterInterest = useCallback((facilityId: string) => {
+		void registerInterestRef.current(facilityId);
+	}, []);
+
+	const onApplyWaiting = useCallback((facilityId: string) => {
+		void applyWaitingRef.current(facilityId);
+	}, []);
+
+	return useMemo(
+		() => ({
+			loadingAction,
+			onRegisterInterest,
+			onApplyWaiting,
+		}),
+		[loadingAction, onApplyWaiting, onRegisterInterest],
+	);
 }
 
 export function useExploreSearch(): UseExploreSearchReturn {
