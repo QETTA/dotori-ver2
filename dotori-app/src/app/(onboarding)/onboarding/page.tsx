@@ -274,6 +274,17 @@ export default function OnboardingPage() {
 		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
 	const sliderCls =
 		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500 dark:bg-dotori-700";
+	const choicePillBase =
+		"inline-flex min-h-12 items-center justify-center rounded-full px-5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dotori-950";
+	const segmentedChoiceBase =
+		"inline-flex min-h-12 flex-1 items-center justify-center rounded-3xl px-4 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dotori-950";
+
+	function summarizeChoices(list: string[]) {
+		if (list.length === 0) return "미선택";
+		const shown = list.slice(0, 2).join(" · ");
+		if (list.length <= 2) return shown;
+		return `${shown} 외 ${list.length - 2}개`;
+	}
 
 	return (
 		<div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-hidden bg-dotori-50 px-6 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
@@ -287,55 +298,71 @@ export default function OnboardingPage() {
 			/>
 
 			{/* ── 헤더 ── */}
-			<header className="flex items-center justify-between pb-2 pt-[env(safe-area-inset-top)]">
-				<div className="pt-4">
-					{step > 0 && step < totalSteps - 1 ? (
-						<button
-							type="button"
-							onClick={back}
-							aria-label="뒤로 가기"
-							className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-800"
-						>
-							<ArrowLeftIcon className="h-6 w-6" />
-						</button>
-					) : (
-						<div className="h-8 w-8" />
-					)}
-				</div>
-				<p className="pt-4 text-sm text-dotori-400">
+			<header className="flex items-center justify-between pb-2 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
+				{step > 0 && step < totalSteps - 1 ? (
+					<button
+						type="button"
+						onClick={back}
+						aria-label="뒤로 가기"
+						className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-800"
+					>
+						<ArrowLeftIcon className="h-6 w-6" />
+					</button>
+				) : (
+					<div className="h-11 w-11" />
+				)}
+				<p className="text-sm font-medium text-dotori-400">
 					{Math.min(step + 1, totalSteps)}/{totalSteps}
 				</p>
 			</header>
 
 			{/* ── 단계 인디케이터 ── */}
-			<div className="mt-2">
-				<div className="h-1 rounded-full bg-dotori-100 dark:bg-dotori-800">
+			<div className="mt-1">
+				<div
+					role="progressbar"
+					aria-label="온보딩 진행률"
+					aria-valuemin={1}
+					aria-valuemax={totalSteps}
+					aria-valuenow={Math.min(step + 1, totalSteps)}
+					className="h-1.5 rounded-full bg-dotori-100 dark:bg-dotori-800"
+				>
 					<div
-						className="h-1 rounded-full bg-dotori-500 transition-all duration-300"
+						className="h-1.5 rounded-full bg-dotori-400 transition-all duration-300"
 						style={{ width: `${progressPercent}%` }}
 					/>
 				</div>
 			</div>
-			<div className="mt-3 rounded-2xl border border-dotori-100 bg-white/90 px-4 py-3 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
-				<div className="flex items-center justify-between">
-					<Badge color="dotori" className="text-xs font-semibold">
-						AI 맞춤 온보딩
+			<div className="mt-3 rounded-3xl border border-dotori-100 bg-white/90 p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+				<div className="flex items-start justify-between gap-3">
+					<div className="flex items-center gap-3">
+						<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-dotori-900 text-sm font-bold text-white dark:bg-dotori-50 dark:text-dotori-900">
+							{String(Math.min(step + 1, totalSteps)).padStart(2, "0")}
+						</div>
+						<div>
+							<p className="text-xs font-semibold text-dotori-500">
+								AI 맞춤 온보딩
+							</p>
+							<p className="mt-0.5 text-xl font-bold text-dotori-900 dark:text-dotori-50">
+								{activeGuide.label}
+							</p>
+						</div>
+					</div>
+					<Badge color="dotori" className="shrink-0 text-xs font-semibold">
+						{activeGuide.eta}
 					</Badge>
-					<p className="text-xs font-medium text-dotori-500">{activeGuide.eta}</p>
 				</div>
-				<p className="mt-2 text-sm font-semibold text-dotori-800 dark:text-dotori-100">
-					{activeGuide.label}
+				<p className="mt-2 text-sm leading-relaxed text-dotori-500">
+					{activeGuide.hint}
 				</p>
-				<p className="mt-1 text-xs leading-relaxed text-dotori-500">{activeGuide.hint}</p>
 			</div>
 
 			{/* ── 컨텐츠 ── */}
-			<div className="mt-4 flex-1 rounded-[30px] border border-dotori-100 bg-white/90 px-4 py-5 shadow-[0_12px_28px_rgba(200,149,106,0.10)] dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+			<div className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-3xl border border-dotori-100 bg-white/90 p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
 				{step === 0 && (
 					<motion.div
 						key="step0"
 						{...fadeUp}
-						className="space-y-5"
+						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
@@ -344,7 +371,7 @@ export default function OnboardingPage() {
 							className="h-10 w-10"
 						/>
 						<div>
-							<h1 className="text-xl font-bold">
+							<h1 className="text-2xl font-bold tracking-tight">
 								아이 정보를 알려주세요
 							</h1>
 							<p className="mt-1 text-sm text-dotori-400">
@@ -429,10 +456,10 @@ export default function OnboardingPage() {
 										onClick={() => setGender(g)}
 										{...tap.button}
 										className={cn(
-											"flex-1 rounded-3xl py-3.5 text-base font-medium transition-all",
+											segmentedChoiceBase,
 											gender === g
-												? "bg-dotori-900 text-white dark:bg-dotori-50 dark:text-dotori-900"
-												: "bg-white text-dotori-600 shadow-sm dark:border dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-300 dark:shadow-none",
+												? "bg-dotori-900 text-white ring-2 ring-dotori-400 ring-offset-2 ring-offset-white dark:bg-dotori-50 dark:text-dotori-900 dark:ring-offset-dotori-950"
+												: "border border-dotori-200 bg-white text-dotori-700 hover:border-dotori-300 hover:bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900/40",
 										)}
 									>
 										{g}
@@ -447,7 +474,7 @@ export default function OnboardingPage() {
 					<motion.div
 						key="step1"
 						{...fadeUp}
-						className="space-y-5"
+						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
@@ -456,7 +483,7 @@ export default function OnboardingPage() {
 							className="h-10 w-10"
 						/>
 						<div>
-							<h1 className="text-xl font-bold">
+							<h1 className="text-2xl font-bold tracking-tight">
 								거주 지역을 알려주세요
 							</h1>
 							<p className="mt-1 text-sm text-dotori-400">
@@ -519,6 +546,24 @@ export default function OnboardingPage() {
 									</option>
 								))}
 							</select>
+							{sido && !isLoadingSigungu && sigunguList.length === 0 ? (
+								<div className="mt-3 rounded-3xl border border-dotori-100 bg-dotori-50 p-4 dark:border-dotori-800 dark:bg-dotori-900/40">
+									<p className="text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+										시/군/구 목록을 아직 불러오지 못했어요
+									</p>
+									<p className="mt-1 text-xs leading-relaxed text-dotori-500">
+										네트워크 상태를 확인한 뒤 다시 시도해볼까요?
+									</p>
+									<motion.button
+										type="button"
+										onClick={() => loadSigungu(sido)}
+										{...tap.button}
+										className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 bg-white text-sm font-semibold text-dotori-800 hover:bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:hover:bg-dotori-900/40"
+									>
+										다시 불러오기
+									</motion.button>
+								</div>
+							) : null}
 							<p className="mt-2 text-xs text-dotori-500">
 								현재 시/군/구: {sigungu || "미선택"}
 							</p>
@@ -552,7 +597,7 @@ export default function OnboardingPage() {
 					<motion.div
 						key="step2"
 						{...fadeUp}
-						className="space-y-5"
+						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
@@ -561,7 +606,7 @@ export default function OnboardingPage() {
 							className="h-10 w-10"
 						/>
 						<div>
-							<h1 className="text-xl font-bold">
+							<h1 className="text-2xl font-bold tracking-tight">
 								관심 유형을 선택하세요
 							</h1>
 							<p className="mt-1 text-sm text-dotori-400">
@@ -587,10 +632,10 @@ export default function OnboardingPage() {
 										}
 										{...tap.button}
 										className={cn(
-											"rounded-full px-5 py-3 text-base font-medium transition-all",
+											choicePillBase,
 											selectedTypes.includes(type)
-												? "bg-dotori-900 text-white dark:bg-dotori-50 dark:text-dotori-900"
-												: "bg-white text-dotori-600 shadow-sm dark:border dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-300 dark:shadow-none",
+												? "bg-dotori-900 text-white ring-2 ring-dotori-400 ring-offset-2 ring-offset-white dark:bg-dotori-50 dark:text-dotori-900 dark:ring-offset-dotori-950"
+												: "border border-dotori-200 bg-white text-dotori-700 hover:border-dotori-300 hover:bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900/40",
 										)}
 									>
 										{type}
@@ -616,10 +661,10 @@ export default function OnboardingPage() {
 										}
 										{...tap.button}
 										className={cn(
-											"rounded-full px-5 py-3 text-base font-medium transition-all",
+											choicePillBase,
 											selectedFeatures.includes(feat)
-												? "bg-dotori-900 text-white dark:bg-dotori-50 dark:text-dotori-900"
-												: "bg-white text-dotori-600 shadow-sm dark:border dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-300 dark:shadow-none",
+												? "bg-dotori-900 text-white ring-2 ring-dotori-400 ring-offset-2 ring-offset-white dark:bg-dotori-50 dark:text-dotori-900 dark:ring-offset-dotori-950"
+												: "border border-dotori-200 bg-white text-dotori-700 hover:border-dotori-300 hover:bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900/40",
 										)}
 									>
 										{feat}
@@ -631,11 +676,11 @@ export default function OnboardingPage() {
 				)}
 
 				{step === 3 && (
-					<motion.div key="step3" {...fadeUp} className="space-y-6 px-1 pt-2 text-center">
+					<motion.div key="step3" {...fadeUp} className="space-y-4 text-center">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.appIconWarm} alt="" className="mx-auto h-11 w-11" />
 						<div>
-							<h1 className="text-xl font-bold">빈자리 생기면 바로 알려드려요</h1>
+							<h1 className="text-2xl font-bold tracking-tight">빈자리 생기면 바로 알려드려요</h1>
 							<p className="mt-2 text-sm text-dotori-500">
 								관심 시설에 공석이 생기면 즉시 푸시 알림으로 놓치지 않게
 								도와드려요.
@@ -659,7 +704,7 @@ export default function OnboardingPage() {
 					<motion.div
 						key="step4"
 						{...fadeUp}
-						className="space-y-5"
+						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
@@ -668,7 +713,7 @@ export default function OnboardingPage() {
 							className="h-10 w-10"
 						/>
 						<div>
-							<h1 className="text-xl font-bold">
+							<h1 className="text-2xl font-bold tracking-tight">
 								토리챗 AI가 이동 전략을 짜줘요
 							</h1>
 							<p className="mt-1 text-sm text-dotori-400">
@@ -691,10 +736,55 @@ export default function OnboardingPage() {
 						</div>
 					</motion.div>
 				)}
+
+				{step === totalSteps - 1 && (
+					<motion.div key="done" {...fadeUp} className="space-y-4 text-center">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.appIconWarm} alt="" className="mx-auto h-12 w-12" />
+						<div>
+							<h1 className="text-2xl font-bold tracking-tight">준비 끝! 이제 시작해볼까요?</h1>
+							<p className="mt-2 text-sm text-dotori-500">
+								입력한 정보는 언제든 <span className="font-semibold text-dotori-700 dark:text-dotori-200">마이 &gt; 설정</span>에서 바꿀 수 있어요.
+							</p>
+						</div>
+
+						<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5 text-left dark:border-dotori-800 dark:bg-dotori-900/40">
+							<p className="text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+								요약
+							</p>
+							<dl className="mt-3 space-y-2 text-sm">
+								<div className="flex items-start justify-between gap-3">
+									<dt className="text-dotori-500">아이</dt>
+									<dd className="text-right font-semibold text-dotori-800 dark:text-dotori-100">
+										{childName ? childName : "미입력"}
+									</dd>
+								</div>
+								<div className="flex items-start justify-between gap-3">
+									<dt className="text-dotori-500">지역</dt>
+									<dd className="text-right font-semibold text-dotori-800 dark:text-dotori-100">
+										{sido ? `${sido}${sigungu ? ` / ${sigungu}` : ""}${dong ? ` / ${dong}` : ""}` : "미선택"}
+									</dd>
+								</div>
+								<div className="flex items-start justify-between gap-3">
+									<dt className="text-dotori-500">시설 유형</dt>
+									<dd className="text-right font-semibold text-dotori-800 dark:text-dotori-100">
+										{summarizeChoices(selectedTypes)}
+									</dd>
+								</div>
+								<div className="flex items-start justify-between gap-3">
+									<dt className="text-dotori-500">관심 특징</dt>
+									<dd className="text-right font-semibold text-dotori-800 dark:text-dotori-100">
+										{summarizeChoices(selectedFeatures)}
+									</dd>
+								</div>
+							</dl>
+						</div>
+					</motion.div>
+				)}
 			</div>
 
 			{/* ── 하단 CTA ── */}
-			<div className="pb-8 pt-5">
+			<div className="pt-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)]">
 				{saveError && (
 					<div className="mb-3 rounded-2xl bg-dotori-100 px-4 py-3 text-xs text-dotori-700 dark:bg-dotori-800 dark:text-dotori-200">
 						{saveError}
@@ -707,7 +797,7 @@ export default function OnboardingPage() {
 							onClick={next}
 							disabled={isSaving}
 							className={cn(
-									"w-full py-4.5 text-base font-semibold transition-all active:scale-[0.98]",
+								"w-full min-h-12 bg-dotori-900 text-base font-semibold text-white transition-all hover:bg-dotori-950 active:scale-[0.98] disabled:hover:bg-dotori-900",
 								isSaving && "opacity-60",
 							)}
 						>
@@ -719,7 +809,7 @@ export default function OnboardingPage() {
 							type="button"
 							onClick={skipStep}
 							disabled={isSaving}
-							className="mt-2 w-full text-xs text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50 dark:hover:text-dotori-300"
+							className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-xs font-semibold text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50 dark:hover:text-dotori-300"
 						>
 							무료로 먼저 체험하기
 						</button>
@@ -729,14 +819,14 @@ export default function OnboardingPage() {
 						<Button
 							color="dotori"
 							onClick={() => router.push("/")}
-							className="w-full py-4.5 text-base font-semibold"
+							className="w-full min-h-12 bg-dotori-900 text-base font-semibold text-white hover:bg-dotori-950 active:scale-[0.98]"
 						>
 							무료로 시작하기
 						</Button>
 						<button
 							type="button"
 							onClick={() => router.push("/my/settings")}
-							className="w-full rounded-full border border-forest-200 py-3.5 text-sm font-medium text-forest-700 transition-colors hover:border-forest-300 hover:text-forest-800"
+							className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-forest-200 text-sm font-semibold text-forest-700 transition-all hover:border-forest-300 hover:text-forest-800 active:scale-[0.98]"
 						>
 							프리미엄 보기
 						</button>
