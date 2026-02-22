@@ -1,5 +1,9 @@
 # 🔧 CODEX 마스터 지시서: 도토리(Dotori) AI 앱 리빌드
 
+> **⚠️ 아카이브 문서** — 이 문서는 초기 설계 명세입니다. 현재 코드와 상당한 괴리가 있습니다.
+> **현재 상태 참조:** `.serena/memories/project_overview.md`, `CLAUDE.md`, `docs/ops/MASTER_v1.md`
+> **주요 차이:** Next.js 15→16.1, 시설 12K→20,027, API 7→36개, 모델 6→14개, 컴포넌트 16→40+
+
 > **목적**: 기존 도토리 UX/UI를 전면 교체하고, Tailwind Plus 자산(Catalyst UI Kit + Pocket + Salient + Oatmeal)을 기반으로 2026년 에이전틱 AI 앱 표준에 맞는 새로운 프론트엔드를 구축한다.
 
 ---

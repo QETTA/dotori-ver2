@@ -1,5 +1,8 @@
 # 도토리 CODEX V3 — Part 1: 셋업·테마·타입·설정
 
+> **⚠️ 아카이브** — 초기 설계 문서. 현재 코드: Next.js 16.1, React 19, TS 5.8, motion/react 12.34
+> **현재 상태:** `docs/ops/MASTER_v1.md` 참조
+
 > Claude Code CLI(Ubuntu)용. 이 문서 + Part 2(컴포넌트) + Part 3(화면·패턴)을 순서대로 실행한다.
 
 ---

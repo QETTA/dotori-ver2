@@ -1,5 +1,7 @@
 # 도토리 CODEX V3 — Part 4: MongoDB·인증·API·시드 데이터
 
+> **⚠️ 아카이브** — 초기 설계. 현재: 14개 모델, 36개 API routes, 20,027 실데이터. `docs/ops/MASTER_v1.md` 참조
+
 > Part 1~3(프론트엔드)에 이어, 백엔드 전체를 다룬다.
 > **Mongoose + NextAuth.js v5 + 카카오 로그인 + 시드 500개**
 

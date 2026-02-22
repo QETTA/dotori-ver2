@@ -1,5 +1,8 @@
 # 도토리 CODEX V3 — Part 2: 컴포넌트 전체 설계
 
+> **⚠️ 아카이브** — 초기 설계. 현재 40+ 커스텀 컴포넌트 (ActionCard/FilterChip/ProgressStepper 미구현)
+> **현재 상태:** `docs/ops/MASTER_v1.md` 참조
+
 > Catalyst 27개 = 그대로 복사 (import 경로만 수정).
 > 아래 16개 = 도토리 전용, 직접 제작.
 

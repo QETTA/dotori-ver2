@@ -1,128 +1,68 @@
 # 프리미엄 시설 기능 스펙 — Claude Code 지시서
 > 최종 업데이트: 2026-02-22
-> 용도: Claude Code에 입력하여 6개 태스크 실행
+> **Status: ✅ 전체 구현 완료 (R9에서 구현, R13에서 보안 강화)**
 
 ---
 
-## 현황
+## Overview
 
-- 이동 수요 타겟 전환 완료 (2026-02-22)
-
-## 개요
-
-프리미엄은 B2B(시설 대상) 유료 서비스. 부모에겐 "프리미엄" 노출 금지 → "인증 시설", "상세 정보 제공 시설"로 표현.
-
-**가격:** 월 33,000원(VAT포함) / 6개월 27,500원 / 12개월 22,000원
-**타겟:** 수도권 민간/가정 중 status:"available" 시설
-**전략:** 5곳 무료 체험 → 유료 전환
-
-## 우선순위
-
-1. 시설 B2B 영업
-2. 부모 사용자 확보
+- Premium은 B2B 유료 서비스 (시설 대상, 부모 아님)
+- 부모에게는 "인증 시설" / "상세 정보 시설"로 표시 — "프리미엄" 노출 금지
+- 가격: 33,000원/월(VAT 포함) / 6개월 27,500원 / 12개월 22,000원
+- 타겟: 수도권 민간/가정 시설 중 status: "available"
+- 전략: 5곳 무료 체험 → 유료 전환
 
 ---
 
-## 태스크 1: Facility 모델 premium 필드 추가
+## 6 Tasks — 구현 상태
 
-**파일:** dotori-app/src/models/Facility.ts
+### Task 1 ✅ — Facility 모델 premium 서브스키마
+**파일:** `src/models/Facility.ts`
+- `IFacilityPremium` 인터페이스 + `PremiumSchema` 서브도큐먼트
+- 필드: isActive, plan("basic"|"pro"), startDate, endDate, features[], sortBoost, contactPerson/Phone/Email, verifiedAt
+- 추가 필드: `isPremium: boolean`, `premiumExpiresAt?: Date`, `premiumProfile` (directorMessage, photos, programs, highlights, contactNote)
 
-IFacility 인터페이스에 추가:
-```typescript
-premium?: {
-  isActive: boolean;
-  plan: "basic" | "pro";
-  startDate: Date;
-  endDate: Date;
-  features: string[];
-  sortBoost: number;       // default: 0
-  verifiedAt?: Date;
-  contactPerson?: string;
-  contactPhone?: string;
-  contactEmail?: string;
-};
-```
+### Task 2 ✅ — 프론트엔드 타입 확장
+**파일:** `src/types/dotori.ts`
+- `FacilityPremium` 인터페이스
+- `FacilityPremiumProfile` 인터페이스
+- `Facility` 인터페이스에 `premium?`, `premiumProfile?` 추가
 
-FacilitySchema에 premium 서브스키마 추가. 기존 필드 변경 금지. optional 필드.
+### Task 3 ✅ — DTO 변환
+**파일:** `src/lib/dto.ts`
+- premium.isActive === true일 때만 프론트에 전달
 
----
+### Task 4 ✅ — 시설 목록 정렬 (sortBoost)
+**파일:** `src/app/api/facilities/route.ts`
+- `getFacilityPremiumSortScore()` 프리미엄 시설 상단 노출
 
-## 태스크 2: 프론트엔드 타입 확장
+### Task 5 ✅ — 시설 상세 UI ("인증 시설" 배지)
+**파일:** `src/app/(app)/facility/[id]/FacilityDetailClient.tsx`
+- `Badge color="forest"` "인증 시설" 표시
+- premiumProfile 렌더링
 
-**파일:** dotori-app/src/types/dotori.ts
-
-```typescript
-export interface FacilityPremium {
-  isActive: boolean;
-  plan: "basic" | "pro";
-  features: string[];
-  sortBoost: number;
-  verifiedAt?: string;
-}
-```
-
-Facility 인터페이스에 추가: premium?: FacilityPremium;
+### Task 6 ✅ — Admin API
+**파일:** `src/app/api/admin/facility/[id]/premium/route.ts`
+- PUT 엔드포인트
+- R13: 세션 인증(admin role) OR Bearer CRON_SECRET 복합 인증
 
 ---
 
-## 태스크 3: DTO 변환 함수 수정
+## Checklist ✅
 
-**파일:** dotori-app/src/lib/dto.ts
-
-toFacilityDTO 함수에서 premium 필드 매핑 추가.
-premium.isActive가 true인 경우에만 프론트에 전달.
-false이거나 없으면 DTO에 premium 포함하지 않음.
-
----
-
-## 태스크 4: 시설 목록 API 정렬 수정
-
-**파일:** dotori-app/src/lib/services/facility.service.ts (또는 api/facilities/route.ts)
-
-검색 결과 정렬 시 premium.isActive && premium.sortBoost 반영.
-프리미엄 시설이 동일 조건에서 상단 노출되도록 정렬 로직 수정.
+- [x] `npm run build` 0 errors
+- [x] 기존 테스트 통과 (55/55)
+- [x] 20,027개 시설 하위 호환
+- [x] 프론트엔드에 "premium" 문자열 미노출
+- [x] Admin API 보안 강화 (R13)
 
 ---
 
-## 태스크 5: 시설 상세 페이지 UI
+## Phase 0 운영 플로우
 
-**파일:** dotori-app/src/app/(app)/facility/[id]/ 내 클라이언트 컴포넌트
-
-premium.isActive인 시설에 "인증 시설" 배지 표시.
-도토리 브랜드 색상(forest) 사용.
-"프리미엄" 단어 사용 절대 금지.
-
----
-
-## 태스크 6: Admin API 신규 생성
-
-**파일:** dotori-app/src/app/api/admin/facility/[id]/premium/route.ts (신규)
-
-PUT 엔드포인트 — facilityId로 premium 필드 업데이트.
-인증: Authorization 헤더에 Bearer $CRON_SECRET 검증.
-
-사용 예시:
 ```bash
-curl -X PUT https://dotori.app/api/admin/facility/{id}/premium \
+curl -X PUT "https://app-url/api/admin/facility/{facilityId}/premium" \
   -H "Authorization: Bearer $CRON_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{"isActive":true,"plan":"basic","sortBoost":10}'
+  -d '{"isActive":true,"plan":"basic","sortBoost":10,"features":["verified_badge","extended_profile"]}'
 ```
-
----
-
-## 실행 전 체크리스트
-
-- [ ] npm run build 에러 0건
-- [ ] 기존 테스트 통과
-- [ ] 기존 20,027개 시설과 호환 (optional 필드)
-- [ ] "프리미엄" 문자열이 프론트 코드에 없는지 확인
-
----
-
-## Phase 0 수동 운영 플로우
-
-1. 수도권 민간/가정 시설 중 status:"available" 필터링
-2. 시설에 직접 연락 → 무료 체험 제안
-3. curl로 Admin API 호출 → premium 활성화
-4. 1개월 후 효과 리포트 → 유료 전환 제안
