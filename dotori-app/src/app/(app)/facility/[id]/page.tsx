@@ -12,6 +12,24 @@ const facilityNotFoundDescription = "요청하신 어린이집 정보를 찾을 
 const facilityNotFoundErrorMessage = "요청하신 어린이집 정보를 찾을 수 없어요.";
 const facilityLoadErrorMessage = "시설 정보를 불러오지 못했어요";
 
+function normalizeFacilityId(value: unknown): string | null {
+	if (typeof value !== "string") {
+		return null;
+	}
+
+	const trimmed = value.trim();
+	return trimmed.length > 0 ? trimmed : null;
+}
+
+async function resolveFacilityId(params: PageProps["params"]): Promise<string | null> {
+	try {
+		const resolvedParams = await params;
+		return normalizeFacilityId((resolvedParams as { id?: unknown })?.id);
+	} catch {
+		return null;
+	}
+}
+
 function toSafeCount(value: unknown): number {
 	return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
 }
@@ -41,10 +59,40 @@ function toSafeFacilityDTO(
 	};
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-	const { id: facilityId } = await params;
+function isRenderableFacility(
+	facility: ReturnType<typeof toSafeFacilityDTO> | null,
+): facility is ReturnType<typeof toSafeFacilityDTO> {
+	if (!facility) {
+		return false;
+	}
 
-	if (!mongoose.Types.ObjectId.isValid(facilityId)) {
+	if (typeof facility.id !== "string" || facility.id.trim().length === 0) {
+		return false;
+	}
+
+	if (typeof facility.name !== "string" || facility.name.trim().length === 0) {
+		return false;
+	}
+
+	if (!Array.isArray(facility.features)) {
+		return false;
+	}
+
+	if (typeof facility.lat !== "number" || !Number.isFinite(facility.lat)) {
+		return false;
+	}
+
+	if (typeof facility.lng !== "number" || !Number.isFinite(facility.lng)) {
+		return false;
+	}
+
+	return true;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+	const facilityId = await resolveFacilityId(params);
+
+	if (!facilityId || !mongoose.Types.ObjectId.isValid(facilityId)) {
 		return {
 			title: facilityNotFoundTitle,
 			description: facilityNotFoundDescription,
@@ -55,17 +103,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 		await dbConnect();
 		const facility = await Facility.findById(facilityId).select("name").lean();
 
-		if (!facility || typeof (facility as { name?: string }).name !== "string") {
+		const facilityName = (facility as { name?: unknown } | null)?.name;
+		if (typeof facilityName !== "string" || facilityName.trim().length === 0) {
 			return {
 				title: facilityNotFoundTitle,
 				description: facilityNotFoundDescription,
 			};
 		}
 
-		const facilityName = facility.name;
 		return {
-			title: `${facilityName} | 도토리`,
-			description: `${facilityName}의 상세 정보를 확인하세요.`,
+			title: `${facilityName.trim()} | 도토리`,
+			description: `${facilityName.trim()}의 상세 정보를 확인하세요.`,
 		};
 	} catch {
 		return {
@@ -76,10 +124,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function FacilityDetailPage({ params }: PageProps) {
-	const resolvedParams = await params;
-	const facilityId = resolvedParams.id;
+	const facilityId = await resolveFacilityId(params);
 
-	if (!mongoose.Types.ObjectId.isValid(facilityId)) {
+	if (!facilityId || !mongoose.Types.ObjectId.isValid(facilityId)) {
 		return <FacilityDetailClient loadError={facilityNotFoundErrorMessage} />;
 	}
 
@@ -106,7 +153,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		facility = null;
 	}
 
-	if (!facility) {
+	if (!isRenderableFacility(facility)) {
 		return <FacilityDetailClient loadError={facilityLoadErrorMessage} />;
 	}
 

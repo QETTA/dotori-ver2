@@ -15,26 +15,29 @@ function toValidFacilityId(value: unknown): string | null {
   return OBJECT_ID_PATTERN.test(trimmed) ? trimmed : null
 }
 
-async function getFacilityId(): Promise<string | null> {
-  try {
-    const res = await fetch(`${BASE}/api/facilities?limit=1`)
-    if (!res.ok) {
-      return null
-    }
-    const json = await res.json()
-    const firstFacility = Array.isArray(json?.data) ? json.data[0] : null
-    if (!firstFacility || typeof firstFacility !== 'object') {
-      return null
-    }
-
-    const idFromDto = toValidFacilityId((firstFacility as { id?: unknown }).id)
-    if (idFromDto) return idFromDto
-
-    const idFromMongo = toValidFacilityId((firstFacility as { _id?: unknown })._id)
-    return idFromMongo
-  } catch {
-    return null
+function normalizePathname(pathname: string): string {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1)
   }
+
+  return pathname
+}
+
+function normalizeComparableUrl(url: string): string {
+  const trimmed = url.trim()
+  if (trimmed.length === 0) return ''
+
+  try {
+    const parsed = new URL(trimmed)
+    return `${parsed.origin}${normalizePathname(parsed.pathname)}${parsed.search}`
+  } catch {
+    return trimmed
+  }
+}
+
+function isSameUrl(left: string | undefined, right: string | undefined): boolean {
+  if (!left || !right) return false
+  return normalizeComparableUrl(left) === normalizeComparableUrl(right)
 }
 
 async function canInspectFacilityRoute(facilityId: string): Promise<boolean> {
@@ -46,10 +49,49 @@ async function canInspectFacilityRoute(facilityId: string): Promise<boolean> {
   }
 }
 
+async function getFacilityId(): Promise<string | null> {
+  try {
+    const res = await fetch(`${BASE}/api/facilities?limit=5`)
+    if (!res.ok) {
+      return null
+    }
+    const json = await res.json()
+    const facilities = Array.isArray(json?.data) ? json.data : []
+    const checkedIds = new Set<string>()
+
+    for (const facility of facilities) {
+      if (!facility || typeof facility !== 'object') continue
+
+      const candidateId =
+        toValidFacilityId((facility as { id?: unknown }).id) ??
+        toValidFacilityId((facility as { _id?: unknown })._id)
+
+      if (!candidateId || checkedIds.has(candidateId)) continue
+      checkedIds.add(candidateId)
+
+      if (await canInspectFacilityRoute(candidateId)) {
+        return candidateId
+      }
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 async function canInspectRoute(route: string): Promise<boolean> {
   try {
-    const res = await fetch(`${BASE}${route}`)
-    return res.status < 400
+    const targetUrl = new URL(route, BASE)
+    const res = await fetch(targetUrl)
+    if (res.status >= 400) {
+      return false
+    }
+
+    const finalUrl = new URL(res.url || targetUrl.href, BASE)
+    return (
+      normalizePathname(finalUrl.pathname) === normalizePathname(targetUrl.pathname)
+    )
   } catch {
     return false
   }
@@ -65,12 +107,18 @@ function normalizeErrorUrl(url: string | undefined): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined
 }
 
-function isNoisyError(error: CapturedError): boolean {
+type NoiseFilterContext = {
+  routeUrl: string
+  status: number
+}
+
+function isNoisyError(error: CapturedError, context: NoiseFilterContext): boolean {
   const message = error.message.toLowerCase()
   const locationUrl = error.locationUrl?.toLowerCase() ?? ''
   const hasKakaoSdkUrl =
     message.includes('dapi.kakao.com/v2/maps/sdk.js') ||
     locationUrl.includes('dapi.kakao.com/v2/maps/sdk.js')
+  const isFailedToLoadResource = message.startsWith('failed to load resource:')
 
   if (message.includes('download the react devtools')) {
     return true
@@ -78,8 +126,17 @@ function isNoisyError(error: CapturedError): boolean {
 
   if (
     error.source === 'console' &&
-    message.includes('failed to load resource') &&
-    (message.includes('favicon.ico') || locationUrl.includes('/favicon.ico'))
+    context.status === 404 &&
+    isFailedToLoadResource &&
+    isSameUrl(error.locationUrl, context.routeUrl)
+  ) {
+    return true
+  }
+
+  if (
+    error.source === 'console' &&
+    isFailedToLoadResource &&
+    locationUrl.includes('/favicon.ico')
   ) {
     return true
   }
@@ -118,7 +175,7 @@ async function main() {
     '/login',
   ]
 
-  if (facilityId && (await canInspectFacilityRoute(facilityId))) {
+  if (facilityId) {
     const facilityRoute = `/facility/${facilityId}`
     if (await canInspectRoute(facilityRoute)) {
       routes.push(facilityRoute)
@@ -127,12 +184,10 @@ async function main() {
         `ℹ️ ${facilityRoute} 응답 상태를 확인할 수 없어 /facility/:id 검사를 건너뜁니다.`
       )
     }
-  } else if (facilityId) {
-    console.log(
-      'ℹ️ 시설 상세 API 확인에 실패해 /facility/:id 검사를 건너뜁니다.'
-    )
   } else {
-    console.log('ℹ️ 유효한 시설 ID를 찾지 못해 /facility/:id 검사를 건너뜁니다.')
+    console.log(
+      'ℹ️ 검사 가능한 시설 ID를 찾지 못해 /facility/:id 검사를 건너뜁니다.'
+    )
   }
   const browser = await chromium.launch()
   const context = await browser.newContext({
@@ -144,6 +199,7 @@ async function main() {
   let totalErrors = 0
 
   for (const route of routes) {
+    const routeUrl = new URL(route, BASE).toString()
     const page = await context.newPage()
     const errors: CapturedError[] = []
 
@@ -177,7 +233,7 @@ async function main() {
       const actionableErrors = Array.from(
         new Map(
           errors
-            .filter((error) => !isNoisyError(error))
+            .filter((error) => !isNoisyError(error, { routeUrl, status }))
             .map((error) => [
               `${error.source}:${error.locationUrl ?? ''}:${error.message}`,
               error,
