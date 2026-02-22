@@ -1,24 +1,15 @@
 'use client'
 
 import { cn } from "@/lib/utils"
-import { motion } from "motion/react";
-
-const shimmerAnimation = {
-	animate: { x: ["-100%", "100%"] },
-	transition: { duration: 1.4, repeat: Infinity, ease: "linear" as const },
-}
 
 const ShimmerBlock = ({ className }: { className: string }) => (
-	<motion.div
-		className={cn("relative overflow-hidden rounded-xl bg-dotori-100 dark:bg-dotori-800", className)}
+	<div
+		className={cn(
+			"relative overflow-hidden rounded-xl bg-dotori-100/80 motion-safe:animate-pulse dark:bg-dotori-800/60",
+			className,
+		)}
 		aria-hidden="true"
-	>
-		<motion.div
-			className="absolute inset-0 w-full bg-gradient-to-r from-dotori-50 via-dotori-100 to-dotori-50 dark:from-dotori-900 dark:via-dotori-800 dark:to-dotori-900"
-			initial={{ x: "-100%" }}
-			{...shimmerAnimation}
-		/>
-	</motion.div>
+	/>
 )
 
 export function Skeleton({

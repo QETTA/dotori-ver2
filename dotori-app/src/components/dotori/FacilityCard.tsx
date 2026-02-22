@@ -73,14 +73,14 @@ export const FacilityCard = memo(function FacilityCard({
 									{facility.name}
 								</p>
 							</div>
-							<p className="mt-1 truncate text-sm text-dotori-600 dark:text-dotori-300">
+							<p className="mt-1 truncate text-sm text-dotori-500 dark:text-dotori-300">
 								{facility.distance ? `${facility.distance} · ` : ""}
-								{facility.type}
+								{facility.address || facility.type}
 							</p>
 						</div>
 
 						<div className="shrink-0 text-right">
-							<span className={cn("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold", status.pill)}>
+							<span className={cn("inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold", status.pill)}>
 								{facility.status === "available"
 									? status.label
 									: facility.status === "waiting"
@@ -88,7 +88,7 @@ export const FacilityCard = memo(function FacilityCard({
 										: status.label}
 							</span>
 							{facility.status === "available" ? (
-								<p className="mt-1 text-xs font-medium text-forest-700 dark:text-forest-200">
+								<p className="mt-1 text-sm font-semibold text-forest-700 dark:text-forest-200">
 									자리 {availableSeats}석
 								</p>
 							) : null}

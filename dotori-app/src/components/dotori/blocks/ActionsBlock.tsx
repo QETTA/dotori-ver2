@@ -12,13 +12,14 @@ export const ActionsBlock = memo(function ActionsBlock({
 	onAction?: (actionId: string) => void;
 }) {
 	return (
-		<div className="mt-2 flex flex-wrap gap-2">
+		<div className="mt-2 flex flex-col gap-2">
 			{block.buttons.map((btn) =>
 				btn.variant === "outline" ? (
 					<Button
 						key={btn.id}
 						plain={true}
 						onClick={() => onAction?.(btn.id)}
+						className="min-h-11 w-full"
 					>
 						{btn.label}
 					</Button>
@@ -27,6 +28,7 @@ export const ActionsBlock = memo(function ActionsBlock({
 						key={btn.id}
 						color="dotori"
 						onClick={() => onAction?.(btn.id)}
+						className="min-h-11 w-full"
 					>
 						{btn.label}
 					</Button>

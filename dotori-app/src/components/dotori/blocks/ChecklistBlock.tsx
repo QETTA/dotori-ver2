@@ -114,13 +114,11 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 	return (
 		<motion.div
 			{...fadeUp}
-			className="glass-card overflow-hidden rounded-2xl border border-dotori-100 dark:border-dotori-800"
+			className="mt-2 overflow-hidden rounded-2xl bg-dotori-50/80 ring-1 ring-dotori-100/70 dark:bg-dotori-900/60 dark:ring-dotori-800/60"
 		>
 			{/* Header */}
-			<div className="border-b border-dotori-100 px-4 py-3 dark:border-dotori-800">
-					<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
-						{block.title}
-					</h3>
+			<div className="border-b border-dotori-100/70 px-4 py-3 dark:border-dotori-800/60">
+				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{block.title}</h3>
 				<div className="mt-2 flex items-center gap-3">
 					<div className="h-1.5 flex-1 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 						<div
@@ -128,66 +126,76 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
-						<span className="text-xs font-medium text-dotori-500">
-							{checkedCount}/{totalItems}
-						</span>
+					<span className="text-xs font-medium text-dotori-500 dark:text-dotori-300">
+						{checkedCount}/{totalItems}
+					</span>
 				</div>
 			</div>
 
 			{/* Categories */}
-				<div className="divide-y divide-dotori-100 dark:divide-dotori-800">
-					{block.categories.map((category) => (
-					<div key={category.title} className="px-4 py-3">
+			<div className="divide-y divide-dotori-100/70 dark:divide-dotori-800/60">
+				{totalItems === 0 ? (
+					<div className="px-4 py-6 text-center">
+						<p className="text-sm font-medium text-dotori-700 dark:text-dotori-200">
+							체크할 항목이 아직 없어요.
+						</p>
+						<p className="mt-1 text-xs text-dotori-500 dark:text-dotori-300">
+							필요한 항목이 생기면 여기에 정리해드릴게요.
+						</p>
+					</div>
+				) : (
+					block.categories.map((category) => (
+						<div key={category.title} className="px-4 py-3">
 							<h4 className="mb-2 text-sm font-semibold text-dotori-600 dark:text-dotori-300">
 								{category.title}
 							</h4>
-						<motion.ul className="space-y-1" {...stagger.container}>
-							{category.items.map((item) => {
-								const isChecked = checkedMap[item.id] ?? false;
-								const detailId = `${item.id}-detail`;
-								return (
-									<motion.li key={item.id} {...stagger.item}>
-										<motion.button
-											type="button"
-											role="checkbox"
-											aria-checked={isChecked}
-											aria-label={`${item.text} ${isChecked ? "완료" : "미완료"}`}
-											aria-describedby={item.detail ? detailId : undefined}
-											className="flex min-h-[44px] w-full items-start gap-3 rounded-xl px-2 py-2 text-left transition-colors active:bg-dotori-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:active:bg-dotori-900 dark:focus-visible:ring-dotori-500/40 dark:focus-visible:ring-offset-dotori-950"
-											onClick={() => toggleItem(item.id)}
-											{...tap.button}
-										>
-											<span
-												className={cn(
-													"mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
-													isChecked
-														? "border-forest-500 bg-forest-500"
-														: "border-dotori-200 bg-white dark:border-dotori-700 dark:bg-dotori-950",
-												)}
+							<motion.ul className="space-y-1" {...stagger.container}>
+								{category.items.map((item) => {
+									const isChecked = checkedMap[item.id] ?? false;
+									const detailId = `${item.id}-detail`;
+									return (
+										<motion.li key={item.id} {...stagger.item}>
+											<motion.button
+												type="button"
+												role="checkbox"
+												aria-checked={isChecked}
+												aria-label={`${item.text} ${isChecked ? "완료" : "미완료"}`}
+												aria-describedby={item.detail ? detailId : undefined}
+												className="flex min-h-11 w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-dotori-100/60 active:bg-dotori-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:hover:bg-dotori-950/30 dark:active:bg-dotori-950/40 dark:focus-visible:ring-dotori-500/40 dark:focus-visible:ring-offset-dotori-950"
+												onClick={() => toggleItem(item.id)}
+												{...tap.button}
 											>
-												{isChecked && (
-													<svg
-														className="h-3 w-3 text-white"
-														fill="none"
-														viewBox="0 0 24 24"
-														stroke="currentColor"
-														strokeWidth={3}
-														aria-hidden="true"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															d="M5 13l4 4L19 7"
-														/>
-													</svg>
-												)}
-											</span>
-											<div className="min-w-0 flex-1">
+												<span
+													className={cn(
+														"mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
+														isChecked
+															? "border-forest-500 bg-forest-500"
+															: "border-dotori-200 bg-white dark:border-dotori-700 dark:bg-dotori-950",
+													)}
+												>
+													{isChecked && (
+														<svg
+															className="h-3 w-3 text-white"
+															fill="none"
+															viewBox="0 0 24 24"
+															stroke="currentColor"
+															strokeWidth={3}
+															aria-hidden="true"
+														>
+															<path
+																strokeLinecap="round"
+																strokeLinejoin="round"
+																d="M5 13l4 4L19 7"
+															/>
+														</svg>
+													)}
+												</span>
+												<div className="min-w-0 flex-1">
 													<span
 														className={cn(
 															"text-sm leading-snug",
 															isChecked
-																? "text-dotori-500 line-through"
+																? "text-dotori-500 line-through dark:text-dotori-400"
 																: "text-dotori-900 dark:text-dotori-50",
 														)}
 													>
@@ -196,19 +204,20 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 													{item.detail && (
 														<p
 															id={detailId}
-															className="mt-0.5 text-xs leading-relaxed text-dotori-500"
+															className="mt-0.5 text-xs leading-relaxed text-dotori-500 dark:text-dotori-300"
 														>
 															{item.detail}
 														</p>
 													)}
-											</div>
-										</motion.button>
-									</motion.li>
-								);
-							})}
-						</motion.ul>
-					</div>
-				))}
+												</div>
+											</motion.button>
+										</motion.li>
+									);
+								})}
+							</motion.ul>
+						</div>
+					))
+				)}
 			</div>
 		</motion.div>
 	);

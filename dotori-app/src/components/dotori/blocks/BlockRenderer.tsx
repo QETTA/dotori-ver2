@@ -29,7 +29,7 @@ export const BlockRenderer = memo(function BlockRenderer({
 	onAction?: (actionId: string) => void;
 }) {
 	return (
-		<div className="space-y-1">
+		<div className="space-y-4">
 			{blocks.map((block, i) => {
 				const key = `${block.type}-${i}`;
 				switch (block.type) {

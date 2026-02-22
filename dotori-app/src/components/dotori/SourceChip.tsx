@@ -45,7 +45,7 @@ export const SourceChip = memo(function SourceChip({
 			<span
 				className={cn(
 					"h-1.5 w-1.5 rounded-full",
-					freshness === "realtime" && "animate-pulse bg-forest-500",
+					freshness === "realtime" && "motion-safe:animate-pulse bg-forest-500",
 					freshness === "recent" && "bg-amber-500 dark:bg-amber-400",
 					freshness === "cached" && "bg-dotori-300 dark:bg-dotori-600",
 				)}
