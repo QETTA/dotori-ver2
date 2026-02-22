@@ -41,12 +41,12 @@ export function CommunityEmptyState({ message }: { message: string }) {
 			</div>
 			<h3 className="text-base font-semibold text-dotori-900">이웃 글이 아직 없어요</h3>
 			<p className="mt-2 text-sm text-dotori-600">{message}</p>
-			<Link
-				href="/community/write"
-				className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-[15px] font-semibold text-white transition-all active:scale-[0.98]"
-			>
-				첫 번째 이웃 이야기를 올려보세요
-			</Link>
+				<Link
+					href="/community/write"
+					className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-base font-semibold text-white transition-all active:scale-[0.98]"
+				>
+					첫 번째 이웃 이야기를 올려보세요
+				</Link>
 		</div>
 	);
 }

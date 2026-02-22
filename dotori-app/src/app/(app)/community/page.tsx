@@ -327,9 +327,9 @@ export default function CommunityPage() {
 					<div className="flex items-center gap-2">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-5 opacity-90" />
-						<Badge color="dotori" className="text-[10px] font-semibold">
-							이웃
-						</Badge>
+							<Badge color="dotori" className="text-xs font-semibold">
+								이웃
+							</Badge>
 					</div>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
@@ -353,12 +353,12 @@ export default function CommunityPage() {
 									aria-selected={isActive}
 									onClick={() => setActiveTab(tab)}
 									className={cn(
-										"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-[14px] font-semibold transition-all",
-										isActive
-											? "bg-dotori-900 text-white shadow-md shadow-dotori-200"
-											: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70",
-									)}
-								>
+											"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-sm font-semibold transition-all",
+											isActive
+												? "bg-dotori-900 text-white shadow-md shadow-dotori-200"
+												: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70",
+										)}
+									>
 									{tab}
 								</Button>
 							);
@@ -369,10 +369,10 @@ export default function CommunityPage() {
 
 			<div className="px-4 pt-4">
 				{isTransitionMonth ? (
-					<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-[14px] text-forest-700">
-						<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
-						나눠보세요.
-					</div>
+						<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-sm text-forest-700">
+							<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
+							나눠보세요.
+						</div>
 				) : null}
 
 				{userId &&
@@ -396,22 +396,22 @@ export default function CommunityPage() {
 								)}
 							</div>
 							<div className="min-w-0 flex-1">
-								<p className="text-[15px] font-semibold text-forest-800">
-									{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
-								</p>
-								<p className="text-[13px] text-forest-600">
-									{isVerifying
-										? "GPS로 현재 위치를 확인하고 있어요"
-										: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
-								</p>
+									<p className="text-base font-semibold text-forest-800">
+										{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
+									</p>
+									<p className="text-sm text-forest-600">
+										{isVerifying
+											? "GPS로 현재 위치를 확인하고 있어요"
+											: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
+									</p>
 							</div>
 							{!isVerifying && (
-								<Badge color="forest" className="shrink-0 text-[11px] font-medium">
-									인증
-								</Badge>
-							)}
-						</Button>
-					)}
+									<Badge color="forest" className="shrink-0 text-xs font-medium">
+										인증
+									</Badge>
+								)}
+							</Button>
+						)}
 
 				{isLoading ? (
 					<Skeleton variant="community-post" count={3} />
@@ -457,62 +457,62 @@ export default function CommunityPage() {
 													<UserCircleIcon className={cn("h-5 w-5", anonStyle.icon)} />
 												</div>
 												<div className="min-w-0 flex-1">
-													<p className="text-[15px] font-semibold text-dotori-900">
-														익명 부모
-													</p>
-													<div className="mt-1 flex flex-wrap items-center gap-1.5">
-														{post.author.verified ? (
-															<Badge color="forest" className="text-[11px] font-medium">
-																인증
-															</Badge>
-														) : null}
-														{post.category && categoryLabel[post.category] ? (
-															<span
-																className={cn(
-																	"rounded-full px-2 py-0.5 text-[11px] font-medium",
-																	categoryStyle[post.category],
-																)}
-															>
-																{categoryLabel[post.category]}
-															</span>
+														<p className="text-base font-semibold text-dotori-900">
+															익명 부모
+														</p>
+														<div className="mt-1 flex flex-wrap items-center gap-1.5">
+															{post.author.verified ? (
+																<Badge color="forest" className="text-xs font-medium">
+																	인증
+																</Badge>
+															) : null}
+															{post.category && categoryLabel[post.category] ? (
+																<span
+																	className={cn(
+																		"rounded-full px-2 py-0.5 text-xs font-medium",
+																		categoryStyle[post.category],
+																	)}
+																>
+																	{categoryLabel[post.category]}
+																</span>
 														) : null}
 													</div>
 												</div>
 											</div>
-											<p
-												className="shrink-0 text-[13px] text-dotori-500"
-												suppressHydrationWarning
-											>
-												{formatRelativeTime(post.createdAt)}
-											</p>
-										</div>
-
-										{postHot ? (
-											<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-[11px] font-semibold text-forest-700">
-												<FireIcon className="h-4 w-4" />
-												인기
+												<p
+													className="shrink-0 text-sm text-dotori-500"
+													suppressHydrationWarning
+												>
+													{formatRelativeTime(post.createdAt)}
+												</p>
 											</div>
-										) : null}
 
-										<Link href={`/community/${post.id}`} className="block">
-											<p className="min-h-[56px] text-[15px] leading-relaxed text-dotori-800">
-												{post.content}
-											</p>
-										</Link>
+											{postHot ? (
+												<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-xs font-semibold text-forest-700">
+													<FireIcon className="h-4 w-4" />
+													인기
+												</div>
+											) : null}
+
+											<Link href={`/community/${post.id}`} className="block">
+												<p className="min-h-[56px] text-base leading-relaxed text-dotori-800">
+													{post.content}
+												</p>
+											</Link>
 
 										{post.facilityTags && post.facilityTags.length > 0 ? (
 											<div className="mt-2.5 flex flex-wrap gap-2">
 												{post.facilityTags.map((tag) => (
 													<Link
 														key={tag}
-														href={`/explore?q=${encodeURIComponent(tag)}`}
-														className={cn(
-															"rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors active:scale-[0.97]",
-															tagStyle(tag),
-														)}
-													>
-														{tag}
-													</Link>
+															href={`/explore?q=${encodeURIComponent(tag)}`}
+															className={cn(
+																"rounded-full px-3 py-1.5 text-sm font-medium transition-colors active:scale-[0.97]",
+																tagStyle(tag),
+															)}
+														>
+															{tag}
+														</Link>
 												))}
 											</div>
 										) : null}
@@ -527,34 +527,34 @@ export default function CommunityPage() {
 															...prev,
 															[post.id]: !prev[post.id],
 														}))
-													}
-													className={cn(
-														"flex min-h-[56px] items-center gap-1.5 py-2 text-[13px] font-medium transition-colors",
-														showAiSummary[post.id]
-															? "text-dotori-700"
-															: "text-dotori-500",
-													)}
-												>
+														}
+														className={cn(
+															"flex min-h-[56px] items-center gap-1.5 py-2 text-sm font-medium transition-colors",
+															showAiSummary[post.id]
+																? "text-dotori-700"
+																: "text-dotori-500",
+														)}
+													>
 													<SparklesIcon className="h-4 w-4" />
 													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
 												</Button>
-												{showAiSummary[post.id] ? (
-													<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in duration-200">
-														<p className="text-[13px] leading-relaxed text-dotori-600">
-															{post.aiSummary}
-														</p>
-													</div>
-												) : null}
-											</div>
+													{showAiSummary[post.id] ? (
+														<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in duration-200">
+															<p className="text-sm leading-relaxed text-dotori-600">
+																{post.aiSummary}
+															</p>
+														</div>
+													) : null}
+												</div>
 										) : null}
 									</div>
 
-									<div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
-										<Button
-											plain={true}
-											type="button"
-											onClick={() => toggleLike(post.id)}
-											disabled={likingPosts.has(post.id)}
+										<div className="mt-3 grid grid-cols-3 gap-2 text-sm">
+											<Button
+												plain={true}
+												type="button"
+												onClick={() => toggleLike(post.id)}
+												disabled={likingPosts.has(post.id)}
 											aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
 											className={cn(
 												"flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl transition-colors active:scale-[0.97]",
