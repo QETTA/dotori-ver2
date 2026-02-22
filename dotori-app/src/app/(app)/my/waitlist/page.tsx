@@ -161,26 +161,26 @@ export default function WaitlistPage() {
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</Link>
-				<h1 className="text-base font-bold">대기 신청 현황</h1>
-				{waitlists.length > 0 && (
-					<span className="ml-auto text-[14px] text-dotori-500">
-						{waitlists.length}건
-					</span>
-				)}
-			</header>
+					<h1 className="text-base font-bold">대기 신청 현황</h1>
+					{waitlists.length > 0 && (
+						<span className="ml-auto text-sm text-dotori-500">
+							{waitlists.length}건
+						</span>
+					)}
+				</header>
 
 			{!isLoading && (
 				<div className="mx-4 mt-3 rounded-2xl border border-dotori-100 bg-white px-4 py-3 shadow-sm">
-					<div className="flex items-start justify-between gap-3">
-						<div className="min-w-0">
-							<p className="text-[13px] font-semibold text-dotori-700">
-								빈자리 즉시 알림은 프리미엄 전용입니다
-							</p>
-							<p className="mt-1.5 text-[12px] leading-5 text-dotori-500">
-								{isPremiumUser
-									? "프리미엄: 빈자리 즉시 푸시 알림"
-									: "무료: 빈자리 생기면 앱 열었을 때 확인 가능"}
-							</p>
+						<div className="flex items-start justify-between gap-3">
+							<div className="min-w-0">
+								<p className="text-sm font-semibold text-dotori-700">
+									빈자리 즉시 알림은 프리미엄 전용입니다
+								</p>
+								<p className="mt-1.5 text-xs leading-5 text-dotori-500">
+									{isPremiumUser
+										? "프리미엄: 빈자리 즉시 푸시 알림"
+										: "무료: 빈자리 생기면 앱 열었을 때 확인 가능"}
+								</p>
 						</div>
 						<Badge color={isPremiumUser ? "forest" : "dotori"}>
 							{isPremiumUser ? "프리미엄" : "무료"}
@@ -217,26 +217,26 @@ export default function WaitlistPage() {
 						src={BRAND.emptyState}
 						alt=""
 						className="h-32 w-32 opacity-60"
-					/>
-					<p className="mt-6 text-center text-[15px] font-medium text-dotori-500">
-						대기 중인 어린이집이 없어요
-					</p>
-					<p className="mt-1.5 text-center text-[14px] text-dotori-500">
-						관심 시설에서 대기 신청을 하면 여기서 현황을 확인할 수 있어요
-					</p>
-					<Link
-						href="/explore"
-						className="mt-6 rounded-2xl bg-dotori-900 px-6 py-3.5 text-[15px] font-semibold text-white transition-all active:scale-[0.97]"
-					>
-						탐색하기
-					</Link>
-					<Link
-						href="/my/import"
-						className="mt-3 flex items-center gap-2 rounded-2xl border border-dotori-200/60 px-5 py-3 text-[14px] font-medium text-dotori-600 transition-all active:scale-[0.97]"
-					>
-						<CameraIcon className="h-4.5 w-4.5" />
-						스크린샷으로 가져오기
-					</Link>
+						/>
+						<p className="mt-6 text-center text-base font-medium text-dotori-500">
+							대기 중인 어린이집이 없어요
+						</p>
+						<p className="mt-1.5 text-center text-sm text-dotori-500">
+							관심 시설에서 대기 신청을 하면 여기서 현황을 확인할 수 있어요
+						</p>
+						<Link
+							href="/explore"
+							className="mt-6 rounded-2xl bg-dotori-900 px-6 py-3.5 text-base font-semibold text-white transition-all active:scale-[0.97]"
+						>
+							탐색하기
+						</Link>
+						<Link
+							href="/my/import"
+							className="mt-3 flex items-center gap-2 rounded-2xl border border-dotori-200/60 px-5 py-3 text-sm font-medium text-dotori-600 transition-all active:scale-[0.97]"
+						>
+							<CameraIcon className="h-4.5 w-4.5" />
+							스크린샷으로 가져오기
+						</Link>
 				</div>
 			) : (
 				/* 대기 목록 */
@@ -259,36 +259,36 @@ export default function WaitlistPage() {
 							>
 								{/* 시설 정보 */}
 								<div className="flex items-start justify-between">
-									<Link
-										href={`/facility/${facilityId}`}
-										className="min-w-0 flex-1"
-									>
-										<h3 className="text-[15px] font-semibold text-dotori-900 hover:text-dotori-600 transition-colors">
-											{facility?.name || "시설 정보 없음"}
-										</h3>
-										{facility && (
-											<p className="mt-0.5 text-[13px] text-dotori-500">
-												{facility.type} · {facility.address}
-											</p>
-										)}
-									</Link>
+										<Link
+											href={`/facility/${facilityId}`}
+											className="min-w-0 flex-1"
+										>
+											<h3 className="text-base font-semibold text-dotori-900 hover:text-dotori-600 transition-colors">
+												{facility?.name || "시설 정보 없음"}
+											</h3>
+											{facility && (
+												<p className="mt-0.5 text-sm text-dotori-500">
+													{facility.type} · {facility.address}
+												</p>
+											)}
+										</Link>
 									<Badge color={config.color}>
 										{config.label}
 									</Badge>
 								</div>
 
-								{/* 상세 정보 */}
-								<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-500">
-									<span>아이: {item.childName}</span>
-									{item.ageClass && (
-										<span>{item.ageClass}</span>
-									)}
-									{typeof item.position === "number" && (
-										<span className="rounded-full bg-dotori-100 px-3 py-1 text-[11px] font-semibold text-dotori-700">
-											대기 {item.position}번째
-										</span>
-									)}
-									<span
+									{/* 상세 정보 */}
+									<div className="mt-3 flex items-center gap-4 text-xs text-dotori-500">
+										<span>아이: {item.childName}</span>
+										{item.ageClass && (
+											<span>{item.ageClass}</span>
+										)}
+										{typeof item.position === "number" && (
+											<span className="rounded-full bg-dotori-100 px-3 py-1 text-xs font-semibold text-dotori-700">
+												대기 {item.position}번째
+											</span>
+										)}
+										<span
 										className="ml-auto"
 										suppressHydrationWarning
 									>
@@ -296,18 +296,18 @@ export default function WaitlistPage() {
 									</span>
 								</div>
 
-								{/* 대기 상태 요약 */}
-								<div className="mt-3 grid grid-cols-2 gap-2">
-									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-										<span className="block text-[12px] text-dotori-500">
-											현재 대기 순번
-										</span>
-										<span className="mt-0.5 inline-flex items-center justify-center gap-1">
-											<span className="text-[14px] font-bold text-dotori-900">
-												{item.position ? `${item.position}번째` : "미정"}
+									{/* 대기 상태 요약 */}
+									<div className="mt-3 grid grid-cols-2 gap-2">
+										<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+											<span className="block text-xs text-dotori-500">
+												현재 대기 순번
 											</span>
-											{(() => {
-												const trend = formatPositionTrend(
+											<span className="mt-0.5 inline-flex items-center justify-center gap-1">
+												<span className="text-sm font-bold text-dotori-900">
+													{item.position ? `${item.position}번째` : "미정"}
+												</span>
+												{(() => {
+													const trend = formatPositionTrend(
 													item.position,
 													item.previousPosition,
 												);
@@ -318,14 +318,14 @@ export default function WaitlistPage() {
 													trend.direction === "down"
 														? "text-forest-600"
 														: "text-danger";
-												return (
-													<span
-														className={cn(
-															"text-[11px] font-semibold",
-															trendClass,
-														)}
-													>
-														{trend.direction === "down" ? (
+													return (
+														<span
+															className={cn(
+																"text-xs font-semibold",
+																trendClass,
+															)}
+														>
+															{trend.direction === "down" ? (
 															<ArrowDownIcon className="h-3.5 w-3.5" />
 														) : (
 															<ArrowUpIcon className="h-3.5 w-3.5" />
@@ -338,58 +338,58 @@ export default function WaitlistPage() {
 											})()}
 										</span>
 									</div>
-								<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-									<span className="block text-[12px] text-dotori-500">
-										예상 입소 시기
-									</span>
-									<span className="text-[13px] font-bold text-dotori-900">
-										{getEstimatedAdmissionLabel(item.estimatedDate)}
-									</span>
+									<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+										<span className="block text-xs text-dotori-500">
+											예상 입소 시기
+										</span>
+										<span className="text-sm font-bold text-dotori-900">
+											{getEstimatedAdmissionLabel(item.estimatedDate)}
+										</span>
+									</div>
 								</div>
-							</div>
-							<p className="mt-2 text-[12px] text-dotori-500">
-								{getAdmissionGuide(item.position, item.estimatedDate)}
-							</p>
+								<p className="mt-2 text-xs text-dotori-500">
+									{getAdmissionGuide(item.position, item.estimatedDate)}
+								</p>
 
 								{/* 시설 현황 */}
-								{facility && (
-									<div className="mt-3 flex gap-3">
-										<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-											<span className="block text-[13px] text-dotori-500">
-												정원
-											</span>
-											<span className="text-[14px] font-bold text-dotori-900">
-												{facility.capacity.total}
-											</span>
-										</div>
-										<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
-											<span className="block text-[13px] text-dotori-500">
-												현원
-											</span>
-											<span className="text-[14px] font-bold text-dotori-900">
-												{facility.capacity.current}
-											</span>
-										</div>
-										<div
+									{facility && (
+										<div className="mt-3 flex gap-3">
+											<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+												<span className="block text-xs text-dotori-500">
+													정원
+												</span>
+												<span className="text-sm font-bold text-dotori-900">
+													{facility.capacity.total}
+												</span>
+											</div>
+											<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center">
+												<span className="block text-xs text-dotori-500">
+													현원
+												</span>
+												<span className="text-sm font-bold text-dotori-900">
+													{facility.capacity.current}
+												</span>
+											</div>
+											<div
 											className={cn(
 												"flex-1 rounded-xl px-3 py-2.5 text-center",
 												facility.status === "available"
 													? "bg-forest-50"
 													: "bg-dotori-50",
 											)}
-										>
-											<span className="block text-[13px] text-dotori-500">
-												{facility.status === "available"
-													? "여석"
-													: "대기"}
-											</span>
-											<span
-												className={cn(
-													"text-[14px] font-bold",
-													facility.status === "available"
-														? "text-forest-600"
-														: "text-dotori-900",
-												)}
+											>
+												<span className="block text-xs text-dotori-500">
+													{facility.status === "available"
+														? "여석"
+														: "대기"}
+												</span>
+												<span
+													className={cn(
+														"text-sm font-bold",
+														facility.status === "available"
+															? "text-forest-600"
+															: "text-dotori-900",
+													)}
 											>
 												{facility.status === "available"
 													? facility.capacity.total -
@@ -414,18 +414,18 @@ export default function WaitlistPage() {
 													)
 												: 0;
 										return (
-											<Link
-												href={`/my/waitlist/${item._id}`}
-												className="mt-3 block rounded-xl bg-dotori-50 p-3.5 transition-all active:scale-[0.99] hover:bg-dotori-100/60"
-											>
-												<div className="flex items-center justify-between">
-													<span className="text-[13px] font-medium text-dotori-700">
-														서류 제출 현황
-													</span>
-													<span className="text-[12px] font-semibold text-dotori-500">
-														{submitted}/{total}건 완료
-													</span>
-												</div>
+												<Link
+													href={`/my/waitlist/${item._id}`}
+													className="mt-3 block rounded-xl bg-dotori-50 p-3.5 transition-all active:scale-[0.99] hover:bg-dotori-100/60"
+												>
+													<div className="flex items-center justify-between">
+														<span className="text-sm font-medium text-dotori-700">
+															서류 제출 현황
+														</span>
+														<span className="text-xs font-semibold text-dotori-500">
+															{submitted}/{total}건 완료
+														</span>
+													</div>
 												<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-dotori-400/20">
 													<div
 														className={cn(
@@ -437,13 +437,13 @@ export default function WaitlistPage() {
 														style={{
 															width: `${pct}%`,
 														}}
-													/>
-												</div>
-												<p className="mt-1.5 text-[12px] text-dotori-500">
-													{pct === 100
-														? "모든 서류가 준비되었어요"
-														: "탭하여 서류를 확인하세요"}
-												</p>
+														/>
+													</div>
+													<p className="mt-1.5 text-xs text-dotori-500">
+														{pct === 100
+															? "모든 서류가 준비되었어요"
+															: "탭하여 서류를 확인하세요"}
+													</p>
 											</Link>
 										);
 									})()}
@@ -451,24 +451,24 @@ export default function WaitlistPage() {
 								{/* 액션 */}
 								{item.status === "pending" && (
 									<div className="mt-3 flex items-center justify-between">
-										<Link
-											href={`/my/waitlist/${item._id}`}
-											className="text-[13px] font-medium text-dotori-500 transition-colors hover:text-dotori-700"
-										>
-											상세 보기 →
-										</Link>
-									<Button
-										color="dotori"
+											<Link
+												href={`/my/waitlist/${item._id}`}
+												className="text-sm font-medium text-dotori-500 transition-colors hover:text-dotori-700"
+											>
+												상세 보기 →
+											</Link>
+										<Button
+											color="dotori"
 										onClick={() =>
 											cancelWaitlist(item._id)
 										}
-											disabled={cancellingIds.has(item._id)}
-											className={cn(
-												"min-h-[40px] px-4 text-[13px]",
-												cancellingIds.has(item._id) && "opacity-60",
-											)}
-										>
-											{cancellingIds.has(item._id) ? "취소 중..." : "대기 취소"}
+												disabled={cancellingIds.has(item._id)}
+												className={cn(
+													"min-h-[40px] px-4 text-sm",
+													cancellingIds.has(item._id) && "opacity-60",
+												)}
+											>
+												{cancellingIds.has(item._id) ? "취소 중..." : "대기 취소"}
 										</Button>
 									</div>
 								)}
@@ -487,45 +487,45 @@ export default function WaitlistPage() {
 					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-dotori-100">
 						<CameraIcon className="h-5 w-5 text-dotori-600" />
 					</div>
-					<div className="min-w-0 flex-1">
-						<p className="text-[14px] font-semibold text-dotori-900">
-							스크린샷으로 대기현황 가져오기
-						</p>
-						<p className="mt-0.5 text-[12px] text-dotori-500">
-							아이사랑 앱 스크린샷을 찍으면 AI가 자동으로 분석해요
-						</p>
-					</div>
-					<span className="text-[13px] text-dotori-500">→</span>
-				</Link>
-			)}
+						<div className="min-w-0 flex-1">
+							<p className="text-sm font-semibold text-dotori-900">
+								스크린샷으로 대기현황 가져오기
+							</p>
+							<p className="mt-0.5 text-xs text-dotori-500">
+								아이사랑 앱 스크린샷을 찍으면 AI가 자동으로 분석해요
+							</p>
+						</div>
+						<span className="text-sm text-dotori-500">→</span>
+					</Link>
+				)}
 
 			{/* 아이사랑 앱 바로가기 */}
-			{!isLoading && (
-				<div className="mx-4 mt-6 rounded-2xl bg-gradient-to-br from-dotori-50 to-white p-4 shadow-sm">
-					<p className="text-[13px] font-medium text-dotori-600">
-						아이사랑 앱에서 공식 대기현황을 확인하세요
-					</p>
-					<button
-						onClick={() => openIsalangApp(ISALANG_PORTAL.waitlistStatus)}
-						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 py-3 text-[14px] font-semibold text-white shadow-md transition-all active:scale-[0.97]"
-					>
-						<DevicePhoneMobileIcon className="h-4.5 w-4.5" />
-						아이사랑 앱 열기
-					</button>
-					<div className="mt-2 flex gap-2">
+				{!isLoading && (
+					<div className="mx-4 mt-6 rounded-2xl bg-gradient-to-br from-dotori-50 to-white p-4 shadow-sm">
+						<p className="text-sm font-medium text-dotori-600">
+							아이사랑 앱에서 공식 대기현황을 확인하세요
+						</p>
 						<button
-							onClick={() => openIsalangLink(ISALANG_PORTAL.waitlistStatus)}
-							className="flex-1 rounded-xl bg-white px-3 py-2.5 text-center text-[13px] font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
+							onClick={() => openIsalangApp(ISALANG_PORTAL.waitlistStatus)}
+							className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 py-3 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.97]"
 						>
-							대기현황
+							<DevicePhoneMobileIcon className="h-4.5 w-4.5" />
+							아이사랑 앱 열기
 						</button>
-						<button
-							onClick={() => openIsalangLink(ISALANG_PORTAL.documentSubmit)}
-							className="flex-1 rounded-xl bg-white px-3 py-2.5 text-center text-[13px] font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
-						>
-							서류제출
-						</button>
-					</div>
+						<div className="mt-2 flex gap-2">
+							<button
+								onClick={() => openIsalangLink(ISALANG_PORTAL.waitlistStatus)}
+								className="flex-1 rounded-xl bg-white px-3 py-2.5 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
+							>
+								대기현황
+							</button>
+							<button
+								onClick={() => openIsalangLink(ISALANG_PORTAL.documentSubmit)}
+								className="flex-1 rounded-xl bg-white px-3 py-2.5 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
+							>
+								서류제출
+							</button>
+						</div>
 				</div>
 			)}
 		</div>
