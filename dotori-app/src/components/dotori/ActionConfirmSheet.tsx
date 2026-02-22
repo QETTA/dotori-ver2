@@ -76,8 +76,8 @@ export function ActionConfirmSheet({
       <Dialog open={open} onClose={onClose} aria-label="액션 확인">
         <DialogBody className={dialogPanelClassName}>
           <div className="flex flex-col items-center gap-3 py-8">
-            <ExclamationCircleIcon className="h-12 w-12 text-red-500" />
-            <p className="text-[15px] text-red-600">{error}</p>
+            <ExclamationCircleIcon className="h-12 w-12 text-amber-700" />
+            <p className="text-[15px] text-amber-800">{error}</p>
             <div className="flex gap-3">
               <Button plain onClick={onClose}>
                 닫기
