@@ -1,31 +1,54 @@
 import { chromium } from '@playwright/test'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i
 
-async function getFacilityId(): Promise<string> {
+function toValidFacilityId(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return OBJECT_ID_PATTERN.test(trimmed) ? trimmed : null
+}
+
+async function getFacilityId(): Promise<string | null> {
   try {
     const res = await fetch(`${BASE}/api/facilities?limit=1`)
+    if (!res.ok) {
+      return null
+    }
     const json = await res.json()
-    return json.data?.[0]?.id || 'f1'
+    const firstFacility = Array.isArray(json?.data) ? json.data[0] : null
+    if (!firstFacility || typeof firstFacility !== 'object') {
+      return null
+    }
+
+    const idFromDto = toValidFacilityId((firstFacility as { id?: unknown }).id)
+    if (idFromDto) return idFromDto
+
+    const idFromMongo = toValidFacilityId((firstFacility as { _id?: unknown })._id)
+    return idFromMongo
   } catch {
-    return 'f1'
+    return null
   }
 }
 
 async function main() {
   const facilityId = await getFacilityId()
-  const routes = [
+  const routes: string[] = [
     '/',
     '/explore',
     '/chat',
     '/community',
     '/my',
     '/my/settings',
-    `/facility/${facilityId}`,
     '/onboarding',
     '/landing',
     '/login',
   ]
+  if (facilityId) {
+    routes.push(`/facility/${facilityId}`)
+  } else {
+    console.log('ℹ️ 유효한 시설 ID를 찾지 못해 /facility/:id 검사를 건너뜁니다.')
+  }
   const browser = await chromium.launch()
   const context = await browser.newContext({
     viewport: { width: 375, height: 812 },
