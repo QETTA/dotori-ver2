@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -42,22 +43,34 @@ const KAKAO_MAP_SDK_SCRIPT_ID = "kakao-maps-sdk";
 // Global flag: SDK script is already appended (prevents duplicate Script tags)
 let sdkScriptLoaded = false;
 let sdkLoadCallbacks: (() => void)[] = [];
+let sdkErrorCallbacks: (() => void)[] = [];
 let sdkLoadError = false;
 
-function onSdkReady() {
-	sdkScriptLoaded = true;	
-	for (const cb of sdkLoadCallbacks) cb();
-	sdkLoadCallbacks = [];
-}
-
-function onSdkError() {
-	sdkLoadError = true;
-	for (const cb of sdkErrorCallbacks) cb();
+function resetSdkQueues() {
 	sdkLoadCallbacks = [];
 	sdkErrorCallbacks = [];
 }
 
-let sdkErrorCallbacks: (() => void)[] = [];
+function removeSdkScriptTag() {
+	if (typeof document === "undefined") return;
+	document.getElementById(KAKAO_MAP_SDK_SCRIPT_ID)?.remove();
+}
+
+function onSdkReady() {
+	sdkScriptLoaded = true;
+	sdkLoadError = false;
+	const callbacks = sdkLoadCallbacks;
+	resetSdkQueues();
+	for (const cb of callbacks) cb();
+}
+
+function onSdkError() {
+	sdkLoadError = true;
+	sdkScriptLoaded = false;
+	const callbacks = sdkErrorCallbacks;
+	resetSdkQueues();
+	for (const cb of callbacks) cb();
+}
 
 export function MapEmbed({
 	facilities,
@@ -79,7 +92,7 @@ export function MapEmbed({
 	const mountedRef = useRef(true);
 	const [mapError, setMapError] = useState(sdkLoadError);
 	const [isLoading, setIsLoading] = useState(false);
-	const [retryKey, setRetryKey] = useState(0);
+	const [scriptVersion, setScriptVersion] = useState(0);
 	const hasMapCenter = Boolean(center || facilities.length > 0 || userLocation);
 	const hasApiKey = Boolean(KAKAO_MAP_KEY);
 	const isProd = process.env.NODE_ENV === "production";
@@ -199,9 +212,10 @@ export function MapEmbed({
 
 		if (sdkLoadError) {
 			sdkLoadError = false;
-			sdkLoadCallbacks = [];
-			sdkErrorCallbacks = [];
-			setRetryKey((prev) => prev + 1);
+			sdkScriptLoaded = false;
+			resetSdkQueues();
+			removeSdkScriptTag();
+			setScriptVersion((prev) => prev + 1);
 			return;
 		}
 
@@ -219,19 +233,19 @@ export function MapEmbed({
 			return;
 		}
 
-		setRetryKey((prev) => prev + 1);
+		setScriptVersion((prev) => prev + 1);
 	}, [clearMarkers, renderMap]);
 
 	// Register for SDK ready callback or render immediately
-		useEffect(() => {
-			mountedRef.current = true;
+	useEffect(() => {
+		mountedRef.current = true;
 
-			if (!hasMapCenter) {
-				// eslint-disable-next-line react-hooks/set-state-in-effect
-				setMapError(true);
-				setIsLoading(false);
-				return;
-			}
+		if (!hasMapCenter) {
+			// eslint-disable-next-line react-hooks/set-state-in-effect
+			setMapError(true);
+			setIsLoading(false);
+			return;
+		}
 
 		if (!hasApiKey) {
 			setMapError(true);
@@ -255,17 +269,18 @@ export function MapEmbed({
 				}
 			}
 		};
+		const errorCb = () => {
+			if (mountedRef.current) {
+				setMapError(true);
+				setIsLoading(false);
+			}
+		};
 
 		if (sdkScriptLoaded) {
 			cb();
 		} else if (!sdkLoadError) {
 			sdkLoadCallbacks.push(cb);
-			sdkErrorCallbacks.push(() => {
-				if (mountedRef.current) {
-					setMapError(true);
-					setIsLoading(false);
-				}
-			});
+			sdkErrorCallbacks.push(errorCb);
 		} else {
 			setMapError(true);
 			setIsLoading(false);
@@ -273,8 +288,10 @@ export function MapEmbed({
 
 		return () => {
 			mountedRef.current = false;
+			sdkLoadCallbacks = sdkLoadCallbacks.filter((queued) => queued !== cb);
+			sdkErrorCallbacks = sdkErrorCallbacks.filter((queued) => queued !== errorCb);
 		};
-	}, [hasApiKey, hasMapCenter, renderMap, retryKey]);
+	}, [hasApiKey, hasMapCenter, renderMap, scriptVersion]);
 
 	// Cleanup on unmount
 	useEffect(() => {
@@ -312,12 +329,13 @@ export function MapEmbed({
 			<div ref={containerRef} className="h-full w-full" />
 
 			{/* Loading skeleton */}
-				{isLoading && !mapError && (
-					<div className="absolute inset-0 flex items-center justify-center bg-dotori-100 dark:bg-dotori-800">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={BRAND.symbol}
-							alt=""
+			{isLoading && !mapError && (
+				<div className="absolute inset-0 flex items-center justify-center bg-dotori-100 dark:bg-dotori-800">
+					<Image
+						src={BRAND.symbol}
+						alt=""
+						width={40}
+						height={40}
 						className="h-10 w-10 animate-bounce"
 						aria-hidden="true"
 					/>
@@ -329,7 +347,7 @@ export function MapEmbed({
 				<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-dotori-100 px-5 text-center dark:bg-dotori-800">
 						<p className="text-sm text-dotori-500 dark:text-dotori-200">{mapErrorTitle}</p>
 						{developerHint && (
-							<p className="text-xs text-dotori-400 dark:text-dotori-300">{developerHint}</p>
+							<p className="text-xs text-dotori-500 dark:text-dotori-300">{developerHint}</p>
 						)}
 						{isProd && (
 							<button
@@ -356,8 +374,8 @@ export function MapEmbed({
 			{/* Kakao Maps SDK Script — only first instance loads it */}
 			{!sdkScriptLoaded && !sdkLoadError && hasApiKey && (
 				<Script
-					id={`${KAKAO_MAP_SDK_SCRIPT_ID}-${retryKey}`}
-					key={retryKey}
+					id={KAKAO_MAP_SDK_SCRIPT_ID}
+					key={`${KAKAO_MAP_SDK_SCRIPT_ID}-${scriptVersion}`}
 					strategy="afterInteractive"
 					src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_KEY}&autoload=false`}
 					onReady={onSdkReady}
