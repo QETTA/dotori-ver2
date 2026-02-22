@@ -129,7 +129,7 @@ export default function HomePage() {
 		: "이동 고민 글을 커뮤니티에서 확인해보세요";
 	const statusCards = [
 		{
-			label: "내 주변 가능",
+			label: "주변 빈자리",
 			value: `${nearbyAvailableFacilities.length}곳`,
 			tone: "forest",
 		},
@@ -139,7 +139,7 @@ export default function HomePage() {
 			tone: "dotori",
 		},
 		{
-			label: "받은 알림",
+			label: "알림",
 			value: `${homeData?.alertCount ?? 0}건`,
 			tone: "dotori",
 		},
@@ -177,8 +177,8 @@ export default function HomePage() {
 
 	return (
 		<div className="px-4 pb-12 pt-4">
-			<header className="glass-header sticky top-0 z-10">
-				<div className="mb-2 flex items-center justify-between">
+			<header className="glass-header sticky top-0 z-10 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
+				<div className="mb-3 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
 					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
@@ -186,7 +186,7 @@ export default function HomePage() {
 						<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
 					</div>
 				</div>
-				<Heading level={1} className="text-xl font-bold text-dotori-900 dark:text-dotori-50">
+				<Heading level={1} className="text-lg font-bold text-dotori-900 dark:text-dotori-50">
 					{greeting}
 				</Heading>
 				<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
@@ -217,7 +217,7 @@ export default function HomePage() {
 				</div>
 			</header>
 
-			<motion.section {...fadeUp} className="mt-4">
+			<motion.section {...fadeUp} className="mt-3">
 				<div
 					role="button"
 					tabIndex={0}
@@ -290,7 +290,7 @@ export default function HomePage() {
 
 			<motion.section {...fadeUp} className="mt-6 space-y-4">
 				<div className="flex items-center justify-between gap-2">
-					<Heading level={2} className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
+					<Heading level={2} className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
 						내 주변 빈자리
 					</Heading>
 					<Button href="/explore" color="dotori" className="min-h-11">
@@ -351,7 +351,7 @@ export default function HomePage() {
 							현재 보이는 빈자리가 없어요
 						</Heading>
 						<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
-							아직은 빈자리가 안 보이지만 괜찮아요. 조건을 넓히거나 알림을 켜두면 새 소식을 빠르게 확인할 수 있어요.
+							조건을 넓히거나 알림을 켜두면 새 빈자리를 빠르게 확인할 수 있어요.
 						</Text>
 						<div className="mt-4 space-y-2">
 							<Button
@@ -359,7 +359,7 @@ export default function HomePage() {
 								href="/my/notifications"
 								className="min-h-11 w-full justify-center"
 							>
-								빈자리 알림 확인하기
+								빈자리 알림 설정
 							</Button>
 							<Button
 								plain={true}

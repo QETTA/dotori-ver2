@@ -119,22 +119,22 @@ const LoginIntro = memo(function LoginIntro({
 				<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-9 w-auto" />
 			</div>
 
-			<motion.p
-				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
-				animate={FADE_UP_ANIMATE}
-				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TAGLINE_TRANSITION}
-				className="mt-6 text-sm font-semibold tracking-wide text-dotori-500"
-			>
-				이동 고민, 토리가 해결해드려요
-			</motion.p>
-			<motion.p
-				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
-				animate={FADE_UP_ANIMATE}
-				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
-				className="mt-3 text-xl leading-relaxed font-bold text-dotori-700 dark:text-dotori-200"
-			>
-				반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
-			</motion.p>
+				<motion.p
+					initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
+					animate={FADE_UP_ANIMATE}
+					transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TAGLINE_TRANSITION}
+					className="mt-6 text-sm font-semibold tracking-wide text-dotori-500"
+				>
+					이동 고민 전문 AI, 토리
+				</motion.p>
+				<motion.p
+					initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
+					animate={FADE_UP_ANIMATE}
+					transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
+					className="mt-3 text-base leading-snug font-bold text-dotori-700 dark:text-dotori-200 lg:text-lg"
+				>
+					반편성 불만·교사 교체·빈자리, 도토리 하나로
+				</motion.p>
 			<motion.p
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
@@ -191,10 +191,10 @@ const LoginCard = memo(function LoginCard({
 			animate={LOGIN_CARD_ANIMATE}
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
 			className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
-		>
-			<p className="text-xs leading-relaxed text-dotori-500">
-				빠르게 시작하고, 서비스와 바로 연결해보세요.
-			</p>
+			>
+				<p className="text-xs leading-relaxed text-dotori-500">
+					1초면 시작돼요. 카카오로 바로 이용하세요.
+				</p>
 			<Button
 				onClick={onKakaoLogin}
 				disabled={isLoading}
@@ -211,16 +211,18 @@ const LoginCard = memo(function LoginCard({
 						className="mr-2 inline-flex h-4 w-4 flex-shrink-0 motion-safe:animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-700"
 						aria-hidden="true"
 					/>
-				) : (
-					<span
-						className="mr-2 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-dotori-700/15 text-xs font-bold text-dotori-700"
-						aria-hidden="true"
-					>
-						◯
-					</span>
-				)}
-				{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
-			</Button>
+					) : (
+						<svg
+							className="mr-2 h-5 w-5 shrink-0"
+							viewBox="0 0 24 24"
+							fill="currentColor"
+							aria-hidden="true"
+						>
+							<path d="M12 3C6.48 3 2 6.672 2 11.16c0 2.904 1.872 5.448 4.68 6.888l-1.2 4.416c-.096.36.336.648.648.432l5.136-3.408c.24.024.48.036.72.036 5.52 0 10-3.672 10-8.16C22 6.672 17.52 3 12 3z" />
+						</svg>
+					)}
+					{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
+				</Button>
 			<p className="mt-2 text-xs font-medium text-dotori-400">
 				카카오 계정으로 1초 만에 시작
 			</p>
@@ -240,12 +242,12 @@ const LoginGuestLink = memo(function LoginGuestLink({
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : GUEST_LINK_TRANSITION}
 			className="w-full"
 		>
-			<Link
-				href="/"
-				className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 bg-white/60 px-4 text-sm font-semibold text-dotori-600 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/80 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-200 dark:hover:bg-dotori-950/70"
-			>
-				로그인 없이 둘러보기
-			</Link>
+				<Link
+					href="/"
+					className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 bg-white/60 px-4 text-sm font-semibold text-dotori-600 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/80 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-200 dark:hover:bg-dotori-950/70"
+				>
+					로그인 없이 둘러보기
+				</Link>
 		</motion.div>
 	);
 });
@@ -256,12 +258,12 @@ const LoginFooter = memo(function LoginFooter({
 	shouldReduceMotion,
 }: MotionPreferenceProps) {
 	return (
-		<motion.p
-			initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
-			animate={FADE_IN_ANIMATE}
-			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-			className="mt-4 pb-6 pt-4 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
-		>
+			<motion.p
+				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
+				animate={FADE_IN_ANIMATE}
+				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
+				className="mt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
+			>
 				로그인 시{" "}
 				<Link
 					href="/my/terms"

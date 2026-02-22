@@ -197,7 +197,7 @@ export function FacilityActionBar({
 					</Button>
 					<div className="flex-1">
 						{actionStatus === "executing" ? (
-							<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4 dark:border-dotori-800 dark:bg-dotori-900">
+							<div className="min-h-12 rounded-2xl border border-dotori-100 bg-dotori-50 px-4 py-2.5 dark:border-dotori-800 dark:bg-dotori-900">
 								<div className="flex h-full items-center justify-center gap-2">
 									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700 dark:text-dotori-100" />
 									<span className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
@@ -206,7 +206,7 @@ export function FacilityActionBar({
 								</div>
 							</div>
 						) : actionStatus === "success" ? (
-							<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center dark:border-forest-800 dark:bg-forest-950/30">
+							<div className="rounded-2xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center dark:border-forest-800 dark:bg-forest-950/30">
 								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300 dark:text-forest-200" />
 								<p className="mt-2 text-sm font-semibold text-dotori-900 dark:text-dotori-50">
 									대기 신청 완료!
@@ -226,7 +226,7 @@ export function FacilityActionBar({
 								</Button>
 							</div>
 						) : actionStatus === "error" ? (
-							<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left dark:bg-danger/10">
+							<div className="rounded-2xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left dark:bg-danger/10">
 								<p className="text-sm font-semibold text-danger">
 									{error ?? "대기 신청 중 오류가 발생했어요."}
 								</p>
@@ -252,7 +252,7 @@ export function FacilityActionBar({
 								<Button
 									color="dotori"
 									onClick={onApplyClick}
-									className="min-h-12 w-full py-3 text-base font-semibold active:scale-[0.97]"
+									className="min-h-12 w-full rounded-2xl py-3 text-base font-semibold shadow-sm shadow-dotori-900/5 active:scale-[0.97]"
 								>
 									{applyActionLabel}
 								</Button>

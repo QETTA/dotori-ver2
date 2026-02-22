@@ -355,7 +355,7 @@ export default function CommunityPage() {
 									aria-selected={isActive}
 									onClick={() => setActiveTab(tab)}
 									className={cn(
-										"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.97]",
+										"min-h-11 min-w-max rounded-full px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97]",
 										isActive
 											? "bg-dotori-900 text-white shadow-md shadow-dotori-200 dark:bg-dotori-500 dark:shadow-none"
 											: "border border-dotori-200 bg-white text-dotori-600 hover:bg-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900",
@@ -433,7 +433,7 @@ export default function CommunityPage() {
 					/>
 				) : posts.length > 0 ? (
 					<div>
-						<motion.ul {...stagger.container} className="space-y-4">
+						<motion.ul {...stagger.container} className="space-y-3">
 						{posts.map((post) => {
 							const postHot = isHotPost(post);
 
@@ -443,10 +443,10 @@ export default function CommunityPage() {
 									{...stagger.item}
 									{...tap.card}
 									className={cn(
-										"rounded-[28px] border border-dotori-100 bg-white p-4 shadow-[0_12px_24px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+										"overflow-hidden rounded-3xl border border-dotori-100/80 bg-white p-0 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
 									)}
 								>
-									<div className="relative rounded-2xl bg-gradient-to-b from-dotori-50/70 to-white p-4 dark:from-dotori-900/70 dark:to-dotori-950">
+									<div className="relative rounded-none bg-gradient-to-b from-dotori-50/40 to-white p-4 dark:from-dotori-900/40 dark:to-dotori-950">
 										<div className="mb-2 flex items-start justify-between gap-2">
 											<div className="flex min-w-0 items-start gap-2.5">
 												<div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-dotori-600 ring-2 ring-dotori-200/70 dark:bg-dotori-800 dark:text-dotori-100 dark:ring-dotori-700">
@@ -548,7 +548,7 @@ export default function CommunityPage() {
 										) : null}
 									</div>
 
-									<div className="mt-3 flex items-center gap-2 rounded-2xl bg-dotori-50/70 p-2 dark:bg-dotori-900/50">
+									<div className="flex items-center gap-0 border-t border-dotori-50 bg-dotori-50/50 p-1 dark:border-dotori-900 dark:bg-dotori-900/30">
 										<Button
 											plain={true}
 											type="button"
@@ -605,7 +605,7 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-dotori-900 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
+				className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-dotori-900 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
 			>
 				<PlusIcon className="h-6 w-6 text-white" />
 			</Link>

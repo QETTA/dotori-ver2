@@ -39,15 +39,15 @@ export function ChatPromptPanel({
 					<img
 						src={toriIcon}
 						alt=""
-						className="mx-auto mb-4 h-20 w-20 rounded-full border border-dotori-100 bg-white shadow-sm dark:border-dotori-800 dark:bg-dotori-900 dark:shadow-none"
+						className="mx-auto mb-3 h-16 w-16 rounded-full border border-dotori-100 bg-white shadow-sm dark:border-dotori-800 dark:bg-dotori-900 dark:shadow-none"
 					/>
 					<Heading
 						level={3}
-						className="text-center text-3xl leading-tight tracking-tight text-dotori-900 dark:text-dotori-50"
+						className="text-center text-xl leading-snug font-bold tracking-tight text-dotori-900 dark:text-dotori-50"
 					>
 						이동 고민이라면 뭐든 물어보세요
 					</Heading>
-					<Text className="mt-2 block text-center text-sm text-dotori-600 dark:text-dotori-300">
+					<Text className="mt-1.5 block text-center text-sm text-dotori-500 dark:text-dotori-300">
 						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 					</Text>
 				</div>
@@ -76,12 +76,12 @@ export function ChatPromptPanel({
 								type="button"
 								onClick={() => onSuggestPrompt(prompt)}
 								className={cn(
-									"flex min-h-14 w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
+									"flex min-h-12 w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
 									"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm dark:hover:bg-dotori-800 dark:hover:shadow-none active:scale-[0.97]",
 									"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
 								)}
 							>
-								<span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
+								<span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
 									{prompt.icon}
 								</span>
 								<div className="min-w-0">

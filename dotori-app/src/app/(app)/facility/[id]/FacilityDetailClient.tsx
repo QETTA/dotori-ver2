@@ -92,21 +92,21 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 
 	return (
 		<div className="pb-4">
-			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 text-dotori-800 dark:text-dotori-100">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 text-dotori-800 dark:text-dotori-100">
 				<button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
 				<h1 className="min-w-0 flex-1 truncate text-base font-semibold text-dotori-900 dark:text-dotori-50">
 					시설 상세정보
 				</h1>
-				<span className="w-11" aria-hidden="true" />
+				<span className="w-10" aria-hidden="true" />
 			</header>
-			<div className="px-5">
+			<div className="px-4">
 				<ErrorState
 					message={message}
 					detail="네트워크 상태를 확인하고 다시 시도해 주세요"
@@ -310,12 +310,12 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 	return (
 		<div className="pb-32">
-			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 text-dotori-800 dark:text-dotori-100">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 text-dotori-800 dark:text-dotori-100">
 				<button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
@@ -328,7 +328,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					type="button"
 					onClick={handleShare}
 					aria-label="공유"
-					className="ml-auto rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					className="ml-auto rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ShareIcon className="h-6 w-6" />
 				</button>
@@ -342,7 +342,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 			<motion.div
 				{...fadeUp}
-				className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl border border-dotori-100 bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950"
+				className="relative mx-4 mt-3 h-52 overflow-hidden rounded-3xl border border-dotori-100 bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950"
 			>
 				{hasFacilityImage ? (
 					// eslint-disable-next-line @next/next/no-img-element
@@ -375,7 +375,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</div>
 			</motion.div>
 
-			<div className="mt-4 space-y-4 px-5">
+			<div className="mt-3 space-y-4 px-4">
 				<FacilityCoreInfoSections
 					status={facility.status}
 					qualityScore={qualityScore}

@@ -75,23 +75,32 @@ export function FacilityInsightSection({
 			<p className="mt-3 text-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
 				{aiInsightSummary}
 			</p>
-			<div className="mt-3 grid grid-cols-3 gap-2">
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-xs text-dotori-500">정원</p>
-					<p className="mt-1 text-2xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
-						{totalCapacity}명
+			<div className="mt-3 grid grid-cols-3 gap-1.5 rounded-2xl bg-dotori-50/60 p-1.5 dark:bg-dotori-900/50">
+				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
+					<p className="text-xs font-medium text-dotori-500">정원</p>
+					<p className="mt-1 text-xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+						{totalCapacity}
+						<span className="ml-0.5 text-xs font-semibold text-dotori-500 dark:text-dotori-300">
+							명
+						</span>
 					</p>
 				</div>
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-xs text-dotori-500">현원</p>
-					<p className="mt-1 text-2xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
-						{currentCapacity}명
+				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
+					<p className="text-xs font-medium text-dotori-500">현원</p>
+					<p className="mt-1 text-xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+						{currentCapacity}
+						<span className="ml-0.5 text-xs font-semibold text-dotori-500 dark:text-dotori-300">
+							명
+						</span>
 					</p>
 				</div>
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-xs text-dotori-500">대기</p>
-					<p className="mt-1 text-2xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
-						{waitingCapacity}명
+				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
+					<p className="text-xs font-medium text-dotori-500">대기</p>
+					<p className="mt-1 text-xl font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+						{waitingCapacity}
+						<span className="ml-0.5 text-xs font-semibold text-dotori-500 dark:text-dotori-300">
+							명
+						</span>
 					</p>
 				</div>
 			</div>
