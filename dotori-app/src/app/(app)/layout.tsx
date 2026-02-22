@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<AuthProvider>
+			<SplashScreen />
 			<AppProvider>
 				<ToastProvider>
-					<SplashScreen />
 					<ErrorBoundary>
 						<main className="mx-auto min-h-dvh max-w-md bg-dotori-50 pb-32">
 							<PageTransition>{children}</PageTransition>
