@@ -37,9 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 									className="absolute -right-16 top-8 h-48 w-48 opacity-10"
 								/>
 							</div>
-							<div className="relative">
-								<PageTransition>{children}</PageTransition>
-							</div>
+							<PageTransition className="relative">{children}</PageTransition>
 						</main>
 					</ErrorBoundary>
 				</ToastProvider>

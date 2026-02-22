@@ -307,33 +307,43 @@ function LoginPageClient() {
 		}
 	}, []);
 
+	const pageContent = (
+		<>
+			<LoginIntro shouldReduceMotion={shouldReduceMotion} />
+			{visibleError && (
+				<LoginErrorAlert
+					message={visibleError}
+					shouldReduceMotion={shouldReduceMotion}
+				/>
+			)}
+			<LoginCard
+				isLoading={isLoading}
+				onKakaoLogin={handleKakaoLogin}
+				shouldReduceMotion={shouldReduceMotion}
+			/>
+			<LoginFooter shouldReduceMotion={shouldReduceMotion} />
+		</>
+	);
+
 	return (
 		<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)]">
 			<LoginBackgroundDecoration />
 
 			{/* ── 메인 콘텐츠 ── */}
-			<motion.div
-				initial={shouldReduceMotion ? false : PAGE_CONTENT_INITIAL}
-				animate={PAGE_CONTENT_ANIMATE}
-				transition={
-					shouldReduceMotion ? NO_MOTION_TRANSITION : PAGE_CONTENT_TRANSITION
-				}
-				className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center"
-			>
-				<LoginIntro shouldReduceMotion={shouldReduceMotion} />
-				{visibleError && (
-					<LoginErrorAlert
-						message={visibleError}
-						shouldReduceMotion={shouldReduceMotion}
-					/>
-				)}
-				<LoginCard
-					isLoading={isLoading}
-					onKakaoLogin={handleKakaoLogin}
-					shouldReduceMotion={shouldReduceMotion}
-				/>
-				<LoginFooter shouldReduceMotion={shouldReduceMotion} />
-			</motion.div>
+			{shouldReduceMotion ? (
+				<div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center">
+					{pageContent}
+				</div>
+			) : (
+				<motion.div
+					initial={PAGE_CONTENT_INITIAL}
+					animate={PAGE_CONTENT_ANIMATE}
+					transition={PAGE_CONTENT_TRANSITION}
+					className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center"
+				>
+					{pageContent}
+				</motion.div>
+			)}
 		</div>
 	);
 }

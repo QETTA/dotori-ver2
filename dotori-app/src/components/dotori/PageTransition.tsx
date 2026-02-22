@@ -18,25 +18,35 @@ const PAGE_TRANSITION = {
 
 type PageTransitionProps = {
 	children: ReactNode;
+	className?: string;
 };
 
-function PageTransitionComponent({ children }: PageTransitionProps) {
+function PageTransitionComponent({ children, className }: PageTransitionProps) {
 	const pathname = usePathname();
 	const shouldReduceMotion = useReducedMotion() === true;
 	const controls = useAnimationControls();
 
 	useIsomorphicLayoutEffect(() => {
+		controls.stop();
+
 		if (shouldReduceMotion) {
-			controls.set(PAGE_TARGET);
 			return;
 		}
 
 		controls.set(PAGE_INITIAL);
 		void controls.start(PAGE_TARGET, PAGE_TRANSITION);
+
+		return () => {
+			controls.stop();
+		};
 	}, [controls, pathname, shouldReduceMotion]);
 
+	if (shouldReduceMotion) {
+		return <div className={className}>{children}</div>;
+	}
+
 	return (
-		<motion.div initial={false} animate={controls}>
+		<motion.div initial={false} animate={controls} className={className}>
 			{children}
 		</motion.div>
 	);
