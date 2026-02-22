@@ -102,8 +102,8 @@ export function AiBriefingCard({
 	return (
 		<Surface
 			className={cn(
-				"p-5 motion-safe:animate-in motion-safe:fade-in duration-300",
-				"bg-gradient-to-br from-white via-white to-dotori-50/70 dark:from-dotori-950 dark:via-dotori-950 dark:to-dotori-900/70",
+				"px-4 py-3 motion-safe:animate-in motion-safe:fade-in duration-300 sm:px-5 sm:py-4",
+				"bg-dotori-50/80 ring-1 ring-dotori-200/60 dark:bg-dotori-950/40 dark:ring-dotori-700/30",
 			)}
 		>
 			{/* 브랜드 워터마크 */}
@@ -128,10 +128,10 @@ export function AiBriefingCard({
 							<p className="mt-0.5 text-xs text-dotori-600 dark:text-dotori-300">조건에 맞는 시설부터 빠르게 정리했어요</p>
 						</div>
 					</div>
-					<SourceChip source={sourceLabel} updatedAt={updatedAt} freshness="realtime" />
+					<SourceChip source={sourceLabel} updatedAt={updatedAt} freshness="realtime" selected={true} />
 				</div>
 
-				<div className="mt-3">
+				<div className="mt-4">
 					{hasMessage ? (
 						<p className="text-sm leading-relaxed text-dotori-800 dark:text-dotori-100">{message}</p>
 					) : hasInsightItems ? (

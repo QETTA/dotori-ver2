@@ -13,22 +13,41 @@ import {
 
 type ToastProps = ToastData & { onDismiss: () => void };
 
-const backgroundByType: Record<ToastProps["type"], string> = {
-	success: "bg-forest-500",
-	error: "bg-danger",
-	info: "bg-dotori-900 dark:bg-dotori-800",
-	undo: "bg-dotori-900 dark:bg-dotori-800",
-};
-
-const iconClassByType: Record<ToastProps["type"], string> = {
-	success: "text-white",
-	error: "text-white",
-	info: "text-white",
-	undo: "text-dotori-100 dark:text-dotori-50",
+const toneByType: Record<
+	ToastProps["type"],
+	{ container: string; icon: string; action: string }
+> = {
+	success: {
+		container:
+			"bg-forest-100 text-forest-800 border-forest-200 dark:bg-forest-900/20 dark:text-forest-100 dark:border-forest-700/40",
+		icon: "text-forest-700 dark:text-forest-100",
+		action:
+			"text-forest-900 hover:text-forest-950 dark:text-forest-100 dark:hover:text-white",
+	},
+	error: {
+		container:
+			"bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-100 dark:border-red-700/40",
+		icon: "text-red-600 dark:text-red-100",
+		action:
+			"text-red-800 hover:text-red-900 dark:text-red-100 dark:hover:text-white",
+	},
+	info: {
+		container:
+			"bg-dotori-900 text-white border-dotori-900/20 dark:bg-dotori-900/40 dark:text-dotori-50 dark:border-dotori-700/40",
+		icon: "text-white",
+		action: "text-white/90 hover:text-white",
+	},
+	undo: {
+		container:
+			"bg-dotori-900 text-white border-dotori-900/20 dark:bg-dotori-900/40 dark:text-dotori-50 dark:border-dotori-700/40",
+		icon: "text-white",
+		action: "text-white/90 hover:text-white",
+	},
 };
 
 export function Toast({ type, message, action, onDismiss }: ToastProps) {
 	const [isDragging, setIsDragging] = useState(false);
+	const tone = toneByType[type];
 
 	return (
 		<motion.div
@@ -48,34 +67,38 @@ export function Toast({ type, message, action, onDismiss }: ToastProps) {
 				}
 			}}
 			className={cn(
-				"pointer-events-auto relative mx-4 mb-2 flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-white shadow-2xl dark:shadow-none",
-				backgroundByType[type],
+				"pointer-events-auto relative mx-4 mb-2 flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-md dark:shadow-none",
+				tone.container,
 			)}
 		>
 			<motion.div
-				className="absolute -top-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/60 dark:bg-dotori-200/30"
+				className="absolute -top-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-current"
 				animate={{ opacity: isDragging ? 0.95 : 0.35 }}
 				transition={{ duration: 0.2 }}
 			/>
 			{type === "success" && (
-				<CheckCircleIcon className={cn("h-5 w-5", iconClassByType[type])} />
+				<CheckCircleIcon className={cn("h-5 w-5", tone.icon)} />
 			)}
-			{type === "error" && <XCircleIcon className={cn("h-5 w-5", iconClassByType[type])} />}
+			{type === "error" && <XCircleIcon className={cn("h-5 w-5", tone.icon)} />}
 			{type === "info" && (
-				<InformationCircleIcon className={cn("h-5 w-5", iconClassByType[type])} />
+				<InformationCircleIcon className={cn("h-5 w-5", tone.icon)} />
 			)}
 			{type === "undo" && (
-				<ArrowUturnLeftIcon className={cn("h-5 w-5", iconClassByType[type])} />
+				<ArrowUturnLeftIcon className={cn("h-5 w-5", tone.icon)} />
 			)}
-				<span className="flex-1 text-sm">{message}</span>
-				{action && (
-					<button
-						onClick={action.onClick}
-						className="text-sm font-semibold text-white/90 hover:text-white"
-					>
-						{action.label}
-					</button>
-				)}
+			<span className="min-w-0 flex-1 text-sm leading-snug">{message}</span>
+			{action ? (
+				<button
+					type="button"
+					onClick={action.onClick}
+					className={cn(
+						"min-h-11 shrink-0 rounded-lg px-3 text-sm font-semibold transition-transform active:scale-[0.97]",
+						tone.action,
+					)}
+				>
+					{action.label}
+				</button>
+			) : null}
 		</motion.div>
 	);
 }

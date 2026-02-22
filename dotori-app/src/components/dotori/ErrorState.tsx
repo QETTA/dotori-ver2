@@ -28,11 +28,11 @@ export function ErrorState({
 	return (
 		<div
 			className={cn(
-				"px-5 py-8 text-center",
+				"px-5 py-6 text-center",
 				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-300",
 			)}
 		>
-			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-5">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img
 					src={illustrations[variant]}
@@ -47,7 +47,7 @@ export function ErrorState({
 					</p>
 				) : null}
 				{action ? (
-					<Button color="dotori" onClick={action.onClick} className="min-h-11">
+					<Button color="dotori" onClick={action.onClick} className="min-h-11 w-full">
 						{action.label}
 					</Button>
 				) : null}

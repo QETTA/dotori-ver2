@@ -27,11 +27,11 @@ export default function EmptyStateFallback({
 		initial: { opacity: 0, y: 16 },
 		animate: { opacity: 1, y: 0 },
 		transition: { duration: 0.4, ease: "easeOut" as const },
-	}
+	};
 
 	return (
-		<motion.div className="px-5 py-8 text-center" {...motionProps}>
-			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+		<motion.div className="px-5 py-6 text-center" {...motionProps}>
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-5">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img
 					src={BRAND.emptyState}
@@ -42,7 +42,7 @@ export default function EmptyStateFallback({
 				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
 				{message ? <p className="text-sm text-dotori-600 dark:text-dotori-300">{message}</p> : null}
 				{actionLabel && onAction ? (
-					<Button color="dotori" onClick={onAction} className="min-h-11">
+					<Button color="dotori" onClick={onAction} className="min-h-11 w-full">
 						{actionLabel}
 					</Button>
 				) : null}
@@ -78,32 +78,24 @@ export function EmptyState({
 		description ??
 		(variant === "transfer"
 			? "요청하신 이동 조건에 맞는 시설을 찾지 못했습니다. 조건을 조정해 다시 검색해 보세요."
-			: undefined)
+			: undefined);
 
-	const transferIcon = (
-		<div className="mb-5 rounded-full bg-forest-100 px-5 py-3 text-2xl text-forest-500">
-			↔️
-		</div>
-	)
+	const transferIcon = <span className="text-2xl" aria-hidden="true">↔️</span>;
 
 	const motionProps = {
 		initial: { opacity: 0, y: 16 },
 		animate: { opacity: 1, y: 0 },
 		transition: { duration: 0.4, ease: "easeOut" as const },
-	}
+	};
 
-	const resolvedIcon =
-		icon ??
-		(variant === "transfer"
-			? transferIcon
-			: null)
+	const resolvedIcon = icon ?? (variant === "transfer" ? transferIcon : null);
 
 	return (
 		<motion.div
-			className={cn("px-5 py-8 text-center")}
+			className={cn("px-5 py-6 text-center")}
 			{...motionProps}
 		>
-			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-5">
 				{resolvedIcon ? (
 					<div className="rounded-full bg-dotori-100 p-5 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 						{resolvedIcon}
@@ -128,7 +120,7 @@ export function EmptyState({
 						color="dotori"
 						href={actionHref}
 						onClick={onAction}
-						className="min-h-11"
+						className="min-h-11 w-full"
 					>
 						{actionLabel}
 					</Button>
@@ -136,7 +128,7 @@ export function EmptyState({
 				{secondaryLabel && secondaryHref ? (
 					<Link
 						href={secondaryHref}
-						className="text-sm font-medium text-dotori-600 underline decoration-dotori-200 underline-offset-4 transition-colors hover:text-dotori-800 dark:text-dotori-300 dark:decoration-dotori-700 dark:hover:text-dotori-100"
+						className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-dotori-200 bg-white/60 text-sm font-medium text-dotori-700 transition-colors hover:bg-white hover:text-dotori-900 active:scale-[0.97] dark:border-dotori-700 dark:bg-dotori-950/40 dark:text-dotori-200 dark:hover:bg-dotori-950/60 dark:hover:text-dotori-50"
 					>
 						{secondaryLabel}
 					</Link>

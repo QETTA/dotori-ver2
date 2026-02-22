@@ -18,6 +18,7 @@ import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outl
 import { useState } from 'react'
 import { StreamingIndicator } from './StreamingIndicator'
 import { cn } from '@/lib/utils'
+import { glass } from '@/lib/motion'
 
 export function ActionConfirmSheet({
   open,
@@ -39,14 +40,20 @@ export function ActionConfirmSheet({
   error?: string
 }) {
   const [agreed, setAgreed] = useState(false)
-  const dialogPanelClassName = cn(
+  const dialogClassName = cn(
+    glass.sheet,
+    '!bg-white/90 backdrop-blur-xl backdrop-saturate-150 !shadow-xl !ring-dotori-100/60',
+    'dark:!bg-dotori-950/75 dark:!ring-dotori-700/40'
+  )
+
+  const dialogBodyClassName = cn(
     'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-6 duration-200'
   )
 
   if (status === 'executing') {
     return (
-      <Dialog open={open} onClose={() => {}} aria-label="액션 확인">
-        <DialogBody className={dialogPanelClassName}>
+      <Dialog open={open} onClose={() => {}} aria-label="액션 확인" className={dialogClassName}>
+        <DialogBody className={dialogBodyClassName}>
           <div className="flex flex-col items-center gap-3 py-8">
             <StreamingIndicator text="처리 중이에요..." />
           </div>
@@ -57,12 +64,12 @@ export function ActionConfirmSheet({
 
   if (status === 'success') {
     return (
-      <Dialog open={open} onClose={onClose} aria-label="액션 확인">
-        <DialogBody className={dialogPanelClassName}>
+      <Dialog open={open} onClose={onClose} aria-label="액션 확인" className={dialogClassName}>
+        <DialogBody className={dialogBodyClassName}>
           <div className="flex flex-col items-center gap-3 py-8">
             <CheckCircleIcon className="h-12 w-12 text-forest-500" />
             <p className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">완료되었습니다</p>
-            <Button color="dotori" onClick={onClose}>
+            <Button color="dotori" onClick={onClose} className="min-h-11 w-full">
               확인
             </Button>
           </div>
@@ -73,16 +80,16 @@ export function ActionConfirmSheet({
 
   if (status === 'error') {
     return (
-      <Dialog open={open} onClose={onClose} aria-label="액션 확인">
-        <DialogBody className={dialogPanelClassName}>
+      <Dialog open={open} onClose={onClose} aria-label="액션 확인" className={dialogClassName}>
+        <DialogBody className={dialogBodyClassName}>
           <div className="flex flex-col items-center gap-3 py-8">
             <ExclamationCircleIcon className="h-12 w-12 text-amber-700" />
-	            <p className="text-sm text-amber-800 dark:text-amber-200">{error}</p>
-            <div className="flex gap-3">
-              <Button plain onClick={onClose}>
+            <p className="text-sm text-amber-800 dark:text-amber-200">{error}</p>
+            <div className="flex w-full flex-col gap-3 sm:flex-row">
+              <Button plain={true} onClick={onClose} className="min-h-11 w-full">
                 닫기
               </Button>
-              <Button color="dotori" onClick={onConfirm}>
+              <Button color="dotori" onClick={onConfirm} className="min-h-11 w-full">
                 재시도
               </Button>
             </div>
@@ -93,10 +100,10 @@ export function ActionConfirmSheet({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} aria-label="액션 확인">
+    <Dialog open={open} onClose={onClose} aria-label="액션 확인" className={dialogClassName}>
       <DialogTitle>{title}</DialogTitle>
       {description && <DialogDescription>{description}</DialogDescription>}
-      <DialogBody className={dialogPanelClassName}>
+      <DialogBody className={dialogBodyClassName}>
         <DescriptionList>
           {Object.entries(preview).map(([k, v]) => (
             <div key={k}>
@@ -107,13 +114,13 @@ export function ActionConfirmSheet({
         </DescriptionList>
         <CheckboxField className="mt-4">
           <Checkbox checked={agreed} onChange={setAgreed} />
-	          <span className="text-sm text-dotori-800 dark:text-dotori-100">위 내용이 맞습니다</span>
+          <span className="text-sm text-dotori-800 dark:text-dotori-100">위 내용이 맞습니다</span>
         </CheckboxField>
-        <div className="mt-4 flex gap-3">
-          <Button plain onClick={onClose}>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <Button plain={true} onClick={onClose} className="min-h-11 w-full">
             취소
           </Button>
-          <Button color="dotori" disabled={!agreed} onClick={onConfirm}>
+          <Button color="dotori" disabled={!agreed} onClick={onConfirm} className="min-h-11 w-full">
             확인
           </Button>
         </div>
