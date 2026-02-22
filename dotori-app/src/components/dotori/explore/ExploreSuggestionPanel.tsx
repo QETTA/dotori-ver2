@@ -28,7 +28,7 @@ export function ExploreSuggestionPanel({
 							type="button"
 							plain
 							onClick={onClearRecent}
-							className="text-sm text-dotori-500 transition-colors hover:text-dotori-600"
+							className="min-h-[44px] px-2 text-sm text-dotori-500 transition-colors hover:text-dotori-600"
 						>
 							전체 삭제
 						</Button>
@@ -40,7 +40,7 @@ export function ExploreSuggestionPanel({
 								type="button"
 								onClick={() => onSelectTerm(term)}
 								plain
-								className="inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-2 text-sm text-dotori-700 transition-all hover:bg-dotori-100"
+								className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-2 text-sm text-dotori-700 transition-all hover:bg-dotori-100"
 							>
 								<ClockIcon className="h-3.5 w-3.5 text-dotori-300" />
 								{term}
@@ -62,7 +62,7 @@ export function ExploreSuggestionPanel({
 							type="button"
 							plain
 							onClick={() => onSelectTerm(term)}
-							className="rounded-full bg-white px-3 py-2 text-sm font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all hover:bg-dotori-50 hover:text-dotori-700"
+							className="inline-flex min-h-[44px] items-center rounded-full bg-white px-3 py-2 text-sm font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all hover:bg-dotori-50 hover:text-dotori-700"
 						>
 							{term}
 						</Button>
