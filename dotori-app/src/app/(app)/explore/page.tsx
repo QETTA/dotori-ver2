@@ -2,7 +2,6 @@
 
 import {
 	AdjustmentsHorizontalIcon,
-	ClockIcon,
 	ListBulletIcon,
 	MapIcon,
 	MagnifyingGlassIcon,
@@ -38,36 +37,30 @@ import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
+import { ExploreSuggestionPanel } from "@/components/dotori/explore/ExploreSuggestionPanel";
+import {
+	EXPLORE_SORT_OPTIONS,
+	EXPLORE_TYPE_FILTERS,
+	FACILITY_LOAD_TIMEOUT_MS,
+	MOVE_SCENARIO_CHIPS,
+	POPULAR_SEARCHES,
+	SEARCH_DEBOUNCE_MS,
+	type ExploreSortKey,
+} from "@/components/dotori/explore/explore-constants";
+import {
+	clearRecentSearches,
+	getRecentSearches,
+	saveRecentSearch,
+} from "@/components/dotori/explore/explore-storage";
+import {
+	buildResultLabel,
+	isValidFacilityType,
+} from "@/components/dotori/explore/explore-utils";
 
 const MapEmbed = dynamic(
 	() => import("@/components/dotori/MapEmbed").then((mod) => mod.MapEmbed),
 	{ ssr: false },
 );
-
-const typeFilters = ["국공립", "민간", "가정", "직장", "공공형"];
-type SortKey = "distance" | "rating" | "capacity";
-const sortOptions: { key: SortKey; label: string }[] = [
-	{ key: "distance", label: "거리순" },
-	{ key: "rating", label: "평점순" },
-	{ key: "capacity", label: "정원순" },
-];
-
-const RECENT_SEARCHES_KEY = "dotori_recent_searches";
-const MAX_RECENT_SEARCHES = 5;
-const SEARCH_DEBOUNCE_MS = 300;
-const FACILITY_LOAD_TIMEOUT_MS = 8000;
-const MOVE_SCENARIO_CHIPS = ["반편성 불만", "교사 교체", "국공립 당첨", "이사 예정"];
-const POPULAR_SEARCHES = [
-	"반편성 불만",
-	"교사 교체",
-	"국공립 당첨",
-	"이사 예정",
-	"국공립",
-	"강남구",
-	"연장보육",
-	"통학버스",
-	"영아전문",
-];
 
 interface ReverseGeocodeResponse {
 	data: {
@@ -81,69 +74,6 @@ interface GPSState {
 	lat: number | null;
 	lng: number | null;
 	loading: boolean;
-}
-
-// ── localStorage helpers ──
-
-function getRecentSearches(): string[] {
-	if (typeof window === "undefined") return [];
-	try {
-		const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
-		if (!raw) return [];
-		const parsed = JSON.parse(raw);
-		if (!Array.isArray(parsed)) return [];
-		return parsed.filter((s): s is string => typeof s === "string").slice(0, MAX_RECENT_SEARCHES);
-	} catch {
-		return [];
-	}
-}
-
-function saveRecentSearch(term: string) {
-	if (typeof window === "undefined") return;
-	const trimmed = term.trim();
-	if (!trimmed) return;
-	try {
-		const prev = getRecentSearches();
-		const next = [trimmed, ...prev.filter((s) => s !== trimmed)].slice(
-			0,
-			MAX_RECENT_SEARCHES,
-		);
-		localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
-	} catch {
-		// Storage full or blocked — silently fail
-	}
-}
-
-function clearRecentSearches() {
-	if (typeof window === "undefined") return;
-	try {
-		localStorage.removeItem(RECENT_SEARCHES_KEY);
-	} catch {
-		// silently fail
-	}
-}
-
-function buildResultLabel({
-	selectedSido,
-	selectedSigungu,
-	selectedTypes,
-	total,
-	isLoading,
-}: {
-	selectedSido: string;
-	selectedSigungu: string;
-	selectedTypes: string[];
-	total: number;
-	isLoading: boolean;
-}): string {
-	if (isLoading) return "검색 중...";
-	const district = selectedSigungu || selectedSido || "전국";
-	const typeLabel = selectedTypes.length === 1 ? `${selectedTypes[0]} ` : "";
-	return `${district} ${typeLabel}어린이집 ${total.toLocaleString()}개`;
-}
-
-function isValidFacilityType(value: string, allowed: string[]): value is string {
-	return allowed.includes(value);
 }
 
 export default function ExplorePage() {
@@ -179,12 +109,12 @@ function ExploreContent() {
 			?.split(",")
 			.map((value) => value.trim()) ?? [];
 		const validTypes = typesFromQuery.filter((value): value is string =>
-			isValidFacilityType(value, typeFilters),
+			isValidFacilityType(value, EXPLORE_TYPE_FILTERS),
 		);
 		return validTypes.length > 0 ? validTypes : [];
 	});
 	const [toOnly, setToOnly] = useState(searchParams.get("to") === "1");
-	const [sortBy, setSortBy] = useState<SortKey>(() => {
+	const [sortBy, setSortBy] = useState<ExploreSortKey>(() => {
 		const s = searchParams.get("sort") || "";
 		return s === "distance" || s === "rating" || s === "capacity"
 			? s
@@ -625,65 +555,14 @@ function ExploreContent() {
 							</div>
 						</div>
 
-						{/* ── 최근 검색 & 인기 검색어 패널 ── */}
-						{showSuggestionPanel && (
-							<div className="absolute left-0 right-0 top-full z-30 mt-2 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-dotori-100 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1 duration-150">
-								{/* 최근 검색 */}
-								{recentSearches.length > 0 && (
-									<div className="mb-4">
-										<div className="mb-2.5 flex items-center justify-between">
-											<div className="flex items-center gap-1.5">
-												<ClockIcon className="h-4 w-4 text-dotori-500" />
-												<Text className="text-sm font-medium text-dotori-500">최근 검색</Text>
-											</div>
-											<Button
-												type="button"
-												plain
-												onClick={handleClearRecent}
-												className="text-sm text-dotori-500 transition-colors hover:text-dotori-600"
-											>
-												전체 삭제
-											</Button>
-										</div>
-										<div className="flex flex-wrap gap-2">
-											{recentSearches.map((term) => (
-												<Button
-													key={term}
-													type="button"
-													onClick={() => handleChipClick(term)}
-													plain
-													className="inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-2 text-sm text-dotori-700 transition-all hover:bg-dotori-100"
-												>
-													<ClockIcon className="h-3.5 w-3.5 text-dotori-300" />
-													{term}
-												</Button>
-											))}
-										</div>
-									</div>
-								)
-								}
-
-								<div>
-									<div className="mb-2.5 flex items-center gap-1.5">
-										<MagnifyingGlassIcon className="h-4 w-4 text-dotori-500" />
-										<Text className="text-sm font-medium text-dotori-500">인기 검색어</Text>
-									</div>
-									<div className="flex flex-wrap gap-2">
-										{POPULAR_SEARCHES.map((term) => (
-											<Button
-												key={term}
-													type="button"
-													plain
-													onClick={() => handleChipClick(term)}
-													className="rounded-full bg-white px-3 py-2 text-sm font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all hover:bg-dotori-50 hover:text-dotori-700"
-											>
-												{term}
-											</Button>
-										))}
-									</div>
-								</div>
-							</div>
-						)}
+						{showSuggestionPanel ? (
+							<ExploreSuggestionPanel
+								recentSearches={recentSearches}
+								popularSearches={POPULAR_SEARCHES}
+								onClearRecent={handleClearRecent}
+								onSelectTerm={handleChipClick}
+							/>
+						) : null}
 					</div>
 
 					<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -742,7 +621,7 @@ function ExploreContent() {
 							<Field>
 								<Text className="mb-2 block text-sm font-medium text-dotori-500">시설 유형</Text>
 								<div className="flex flex-wrap gap-2">
-									{typeFilters.map((type) => {
+									{EXPLORE_TYPE_FILTERS.map((type) => {
 										const isTypeSelected = selectedTypes.includes(type);
 
 										return (
@@ -797,7 +676,7 @@ function ExploreContent() {
 							<Field>
 								<Text className="mb-2 block text-sm font-medium text-dotori-500">정렬</Text>
 								<div className="flex gap-2">
-									{sortOptions.map((opt) => (
+									{EXPLORE_SORT_OPTIONS.map((opt) => (
 										<Button
 											key={opt.key}
 											type="button"
