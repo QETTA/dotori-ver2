@@ -41,6 +41,7 @@ Claude Code (지휘관, Opus 4.6)
 ├── project_overview.md         ← 프로젝트 구조/현재 상태 (최신 유지 필수)
 ├── code_style_and_conventions.md ← 코딩 컨벤션 (Codex 필독)
 ├── agent_task_registry.md      ← 에이전트 파일 소유권 맵 (라운드별 갱신)
+├── pending_tasks.md            ← 잔여 과제 + 세션 시작 체크리스트
 ├── opus_analysis_r12.md        ← Opus 분석 결과 (P0~P3 이슈)
 └── worktree_pipeline.md        ← 파이프라인 트러블슈팅
 ```

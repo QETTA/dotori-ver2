@@ -55,7 +55,11 @@ src/
 │       └── health/                 liveness, deep (DB ping)
 ├── components/
 │   ├── catalyst/            # 27 Headless UI components (DO NOT modify internals)
-│   ├── dotori/              # 20 custom app components
+│   ├── dotori/              # 44 custom app components
+│   │   ├── (root)           #   20 core (FacilityCard, ChatBubble, Toast, etc.)
+│   │   ├── blocks/          #   7 structured chat blocks
+│   │   ├── explore/         #   4 explore helpers/panels
+│   │   └── facility/        #   13 facility detail sub-components
 │   ├── landing/             # Landing page components
 │   └── shared/              # AuthProvider
 ├── hooks/                   # useAppState (Context + Reducer)
@@ -151,7 +155,7 @@ doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ## Current State (2026-02-22, R13 완료)
 
 - **47 pages**, 0 TypeScript errors, **55 tests**
-- **14 models**, **35 API routes**, **48 components** (27 catalyst + 20 dotori + 1 landing)
+- **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
 - **91 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11)
 - **P0~P1 보안 이슈 0건** (R13에서 전체 수정)
