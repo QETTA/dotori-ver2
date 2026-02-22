@@ -8,6 +8,7 @@ import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { BRAND } from "@/lib/brand-assets";
+import { fadeIn, fadeUp, stagger, tap } from "@/lib/motion";
 import {
 	ChatBubbleLeftIcon,
 	HeartIcon,
@@ -18,6 +19,7 @@ import {
 	UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon, FireIcon } from "@heroicons/react/24/solid";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -322,7 +324,7 @@ export default function CommunityPage() {
 
 	return (
 		<div className="relative pb-16">
-			<header className="sticky top-0 z-20 border-b border-dotori-100/60 bg-gradient-to-b from-white via-dotori-50/90 to-dotori-50/60 px-4 pb-1 pt-4 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 px-4 pb-1 pt-4">
 				<div className="relative flex items-center justify-between pb-3">
 					<div className="flex items-center gap-2">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -355,8 +357,8 @@ export default function CommunityPage() {
 									className={cn(
 											"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-sm font-semibold transition-all",
 											isActive
-												? "bg-dotori-900 text-white shadow-md shadow-dotori-200"
-												: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70",
+												? "bg-dotori-900 text-white shadow-md shadow-dotori-200 dark:bg-dotori-500 dark:shadow-none"
+												: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:hover:bg-dotori-900",
 										)}
 									>
 									{tab}
@@ -369,10 +371,13 @@ export default function CommunityPage() {
 
 			<div className="px-4 pt-4">
 				{isTransitionMonth ? (
-						<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-sm text-forest-700">
+						<motion.div
+							{...fadeUp}
+							className="mb-4 rounded-2xl bg-forest-50 p-4 text-sm text-forest-700 dark:bg-dotori-900 dark:text-forest-200"
+						>
 							<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
 							나눠보세요.
-						</div>
+						</motion.div>
 				) : null}
 
 				{userId &&
@@ -384,22 +389,22 @@ export default function CommunityPage() {
 							onClick={handleGpsVerify}
 							disabled={isVerifying}
 							className={cn(
-								"mb-4 flex w-full items-center gap-3 rounded-2xl bg-forest-50 p-4 text-left transition-all active:scale-[0.98]",
+								"mb-4 flex w-full items-center gap-3 rounded-2xl bg-forest-50 p-4 text-left transition-all active:scale-[0.98] dark:bg-dotori-900",
 								isVerifying && "opacity-70",
 							)}
 						>
-							<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest-100">
+							<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-forest-100 dark:bg-dotori-800">
 								{isVerifying ? (
 									<div className="h-5 w-5 animate-spin rounded-full border-2 border-forest-300 border-t-forest-600" />
 								) : (
-									<MapPinIcon className="h-5 w-5 text-forest-600" />
+									<MapPinIcon className="h-5 w-5 text-forest-600 dark:text-forest-300" />
 								)}
 							</div>
 							<div className="min-w-0 flex-1">
-									<p className="text-base font-semibold text-forest-800">
+									<p className="text-base font-semibold text-forest-800 dark:text-forest-200">
 										{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
 									</p>
-									<p className="text-sm text-forest-600">
+									<p className="text-sm text-forest-600 dark:text-forest-200/80">
 										{isVerifying
 											? "GPS로 현재 위치를 확인하고 있어요"
 											: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
@@ -427,24 +432,22 @@ export default function CommunityPage() {
 						}}
 					/>
 				) : posts.length > 0 ? (
-					<div className="space-y-3.5">
-						{posts.map((post, index) => {
+					<div>
+						<motion.ul {...stagger.container} className="space-y-3.5">
+						{posts.map((post) => {
 							const anonStyle = getAnonymousStyle(post.id);
 							const postHot = isHotPost(post);
 
 							return (
-								<article
+								<motion.li
 									key={post.id}
+									{...stagger.item}
+									{...tap.card}
 									className={cn(
-										"rounded-[28px] border border-dotori-100 bg-white p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)]",
-										"motion-safe:animate-in motion-safe:fade-in duration-300",
+										"rounded-[28px] border border-dotori-100 bg-white p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
 									)}
-									style={{
-										animationDelay: `${index * 60}ms`,
-										animationFillMode: "both",
-									}}
 								>
-									<div className="relative rounded-2xl bg-gradient-to-b from-dotori-50/70 to-white p-4">
+									<div className="relative rounded-2xl bg-gradient-to-b from-dotori-50/70 to-white p-4 dark:from-dotori-900/70 dark:to-dotori-950">
 										<div className="mb-2 flex items-start justify-between gap-2">
 											<div className="flex min-w-0 items-start gap-2.5">
 												<div
@@ -457,7 +460,7 @@ export default function CommunityPage() {
 													<UserCircleIcon className={cn("h-5 w-5", anonStyle.icon)} />
 												</div>
 												<div className="min-w-0 flex-1">
-														<p className="text-base font-semibold text-dotori-900">
+														<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
 															익명 부모
 														</p>
 														<div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -480,7 +483,7 @@ export default function CommunityPage() {
 												</div>
 											</div>
 												<p
-													className="shrink-0 text-sm text-dotori-500"
+													className="shrink-0 text-sm text-dotori-600 dark:text-dotori-300"
 													suppressHydrationWarning
 												>
 													{formatRelativeTime(post.createdAt)}
@@ -488,14 +491,14 @@ export default function CommunityPage() {
 											</div>
 
 											{postHot ? (
-												<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-xs font-semibold text-forest-700">
+												<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-xs font-semibold text-forest-700 dark:bg-dotori-900 dark:text-forest-200">
 													<FireIcon className="h-4 w-4" />
 													인기
 												</div>
 											) : null}
 
 											<Link href={`/community/${post.id}`} className="block">
-												<p className="min-h-[56px] text-base leading-relaxed text-dotori-800">
+												<p className="min-h-[56px] text-base leading-relaxed text-dotori-800 dark:text-dotori-100">
 													{post.content}
 												</p>
 											</Link>
@@ -531,19 +534,22 @@ export default function CommunityPage() {
 														className={cn(
 															"flex min-h-[56px] items-center gap-1.5 py-2 text-sm font-medium transition-colors",
 															showAiSummary[post.id]
-																? "text-dotori-700"
-																: "text-dotori-500",
+																? "text-dotori-700 dark:text-dotori-100"
+																: "text-dotori-500 dark:text-dotori-300",
 														)}
 													>
 													<SparklesIcon className="h-4 w-4" />
 													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
 												</Button>
 													{showAiSummary[post.id] ? (
-														<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in duration-200">
-															<p className="text-sm leading-relaxed text-dotori-600">
+														<motion.div
+															{...fadeIn}
+															className="mt-1.5 rounded-xl bg-dotori-50 p-3 dark:bg-dotori-900/60"
+														>
+															<p className="text-sm leading-relaxed text-dotori-600 dark:text-dotori-200">
 																{post.aiSummary}
 															</p>
-														</div>
+														</motion.div>
 													) : null}
 												</div>
 										) : null}
@@ -559,8 +565,8 @@ export default function CommunityPage() {
 											className={cn(
 												"flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl transition-colors active:scale-[0.97]",
 												likedPosts.has(post.id)
-													? "bg-forest-50 text-forest-700"
-													: "bg-dotori-50/70 text-dotori-600 hover:bg-dotori-100/70",
+													? "bg-forest-50 text-forest-700 dark:bg-dotori-900 dark:text-forest-200"
+													: "bg-dotori-50/70 text-dotori-600 hover:bg-dotori-100/70 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800",
 											)}
 										>
 											{likedPosts.has(post.id) ? (
@@ -573,24 +579,27 @@ export default function CommunityPage() {
 										<Link
 											href={`/community/${post.id}`}
 											aria-label="댓글"
-											className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 transition-colors hover:bg-dotori-100/70"
+											className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 transition-colors hover:bg-dotori-100/70 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800"
 										>
 											<ChatBubbleLeftIcon className="h-5 w-5" />
 											{post.commentCount}
 										</Link>
-										<div className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-500">
+										<div className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 dark:bg-dotori-900/60 dark:text-dotori-300">
 											<EyeIcon className="h-5 w-5" />
 											조회 {post.viewCount ?? 0}
 										</div>
 									</div>
-								</article>
+								</motion.li>
 							);
 						})}
+						</motion.ul>
 
 						{isLoadingMore ? (
 							<div className="mt-4 flex flex-col items-center py-4">
 								<div className="h-6 w-6 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-700" />
-								<p className="mt-2 text-sm text-dotori-500">다음 글을 불러오는 중...</p>
+								<p className="mt-2 text-sm text-dotori-600 dark:text-dotori-300">
+									다음 글을 불러오는 중...
+								</p>
 							</div>
 						) : null}
 						<div ref={loadMoreTriggerRef} className="h-2" />
@@ -603,7 +612,7 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
+				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
 				style={{ width: "56px", height: "56px" }}
 			>
 				<div className="grid h-full w-full place-items-center text-white">

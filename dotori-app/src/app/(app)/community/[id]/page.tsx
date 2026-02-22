@@ -144,15 +144,17 @@ export default function CommunityPostPage() {
 	if (isLoading) {
 		return (
 			<div className="pb-8">
-				<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
+				<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 					<button
 						onClick={() => router.back()}
 						aria-label="뒤로 가기"
-						className="p-1"
+						className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 					>
-						<ArrowLeftIcon className="h-5 w-5" />
+						<ArrowLeftIcon className="h-5 w-5 text-dotori-900 dark:text-dotori-50" />
 					</button>
-						<h1 className="text-lg font-bold">게시물</h1>
+					<h1 className="text-lg font-bold text-dotori-900 dark:text-dotori-50">
+						게시물
+					</h1>
 				</header>
 				<div className="px-5 pt-4">
 					<Skeleton variant="card" count={1} />
@@ -167,15 +169,17 @@ export default function CommunityPostPage() {
 	if (error || !post) {
 		return (
 			<div className="pb-8">
-				<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
+				<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 					<button
 						onClick={() => router.back()}
 						aria-label="뒤로 가기"
-						className="p-1"
+						className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 					>
-						<ArrowLeftIcon className="h-5 w-5" />
+						<ArrowLeftIcon className="h-5 w-5 text-dotori-900 dark:text-dotori-50" />
 					</button>
-						<h1 className="text-lg font-bold">게시물</h1>
+					<h1 className="text-lg font-bold text-dotori-900 dark:text-dotori-50">
+						게시물
+					</h1>
 				</header>
 				<div className="px-5 pt-8">
 					<ErrorState
@@ -193,15 +197,17 @@ export default function CommunityPostPage() {
 	return (
 		<div className="pb-24">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 				<button
 					onClick={() => router.back()}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
-					<ArrowLeftIcon className="h-5 w-5" />
+					<ArrowLeftIcon className="h-5 w-5 text-dotori-900 dark:text-dotori-50" />
 				</button>
-					<h1 className="text-lg font-bold">게시물</h1>
+				<h1 className="text-lg font-bold text-dotori-900 dark:text-dotori-50">
+					게시물
+				</h1>
 			</header>
 
 			<div className="px-5">
@@ -209,12 +215,12 @@ export default function CommunityPostPage() {
 				<article className="pt-2">
 					{/* 작성자 */}
 					<div className="flex items-center gap-3">
-							<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-sm font-bold text-dotori-600">
+							<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-sm font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
 								?
 							</div>
 							<div>
 								<div className="flex items-center gap-1.5">
-									<span className="text-base font-semibold text-dotori-900">
+									<span className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
 										익명 이웃
 									</span>
 									{post.author.verified && (
@@ -226,13 +232,13 @@ export default function CommunityPostPage() {
 										</Badge>
 									)}
 									{post.category && (
-										<span className="rounded bg-dotori-50 px-1.5 py-0.5 text-xs font-medium text-dotori-500">
+										<span className="rounded bg-dotori-50 px-1.5 py-0.5 text-xs font-medium text-dotori-500 dark:bg-dotori-900">
 											{categoryLabel[post.category]}
 										</span>
 									)}
 								</div>
 								<span
-									className="text-sm text-dotori-500"
+									className="text-sm text-dotori-600 dark:text-dotori-300"
 									suppressHydrationWarning
 								>
 									{formatRelativeTime(post.createdAt)}
@@ -241,7 +247,7 @@ export default function CommunityPostPage() {
 					</div>
 
 					{/* 본문 */}
-						<p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-dotori-800">
+						<p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-dotori-800 dark:text-dotori-100">
 							{post.content}
 						</p>
 
@@ -252,7 +258,7 @@ export default function CommunityPostPage() {
 									<Link
 										key={tag}
 										href={`/explore?q=${encodeURIComponent(tag)}`}
-										className="rounded-full bg-dotori-50 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-colors hover:bg-dotori-100"
+										className="rounded-full bg-dotori-50 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-colors hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-800"
 									>
 										{tag}
 									</Link>
@@ -261,15 +267,15 @@ export default function CommunityPostPage() {
 						)}
 
 					{/* 액션 바 */}
-						<div className="mt-4 flex items-center gap-4 border-b border-dotori-100/40 pb-4 text-sm text-dotori-500">
+						<div className="mt-4 flex items-center gap-4 border-b border-dotori-100/40 pb-4 text-sm text-dotori-600 dark:border-dotori-800 dark:text-dotori-300">
 							<button
 								onClick={toggleLike}
 								disabled={liking}
 								className={cn(
 									"flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors active:scale-[0.97]",
 								liked
-									? "text-red-500 hover:bg-red-50"
-									: "hover:bg-dotori-50 hover:text-dotori-600",
+									? "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-400 dark:hover:bg-dotori-900"
+									: "hover:bg-dotori-50 hover:text-dotori-700 dark:hover:bg-dotori-900 dark:hover:text-dotori-100",
 							)}
 						>
 							{liked ? (
@@ -281,7 +287,7 @@ export default function CommunityPostPage() {
 						</button>
 						<button
 							onClick={() => inputRef.current?.focus()}
-							className="flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-dotori-50 hover:text-dotori-600 active:scale-[0.97]"
+							className="flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-dotori-50 hover:text-dotori-700 active:scale-[0.97] dark:hover:bg-dotori-900 dark:hover:text-dotori-100"
 						>
 							<ChatBubbleLeftIcon className="h-5 w-5" />
 							{post.commentCount}
@@ -291,23 +297,23 @@ export default function CommunityPostPage() {
 
 				{/* 댓글 목록 */}
 				<section className="mt-4">
-						<h2 className="text-base font-bold text-dotori-900">
+						<h2 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 							댓글 {comments.length}
 						</h2>
 						{comments.length === 0 ? (
-							<p className="mt-4 text-center text-sm text-dotori-500">
+							<p className="mt-4 text-center text-sm text-dotori-600 dark:text-dotori-300">
 								첫 댓글을 남겨보세요
 							</p>
 						) : (
 							<div className="mt-3 space-y-4">
 									{comments.map((comment) => (
 										<div key={comment.id} className="flex gap-3">
-											<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-xs font-bold text-dotori-500">
+											<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-xs font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-200">
 												?
 											</div>
 											<div className="min-w-0 flex-1">
 												<div className="flex items-center gap-1.5">
-													<span className="text-sm font-semibold text-dotori-800">
+													<span className="text-sm font-semibold text-dotori-800 dark:text-dotori-100">
 														익명 이웃
 													</span>
 												{comment.author.verified && (
@@ -319,7 +325,7 @@ export default function CommunityPostPage() {
 													</Badge>
 												)}
 												<span
-													className="text-xs text-dotori-500"
+													className="text-xs text-dotori-600 dark:text-dotori-300"
 													suppressHydrationWarning
 												>
 													{formatRelativeTime(
@@ -327,7 +333,7 @@ export default function CommunityPostPage() {
 													)}
 												</span>
 											</div>
-											<p className="mt-1 text-sm leading-relaxed text-dotori-700">
+											<p className="mt-1 text-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
 												{comment.content}
 											</p>
 										</div>
@@ -339,7 +345,7 @@ export default function CommunityPostPage() {
 			</div>
 
 			{/* 댓글 입력 — 하단 고정 */}
-			<div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 border-t border-dotori-100/40 bg-white/95 px-5 py-3 backdrop-blur-sm">
+			<div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 border-t border-dotori-100/40 bg-white/95 px-5 py-3 backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/90">
 				<div className="mx-auto flex max-w-md items-center gap-2">
 					<input
 						ref={inputRef}
@@ -358,7 +364,7 @@ export default function CommunityPostPage() {
 						}
 							disabled={!session?.user}
 							maxLength={2000}
-							className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
+							className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 						/>
 					<button
 						onClick={submitComment}
@@ -367,8 +373,8 @@ export default function CommunityPostPage() {
 						className={cn(
 							"shrink-0 rounded-full p-3 transition-all active:scale-[0.97]",
 							commentText.trim() && !isSubmitting
-								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-500",
+								? "bg-dotori-900 text-white dark:bg-dotori-500"
+								: "bg-dotori-100 text-dotori-500 dark:bg-dotori-800 dark:text-dotori-300",
 						)}
 					>
 						<PaperAirplaneIcon className="h-5 w-5" />

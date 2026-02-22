@@ -13,31 +13,39 @@ const categories = [
 	{
 		key: "question",
 		label: "질문",
-		baseClass: "bg-dotori-50 text-dotori-700 border-dotori-200",
-		activeClass: "bg-dotori-900 text-white border-dotori-900",
+		baseClass:
+			"bg-dotori-50 text-dotori-700 border-dotori-200 dark:bg-dotori-900 dark:text-dotori-100 dark:border-dotori-700",
+		activeClass:
+			"bg-dotori-900 text-white border-dotori-900 dark:bg-dotori-500 dark:border-dotori-500",
 	},
 	{
 		key: "review",
 		label: "후기",
-		baseClass: "bg-forest-50 text-forest-700 border-forest-200",
+		baseClass:
+			"bg-forest-50 text-forest-700 border-forest-200 dark:bg-dotori-900 dark:text-forest-200 dark:border-dotori-700",
 		activeClass: "bg-forest-800 text-white border-forest-800",
 	},
 	{
 		key: "transition",
 		label: "이동고민",
-		baseClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
-		activeClass: "bg-emerald-800 text-white border-emerald-800",
+		baseClass:
+			"bg-dotori-100 text-dotori-700 border-dotori-200 dark:bg-dotori-900 dark:text-dotori-100 dark:border-dotori-700",
+		activeClass:
+			"bg-dotori-700 text-white border-dotori-700 dark:bg-dotori-500 dark:border-dotori-500",
 	},
 	{
 		key: "info",
 		label: "정보공유",
-		baseClass: "bg-dotori-100 text-dotori-800 border-dotori-300",
-		activeClass: "bg-dotori-700 text-white border-dotori-700",
+		baseClass:
+			"bg-dotori-100 text-dotori-800 border-dotori-300 dark:bg-dotori-900 dark:text-dotori-100 dark:border-dotori-700",
+		activeClass:
+			"bg-dotori-700 text-white border-dotori-700 dark:bg-dotori-500 dark:border-dotori-500",
 	},
 	{
 		key: "feedback",
 		label: "모임",
-		baseClass: "bg-forest-100 text-forest-600 border-forest-300",
+		baseClass:
+			"bg-forest-100 text-forest-600 border-forest-300 dark:bg-dotori-900 dark:text-forest-200 dark:border-dotori-700",
 		activeClass: "bg-forest-700 text-white border-forest-700",
 	},
 ];
@@ -157,16 +165,18 @@ function CommunityWriteForm() {
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center justify-between bg-white/95 px-4 py-3 backdrop-blur-sm">
+			<header className="glass-header sticky top-0 z-20 flex items-center justify-between px-4 py-3">
 				<button
 					onClick={() => router.push("/community")}
 					aria-label="뒤로 가기"
-					className="inline-flex items-center rounded-full px-3 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="inline-flex items-center rounded-full px-3 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:text-dotori-100 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 					<span className="ml-1.5 inline-block">취소</span>
 				</button>
-				<h1 className="text-base font-bold">글쓰기</h1>
+				<h1 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
+					글쓰기
+				</h1>
 				<Button
 					color="dotori"
 					onClick={handleSubmit}
@@ -182,7 +192,7 @@ function CommunityWriteForm() {
 			{/* 시설 연동 배지 */}
 			{presetFacilityName && (
 				<div className="px-5 pt-3">
-					<span className="inline-flex items-center gap-1 rounded-full bg-dotori-100 px-3 py-1.5 text-sm font-medium text-dotori-700">
+					<span className="inline-flex items-center gap-1 rounded-full bg-dotori-100 px-3 py-1.5 text-sm font-medium text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 20 20"
@@ -202,7 +212,9 @@ function CommunityWriteForm() {
 
 			{/* 카테고리 선택 */}
 			<div className="px-5 pt-4">
-				<h3 className="mb-2 text-sm font-medium text-dotori-700">카테고리</h3>
+				<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
+					카테고리
+				</h3>
 				<div className="flex flex-wrap gap-2">
 					{categories.map((cat) => {
 						const isActive = category === cat.key;
@@ -222,10 +234,12 @@ function CommunityWriteForm() {
 					})}
 				</div>
 				{!category && (
-					<p className="mt-2 text-xs text-dotori-600">카테고리를 선택해주세요.</p>
+					<p className="mt-2 text-xs text-dotori-600 dark:text-dotori-300">
+						카테고리를 선택해주세요.
+					</p>
 				)}
 			</div>
-			<p className="text-sm text-dotori-500">
+			<p className="text-sm text-dotori-600 dark:text-dotori-300">
 				이 게시글은 이웃들에게 익명으로 표시됩니다.
 			</p>
 
@@ -241,7 +255,7 @@ function CommunityWriteForm() {
 					placeholder="제목을 입력해주세요"
 					maxLength={120}
 					aria-required="true"
-					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-base outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
+					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 				/>
 			</div>
 
@@ -262,19 +276,21 @@ function CommunityWriteForm() {
 					rows={10}
 					maxLength={5000}
 					aria-required="true"
-					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-base leading-relaxed outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
+					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-base leading-relaxed text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 				/>
 				{content.trim().length > 0 && content.trim().length < 10 ? (
-					<p className="mt-1.5 text-xs text-dotori-600">내용은 최소 10자 이상이어야 합니다.</p>
+					<p className="mt-1.5 text-xs text-dotori-600 dark:text-dotori-300">
+						내용은 최소 10자 이상이어야 합니다.
+					</p>
 				) : null}
-				<div className="mt-1 text-right text-xs text-dotori-500">
+				<div className="mt-1 text-right text-xs text-dotori-600 dark:text-dotori-300">
 					{content.length}/5000
 				</div>
 			</div>
 
 			{/* 이미지 첨부 (UI only) */}
 			<div className="mt-5 px-5">
-				<h3 className="mb-2 text-sm font-medium text-dotori-700">
+				<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
 					이미지 첨부 (선택)
 				</h3>
 				<div className="flex flex-wrap items-center gap-2">
@@ -289,7 +305,7 @@ function CommunityWriteForm() {
 					/>
 					<label
 						htmlFor="community-image-input"
-						className="inline-flex min-h-[44px] cursor-pointer items-center rounded-xl bg-dotori-100 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97]"
+						className="inline-flex min-h-[44px] cursor-pointer items-center rounded-xl bg-dotori-100 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100"
 					>
 						사진 선택
 					</label>
@@ -297,22 +313,25 @@ function CommunityWriteForm() {
 						<button
 							onClick={clearImages}
 							type="button"
-							className="inline-flex min-h-[44px] items-center rounded-xl bg-dotori-50 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97]"
+							className="inline-flex min-h-[44px] items-center rounded-xl bg-dotori-50 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-900 dark:text-dotori-100"
 						>
 							선택 초기화
 						</button>
 					) : null}
 				</div>
 				{imageFiles.length > 0 ? (
-					<ul className="mt-2 space-y-1 text-sm text-dotori-700">
+					<ul className="mt-2 space-y-1 text-sm text-dotori-700 dark:text-dotori-100">
 						{imageFiles.map((name) => (
-							<li key={name} className="rounded-lg bg-dotori-50 px-3 py-2">
+							<li
+								key={name}
+								className="rounded-lg bg-dotori-50 px-3 py-2 dark:bg-dotori-900"
+							>
 								{name}
 							</li>
 						))}
 					</ul>
 				) : (
-					<p className="mt-2 text-xs text-dotori-500">
+					<p className="mt-2 text-xs text-dotori-600 dark:text-dotori-300">
 						첨부한 이미지가 없습니다. 현재는 첨부 UI만 제공합니다.
 					</p>
 				)}
@@ -320,7 +339,7 @@ function CommunityWriteForm() {
 
 			{/* 시설 태그 */}
 			<div className="mt-4 px-5">
-				<h3 className="mb-2 text-sm font-medium text-dotori-600">
+				<h3 className="mb-2 text-sm font-medium text-dotori-600 dark:text-dotori-300">
 					관련 시설 태그 (선택)
 				</h3>
 				<div className="flex gap-2">
@@ -334,7 +353,7 @@ function CommunityWriteForm() {
 							}
 						}}
 						placeholder="시설 이름 입력"
-						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-sm outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-300"
+						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 					/>
 					<button
 						onClick={addTag}
@@ -342,8 +361,8 @@ function CommunityWriteForm() {
 						className={cn(
 							"shrink-0 rounded-xl px-4 py-3 text-sm font-medium transition-all active:scale-[0.97]",
 							tagInput.trim()
-								? "bg-dotori-900 text-white"
-								: "bg-dotori-100 text-dotori-500",
+								? "bg-dotori-900 text-white dark:bg-dotori-500"
+								: "bg-dotori-100 text-dotori-500 dark:bg-dotori-800 dark:text-dotori-300",
 						)}
 					>
 						추가
@@ -355,10 +374,10 @@ function CommunityWriteForm() {
 							<button
 								key={tag}
 								onClick={() => removeTag(tag)}
-								className="flex items-center gap-1 rounded-full bg-dotori-100 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-all active:scale-[0.97]"
+								className="flex items-center gap-1 rounded-full bg-dotori-100 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-all active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100"
 							>
 								{tag}
-								<span className="text-dotori-500">&times;</span>
+								<span className="text-dotori-500 dark:text-dotori-300">&times;</span>
 							</button>
 						))}
 					</div>

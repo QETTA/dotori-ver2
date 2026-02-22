@@ -2,8 +2,8 @@ import Link from "next/link";
 
 export function CommunityEmptyState({ message }: { message: string }) {
 	return (
-		<div className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-dotori-50 to-white px-4 py-6 text-center">
-			<div className="mx-auto mb-5 h-44 w-44 rounded-[2rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(253,242,232,0.7))] p-4">
+		<div className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-dotori-50 to-white px-4 py-6 text-center dark:border-dotori-800 dark:from-dotori-900 dark:to-dotori-950">
+			<div className="mx-auto mb-5 h-44 w-44 rounded-[2rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(253,242,232,0.7))] p-4 dark:bg-dotori-900">
 				<svg
 					viewBox="0 0 180 180"
 					fill="none"
@@ -39,11 +39,13 @@ export function CommunityEmptyState({ message }: { message: string }) {
 					<circle cx="147" cy="126" r="8" fill="#F5D5A7" />
 				</svg>
 			</div>
-			<h3 className="text-base font-semibold text-dotori-900">이웃 글이 아직 없어요</h3>
-			<p className="mt-2 text-sm text-dotori-600">{message}</p>
+			<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+				이웃 글이 아직 없어요
+			</h3>
+			<p className="mt-2 text-sm text-dotori-600 dark:text-dotori-300">{message}</p>
 				<Link
 					href="/community/write"
-					className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-base font-semibold text-white transition-all active:scale-[0.98]"
+					className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-base font-semibold text-white transition-all active:scale-[0.98] dark:bg-dotori-500"
 				>
 					첫 번째 이웃 이야기를 올려보세요
 				</Link>
