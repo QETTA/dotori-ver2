@@ -25,7 +25,7 @@
     "clean": "rm -rf .next node_modules/.cache",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test e2e src/__tests__/e2e"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
