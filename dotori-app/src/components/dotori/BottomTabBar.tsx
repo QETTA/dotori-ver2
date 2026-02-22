@@ -82,8 +82,6 @@ export const BottomTabBar = memo(function BottomTabBar() {
 						<Link
 							key={tab.id}
 							href={tab.href}
-							role="tab"
-							aria-selected={active}
 							aria-current={active ? "page" : undefined}
 							aria-label={tab.label}
 							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"

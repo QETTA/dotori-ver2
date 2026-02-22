@@ -342,7 +342,7 @@ export default function CommunityPage() {
 					/>
 				</div>
 
-				<div className="overflow-x-auto" role="tablist" aria-label="커뮤니티 탭">
+				<nav className="overflow-x-auto" aria-label="커뮤니티 카테고리">
 					<div className="flex min-w-max gap-2 pb-3">
 						{tabs.map((tab) => {
 							const isActive = activeTab === tab;
@@ -351,8 +351,7 @@ export default function CommunityPage() {
 									plain={true}
 									type="button"
 									key={tab}
-									role="tab"
-									aria-selected={isActive}
+									aria-pressed={isActive}
 									onClick={() => setActiveTab(tab)}
 									className={cn(
 										"min-h-11 min-w-max rounded-full px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97]",
@@ -366,7 +365,7 @@ export default function CommunityPage() {
 							);
 						})}
 					</div>
-				</div>
+				</nav>
 			</header>
 
 			<div className="px-4 pt-4">
@@ -602,13 +601,15 @@ export default function CommunityPage() {
 				)}
 			</div>
 
-			<Link
-				href="/community/write"
-				aria-label="글쓰기"
-				className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-dotori-900 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
-			>
-				<PlusIcon className="h-6 w-6 text-white" />
-			</Link>
+			{!isLoading && !error && posts.length > 0 ? (
+				<Link
+					href="/community/write"
+					aria-label="글쓰기"
+					className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-dotori-900 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
+				>
+					<PlusIcon className="h-6 w-6 text-white" />
+				</Link>
+			) : null}
 		</div>
 	);
 }
