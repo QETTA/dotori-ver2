@@ -90,13 +90,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 						<p className="text-lg font-semibold text-dotori-900">
 							문제가 발생했어요
 						</p>
-						<p className="mt-2 max-w-xs text-[15px] leading-relaxed text-dotori-900/60">
+						<p className="mt-2 max-w-xs text-sm leading-relaxed text-dotori-900/60">
 							일시적인 오류가 발생했습니다. 아래 버튼을 눌러 다시 시도해주세요.
 						</p>
 						<button
 							type="button"
 							onClick={this.handleReset}
-							className="mt-5 rounded-3xl bg-dotori-400 px-7 py-4 text-[15px] font-bold text-white transition-all active:scale-[0.97] hover:bg-dotori-600"
+							className="mt-5 rounded-3xl bg-dotori-400 px-7 py-4 text-sm font-bold text-white transition-all active:scale-[0.97] hover:bg-dotori-600"
 						>
 							다시 시도
 						</button>

@@ -123,7 +123,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TAGLINE_TRANSITION}
-				className="mt-8 text-[14px] font-semibold tracking-wide text-dotori-500"
+				className="mt-8 text-sm font-semibold tracking-wide text-dotori-500"
 			>
 				이동 고민, 토리가 해결해드려요
 			</motion.p>
@@ -131,7 +131,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
-				className="mt-3 text-[18px] leading-relaxed font-bold text-dotori-700"
+				className="mt-3 text-lg leading-relaxed font-bold text-dotori-700"
 			>
 				반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
 			</motion.p>
@@ -139,7 +139,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : SUBTITLE_TRANSITION}
-				className="mt-2 text-[13px] text-dotori-400"
+				className="mt-2 text-xs text-dotori-400"
 			>
 				전국 20,000+ 어린이집 데이터
 			</motion.p>
@@ -165,12 +165,12 @@ const LoginErrorAlert = memo(function LoginErrorAlert({
 		>
 			<div className="inline-flex items-center gap-2">
 				<span
-					className="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-dotori-200 text-[11px] font-bold text-dotori-700"
+					className="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-dotori-200 text-xs font-bold text-dotori-700"
 					aria-hidden="true"
 				>
 					!
 				</span>
-				<p className="text-[13px] font-medium leading-relaxed text-dotori-700">
+				<p className="text-xs font-medium leading-relaxed text-dotori-700">
 					{message}
 				</p>
 			</div>
@@ -192,7 +192,7 @@ const LoginCard = memo(function LoginCard({
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
 			className="mt-7 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur"
 		>
-			<p className="text-[13px] leading-relaxed text-dotori-500">
+			<p className="text-xs leading-relaxed text-dotori-500">
 				빠르게 시작하고, 서비스와 바로 연결해보세요.
 			</p>
 			<Button
@@ -202,7 +202,7 @@ const LoginCard = memo(function LoginCard({
 				aria-label="카카오 계정으로 로그인"
 				color="amber"
 				className={cn(
-					"mt-5 w-full gap-2.5 px-6 py-4.5 text-[16px] font-semibold",
+					"mt-5 w-full gap-2.5 px-6 py-4.5 text-base font-semibold",
 					isLoading && "opacity-90",
 				)}
 			>
@@ -213,7 +213,7 @@ const LoginCard = memo(function LoginCard({
 					/>
 				) : (
 					<span
-						className="mr-2 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-dotori-700/15 text-[10px] font-bold text-dotori-700"
+						className="mr-2 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-dotori-700/15 text-xs font-bold text-dotori-700"
 						aria-hidden="true"
 					>
 						◯
@@ -221,7 +221,7 @@ const LoginCard = memo(function LoginCard({
 				)}
 				{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
 			</Button>
-			<p className="mt-2 text-[12px] font-medium text-dotori-400">
+			<p className="mt-2 text-xs font-medium text-dotori-400">
 				카카오 계정으로 1초 만에 시작
 			</p>
 		</motion.div>
@@ -242,7 +242,7 @@ const LoginFooter = memo(function LoginFooter({
 			>
 				<Link
 					href="/"
-					className="mt-7 inline-block py-2.5 text-[15px] text-dotori-500 transition-colors hover:text-dotori-700"
+					className="mt-7 inline-block py-2.5 text-sm text-dotori-500 transition-colors hover:text-dotori-700"
 				>
 					로그인 없이 둘러보기
 				</Link>
@@ -252,7 +252,7 @@ const LoginFooter = memo(function LoginFooter({
 				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
 				animate={FADE_IN_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-				className="mt-auto pt-10 pb-6 text-[12px] leading-relaxed text-dotori-300"
+				className="mt-auto pt-10 pb-6 text-xs leading-relaxed text-dotori-300"
 			>
 				로그인 시{" "}
 				<Link href="/my/terms" className="font-medium underline">
