@@ -5,6 +5,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## 2026-02-22 — R14: 불일치 해소 + 대규모 최적화 파이프라인
+
+### Added
+- R14 전용 병렬 런처 `dotori-app/scripts/launch-r14.sh`
+- R14 에이전트 소유권 맵 업데이트 (`.serena/memories/agent_task_registry.md`)
+
+### Changed
+- R13 보안 중심 태스크에서 R14 구조/토큰/콘솔 안정화 중심 파이프라인으로 전환
+- `ㄱ` 실행 시 머지 순서와 파일 충돌 방지 규칙을 R14 기준으로 재정의
+
+### Quality Gate
+- 완료 기준 명시: 콘솔 오류 0, lint/build 통과, Catalyst 수정 금지
+
+---
+
 ## 2026-02-22 — R13: Opus P0~P2 보안+품질 수정
 
 ### Security (P0)
