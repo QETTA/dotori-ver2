@@ -90,7 +90,7 @@ TIMEOUT=5400                                 # 90분 타임아웃
 ```bash
 cd /home/sihu2129/dotori-ver2/dotori-app
 npm run build      # 빌드 (47 pages)
-npm test           # 테스트 (91개, vitest)
+npm test           # 테스트 (106개, vitest)
 npm run dev        # 개발 서버
 
 # 배포
@@ -98,9 +98,10 @@ git push origin main
 doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
-## 현재 상태 (2026-02-22, R13 완료)
-- **47 pages**, 0 TypeScript errors, **91 tests** (vitest)
-- **91 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11)
+## 현재 상태 (2026-02-22, R17 완료)
+- **47 pages**, 0 TypeScript errors, **106 tests** (vitest, 15 test files)
+- **102 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11, R17: 11)
+- **text-[Npx] 0건** (R17에서 286건 전체 제거)
 - **P0~P1 보안 이슈 0건** (R13에서 전체 수정)
 - **MongoDB**: 20,027 시설 (17개 시도)
 - **DO 배포**: sgp 리전, App ID `29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2`

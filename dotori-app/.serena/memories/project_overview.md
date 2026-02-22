@@ -1,15 +1,16 @@
 # 도토리 (Dotori) 프로젝트 개요
 
-## 현재 상태 (2026-02-22, R13 완료)
+## 현재 상태 (2026-02-22, R17 완료)
 
-- **47 pages**, 0 TypeScript errors, **91 tests** (vitest), 빌드 성공
+- **47 pages**, 0 TypeScript errors, **106 tests** (vitest, 15 test files), 빌드 성공
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
 - **DO 배포**: DigitalOcean App Platform (sgp 리전)
   - URL: https://dotori-app-pwyc9.ondigitalocean.app
   - App ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
-- **완료 라운드**: R1(12) + R2(12) + R3(12) + R5(11) + R8(11) + R9(11) + R11(6) + R12(5) + R13(11) = **91 에이전트**
+- **완료 라운드**: R1(12) + R2(12) + R3(12) + R5(11) + R8(11) + R9(11) + R11(6) + R12(5) + R13(11) + R17(11) = **102 에이전트**
 - **보안**: P0~P1 이슈 0건 (R13에서 Opus 분석 기반 전체 수정)
+- **R17 성과**: text-[Npx] 286→0건 전체 제거, API 테스트 91→106개, response-builder 모듈 분리 완료
 
 ## R14 문서 동기화 상태 (2026-02-22)
 
@@ -98,7 +99,12 @@ facility/(13): FacilityCapacitySection, FacilityContactSection, FacilityDetailCl
 ## 엔진 구조 (토리챗)
 
 - `lib/engine/intent-classifier.ts` — 이동/반편성/교사교체 등 인텐트 분류
-- `lib/engine/response-builder.ts` — 인텐트별 응답 빌더
+- `lib/engine/response-builder/blocks.ts` — 인텐트별 응답 빌더 (메인 라우터)
+- `lib/engine/response-builder/search.ts` — 시설 검색/상세 응답
+- `lib/engine/response-builder/status.ts` — 대기 상태/현황 응답
+- `lib/engine/response-builder/recommendation.ts` — 추천/비교 응답
+- `lib/engine/response-builder/context.ts` — 컨텍스트 유틸 (검색어, 이동 시나리오)
+- `lib/engine/response-builder/types.ts` — 타입 정의
 - `lib/engine/nba-engine.ts` — NBA(Next Best Action) 조건 평가
 - `lib/ai/claude.ts` — Anthropic API 래퍼
 
