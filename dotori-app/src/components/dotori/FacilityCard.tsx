@@ -9,6 +9,8 @@ import type { ActionType, Facility, SourceInfo } from "@/types/dotori";
 import { SourceChip } from "./SourceChip";
 import { Surface } from "./Surface";
 
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
 const statusMeta = {
 	available: {
 		label: "TO 있음",
@@ -45,10 +47,10 @@ export const FacilityCard = memo(function FacilityCard({
 	const status = statusMeta[facility.status] ?? statusMeta.waiting;
 	const hasRecentUpdate = useMemo(() => {
 		const lastSyncedAtTime = new Date(facility.lastSyncedAt).getTime();
-		// eslint-disable-next-line react-hooks/purity
 		return (
 			Number.isFinite(lastSyncedAtTime) &&
-			Date.now() - lastSyncedAtTime <= 7 * 24 * 60 * 60 * 1000
+			// eslint-disable-next-line react-hooks/purity -- UI hint depends on current time.
+			Date.now() - lastSyncedAtTime <= ONE_WEEK_MS
 		);
 	}, [facility.lastSyncedAt]);
 

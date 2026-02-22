@@ -261,7 +261,7 @@ export function useFacilityDetailActions({
 		} finally {
 			setIsTogglingLike(false);
 		}
-	}, [addToast, isTogglingLike, liked, router, status, syncInterest]);
+	}, [addToast, facilityId, isTogglingLike, liked, router, status, syncInterest]);
 
 	const resetActionStatus = useCallback(() => {
 		setError(null);
