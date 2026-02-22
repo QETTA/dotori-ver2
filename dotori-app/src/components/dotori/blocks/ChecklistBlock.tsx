@@ -5,6 +5,8 @@ import type {
 	ChecklistBlock as ChecklistBlockType,
 } from "@/types/dotori";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
+import { fadeUp, stagger, tap } from "@/lib/motion";
 
 const CHECKLIST_STORAGE_PREFIX = "dotori_checklist_";
 
@@ -110,14 +112,17 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 	}
 
 	return (
-		<div className="overflow-hidden rounded-2xl border border-dotori-100 bg-white">
+		<motion.div
+			{...fadeUp}
+			className="glass-card overflow-hidden rounded-2xl border border-dotori-100 dark:border-dotori-800"
+		>
 			{/* Header */}
-			<div className="border-b border-dotori-100 px-4 py-3">
-					<h3 className="text-base font-semibold text-dotori-900">
+			<div className="border-b border-dotori-100 px-4 py-3 dark:border-dotori-800">
+					<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
 						{block.title}
 					</h3>
 				<div className="mt-2 flex items-center gap-3">
-					<div className="h-1.5 flex-1 overflow-hidden rounded-full bg-dotori-100">
+					<div className="h-1.5 flex-1 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 						<div
 							className="h-full rounded-full bg-forest-500 transition-all duration-300"
 							style={{ width: `${percentage}%` }}
@@ -130,33 +135,34 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 			</div>
 
 			{/* Categories */}
-				<div className="divide-y divide-dotori-100">
+				<div className="divide-y divide-dotori-100 dark:divide-dotori-800">
 					{block.categories.map((category) => (
 					<div key={category.title} className="px-4 py-3">
-							<h4 className="mb-2 text-sm font-semibold text-dotori-600">
+							<h4 className="mb-2 text-sm font-semibold text-dotori-600 dark:text-dotori-300">
 								{category.title}
 							</h4>
-						<ul className="space-y-1">
+						<motion.ul className="space-y-1" {...stagger.container}>
 							{category.items.map((item) => {
 								const isChecked = checkedMap[item.id] ?? false;
 								const detailId = `${item.id}-detail`;
 								return (
-									<li key={item.id}>
-										<button
+									<motion.li key={item.id} {...stagger.item}>
+										<motion.button
 											type="button"
 											role="checkbox"
 											aria-checked={isChecked}
 											aria-label={`${item.text} ${isChecked ? "완료" : "미완료"}`}
 											aria-describedby={item.detail ? detailId : undefined}
-											className="flex min-h-[44px] w-full items-start gap-3 rounded-xl px-2 py-2 text-left transition-colors active:bg-dotori-50 active:scale-[0.99]"
+											className="flex min-h-[44px] w-full items-start gap-3 rounded-xl px-2 py-2 text-left transition-colors active:bg-dotori-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:active:bg-dotori-900 dark:focus-visible:ring-dotori-500/40 dark:focus-visible:ring-offset-dotori-950"
 											onClick={() => toggleItem(item.id)}
+											{...tap.button}
 										>
 											<span
 												className={cn(
 													"mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
 													isChecked
 														? "border-forest-500 bg-forest-500"
-														: "border-dotori-200 bg-white",
+														: "border-dotori-200 bg-white dark:border-dotori-700 dark:bg-dotori-950",
 												)}
 											>
 												{isChecked && (
@@ -182,7 +188,7 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 															"text-sm leading-snug",
 															isChecked
 																? "text-dotori-500 line-through"
-																: "text-dotori-900",
+																: "text-dotori-900 dark:text-dotori-50",
 														)}
 													>
 														{item.text}
@@ -196,14 +202,14 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 														</p>
 													)}
 											</div>
-										</button>
-									</li>
+										</motion.button>
+									</motion.li>
 								);
 							})}
-						</ul>
+						</motion.ul>
 					</div>
 				))}
 			</div>
-		</div>
+		</motion.div>
 	);
 }
