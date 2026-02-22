@@ -29,20 +29,22 @@ function applyTheme(resolved: "light" | "dark") {
  * const { mode, resolved, setMode } = useTheme();
  * <button onClick={() => setMode(mode === "dark" ? "light" : "dark")}>
  */
+function getInitialMode(): ThemeMode {
+	if (typeof window === "undefined") return "system";
+	const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
+	return stored === "light" || stored === "dark" || stored === "system"
+		? stored
+		: "system";
+}
+
 export function useTheme() {
-	const [mode, setModeState] = useState<ThemeMode>("system");
+	const [mode, setModeState] = useState<ThemeMode>(getInitialMode);
 
-	// 초기 로드: localStorage에서 복원
+	// 초기 DOM 적용 (mode 변경 시마다 동기화)
 	useEffect(() => {
-		const stored = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-		const initial = stored === "light" || stored === "dark" || stored === "system"
-			? stored
-			: "system";
-		setModeState(initial);
-
-		const resolved = initial === "system" ? getSystemPreference() : initial;
+		const resolved = mode === "system" ? getSystemPreference() : mode;
 		applyTheme(resolved);
-	}, []);
+	}, [mode]);
 
 	// 시스템 테마 변경 감지
 	useEffect(() => {
