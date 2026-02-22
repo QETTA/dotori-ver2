@@ -22,6 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 					<ErrorBoundary>
 						<main
 							id="app-main-content"
+							tabIndex={-1}
 							className="mx-auto min-h-dvh max-w-md bg-dotori-50 pb-32"
 						>
 							<PageTransition>{children}</PageTransition>

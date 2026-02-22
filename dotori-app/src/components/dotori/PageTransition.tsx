@@ -1,7 +1,12 @@
 "use client";
 
 import { memo, type ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import {
+	motion,
+	useAnimationControls,
+	useIsomorphicLayoutEffect,
+	useReducedMotion,
+} from "motion/react";
 import { usePathname } from "next/navigation";
 
 const PAGE_INITIAL = { opacity: 0, y: 8 } as const;
@@ -18,18 +23,20 @@ type PageTransitionProps = {
 function PageTransitionComponent({ children }: PageTransitionProps) {
 	const pathname = usePathname();
 	const shouldReduceMotion = useReducedMotion() === true;
+	const controls = useAnimationControls();
 
-	if (shouldReduceMotion) {
-		return <div>{children}</div>;
-	}
+	useIsomorphicLayoutEffect(() => {
+		if (shouldReduceMotion) {
+			controls.set(PAGE_TARGET);
+			return;
+		}
+
+		controls.set(PAGE_INITIAL);
+		void controls.start(PAGE_TARGET, PAGE_TRANSITION);
+	}, [controls, pathname, shouldReduceMotion]);
 
 	return (
-		<motion.div
-			key={pathname}
-			initial={PAGE_INITIAL}
-			animate={PAGE_TARGET}
-			transition={PAGE_TRANSITION}
-		>
+		<motion.div initial={false} animate={controls}>
 			{children}
 		</motion.div>
 	);
