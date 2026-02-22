@@ -22,7 +22,7 @@ vi.mock("@/lib/logger", () => {
 		info: vi.fn(),
 		warn: vi.fn(),
 		error: vi.fn(),
-		withRequestId: (_rid: string) => log,
+		withRequestId: () => log,
 	};
 	return { log };
 });

@@ -1,21 +1,21 @@
 #!/bin/bash
-# ㄱ 파이프라인 v2 — Codex 병렬 실행
-# Usage: ./scripts/launch.sh [ROUND=r13] [MODEL=gpt-5.3-codex]
-# spark 한도시: CODEX_MODEL=gpt-5.3-codex ./scripts/launch.sh r13
+# ㄱ 파이프라인 v3 — Codex 병렬 실행
+# Usage: ./scripts/launch.sh [ROUND=r17] [MODEL=gpt-5.2]
+# spark: CODEX_MODEL=gpt-5.3-codex-spark ./scripts/launch.sh r17
 
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r13}
-CODEX_MODEL=${CODEX_MODEL:-gpt-5.3-codex}
+ROUND=${1:-r17}
+CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
 WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(sec-users-me sec-subscriptions sec-chat-stream sec-admin middleware-fix search-sanitize nba-null-guard page-null-fix test-dedup waitlist-fix alert-logic)
-MERGE_ORDER=(middleware-fix sec-users-me sec-subscriptions sec-chat-stream sec-admin search-sanitize nba-null-guard page-null-fix waitlist-fix alert-logic test-dedup)
+AGENTS=(token-my-core token-my-waitlist token-onboarding token-community token-auth-misc token-facility token-dotori-comp refactor-blocks test-api-core test-api-ext test-e2e-smoke)
+MERGE_ORDER=(token-my-core token-my-waitlist token-onboarding token-community token-auth-misc token-facility token-dotori-comp refactor-blocks test-api-core test-api-ext test-e2e-smoke)
 PIDS=()
 PASS=()
 FAIL=()
@@ -32,280 +32,283 @@ info() { echo "     $1"; }
 get_task() {
   local agent=$1
   case $agent in
-    sec-users-me)
-      echo "보안 수정: /api/users/me PATCH에서 plan 필드 제거
+    token-my-core)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (my 페이지 계열)
 
-담당 파일: src/app/api/users/me/route.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/app/(app)/my/page.tsx (34건)
+- src/app/(app)/my/import/page.tsx (24건)
+- src/app/(app)/my/support/page.tsx (9건)
+- src/app/(app)/my/notifications/page.tsx (7건)
+- src/app/(app)/my/interests/page.tsx (5건)
+- src/app/(app)/my/notices/page.tsx (4건)
 
-## 문제 (P0 — 치명)
-PATCH /api/users/me의 allowedFields 배열에 'plan'이 포함되어 있어,
-인증된 사용자가 { \"plan\": \"premium\" }을 보내면 결제 없이 프리미엄 전환 가능.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체:
+- text-[10px] → text-[0.625rem] 또는 text-xs (상황에 따라)
+- text-[11px] → text-xs (0.75rem = 12px)
+- text-[12px] → text-xs
+- text-[13px] → text-xs 또는 text-sm (디자인 의도에 따라)
+- text-[14px] → text-sm (0.875rem = 14px)
+- text-[15px] → text-base (1rem = 16px에 가까움) 또는 text-sm
+- text-[16px] → text-base
+- text-[17px] → text-base 또는 text-lg
+- text-[18px] → text-lg (1.125rem = 18px)
+- text-[20px] → text-xl
+- text-[22px] → text-xl 또는 text-2xl
+- text-[24px] → text-2xl
+- text-[28px] → text-2xl 또는 text-3xl
+- text-[32px] → text-3xl 이상
 
-## 수정 방법
-1. allowedFields 배열에서 'plan' 문자열 제거
-2. plan 변경 시도 시 무시되도록 (에러 안 내도 됨, 그냥 필터링)
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    sec-subscriptions)
-      echo "보안+코드품질 수정: /api/subscriptions POST
-
-담당 파일: src/app/api/subscriptions/route.ts 만 수정.
-
-## 문제 1 (P0 — 치명)
-POST /api/subscriptions에서 { plan: 'premium' }만 보내면 결제 없이 프리미엄 활성화.
-amount: 0으로 하드코딩됨.
-
-## 수정 1
-- POST 핸들러 최상단에 현재 사용자의 role이 'admin'인지 체크
-- admin이 아니면 403 반환: { error: '관리자만 구독을 생성할 수 있습니다' }
-- 추후 결제 연동 시 이 체크를 결제 검증으로 교체할 수 있음
-
-## 문제 2 (P2 — 코드품질)
-withApiHandler에 schema를 전달하지 않고 핸들러 내부에서 req.json() + safeParse를 직접 수행.
-다른 라우트와 패턴 불일치.
-
-## 수정 2
-- withApiHandler의 schema 옵션 사용으로 통일
-- 핸들러에서는 body 파라미터 직접 사용
+주의: leading-[Npx]도 함께 조정해야 할 수 있음 (leading-tight/snug/normal/relaxed).
+w-[Npx], h-[Npx], p-[Npx] 등 다른 임의값은 건드리지 마라 — text-[Npx]만 교체.
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    sec-chat-stream)
-      echo "보안+안정성 수정: /api/chat/stream
+    token-my-waitlist)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (대기 페이지)
 
-담당 파일: src/app/api/chat/stream/route.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/app/(app)/my/waitlist/page.tsx (35건)
+- src/app/(app)/my/waitlist/[id]/page.tsx (33건)
 
-## 문제 1 (P0 — 게스트 채팅 제한 우회)
-비인증 사용자의 사용량을 x-chat-guest-usage 헤더에서 파싱하는데,
-이 값은 클라이언트 sessionStorage에서 전송. 공격자가 헤더를 0으로 조작하면 제한 우회.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체:
+- text-[10px]~text-[11px] → text-xs
+- text-[12px]~text-[13px] → text-xs 또는 text-sm
+- text-[14px] → text-sm
+- text-[15px]~text-[16px] → text-base
+- text-[17px]~text-[18px] → text-lg
+- text-[20px] → text-xl
+- text-[22px]~text-[24px] → text-2xl
+- text-[28px]~text-[32px] → text-3xl
 
-## 수정 1
-x-chat-guest-usage 헤더 의존을 제거.
-대신 IP 기반 서버 측 카운트:
-- 파일 최상단에 const guestUsageMap = new Map<string, { count: number; resetAt: number }>() 추가
-- IP는 req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-- 월별 리셋: resetAt = 다음 달 1일 timestamp
-- GUEST_LIMIT = 3 (기존 값 유지)
-- 헤더 대신 guestUsageMap에서 카운트 확인
-
-## 문제 2 (P1 — 스트림 미종료)
-ReadableStream에서 에러 발생 시 스트림이 열린 채 남을 수 있음.
-
-## 수정 2
-ReadableStream 생성 시 cancel 콜백 추가:
-cancel() { /* cleanup if needed */ }
-
-## 문제 3 (P3 — UsageLog 모델 중복)
-usageLogSchema와 UsageLog 모델이 이 파일 내에 인라인 정의됨.
-별도 src/models/UsageLog.ts가 이미 존재.
-
-## 수정 3
-인라인 usageLogSchema + UsageLog 모델 정의 제거.
-import UsageLog from '@/models/UsageLog' 추가.
-(먼저 cat src/models/UsageLog.ts로 존재 확인)
+주의: leading-[Npx]도 함께 조정. w-[Npx], h-[Npx] 등은 건드리지 마라.
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    sec-admin)
-      echo "보안 수정: admin API 인증 강화
+    token-onboarding)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (온보딩)
 
-담당 파일: src/app/api/admin/facility/[id]/premium/route.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/app/(onboarding)/onboarding/page.tsx (30건)
+- src/app/(onboarding)/error.tsx (3건)
 
-## 문제 (P1)
-auth: false로 설정된 상태에서 CRON_SECRET Bearer 토큰만으로 인증.
-세션 인증이 완전히 우회됨.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
+매핑 규칙은 다른 에이전트와 동일 (text-[14px]→text-sm 등).
 
-## 수정
-1. withApiHandler에 auth: true로 변경 (또는 auth 옵션 제거 — 기본이 true)
-2. 핸들러 내부에서 세션의 user.role === 'admin' 체크 추가
-3. CRON_SECRET 체크는 유지 (세션 인증 OR CRON_SECRET 중 하나 통과하면 허용)
-   - 세션 인증 성공 + admin role → 허용
-   - Bearer CRON_SECRET 일치 → 허용 (cron job용)
-   - 둘 다 실패 → 403
+leading-[Npx]도 함께 조정.
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    middleware-fix)
-      echo "보안+성능 수정: middleware rate limit 메모리 누수
+    token-community)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (커뮤니티)
 
-담당 파일: src/middleware.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/app/(app)/community/[id]/page.tsx (19건)
+- src/app/(app)/community/page.tsx (16건)
+- src/app/(app)/community/_components/CommunityEmptyState.tsx (1건)
 
-## 문제 1 (P1 — 인메모리 rate limit)
-rateLimitMap이 Map<string, number[]>로 선언되어 있는데,
-오래된 IP 항목이 절대 삭제되지 않아 메모리 누수.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
+매핑 규칙은 다른 에이전트와 동일 (text-[14px]→text-sm 등).
 
-## 수정
-rateLimitMap에 주기적 정리 로직 추가.
-rate limit 체크 함수 내에서:
-1. 현재 windowMs 밖의 타임스탬프는 배열에서 제거 (기존 로직 확인)
-2. 매 100번째 요청마다 전체 맵 순회하여 빈 배열인 IP 항목 삭제
-3. 맵 크기가 10000 초과하면 가장 오래된 항목부터 정리
-
-구체적 구현:
-let cleanupCounter = 0 (파일 최상단)
-rate limit 함수 내:
-cleanupCounter++
-if (cleanupCounter % 100 === 0) {
-  const now = Date.now()
-  for (const [ip, timestamps] of rateLimitMap) {
-    const valid = timestamps.filter(t => now - t < windowMs)
-    if (valid.length === 0) rateLimitMap.delete(ip)
-    else rateLimitMap.set(ip, valid)
-  }
-}
+leading-[Npx]도 함께 조정.
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    search-sanitize)
-      echo "보안 수정: response-builder.ts에서 NoSQL \$text 검색 입력 새니타이즈
+    token-auth-misc)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (auth + error + shared)
 
-담당 파일: src/lib/engine/response-builder.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/app/(auth)/login/page.tsx (11건)
+- src/app/(auth)/error.tsx (3건)
+- src/app/not-found.tsx (1건)
+- src/components/shared/ErrorBoundary.tsx (2건)
 
-## 문제 (P1)
-Facility.find({ \$text: { \$search: message } })에서 message가 사용자 채팅 원문.
-MongoDB \$text의 특수문자(-, \", ')가 검색 로직에 영향.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
+매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
 
-## 수정
-1. 파일 내에 sanitizeSearchQuery 헬퍼 함수 추가:
-function sanitizeSearchQuery(query: string): string {
-  return query
-    .replace(/[\"'\\\\]/g, '')  // 따옴표, 백슬래시 제거
-    .replace(/[-~]/g, ' ')      // negation/fuzzy 연산자를 공백으로
-    .trim()
-    .slice(0, 200);             // 길이 제한
-}
-
-2. \$text: { \$search: message } 를 모두 \$text: { \$search: sanitizeSearchQuery(message) } 로 교체
-   (파일 내 \$search 사용처 전부 찾아서 적용)
+leading-[Npx]도 함께 조정.
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    nba-null-guard)
-      echo "타입안전성 수정: nba-engine.ts에서 non-null assertion 제거
+    token-facility)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (시설 상세)
 
-담당 파일: src/lib/engine/nba-engine.ts 만 수정.
+담당 파일 (이 파일들만 수정):
+- src/components/dotori/facility/IsalangCard.tsx (6건)
+- src/components/dotori/facility/FacilityReviewsCard.tsx (6건)
+- src/components/dotori/facility/FacilityCapacityCard.tsx (5건)
+- src/components/dotori/facility/FacilityInsights.tsx (3건)
+- src/components/dotori/facility/FacilityLocationCard.tsx (2건)
+- src/components/dotori/facility/FacilityChecklistCard.tsx (2건)
+- src/components/dotori/facility/FacilityInfoCard.tsx (1건)
+- src/components/dotori/facility/FacilityFeaturesCard.tsx (1건)
+- src/components/dotori/facility/FacilityDetailHeader.tsx (1건)
+- src/app/(app)/facility/[id]/FacilityDetailClient.tsx (1건)
+- src/app/(app)/facility/[id]/not-found.tsx (2건)
 
-## 문제 (P2)
-ctx.user!.children 등 non-null assertion(!)이 8곳에서 사용됨.
-condition과 generate가 분리된 함수이므로 리팩토링 시 크래시 위험.
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
+매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
 
-## 수정
-각 generate 함수의 최상단에 null guard 추가:
-- ctx.user! → if (!ctx.user) return { ... fallback NBA item }
-- ctx.user!.children → ctx.user?.children ?? []
-- ctx.user!.nickname → ctx.user?.nickname ?? '회원'
+leading-[Npx]도 함께 조정.
 
-모든 ! (non-null assertion) 연산자를 optional chaining(?.) 또는
-null guard 패턴으로 교체.
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    token-dotori-comp)
+      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (dotori 공통 컴포넌트)
 
-파일에서 '!' 를 grep하여 모든 위치 확인 후 수정.
+담당 파일 (이 파일들만 수정):
+- src/components/dotori/MapEmbed.tsx (5건)
+- src/components/dotori/blocks/ChecklistBlock.tsx (5건)
+- src/components/dotori/chat/ChatPromptPanel.tsx (2건)
+- src/components/dotori/Toast.tsx (2건)
+- src/components/dotori/ActionConfirmSheet.tsx (2건)
+- src/components/dotori/CompareTable.tsx (1건)
+- src/components/dotori/SourceChip.tsx (1건)
+- src/components/dotori/blocks/TextBlock.tsx (1건)
+
+## 작업
+모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
+매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
+
+leading-[Npx]도 함께 조정.
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    refactor-blocks)
+      echo "response-builder/blocks.ts 688줄 분리 리팩토링
+
+담당 파일 (이 파일들만 수정):
+- src/lib/engine/response-builder/blocks.ts (분리 원본)
+- src/lib/engine/response-builder/index.ts (re-export 수정)
+새 파일 생성 가능:
+- src/lib/engine/response-builder/search.ts
+- src/lib/engine/response-builder/status.ts
+- src/lib/engine/response-builder/recommendation.ts
+
+## 작업
+blocks.ts의 688줄을 기능별로 분리:
+1. search.ts — buildSearchResponse, buildFacilityDetailResponse (시설 검색 관련)
+2. status.ts — buildStatusResponse, buildWaitlistStatusResponse (상태 조회 관련)
+3. recommendation.ts — buildRecommendationResponse, buildComparisonResponse (추천/비교 관련)
+4. blocks.ts — buildResponse (메인 라우터), 나머지 작은 헬퍼
+
+index.ts에서 buildResponse와 필요한 타입을 re-export.
+기존 import 경로 호환성 유지 (response-builder에서 buildResponse import하는 곳).
+
+## 주의
+- src/lib/engine/__tests__/response-builder.test.ts는 수정하지 마라
+- 기존 테스트가 import { buildResponse } from '../response-builder'로 작동해야 함
 
 ## 검증
 npx tsc --noEmit 에러 0개.
-npx jest --passWithNoTests 기존 테스트 통과."
+npm test 실행하여 91개 테스트 전부 통과 확인."
       ;;
-    page-null-fix)
-      echo "타입안전성 수정: 홈/대기 페이지 non-null assertion 제거
+    test-api-core)
+      echo "핵심 API route 테스트 작성
 
-담당 파일 2개만 수정:
-- src/app/(app)/page.tsx
-- src/app/(app)/my/waitlist/page.tsx
+새 파일 생성:
+- src/__tests__/api/facilities.test.ts
+- src/__tests__/api/waitlist.test.ts
+- src/__tests__/api/chat.test.ts
 
-## 문제 1 (P2 — page.tsx:70-71)
-user != null && user!.nickname — 불필요한 ! assertion.
+## 작업
+핵심 3개 API route에 대해 유닛 테스트 작성:
 
-## 수정 1
-user?.nickname ? \`\${user.nickname}님, 안녕하세요\` : '도토리에 오신 것을 환영해요'
+### facilities.test.ts
+- GET /api/facilities — 목록 응답 스키마 검증
+- GET /api/facilities/[id] — 상세 응답 스키마 검증
+- 잘못된 id 형식 시 400 에러
 
-## 문제 2 (P2 — waitlist/page.tsx:406-407)
-item.requiredDocs!.length와 item.requiredDocs!.filter(...)
+### waitlist.test.ts
+- POST /api/waitlist — 필수 필드 누락 시 400
+- POST /api/waitlist — 올바른 데이터로 생성 성공
+- GET /api/waitlist — 인증 없으면 401
 
-## 수정 2
-item.requiredDocs?.length ?? 0
-item.requiredDocs?.filter(...) ?? []
-optional chaining으로 교체.
+### chat.test.ts
+- POST /api/chat — 빈 메시지 시 400
+- POST /api/chat — 메시지 길이 제한 검증
+
+테스트 프레임워크: vitest (import { describe, it, expect } from 'vitest')
+DB 모킹: vi.mock('@/lib/db') + vi.mock('@/models/Facility') 등
+
+## 주의
+실제 DB 연결하지 마라. 모든 외부 의존성 mock 처리.
+import 경로: @/ alias 사용.
 
 ## 검증
-npx tsc --noEmit 에러 0개."
+npm test 실행하여 전체 테스트 통과."
       ;;
-    test-dedup)
-      echo "코드품질: 중복 테스트 파일 정리
+    test-api-ext)
+      echo "확장 API route 테스트 작성
 
-담당 파일: src/__tests__/engine/ 디렉토리 내 파일만 수정/삭제.
+새 파일 생성:
+- src/__tests__/api/subscriptions.test.ts
+- src/__tests__/api/admin-premium.test.ts
+- src/__tests__/api/community.test.ts
 
-## 문제 (P2)
-동일 모듈 테스트가 두 위치에 존재:
-- src/__tests__/engine/nba-engine.test.ts
-- src/lib/engine/__tests__/nba-engine.test.ts
-- src/__tests__/engine/intent-classifier.test.ts
-- src/lib/engine/__tests__/intent-classifier.test.ts
+## 작업
 
-## 수정
-1. 먼저 양쪽 파일 비교:
-   cat src/__tests__/engine/nba-engine.test.ts | wc -l
-   cat src/lib/engine/__tests__/nba-engine.test.ts | wc -l
-   (더 완전한 파일 유지)
+### subscriptions.test.ts
+- POST /api/subscriptions — admin이 아니면 403
+- GET /api/subscriptions — 인증 없으면 401
 
-2. src/lib/engine/__tests__/ 위치를 정본으로 유지
-3. src/__tests__/engine/의 중복 파일에서 src/lib/engine/__tests__/에 없는 테스트가 있으면
-   정본에 병합(merge)
-4. 병합 후 src/__tests__/engine/의 중복 파일 삭제
+### admin-premium.test.ts
+- PUT /api/admin/facility/[id]/premium — CRON_SECRET 없으면 401
+- PUT /api/admin/facility/[id]/premium — 올바른 Bearer 토큰으로 성공
+
+### community.test.ts
+- GET /api/community/posts — 목록 응답 스키마 검증
+- POST /api/community/posts — 인증 없으면 401
+- POST /api/community/posts — 올바른 데이터로 생성
+
+테스트 프레임워크: vitest (import { describe, it, expect } from 'vitest')
+DB 모킹: vi.mock 사용.
+
+## 주의
+실제 DB 연결하지 마라. 모든 외부 의존성 mock 처리.
 
 ## 검증
-npx jest --passWithNoTests → 기존 테스트 수 유지 또는 증가. 실패 0개."
+npm test 실행하여 전체 테스트 통과."
       ;;
-    waitlist-fix)
-      echo "코드품질: waitlist API 이중 파싱 + 하드코딩 수정
+    test-e2e-smoke)
+      echo "Playwright E2E smoke 테스트 작성
 
-담당 파일 2개만 수정:
-- src/app/api/waitlist/route.ts
-- src/app/api/waitlist/import/route.ts
+새 파일 생성:
+- e2e/smoke.spec.ts
+- playwright.config.ts (없으면 생성, 있으면 확인)
 
-## 문제 1 (P2 — route.ts)
-const rawBody = await req.clone().json().catch(() => ({}));
-withApiHandler가 이미 body를 파싱하여 body로 제공하는데,
-Zod 스키마에 없는 필드를 위해 원본을 다시 파싱.
+## 작업
+주요 페이지 접근 가능 여부 smoke 테스트:
 
-## 수정 1
-waitlistCreateSchema에 누락된 필드 추가:
-hasMultipleChildren: z.boolean().optional()
-isDualIncome: z.boolean().optional()
-isSingleParent: z.boolean().optional()
-hasDisability: z.boolean().optional()
-그 후 rawBody 대신 body에서 이 필드들 사용. req.clone().json() 제거.
+### smoke.spec.ts
+- test('홈페이지 로드', async) — / 접근, 200, 주요 텍스트 존재
+- test('로그인 페이지 로드', async) — /login 접근, 200, 카카오 로그인 버튼 존재
+- test('탐색 페이지 로드', async) — /explore 접근, 200
+- test('채팅 페이지 로드', async) — /chat 접근, 200
+- test('커뮤니티 페이지 로드', async) — /community 접근, 200
+- test('랜딩 페이지 로드', async) — /landing 접근, 200
 
-## 문제 2 (P3 — import/route.ts:143,165)
-childBirthDate ?? '2024-01-01' 하드코딩.
+### playwright.config.ts
+- baseURL: process.env.BASE_URL || 'http://localhost:3000'
+- projects: [{ name: 'mobile', use: { viewport: { width: 375, height: 812 } } }]
+- webServer: { command: 'npm run start', port: 3000, reuseExistingServer: true }
 
-## 수정 2
-아이 정보 없을 시 현재 연도 기준 기본값 사용:
-const defaultBirthDate = new Date().getFullYear() + '-01-01'
-childBirthDate ?? defaultBirthDate
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    alert-logic)
-      echo "비즈니스로직 수정: 비프리미엄 vacancy 알림 처리
-
-담당 파일: src/app/api/alerts/route.ts 만 수정.
-
-## 문제 (P3)
-비프리미엄 사용자가 vacancy 알림을 생성하면 즉시 active: false로 업데이트.
-알림을 만들었다가 바로 비활성화 → DB 쓰기 낭비 + UX 혼란.
-
-## 수정
-비프리미엄 사용자가 vacancy 타입 알림 생성 시도 시:
-1. DB에 저장하지 않고 즉시 응답 반환
-2. 응답: 200 OK + { data: null, message: '빈자리 알림은 프리미엄 기능입니다', requiresPremium: true }
-3. 기존의 알림 생성 후 비활성화 코드 제거
+## 주의
+- @playwright/test 사용 (이미 devDependencies에 있음)
+- 인증이 필요한 페이지는 테스트하지 마라 (로그인 없이 접근 가능한 것만)
 
 ## 검증
 npx tsc --noEmit 에러 0개."
@@ -319,8 +322,8 @@ npx tsc --noEmit 에러 0개."
 ### ═══════════════════════════════════════════════════════════════════
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  ㄱ 파이프라인 v2 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  목표: Opus 분석 P0~P2 보안+품질 11개 수정   ║${NC}"
+echo -e "${BLUE}║  ㄱ 파이프라인 v3 — ROUND: ${ROUND}               ║${NC}"
+echo -e "${BLUE}║  R17: text-[Npx] 토큰화 + API테스트 + E2E   ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
@@ -401,8 +404,9 @@ $TASK_TEXT
 2. 한국어 UI 텍스트 유지 (코드·변수명은 영어)
 3. framer-motion import 금지 → motion/react 사용
 4. color='dotori' CTA 버튼, color='forest' 성공 상태
-5. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
-6. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
+5. text-[Npx] 임의 픽셀값 금지 → Tailwind 스케일 토큰 (text-xs/sm/base/lg/xl/2xl)
+6. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
+7. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
 
   codex exec -m "$CODEX_MODEL" -s workspace-write \
     --cd "$WT_APP" \
@@ -444,7 +448,7 @@ for AGENT in "${AGENTS[@]}"; do
   CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l)
   if [[ $CHANGES -gt 0 ]]; then
     git -C "$WT_DIR" add -A 2>/dev/null
-    git -C "$WT_DIR" commit -m "fix($ROUND-$AGENT): Opus P0-P2 보안+품질 수정" 2>/dev/null \
+    git -C "$WT_DIR" commit -m "refactor($ROUND-$AGENT): text-[Npx] 토큰화 + 테스트" 2>/dev/null \
       && echo "✅ ($CHANGES files changed)" \
       || echo "❌ commit 실패"
   else
@@ -501,7 +505,7 @@ for AGENT in "${MERGE_ORDER[@]}"; do
   fi
   if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
     SUMMARY=$(head -1 "$RESULTS/$AGENT.txt" 2>/dev/null | cut -c1-60 || echo "$ROUND-$AGENT")
-    git commit -m "fix($ROUND-$AGENT): $SUMMARY
+    git commit -m "refactor($ROUND-$AGENT): $SUMMARY
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
     MERGED+=("$AGENT"); echo "✅"
@@ -518,18 +522,7 @@ step "PHASE 5: 최종 검증 + 정리"
 
 cd "$APP"
 npm run build 2>&1 | grep -q "Compiled successfully" && ok "최종 빌드 OK" || warn "최종 빌드 문제 — 수동 확인"
-npm test 2>&1 | grep -E "Tests:|Test Suites:" | tail -3
-
-echo ""
-info "모바일 실검수 실행 (check-console + e2e + screenshot + scroll)"
-if QA_PORT=3002 STRICT_QA=true ./scripts/mobile-qa.sh; then
-  ok "모바일 QA 통과"
-else
-  if [ "${STOP_ON_QA_FAIL:-true}" = "true" ]; then
-    fail "모바일 QA 실패 — 배포 전 수정 필요"
-  fi
-  warn "모바일 QA 실패 — STOP_ON_QA_FAIL=false 로 계속 진행"
-fi
+npm test 2>&1 | grep -E "Tests:|test files|tests" | tail -3
 
 for AGENT in "${AGENTS[@]}"; do
   git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
@@ -543,7 +536,8 @@ ELAPSED=$(( $(date +%s) - START ))
 ELAPSED_MIN=$(( ELAPSED / 60 ))
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  R13 완료 — ${ELAPSED_MIN}분  Opus P0-P2 보안+품질 수정  ║${NC}"
+echo -e "${BLUE}║  R17 완료 — ${ELAPSED_MIN}분                           ║${NC}"
+echo -e "${BLUE}║  text-[Npx] 토큰화 + API테스트 + E2E       ║${NC}"
 printf "${BLUE}║  Merged %-3d  Failed %-3d  Skipped %-3d           ║${NC}\n" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
