@@ -114,7 +114,7 @@ const LoginIntro = memo(function LoginIntro({
 }: MotionPreferenceProps) {
 	return (
 		<>
-			<div className="mt-6 w-full">
+			<div className="w-full">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-9 w-auto" />
 			</div>
@@ -123,7 +123,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TAGLINE_TRANSITION}
-				className="mt-8 text-sm font-semibold tracking-wide text-dotori-500"
+				className="mt-6 text-sm font-semibold tracking-wide text-dotori-500"
 			>
 				이동 고민, 토리가 해결해드려요
 			</motion.p>
@@ -131,7 +131,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
-				className="mt-3 text-lg leading-relaxed font-bold text-dotori-700 dark:text-dotori-200"
+				className="mt-3 text-xl leading-relaxed font-bold text-dotori-700 dark:text-dotori-200"
 			>
 				반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
 			</motion.p>
@@ -190,7 +190,7 @@ const LoginCard = memo(function LoginCard({
 			initial={shouldReduceMotion ? false : LOGIN_CARD_INITIAL}
 			animate={LOGIN_CARD_ANIMATE}
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
-			className="mt-7 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
+			className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
 		>
 			<p className="text-xs leading-relaxed text-dotori-500">
 				빠르게 시작하고, 서비스와 바로 연결해보세요.
@@ -202,7 +202,7 @@ const LoginCard = memo(function LoginCard({
 				aria-label="카카오 계정으로 로그인"
 				color="amber"
 				className={cn(
-					"mt-5 w-full gap-2.5 px-6 py-4.5 text-base font-semibold",
+					"mt-5 w-full min-h-11 gap-2.5 px-6 py-4 text-base font-semibold transition-transform active:scale-[0.97]",
 					isLoading && "opacity-90",
 				)}
 			>
@@ -230,41 +230,54 @@ const LoginCard = memo(function LoginCard({
 
 LoginCard.displayName = "LoginCard";
 
+const LoginGuestLink = memo(function LoginGuestLink({
+	shouldReduceMotion,
+}: MotionPreferenceProps) {
+	return (
+		<motion.div
+			initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
+			animate={FADE_IN_ANIMATE}
+			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : GUEST_LINK_TRANSITION}
+			className="w-full"
+		>
+			<Link
+				href="/"
+				className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 bg-white/60 px-4 text-sm font-semibold text-dotori-600 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/80 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-200 dark:hover:bg-dotori-950/70"
+			>
+				로그인 없이 둘러보기
+			</Link>
+		</motion.div>
+	);
+});
+
+LoginGuestLink.displayName = "LoginGuestLink";
+
 const LoginFooter = memo(function LoginFooter({
 	shouldReduceMotion,
 }: MotionPreferenceProps) {
 	return (
-		<>
-			<motion.div
-				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
-				animate={FADE_IN_ANIMATE}
-				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : GUEST_LINK_TRANSITION}
-			>
-				<Link
-					href="/"
-					className="mt-7 inline-block py-2.5 text-sm text-dotori-500 transition-colors hover:text-dotori-700 dark:hover:text-dotori-200"
-				>
-					로그인 없이 둘러보기
-				</Link>
-			</motion.div>
-
-			<motion.p
-				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
-				animate={FADE_IN_ANIMATE}
-				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-				className="mt-auto pt-10 pb-6 text-xs leading-relaxed text-dotori-300 dark:text-dotori-200"
-			>
+		<motion.p
+			initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
+			animate={FADE_IN_ANIMATE}
+			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
+			className="mt-4 pb-6 pt-4 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
+		>
 				로그인 시{" "}
-				<Link href="/my/terms" className="font-medium underline">
+				<Link
+					href="/my/terms"
+					className="font-medium underline underline-offset-2 hover:text-dotori-600 dark:hover:text-dotori-200"
+				>
 					서비스 이용약관
 				</Link>
 				{" "}및{" "}
-				<Link href="/my/terms" className="font-medium underline">
+				<Link
+					href="/my/terms"
+					className="font-medium underline underline-offset-2 hover:text-dotori-600 dark:hover:text-dotori-200"
+				>
 					개인정보처리방침
 				</Link>
 				에 동의합니다
-			</motion.p>
-		</>
+		</motion.p>
 	);
 });
 
@@ -307,41 +320,53 @@ function LoginPageClient() {
 		}
 	}, []);
 
-	const pageContent = (
-		<>
-			<LoginIntro shouldReduceMotion={shouldReduceMotion} />
-			{visibleError && (
-				<LoginErrorAlert
-					message={visibleError}
-					shouldReduceMotion={shouldReduceMotion}
-				/>
-			)}
-			<LoginCard
-				isLoading={isLoading}
-				onKakaoLogin={handleKakaoLogin}
-				shouldReduceMotion={shouldReduceMotion}
-			/>
-			<LoginFooter shouldReduceMotion={shouldReduceMotion} />
-		</>
-	);
-
 	return (
 		<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)] dark:bg-dotori-900">
 			<LoginBackgroundDecoration />
 
 			{/* ── 메인 콘텐츠 ── */}
 			{shouldReduceMotion ? (
-				<div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center">
-					{pageContent}
+				<div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 text-center">
+					<div className="flex w-full flex-1 flex-col items-center justify-center">
+						<LoginIntro shouldReduceMotion={shouldReduceMotion} />
+						{visibleError && (
+							<LoginErrorAlert
+								message={visibleError}
+								shouldReduceMotion={shouldReduceMotion}
+							/>
+						)}
+						<LoginCard
+							isLoading={isLoading}
+							onKakaoLogin={handleKakaoLogin}
+							shouldReduceMotion={shouldReduceMotion}
+						/>
+						<LoginGuestLink shouldReduceMotion={shouldReduceMotion} />
+					</div>
+					<LoginFooter shouldReduceMotion={shouldReduceMotion} />
 				</div>
 			) : (
 				<motion.div
 					initial={PAGE_CONTENT_INITIAL}
 					animate={PAGE_CONTENT_ANIMATE}
 					transition={PAGE_CONTENT_TRANSITION}
-					className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center"
+					className="relative z-10 mx-auto flex min-h-dvh w-full max-w-md flex-col items-center px-6 text-center"
 				>
-					{pageContent}
+					<div className="flex w-full flex-1 flex-col items-center justify-center">
+						<LoginIntro shouldReduceMotion={shouldReduceMotion} />
+						{visibleError && (
+							<LoginErrorAlert
+								message={visibleError}
+								shouldReduceMotion={shouldReduceMotion}
+							/>
+						)}
+						<LoginCard
+							isLoading={isLoading}
+							onKakaoLogin={handleKakaoLogin}
+							shouldReduceMotion={shouldReduceMotion}
+						/>
+						<LoginGuestLink shouldReduceMotion={shouldReduceMotion} />
+					</div>
+					<LoginFooter shouldReduceMotion={shouldReduceMotion} />
 				</motion.div>
 			)}
 		</div>
