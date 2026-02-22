@@ -10,7 +10,6 @@ const PAGE_TRANSITION = {
 	duration: 0.25,
 	ease: [0.25, 0.1, 0.25, 1] as const,
 } as const;
-const NO_MOTION_TRANSITION = { duration: 0 } as const;
 
 type PageTransitionProps = {
 	children: ReactNode;
@@ -18,14 +17,18 @@ type PageTransitionProps = {
 
 function PageTransitionComponent({ children }: PageTransitionProps) {
 	const pathname = usePathname();
-	const reduceMotion = useReducedMotion();
+	const shouldReduceMotion = useReducedMotion() === true;
+
+	if (shouldReduceMotion) {
+		return <div>{children}</div>;
+	}
 
 	return (
 		<motion.div
 			key={pathname}
-			initial={reduceMotion ? PAGE_TARGET : PAGE_INITIAL}
+			initial={PAGE_INITIAL}
 			animate={PAGE_TARGET}
-			transition={reduceMotion ? NO_MOTION_TRANSITION : PAGE_TRANSITION}
+			transition={PAGE_TRANSITION}
 		>
 			{children}
 		</motion.div>
