@@ -31,76 +31,57 @@ import {
 	EXPLORE_TYPE_FILTERS,
 	MOVE_SCENARIO_CHIPS,
 	POPULAR_SEARCHES,
-	type ExploreSortKey,
 } from "./explore-constants";
+import type {
+	ExploreSearchHeaderActions,
+	ExploreSearchHeaderState,
+} from "./useExploreSearch";
 
 interface ExploreSearchHeaderProps {
-	searchInput: string;
-	toOnly: boolean;
-	sortBy: ExploreSortKey;
-	selectedTypes: string[];
-	selectedSido: string;
-	selectedSigungu: string;
-	showFilters: boolean;
-	showMap: boolean;
-	resultLabel: string;
-	activeFilterCount: number;
-	toCount: number;
-	recentSearches: string[];
-	sidoOptions: string[];
-	sigunguOptions: string[];
-	isLoadingSido: boolean;
-	isLoadingSigungu: boolean;
-	isGpsLoading: boolean;
-	onSearchInputChange: (value: string) => void;
-	onSubmitSearch: () => void;
-	onApplySearch: (term: string) => void;
-	onClearSearch: () => void;
-	onClearRecentSearches: () => void;
-	onToggleFilters: () => void;
-	onToggleMap: () => void;
-	onToggleType: (type: string) => void;
-	onToggleToOnly: () => void;
-	onSortChange: (nextSort: ExploreSortKey) => void;
-	onSidoChange: (nextSido: string) => void;
-	onSigunguChange: (nextSigungu: string) => void;
-	onUseCurrentLocation: () => void;
-	onResetFilters: () => void;
+	state: ExploreSearchHeaderState;
+	actions: ExploreSearchHeaderActions;
 }
 
 export const ExploreSearchHeader = memo(function ExploreSearchHeader({
-	searchInput,
-	toOnly,
-	sortBy,
-	selectedTypes,
-	selectedSido,
-	selectedSigungu,
-	showFilters,
-	showMap,
-	resultLabel,
-	activeFilterCount,
-	toCount,
-	recentSearches,
-	sidoOptions,
-	sigunguOptions,
-	isLoadingSido,
-	isLoadingSigungu,
-	isGpsLoading,
-	onSearchInputChange,
-	onSubmitSearch,
-	onApplySearch,
-	onClearSearch,
-	onClearRecentSearches,
-	onToggleFilters,
-	onToggleMap,
-	onToggleType,
-	onToggleToOnly,
-	onSortChange,
-	onSidoChange,
-	onSigunguChange,
-	onUseCurrentLocation,
-	onResetFilters,
+	state,
+	actions,
 }: ExploreSearchHeaderProps) {
+	const {
+		searchInput,
+		toOnly,
+		sortBy,
+		selectedTypes,
+		selectedSido,
+		selectedSigungu,
+		showFilters,
+		showMap,
+		resultLabel,
+		activeFilterCount,
+		toCount,
+		recentSearches,
+		sidoOptions,
+		sigunguOptions,
+		isLoadingSido,
+		isLoadingSigungu,
+		isGpsLoading,
+	} = state;
+	const {
+		onSearchInputChange,
+		onSubmitSearch,
+		onApplySearch,
+		onClearSearch,
+		onClearRecentSearches,
+		onToggleFilters,
+		onToggleMap,
+		onToggleType,
+		onToggleToOnly,
+		onSortChange,
+		onSidoChange,
+		onSigunguChange,
+		onUseCurrentLocation,
+		onResetFilters,
+	} = actions;
+
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
 

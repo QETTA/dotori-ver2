@@ -41,54 +41,77 @@ export interface ExploreMapPoint {
 	status: FacilityStatus;
 }
 
-export interface UseExploreSearchReturn {
+export interface ExploreSearchHeaderState {
 	searchInput: string;
-	debouncedSearch: string;
-	selectedTypes: string[];
 	toOnly: boolean;
 	sortBy: ExploreSortKey;
+	selectedTypes: string[];
 	selectedSido: string;
 	selectedSigungu: string;
-	showMap: boolean;
 	showFilters: boolean;
+	showMap: boolean;
+	resultLabel: string;
+	activeFilterCount: number;
+	toCount: number;
+	recentSearches: string[];
 	sidoOptions: string[];
 	sigunguOptions: string[];
 	isLoadingSido: boolean;
 	isLoadingSigungu: boolean;
-	gpsState: GPSState;
-	recentSearches: string[];
-	resultLabel: string;
-	activeFilterCount: number;
-	toCount: number;
-	hasSearchInput: boolean;
-	hasFilterApplied: boolean;
-	chatPromptHref: string;
+	isGpsLoading: boolean;
+}
+
+export interface ExploreSearchHeaderActions {
+	onSearchInputChange: (value: string) => void;
+	onSubmitSearch: () => void;
+	onApplySearch: (term: string) => void;
+	onClearSearch: () => void;
+	onClearRecentSearches: () => void;
+	onToggleFilters: () => void;
+	onToggleMap: () => void;
+	onToggleType: (type: string) => void;
+	onToggleToOnly: () => void;
+	onSortChange: (nextSort: ExploreSortKey) => void;
+	onSidoChange: (nextSido: string) => void;
+	onSigunguChange: (nextSigungu: string) => void;
+	onUseCurrentLocation: () => void;
+	onResetFilters: () => void;
+}
+
+export interface ExploreResultState {
 	facilities: Facility[];
 	isLoading: boolean;
 	isLoadingMore: boolean;
 	error: string | null;
-	hasMore: boolean;
-	mapFacilityPoints: ExploreMapPoint[];
-	mapCenter: { lat: number; lng: number } | undefined;
-	userLocation: { lat: number; lng: number } | undefined;
-	hasMapContent: boolean;
 	isTimeout: boolean;
-	setSearchInput: (value: string) => void;
-	submitSearch: () => void;
-	applySearch: (term: string) => void;
-	clearSearch: () => void;
-	clearRecentSearchHistory: () => void;
-	toggleType: (type: string) => void;
-	toggleToOnly: () => void;
-	changeSortBy: (nextSort: ExploreSortKey) => void;
-	changeSido: (nextSido: string) => void;
-	changeSigungu: (nextSigungu: string) => void;
-	toggleFilters: () => void;
-	toggleMap: () => void;
-	useCurrentLocation: () => Promise<void>;
-	resetFilters: () => void;
-	retry: () => void;
-	loadMore: () => void;
+	hasMore: boolean;
+	hasSearchInput: boolean;
+	hasFilterApplied: boolean;
+	debouncedSearch: string;
+	chatPromptHref: string;
+}
+
+export interface ExploreResultActions {
+	onRetry: () => void;
+	onLoadMore: () => void;
+	onResetSearch: () => void;
+	onResetFilters: () => void;
+}
+
+export interface ExploreMapState {
+	showMap: boolean;
+	hasMapContent: boolean;
+	facilities: ExploreMapPoint[];
+	center: { lat: number; lng: number } | undefined;
+	userLocation: { lat: number; lng: number } | undefined;
+}
+
+export interface UseExploreSearchReturn {
+	headerState: ExploreSearchHeaderState;
+	headerActions: ExploreSearchHeaderActions;
+	resultState: ExploreResultState;
+	resultActions: ExploreResultActions;
+	mapState: ExploreMapState;
 }
 
 export function useExploreSearch(): UseExploreSearchReturn {
@@ -315,15 +338,24 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		};
 	}, [mapFacilityPoints, userLocation]);
 
-	const activeFilterCount =
-		selectedTypes.length +
-		(toOnly ? 1 : 0) +
-		(selectedSigungu ? 1 : 0) +
-		(selectedSido ? 1 : 0);
+	const activeFilterCount = useMemo(
+		() =>
+			selectedTypes.length +
+			(toOnly ? 1 : 0) +
+			(selectedSigungu ? 1 : 0) +
+			(selectedSido ? 1 : 0),
+		[selectedSido, selectedSigungu, selectedTypes.length, toOnly],
+	);
 
-	const hasSearchInput = debouncedSearch.trim().length > 0;
+	const hasSearchInput = useMemo(
+		() => debouncedSearch.trim().length > 0,
+		[debouncedSearch],
+	);
 	const hasFilterApplied = activeFilterCount > 0;
-	const hasMapContent = mapFacilityPoints.length > 0 || Boolean(userLocation);
+	const hasMapContent = useMemo(
+		() => mapFacilityPoints.length > 0 || Boolean(userLocation),
+		[mapFacilityPoints.length, userLocation],
+	);
 
 	const chatPromptHref = useMemo(
 		() => `/chat?prompt=${encodeURIComponent(debouncedSearch.trim())}`,
@@ -476,6 +508,10 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		refresh();
 	}, [refresh]);
 
+	const handleUseCurrentLocation = useCallback(() => {
+		void useCurrentLocation();
+	}, [useCurrentLocation]);
+
 	useEffect(() => {
 		if (!isLoading || facilities.length > 0 || error) {
 			setIsTimeout(false);
@@ -489,53 +525,135 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		return () => window.clearTimeout(timeoutId);
 	}, [error, facilities.length, isLoading]);
 
+	const headerState = useMemo<ExploreSearchHeaderState>(
+		() => ({
+			searchInput,
+			toOnly,
+			sortBy,
+			selectedTypes,
+			selectedSido,
+			selectedSigungu,
+			showFilters,
+			showMap,
+			resultLabel,
+			activeFilterCount,
+			toCount,
+			recentSearches,
+			sidoOptions,
+			sigunguOptions,
+			isLoadingSido,
+			isLoadingSigungu,
+			isGpsLoading: gpsState.loading,
+		}),
+		[
+			activeFilterCount,
+			gpsState.loading,
+			isLoadingSido,
+			isLoadingSigungu,
+			recentSearches,
+			resultLabel,
+			searchInput,
+			selectedSido,
+			selectedSigungu,
+			selectedTypes,
+			showFilters,
+			showMap,
+			sidoOptions,
+			sigunguOptions,
+			sortBy,
+			toCount,
+			toOnly,
+		],
+	);
+
+	const headerActions = useMemo<ExploreSearchHeaderActions>(
+		() => ({
+			onSearchInputChange: setSearchInput,
+			onSubmitSearch: submitSearch,
+			onApplySearch: applySearch,
+			onClearSearch: clearSearch,
+			onClearRecentSearches: clearRecentSearchHistory,
+			onToggleFilters: toggleFilters,
+			onToggleMap: toggleMap,
+			onToggleType: toggleType,
+			onToggleToOnly: toggleToOnly,
+			onSortChange: changeSortBy,
+			onSidoChange: changeSido,
+			onSigunguChange: changeSigungu,
+			onUseCurrentLocation: handleUseCurrentLocation,
+			onResetFilters: resetFilters,
+		}),
+		[
+			applySearch,
+			changeSido,
+			changeSigungu,
+			changeSortBy,
+			clearRecentSearchHistory,
+			clearSearch,
+			handleUseCurrentLocation,
+			resetFilters,
+			setSearchInput,
+			submitSearch,
+			toggleFilters,
+			toggleMap,
+			toggleToOnly,
+			toggleType,
+		],
+	);
+
+	const resultState = useMemo<ExploreResultState>(
+		() => ({
+			facilities: sortedFacilities,
+			isLoading,
+			isLoadingMore,
+			error,
+			isTimeout,
+			hasMore,
+			hasSearchInput,
+			hasFilterApplied,
+			debouncedSearch,
+			chatPromptHref,
+		}),
+		[
+			chatPromptHref,
+			debouncedSearch,
+			error,
+			hasFilterApplied,
+			hasMore,
+			hasSearchInput,
+			isLoading,
+			isLoadingMore,
+			isTimeout,
+			sortedFacilities,
+		],
+	);
+
+	const resultActions = useMemo<ExploreResultActions>(
+		() => ({
+			onRetry: retry,
+			onLoadMore: loadMore,
+			onResetSearch: clearSearch,
+			onResetFilters: resetFilters,
+		}),
+		[clearSearch, loadMore, resetFilters, retry],
+	);
+
+	const mapState = useMemo<ExploreMapState>(
+		() => ({
+			showMap,
+			hasMapContent,
+			facilities: mapFacilityPoints,
+			center: mapCenter,
+			userLocation,
+		}),
+		[hasMapContent, mapCenter, mapFacilityPoints, showMap, userLocation],
+	);
+
 	return {
-		searchInput,
-		debouncedSearch,
-		selectedTypes,
-		toOnly,
-		sortBy,
-		selectedSido,
-		selectedSigungu,
-		showMap,
-		showFilters,
-		sidoOptions,
-		sigunguOptions,
-		isLoadingSido,
-		isLoadingSigungu,
-		gpsState,
-		recentSearches,
-		resultLabel,
-		activeFilterCount,
-		toCount,
-		hasSearchInput,
-		hasFilterApplied,
-		chatPromptHref,
-		facilities: sortedFacilities,
-		isLoading,
-		isLoadingMore,
-		error,
-		hasMore,
-		mapFacilityPoints,
-		mapCenter,
-		userLocation,
-		hasMapContent,
-		isTimeout,
-		setSearchInput,
-		submitSearch,
-		applySearch,
-		clearSearch,
-		clearRecentSearchHistory,
-		toggleType,
-		toggleToOnly,
-		changeSortBy,
-		changeSido,
-		changeSigungu,
-		toggleFilters,
-		toggleMap,
-		useCurrentLocation,
-		resetFilters,
-		retry,
-		loadMore,
+		headerState,
+		headerActions,
+		resultState,
+		resultActions,
+		mapState,
 	};
 }

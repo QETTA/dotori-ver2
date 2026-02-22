@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { ExploreResultList } from "@/components/dotori/explore/ExploreResultList";
 import { ExploreSearchHeader } from "@/components/dotori/explore/ExploreSearchHeader";
 import { useExploreSearch } from "@/components/dotori/explore/useExploreSearch";
@@ -30,74 +30,54 @@ export default function ExplorePage() {
 }
 
 function ExploreContent() {
-	const explore = useExploreSearch();
-	const {
-		registerInterest,
-		applyWaiting,
-		isLoading: isActionLoading,
-	} = useFacilityActions();
+	const { headerState, headerActions, resultState, resultActions, mapState } =
+		useExploreSearch();
+	const { registerInterest, applyWaiting, loadingAction } = useFacilityActions();
+	const registerInterestRef = useRef(registerInterest);
+	const applyWaitingRef = useRef(applyWaiting);
+
+	useEffect(() => {
+		registerInterestRef.current = registerInterest;
+	}, [registerInterest]);
+
+	useEffect(() => {
+		applyWaitingRef.current = applyWaiting;
+	}, [applyWaiting]);
 
 	const handleRegisterInterest = useCallback(
 		(facilityId: string) => {
-			void registerInterest(facilityId);
+			void registerInterestRef.current(facilityId);
 		},
-		[registerInterest],
+		[],
 	);
 
 	const handleApplyWaiting = useCallback(
 		(facilityId: string) => {
-			void applyWaiting(facilityId);
+			void applyWaitingRef.current(facilityId);
 		},
-		[applyWaiting],
+		[],
 	);
 
-	const handleUseCurrentLocation = useCallback(() => {
-		void explore.useCurrentLocation();
-	}, [explore.useCurrentLocation]);
+	const resultInteraction = useMemo(
+		() => ({
+			loadingAction,
+			onRegisterInterest: handleRegisterInterest,
+			onApplyWaiting: handleApplyWaiting,
+		}),
+		[handleApplyWaiting, handleRegisterInterest, loadingAction],
+	);
 
 	return (
 		<div className="flex h-[calc(100dvh-8rem)] flex-col">
-			<ExploreSearchHeader
-				searchInput={explore.searchInput}
-				toOnly={explore.toOnly}
-				sortBy={explore.sortBy}
-				selectedTypes={explore.selectedTypes}
-				selectedSido={explore.selectedSido}
-				selectedSigungu={explore.selectedSigungu}
-				showFilters={explore.showFilters}
-				showMap={explore.showMap}
-				resultLabel={explore.resultLabel}
-				activeFilterCount={explore.activeFilterCount}
-				toCount={explore.toCount}
-				recentSearches={explore.recentSearches}
-				sidoOptions={explore.sidoOptions}
-				sigunguOptions={explore.sigunguOptions}
-				isLoadingSido={explore.isLoadingSido}
-				isLoadingSigungu={explore.isLoadingSigungu}
-				isGpsLoading={explore.gpsState.loading}
-				onSearchInputChange={explore.setSearchInput}
-				onSubmitSearch={explore.submitSearch}
-				onApplySearch={explore.applySearch}
-				onClearSearch={explore.clearSearch}
-				onClearRecentSearches={explore.clearRecentSearchHistory}
-				onToggleFilters={explore.toggleFilters}
-				onToggleMap={explore.toggleMap}
-				onToggleType={explore.toggleType}
-				onToggleToOnly={explore.toggleToOnly}
-				onSortChange={explore.changeSortBy}
-				onSidoChange={explore.changeSido}
-				onSigunguChange={explore.changeSigungu}
-				onUseCurrentLocation={handleUseCurrentLocation}
-				onResetFilters={explore.resetFilters}
-			/>
+			<ExploreSearchHeader state={headerState} actions={headerActions} />
 
-			{explore.showMap && explore.hasMapContent ? (
+			{mapState.showMap && mapState.hasMapContent ? (
 				<div className="px-4 pt-2 duration-200 motion-safe:animate-in motion-safe:fade-in">
 					<MapEmbed
-						facilities={explore.mapFacilityPoints}
-						{...(explore.mapCenter ? { center: explore.mapCenter } : {})}
-						{...(explore.userLocation
-							? { userLocation: explore.userLocation }
+						facilities={mapState.facilities}
+						{...(mapState.center ? { center: mapState.center } : {})}
+						{...(mapState.userLocation
+							? { userLocation: mapState.userLocation }
 							: {})}
 						height="h-48 sm:h-64"
 					/>
@@ -105,23 +85,9 @@ function ExploreContent() {
 			) : null}
 
 			<ExploreResultList
-				facilities={explore.facilities}
-				isLoading={explore.isLoading}
-				isLoadingMore={explore.isLoadingMore}
-				error={explore.error}
-				isTimeout={explore.isTimeout}
-				hasMore={explore.hasMore}
-				hasSearchInput={explore.hasSearchInput}
-				hasFilterApplied={explore.hasFilterApplied}
-				debouncedSearch={explore.debouncedSearch}
-				chatPromptHref={explore.chatPromptHref}
-				onRetry={explore.retry}
-				onLoadMore={explore.loadMore}
-				onResetSearch={explore.clearSearch}
-				onResetFilters={explore.resetFilters}
-				isActionLoading={isActionLoading}
-				onRegisterInterest={handleRegisterInterest}
-				onApplyWaiting={handleApplyWaiting}
+				state={resultState}
+				actions={resultActions}
+				interaction={resultInteraction}
 			/>
 		</div>
 	);

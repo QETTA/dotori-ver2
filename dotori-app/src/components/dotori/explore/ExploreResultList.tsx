@@ -9,47 +9,40 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
-import type { Facility } from "@/types/dotori";
+import type { ExploreResultActions, ExploreResultState } from "./useExploreSearch";
 
-interface ExploreResultListProps {
-	facilities: Facility[];
-	isLoading: boolean;
-	isLoadingMore: boolean;
-	error: string | null;
-	isTimeout: boolean;
-	hasMore: boolean;
-	hasSearchInput: boolean;
-	hasFilterApplied: boolean;
-	debouncedSearch: string;
-	chatPromptHref: string;
-	onRetry: () => void;
-	onLoadMore: () => void;
-	onResetSearch: () => void;
-	onResetFilters: () => void;
-	isActionLoading: (facilityId: string) => boolean;
+interface ExploreResultInteraction {
+	loadingAction: string | null;
 	onRegisterInterest: (facilityId: string) => void;
 	onApplyWaiting: (facilityId: string) => void;
 }
 
+interface ExploreResultListProps {
+	state: ExploreResultState;
+	actions: ExploreResultActions;
+	interaction: ExploreResultInteraction;
+}
+
 export const ExploreResultList = memo(function ExploreResultList({
-	facilities,
-	isLoading,
-	isLoadingMore,
-	error,
-	isTimeout,
-	hasMore,
-	hasSearchInput,
-	hasFilterApplied,
-	debouncedSearch,
-	chatPromptHref,
-	onRetry,
-	onLoadMore,
-	onResetSearch,
-	onResetFilters,
-	isActionLoading,
-	onRegisterInterest,
-	onApplyWaiting,
+	state,
+	actions,
+	interaction,
 }: ExploreResultListProps) {
+	const {
+		facilities,
+		isLoading,
+		isLoadingMore,
+		error,
+		isTimeout,
+		hasMore,
+		hasSearchInput,
+		hasFilterApplied,
+		debouncedSearch,
+		chatPromptHref,
+	} = state;
+	const { onRetry, onLoadMore, onResetSearch, onResetFilters } = actions;
+	const { loadingAction, onRegisterInterest, onApplyWaiting } = interaction;
+
 	const hasResults = facilities.length > 0;
 
 	return (
@@ -87,43 +80,49 @@ export const ExploreResultList = memo(function ExploreResultList({
 						source="AI분석"
 					/>
 
-					{facilities.map((facility, index) => (
-						<div
-							key={facility.id}
-							className="space-y-2"
-							style={{ animationDelay: `${index * 50}ms` }}
-						>
-							<div
-								className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
-								style={{ animationFillMode: "both" }}
-							>
-								<Link href={`/facility/${facility.id}`}>
-									<FacilityCard facility={facility} compact />
-								</Link>
-							</div>
+						{facilities.map((facility, index) => {
+							const isActionLoading =
+								loadingAction === `interest-${facility.id}` ||
+								loadingAction === `waiting-${facility.id}`;
 
-							<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2">
-								<Button
-									plain={true}
-									type="button"
-									disabled={isActionLoading(facility.id)}
-									onClick={() => onRegisterInterest(facility.id)}
-									className="text-sm"
+							return (
+								<div
+									key={facility.id}
+									className="space-y-2"
+									style={{ animationDelay: `${index * 50}ms` }}
 								>
-									<HeartIcon className="h-3.5 w-3.5" />
-									관심
-								</Button>
-								<Button
-									color="dotori"
-									type="button"
-									disabled={isActionLoading(facility.id)}
-									onClick={() => onApplyWaiting(facility.id)}
-								>
-									{facility.status === "available" ? "입소신청" : "대기신청"}
-								</Button>
-							</div>
-						</div>
-					))}
+									<div
+										className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
+										style={{ animationFillMode: "both" }}
+									>
+										<Link href={`/facility/${facility.id}`}>
+											<FacilityCard facility={facility} compact />
+										</Link>
+									</div>
+
+									<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2">
+										<Button
+											plain={true}
+											type="button"
+											disabled={isActionLoading}
+											onClick={() => onRegisterInterest(facility.id)}
+											className="text-sm"
+										>
+											<HeartIcon className="h-3.5 w-3.5" />
+											관심
+										</Button>
+										<Button
+											color="dotori"
+											type="button"
+											disabled={isActionLoading}
+											onClick={() => onApplyWaiting(facility.id)}
+										>
+											{facility.status === "available" ? "입소신청" : "대기신청"}
+										</Button>
+									</div>
+								</div>
+							);
+						})}
 
 					{hasMore ? (
 						<div className="pt-2">
