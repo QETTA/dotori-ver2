@@ -13,7 +13,7 @@ export default function AuthLayout({
 }) {
 	return (
 		<AuthProvider>
-			<main className="relative mx-auto flex min-h-dvh max-w-md flex-col bg-dotori-50 px-6 pt-[22vh]">
+			<main className="relative mx-auto flex min-h-dvh max-w-md flex-col bg-dotori-50">
 				{children}
 			</main>
 		</AuthProvider>
