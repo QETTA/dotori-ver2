@@ -32,14 +32,14 @@ export function ChatPromptPanel({
 	};
 
 	return (
-		<div className="relative px-5 pb-4 pt-8">
+		<div className="relative px-5 py-6">
 			<div className="mx-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-dotori-100 bg-white p-6 shadow-[0_10px_30px_rgba(200,149,106,0.10)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 				<div className="relative rounded-3xl bg-gradient-to-b from-dotori-50 to-white px-4 py-5 dark:from-dotori-900 dark:to-dotori-950">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={toriIcon}
 						alt=""
-						className="mx-auto mb-4 h-16 w-16 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
+						className="mx-auto mb-4 h-20 w-20 rounded-full border border-dotori-100 bg-white shadow-sm dark:border-dotori-800 dark:bg-dotori-900 dark:shadow-none"
 					/>
 					<Heading
 						level={3}
@@ -68,7 +68,7 @@ export function ChatPromptPanel({
 					</Field>
 				</Fieldset>
 
-				<motion.ul className="relative mt-5 space-y-2.5" {...stagger.container}>
+				<motion.ul className="relative mt-6 space-y-3" {...stagger.container}>
 					{suggestedPrompts.map((prompt) => (
 						<motion.li key={prompt.label} {...stagger.item}>
 							<Button
@@ -76,18 +76,19 @@ export function ChatPromptPanel({
 								type="button"
 								onClick={() => onSuggestPrompt(prompt)}
 								className={cn(
-									"flex w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
-									"hover:-translate-y-0.5 hover:bg-dotori-100 dark:hover:bg-dotori-800 active:scale-95",
+									"flex min-h-14 w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
+									"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm dark:hover:bg-dotori-800 dark:hover:shadow-none active:scale-[0.97]",
+									"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
 								)}
 							>
-								<span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
+								<span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
 									{prompt.icon}
 								</span>
 								<div className="min-w-0">
 									<Text className="block text-base font-semibold text-dotori-800 dark:text-dotori-100">
 										{prompt.label}
 									</Text>
-									<Text className="mt-0.5 block line-clamp-1 text-sm text-dotori-500">
+									<Text className="mt-0.5 block line-clamp-1 text-sm text-dotori-500 dark:text-dotori-300">
 										{prompt.prompt}
 									</Text>
 								</div>

@@ -42,7 +42,7 @@ export default function ChatPage() {
 		<Suspense
 			fallback={
 				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 dark:bg-dotori-900">
-					<div className="px-5 pt-8">
+					<div className="px-5 pt-6">
 						<Skeleton variant="card" count={2} />
 					</div>
 				</div>
@@ -393,47 +393,52 @@ function ChatContent() {
 		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
 			{/* ── Header ── */}
 			<header className="glass-header sticky top-0 z-10 flex items-center gap-3 px-5 py-3.5">
-				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img
-					src={TORI_ICON}
-					alt=""
-					aria-hidden="true"
-					className="h-10 w-10 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
-				/>
-				<div className="min-w-0">
-					<Heading level={3} className="font-semibold text-dotori-900 dark:text-dotori-50">
-						토리
-					</Heading>
-					<div className="mt-0.5 flex items-center gap-1.5">
-						<span className="inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
-						<Text className="text-xs font-medium text-forest-700 dark:text-forest-300">
-							온라인
-						</Text>
+				<div className="flex min-w-0 items-center gap-3">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={TORI_ICON}
+						alt=""
+						aria-hidden="true"
+						className="h-10 w-10 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
+					/>
+					<div className="min-w-0">
+						<Heading level={3} className="font-semibold text-dotori-900 dark:text-dotori-50">
+							토리
+						</Heading>
+						<div className="mt-0.5 flex items-center gap-1.5">
+							<span className="inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
+							<Text className="text-xs font-medium text-forest-700 dark:text-forest-300">
+								온라인
+							</Text>
+						</div>
 					</div>
 				</div>
-				<Button
-					onClick={handleClearHistory}
-					disabled={isResetting || isLoading}
-					color="dotori"
-					className="ml-auto min-h-10 min-w-24 px-3 text-sm"
-				>
-					대화 초기화
-				</Button>
-			</header>
-			{isTrackingUsage ? (
-				<div className="border-b border-dotori-100/30 bg-white/90 px-5 py-2.5 dark:border-dotori-800/40 dark:bg-dotori-950/70">
-					<UsageCounter
-						count={usageCount}
-						limit={usageLimit}
-						isLoading={isUsageLoading}
-					/>
+
+				<div className="ml-auto flex items-center gap-2">
+					{isTrackingUsage ? (
+						<div className="rounded-2xl border border-dotori-100/70 bg-white/70 px-3 py-2 backdrop-blur-sm dark:border-dotori-800/50 dark:bg-dotori-950/40 dark:[&_*]:text-dotori-200">
+							<UsageCounter
+								count={usageCount}
+								limit={usageLimit}
+								isLoading={isUsageLoading}
+							/>
+						</div>
+					) : null}
+					<Button
+						plain={true}
+						onClick={handleClearHistory}
+						disabled={isResetting || isLoading}
+						className="min-h-11 min-w-24 rounded-2xl border border-dotori-100 bg-white/70 px-3 text-sm transition-all hover:bg-white active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/40 dark:hover:bg-dotori-950/60"
+					>
+						대화 초기화
+					</Button>
 				</div>
-			) : null}
+			</header>
 
 			{/* ── Messages ── */}
 			<div className="flex-1 overflow-y-auto">
 				{isHistoryLoading ? (
-					<div className="px-4 pt-4">
+					<div className="px-5 py-4">
 						<Skeleton variant="chat" count={3} />
 					</div>
 				) : messages.length === 0 ? (
@@ -444,7 +449,7 @@ function ChatContent() {
 						toriIcon={TORI_ICON}
 					/>
 				) : (
-					<div className="px-4 pt-4">
+					<div className="px-5 py-4">
 						{messages.map((msg) => (
 							<MessageBubble
 								key={msg.id}
@@ -490,9 +495,9 @@ function ChatContent() {
 						disabled={!input.trim() || isLoading || isUsageLoading || isUsageLimitReached}
 						aria-label="메시지 전송"
 						className={cn(
-							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95",
+							"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-[0.97]",
 							input.trim() && !isLoading && !isUsageLoading && !isUsageLimitReached
-								? "bg-dotori-900 text-white dark:bg-dotori-50 dark:text-dotori-900"
+								? "bg-dotori-900 text-white hover:bg-dotori-800 hover:shadow-sm dark:bg-dotori-50 dark:text-dotori-900 dark:hover:bg-dotori-100 dark:hover:shadow-none"
 								: "bg-dotori-100 text-dotori-500 dark:bg-dotori-800 dark:text-dotori-300",
 						)}
 					>
