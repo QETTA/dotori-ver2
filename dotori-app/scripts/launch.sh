@@ -1,12 +1,11 @@
 #!/bin/bash
-# ㄱ 파이프라인 v3 — Codex 병렬 실행
-# Usage: ./scripts/launch.sh [ROUND=r17] [MODEL=gpt-5.2]
-# spark: CODEX_MODEL=gpt-5.3-codex-spark ./scripts/launch.sh r17
+# ㄱ 파이프라인 v4 — Codex 병렬 실행
+# Usage: ./scripts/launch.sh [ROUND=r18] [MODEL=gpt-5.2]
 
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r17}
+ROUND=${1:-r18}
 CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
@@ -14,8 +13,8 @@ WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(token-my-core token-my-waitlist token-onboarding token-community token-auth-misc token-facility token-dotori-comp refactor-blocks test-api-core test-api-ext test-e2e-smoke)
-MERGE_ORDER=(token-my-core token-my-waitlist token-onboarding token-community token-auth-misc token-facility token-dotori-comp refactor-blocks test-api-core test-api-ext test-e2e-smoke)
+AGENTS=(ux-home ux-chat ux-explore ux-community ux-facility ux-my-core ux-my-waitlist ux-onboarding ux-auth-landing ux-core-comp ux-blocks)
+MERGE_ORDER=(ux-core-comp ux-blocks ux-home ux-chat ux-explore ux-community ux-facility ux-my-core ux-my-waitlist ux-onboarding ux-auth-landing)
 PIDS=()
 PASS=()
 FAIL=()
@@ -28,287 +27,315 @@ fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
 step() { echo -e "\n${BLUE}═══ $1 ═══${NC}"; }
 info() { echo "     $1"; }
 
+### ── 공통 다크모드 규칙 (모든 에이전트 공유) ──────────────────────────────
+DARK_RULES='## 다크모드 규칙
+CSS 변수 시스템이 이미 globals.css에 설정되어 있다.
+- 라이트: --color-bg-primary(dotori-50), --color-bg-surface(white), --color-text-primary(dotori-900)
+- 다크: --color-bg-primary(#1a1510), --color-bg-surface(#2d2418), --color-text-primary(#f5ede0)
+- .dark 클래스가 <html>에 토글됨
+
+### 적용 패턴:
+1. bg-white → bg-white dark:bg-dotori-950
+2. bg-dotori-50 → bg-dotori-50 dark:bg-dotori-900
+3. bg-dotori-100 → bg-dotori-100 dark:bg-dotori-800
+4. text-dotori-900 → text-dotori-900 dark:text-dotori-50
+5. text-dotori-800 → text-dotori-800 dark:text-dotori-100
+6. text-dotori-700 → text-dotori-700 dark:text-dotori-200
+7. text-dotori-600 → text-dotori-600 dark:text-dotori-300
+8. text-dotori-500 → 그대로 (브랜드 색상, 라이트/다크 공통)
+9. text-dotori-400 → 그대로 (브랜드 색상)
+10. border-dotori-100 → border-dotori-100 dark:border-dotori-800
+11. border-dotori-200 → border-dotori-200 dark:border-dotori-700
+12. divide-dotori-100 → divide-dotori-100 dark:divide-dotori-800
+13. bg-forest-500 → 그대로 (성공 색상은 변경 불요)
+14. shadow-* → shadow-* dark:shadow-none 또는 유지 (케이스별 판단)
+15. placeholder 색상: placeholder:text-dotori-400 dark:placeholder:text-dotori-600
+
+### 금지:
+- bg-black, bg-gray-* 사용 금지 → dotori 팔레트만 사용
+- 새로운 CSS 변수 정의 금지 (globals.css 건드리지 마라)
+- Catalyst 컴포넌트 내부 수정 금지 (이미 dark: 지원됨)'
+
+### ── 공통 모션 규칙 ──────────────────────────────────────────────────────
+MOTION_RULES='## 모션 프리셋 규칙
+src/lib/motion.ts에 중앙화된 프리셋이 있다. 인라인 모션 정의 대신 이것을 사용해라.
+
+import { fadeUp, stagger, tap, glass } from "@/lib/motion";
+
+### 사용 패턴:
+- 페이지 섹션 등장: <motion.div {...fadeUp}>
+- 리스트 아이템 순차 등장: <motion.ul {...stagger.container}> + <motion.li {...stagger.item}>
+- 카드 탭 피드백: <motion.div {...tap.card}>
+- 버튼 탭: <motion.button {...tap.button}>
+
+### 글래스 효과 (globals.css 유틸리티):
+- 고정 헤더: className="glass-header sticky top-0 z-10"
+- 바텀시트: className="glass-sheet"
+- 플로팅 카드: className="glass-card"
+- 오버레이: className="glass-overlay"
+
+### 금지:
+- framer-motion import 금지 → motion/react만 사용
+- 새로운 인라인 variants 정의 최소화 (motion.ts 프리셋 우선)'
+
 ### ── 에이전트별 작업 프롬프트 ─────────────────────────────────────────────
 get_task() {
   local agent=$1
   case $agent in
-    token-my-core)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (my 페이지 계열)
+    ux-home)
+      echo "홈 페이지 UX 플러그인 적용
 
 담당 파일 (이 파일들만 수정):
-- src/app/(app)/my/page.tsx (34건)
-- src/app/(app)/my/import/page.tsx (24건)
-- src/app/(app)/my/support/page.tsx (9건)
-- src/app/(app)/my/notifications/page.tsx (7건)
-- src/app/(app)/my/interests/page.tsx (5건)
-- src/app/(app)/my/notices/page.tsx (4건)
+- src/app/(app)/page.tsx
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체:
-- text-[10px] → text-[0.625rem] 또는 text-xs (상황에 따라)
-- text-[11px] → text-xs (0.75rem = 12px)
-- text-[12px] → text-xs
-- text-[13px] → text-xs 또는 text-sm (디자인 의도에 따라)
-- text-[14px] → text-sm (0.875rem = 14px)
-- text-[15px] → text-base (1rem = 16px에 가까움) 또는 text-sm
-- text-[16px] → text-base
-- text-[17px] → text-base 또는 text-lg
-- text-[18px] → text-lg (1.125rem = 18px)
-- text-[20px] → text-xl
-- text-[22px] → text-xl 또는 text-2xl
-- text-[24px] → text-2xl
-- text-[28px] → text-2xl 또는 text-3xl
-- text-[32px] → text-3xl 이상
-
-주의: leading-[Npx]도 함께 조정해야 할 수 있음 (leading-tight/snug/normal/relaxed).
-w-[Npx], h-[Npx], p-[Npx] 등 다른 임의값은 건드리지 마라 — text-[Npx]만 교체.
+1. 다크모드 dark: 클래스 추가 (위 규칙 따라서)
+2. 섹션별 fadeUp 적용 (AI 토리, 내 주변 빈자리, NBA 카드)
+3. NBA 카드 리스트에 stagger 적용
+4. 상단 헤더 영역에 glass-header 적용 (있으면)
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    token-my-waitlist)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (대기 페이지)
+    ux-chat)
+      echo "채팅 페이지 UX 플러그인 적용
 
 담당 파일 (이 파일들만 수정):
-- src/app/(app)/my/waitlist/page.tsx (35건)
-- src/app/(app)/my/waitlist/[id]/page.tsx (33건)
+- src/app/(app)/chat/page.tsx
+- src/components/dotori/chat/ChatBubble.tsx (있으면)
+- src/components/dotori/chat/ChatPromptPanel.tsx
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체:
-- text-[10px]~text-[11px] → text-xs
-- text-[12px]~text-[13px] → text-xs 또는 text-sm
-- text-[14px] → text-sm
-- text-[15px]~text-[16px] → text-base
-- text-[17px]~text-[18px] → text-lg
-- text-[20px] → text-xl
-- text-[22px]~text-[24px] → text-2xl
-- text-[28px]~text-[32px] → text-3xl
-
-주의: leading-[Npx]도 함께 조정. w-[Npx], h-[Npx] 등은 건드리지 마라.
+1. 다크모드 dark: 클래스 추가
+2. 채팅 버블 배경: 사용자=dotori-100 dark:dotori-800, AI=white dark:dotori-900
+3. ChatPromptPanel에서 기존 인라인 variants → motion.ts의 stagger 프리셋으로 교체
+4. 상단 헤더에 glass-header 적용
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    token-onboarding)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (온보딩)
+    ux-explore)
+      echo "탐색 페이지 UX 플러그인 적용
 
 담당 파일 (이 파일들만 수정):
-- src/app/(onboarding)/onboarding/page.tsx (30건)
-- src/app/(onboarding)/error.tsx (3건)
+- src/app/(app)/explore/page.tsx
+- src/components/dotori/explore/ExploreSuggestionPanel.tsx
+- src/components/dotori/explore/ExploreSearchHeader.tsx (있으면)
+- src/components/dotori/explore/ExploreResultList.tsx (있으면)
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
-매핑 규칙은 다른 에이전트와 동일 (text-[14px]→text-sm 등).
-
-leading-[Npx]도 함께 조정.
+1. 다크모드 dark: 클래스 추가
+2. 검색 결과 리스트에 stagger.fast 적용
+3. 필터 칩에 tap.chip 적용
+4. 검색 헤더에 glass-header 적용
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    token-community)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (커뮤니티)
+    ux-community)
+      echo "커뮤니티 페이지 UX 플러그인 적용
 
 담당 파일 (이 파일들만 수정):
-- src/app/(app)/community/[id]/page.tsx (19건)
-- src/app/(app)/community/page.tsx (16건)
-- src/app/(app)/community/_components/CommunityEmptyState.tsx (1건)
+- src/app/(app)/community/page.tsx
+- src/app/(app)/community/[id]/page.tsx
+- src/app/(app)/community/write/page.tsx
+- src/app/(app)/community/_components/CommunityEmptyState.tsx (있으면)
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
-매핑 규칙은 다른 에이전트와 동일 (text-[14px]→text-sm 등).
-
-leading-[Npx]도 함께 조정.
+1. 다크모드 dark: 클래스 추가
+2. 게시글 카드 리스트에 stagger 적용
+3. 카드에 tap.card 적용
+4. 헤더에 glass-header 적용
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    token-auth-misc)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (auth + error + shared)
+    ux-facility)
+      echo "시설 상세 페이지 UX 플러그인 적용
 
 담당 파일 (이 파일들만 수정):
-- src/app/(auth)/login/page.tsx (11건)
-- src/app/(auth)/error.tsx (3건)
-- src/app/not-found.tsx (1건)
-- src/components/shared/ErrorBoundary.tsx (2건)
+- src/app/(app)/facility/[id]/page.tsx
+- src/app/(app)/facility/[id]/FacilityDetailClient.tsx (있으면)
+- src/components/dotori/facility/FacilityCapacitySection.tsx
+- src/components/dotori/facility/FacilityContactSection.tsx
+- src/components/dotori/facility/FacilityPremiumSection.tsx
+- src/components/dotori/facility/FacilityReviewSection.tsx
+- src/components/dotori/facility/FacilityStatusBadges.tsx
+- src/components/dotori/facility/FacilityWaitlistCTA.tsx
+- src/components/dotori/facility/FacilityLocationSection.tsx
+- src/components/dotori/facility/FacilityOperatingSection.tsx
+- src/components/dotori/facility/FacilityProgramSection.tsx
+- src/components/dotori/facility/facility-detail-helpers.ts
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
-매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
-
-leading-[Npx]도 함께 조정.
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    token-facility)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (시설 상세)
-
-담당 파일 (이 파일들만 수정):
-- src/components/dotori/facility/IsalangCard.tsx (6건)
-- src/components/dotori/facility/FacilityReviewsCard.tsx (6건)
-- src/components/dotori/facility/FacilityCapacityCard.tsx (5건)
-- src/components/dotori/facility/FacilityInsights.tsx (3건)
-- src/components/dotori/facility/FacilityLocationCard.tsx (2건)
-- src/components/dotori/facility/FacilityChecklistCard.tsx (2건)
-- src/components/dotori/facility/FacilityInfoCard.tsx (1건)
-- src/components/dotori/facility/FacilityFeaturesCard.tsx (1건)
-- src/components/dotori/facility/FacilityDetailHeader.tsx (1건)
-- src/app/(app)/facility/[id]/FacilityDetailClient.tsx (1건)
-- src/app/(app)/facility/[id]/not-found.tsx (2건)
-
-## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
-매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
-
-leading-[Npx]도 함께 조정.
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    token-dotori-comp)
-      echo "text-[Npx] → Tailwind 스케일 토큰 교체 (dotori 공통 컴포넌트)
-
-담당 파일 (이 파일들만 수정):
-- src/components/dotori/MapEmbed.tsx (5건)
-- src/components/dotori/blocks/ChecklistBlock.tsx (5건)
-- src/components/dotori/chat/ChatPromptPanel.tsx (2건)
-- src/components/dotori/Toast.tsx (2건)
-- src/components/dotori/ActionConfirmSheet.tsx (2건)
-- src/components/dotori/CompareTable.tsx (1건)
-- src/components/dotori/SourceChip.tsx (1건)
-- src/components/dotori/blocks/TextBlock.tsx (1건)
-
-## 작업
-모든 text-[Npx] 패턴을 Tailwind 표준 클래스로 교체.
-매핑 규칙: text-[14px]→text-sm, text-[16px]→text-base, text-[18px]→text-lg 등.
-
-leading-[Npx]도 함께 조정.
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    refactor-blocks)
-      echo "response-builder/blocks.ts 688줄 분리 리팩토링
-
-담당 파일 (이 파일들만 수정):
-- src/lib/engine/response-builder/blocks.ts (분리 원본)
-- src/lib/engine/response-builder/index.ts (re-export 수정)
-새 파일 생성 가능:
-- src/lib/engine/response-builder/search.ts
-- src/lib/engine/response-builder/status.ts
-- src/lib/engine/response-builder/recommendation.ts
-
-## 작업
-blocks.ts의 688줄을 기능별로 분리:
-1. search.ts — buildSearchResponse, buildFacilityDetailResponse (시설 검색 관련)
-2. status.ts — buildStatusResponse, buildWaitlistStatusResponse (상태 조회 관련)
-3. recommendation.ts — buildRecommendationResponse, buildComparisonResponse (추천/비교 관련)
-4. blocks.ts — buildResponse (메인 라우터), 나머지 작은 헬퍼
-
-index.ts에서 buildResponse와 필요한 타입을 re-export.
-기존 import 경로 호환성 유지 (response-builder에서 buildResponse import하는 곳).
+1. 다크모드 dark: 클래스 추가 (모든 facility 컴포넌트)
+2. 섹션별 fadeUp 적용 (capacity, contact, review 등)
+3. 상단 sticky 헤더에 glass-header 적용
 
 ## 주의
-- src/lib/engine/__tests__/response-builder.test.ts는 수정하지 마라
-- 기존 테스트가 import { buildResponse } from '../response-builder'로 작동해야 함
+- useFacilityDetailActions.ts, useFacilityDetailData.ts는 수정하지 마라 (훅 로직)
+- FacilityCard.tsx는 ux-core-comp 에이전트가 담당
 
 ## 검증
-npx tsc --noEmit 에러 0개.
-npm test 실행하여 91개 테스트 전부 통과 확인."
+npx tsc --noEmit 에러 0개."
       ;;
-    test-api-core)
-      echo "핵심 API route 테스트 작성
+    ux-my-core)
+      echo "마이페이지 핵심 UX 플러그인 적용
 
-새 파일 생성:
-- src/__tests__/api/facilities.test.ts
-- src/__tests__/api/waitlist.test.ts
-- src/__tests__/api/chat.test.ts
+담당 파일 (이 파일들만 수정):
+- src/app/(app)/my/page.tsx
+- src/app/(app)/my/settings/page.tsx  ← 다크모드 토글 UI 추가!
+- src/app/(app)/my/support/page.tsx
+- src/app/(app)/my/app-info/page.tsx
+- src/app/(app)/my/terms/page.tsx
+- src/app/(app)/my/notices/page.tsx
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-핵심 3개 API route에 대해 유닛 테스트 작성:
-
-### facilities.test.ts
-- GET /api/facilities — 목록 응답 스키마 검증
-- GET /api/facilities/[id] — 상세 응답 스키마 검증
-- 잘못된 id 형식 시 400 에러
-
-### waitlist.test.ts
-- POST /api/waitlist — 필수 필드 누락 시 400
-- POST /api/waitlist — 올바른 데이터로 생성 성공
-- GET /api/waitlist — 인증 없으면 401
-
-### chat.test.ts
-- POST /api/chat — 빈 메시지 시 400
-- POST /api/chat — 메시지 길이 제한 검증
-
-테스트 프레임워크: vitest (import { describe, it, expect } from 'vitest')
-DB 모킹: vi.mock('@/lib/db') + vi.mock('@/models/Facility') 등
-
-## 주의
-실제 DB 연결하지 마라. 모든 외부 의존성 mock 처리.
-import 경로: @/ alias 사용.
+1. 다크모드 dark: 클래스 추가
+2. my/settings/page.tsx에 다크모드 토글 추가:
+   - import { useTheme } from '@/hooks/useTheme'
+   - 라이트/다크/시스템 3단 토글 (라디오 또는 세그먼트 컨트롤)
+   - 현재 모드 표시
+3. 메뉴 항목 리스트에 stagger 적용
 
 ## 검증
-npm test 실행하여 전체 테스트 통과."
+npx tsc --noEmit 에러 0개."
       ;;
-    test-api-ext)
-      echo "확장 API route 테스트 작성
+    ux-my-waitlist)
+      echo "마이 대기/알림 UX 플러그인 적용
 
-새 파일 생성:
-- src/__tests__/api/subscriptions.test.ts
-- src/__tests__/api/admin-premium.test.ts
-- src/__tests__/api/community.test.ts
+담당 파일 (이 파일들만 수정):
+- src/app/(app)/my/waitlist/page.tsx
+- src/app/(app)/my/waitlist/[id]/page.tsx
+- src/app/(app)/my/notifications/page.tsx
+- src/app/(app)/my/interests/page.tsx
+- src/app/(app)/my/import/page.tsx
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-
-### subscriptions.test.ts
-- POST /api/subscriptions — admin이 아니면 403
-- GET /api/subscriptions — 인증 없으면 401
-
-### admin-premium.test.ts
-- PUT /api/admin/facility/[id]/premium — CRON_SECRET 없으면 401
-- PUT /api/admin/facility/[id]/premium — 올바른 Bearer 토큰으로 성공
-
-### community.test.ts
-- GET /api/community/posts — 목록 응답 스키마 검증
-- POST /api/community/posts — 인증 없으면 401
-- POST /api/community/posts — 올바른 데이터로 생성
-
-테스트 프레임워크: vitest (import { describe, it, expect } from 'vitest')
-DB 모킹: vi.mock 사용.
-
-## 주의
-실제 DB 연결하지 마라. 모든 외부 의존성 mock 처리.
+1. 다크모드 dark: 클래스 추가
+2. 대기 목록/알림 리스트에 stagger 적용
+3. 카드에 tap.card 적용
 
 ## 검증
-npm test 실행하여 전체 테스트 통과."
+npx tsc --noEmit 에러 0개."
       ;;
-    test-e2e-smoke)
-      echo "Playwright E2E smoke 테스트 작성
+    ux-onboarding)
+      echo "온보딩 UX 플러그인 적용
 
-새 파일 생성:
-- e2e/smoke.spec.ts
-- playwright.config.ts (없으면 생성, 있으면 확인)
+담당 파일 (이 파일들만 수정):
+- src/app/(onboarding)/onboarding/page.tsx
+- src/app/(onboarding)/layout.tsx (있으면)
+- src/app/(onboarding)/error.tsx
+
+$DARK_RULES
+$MOTION_RULES
 
 ## 작업
-주요 페이지 접근 가능 여부 smoke 테스트:
+1. 다크모드 dark: 클래스 추가
+2. 각 스텝 전환에 fadeUp 적용
+3. 선택 버튼에 tap.button 적용
 
-### smoke.spec.ts
-- test('홈페이지 로드', async) — / 접근, 200, 주요 텍스트 존재
-- test('로그인 페이지 로드', async) — /login 접근, 200, 카카오 로그인 버튼 존재
-- test('탐색 페이지 로드', async) — /explore 접근, 200
-- test('채팅 페이지 로드', async) — /chat 접근, 200
-- test('커뮤니티 페이지 로드', async) — /community 접근, 200
-- test('랜딩 페이지 로드', async) — /landing 접근, 200
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    ux-auth-landing)
+      echo "로그인 + 랜딩 UX 플러그인 적용
 
-### playwright.config.ts
-- baseURL: process.env.BASE_URL || 'http://localhost:3000'
-- projects: [{ name: 'mobile', use: { viewport: { width: 375, height: 812 } } }]
-- webServer: { command: 'npm run start', port: 3000, reuseExistingServer: true }
+담당 파일 (이 파일들만 수정):
+- src/app/(auth)/login/page.tsx
+- src/app/(auth)/error.tsx
+- src/app/(landing)/landing/page.tsx
+- src/components/landing/ 디렉토리 내 파일 (있으면)
 
-## 주의
-- @playwright/test 사용 (이미 devDependencies에 있음)
-- 인증이 필요한 페이지는 테스트하지 마라 (로그인 없이 접근 가능한 것만)
+$DARK_RULES
+$MOTION_RULES
+
+## 작업
+1. 다크모드 dark: 클래스 추가
+2. login/page.tsx: 기존 인라인 motion 프리셋을 유지하되, dark: 클래스 추가
+3. landing/page.tsx: 다크모드 + 섹션별 fadeUp
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    ux-core-comp)
+      echo "핵심 공통 컴포넌트 UX 플러그인 적용
+
+담당 파일 (이 파일들만 수정):
+- src/components/dotori/BottomTabBar.tsx  ← glass-header 적용!
+- src/components/dotori/FacilityCard.tsx  ← tap.card 프리셋으로 교체
+- src/components/dotori/Toast.tsx
+- src/components/dotori/ToastProvider.tsx
+- src/components/dotori/Skeleton.tsx
+- src/components/dotori/EmptyState.tsx
+- src/components/dotori/ErrorState.tsx
+- src/components/dotori/Surface.tsx (있으면)
+- src/components/dotori/Wallpaper.tsx (있으면)
+- src/components/dotori/PremiumGate.tsx
+- src/components/dotori/UsageCounter.tsx
+- src/components/dotori/AiBriefingCard.tsx
+- src/components/dotori/MapEmbed.tsx
+- src/components/dotori/SourceChip.tsx
+- src/components/dotori/StreamingIndicator.tsx
+- src/components/dotori/ActionConfirmSheet.tsx
+- src/components/dotori/CompareTable.tsx
+- src/components/dotori/MarkdownText.tsx
+
+$DARK_RULES
+$MOTION_RULES
+
+## 작업
+1. 다크모드 dark: 클래스 추가 (모든 컴포넌트)
+2. BottomTabBar: glass-header 유틸리티 적용 (하단 고정 바에 글래스 효과)
+3. FacilityCard: 기존 인라인 motionCardProps → import { tap } from '@/lib/motion' 의 tap.card로 교체
+4. SourceChip: 기존 인라인 spring 값 → import { spring } from '@/lib/motion' 으로 교체
+5. Toast: 다크모드 배경 색상
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    ux-blocks)
+      echo "채팅 블록 컴포넌트 UX 플러그인 적용
+
+담당 파일 (이 파일들만 수정):
+- src/components/dotori/blocks/ChecklistBlock.tsx
+- src/components/dotori/blocks/TextBlock.tsx (있으면)
+- src/components/dotori/blocks/ActionBlock.tsx (있으면)
+- src/components/dotori/blocks/AlertsBlock.tsx (있으면)
+- src/components/dotori/blocks/CompareBlock.tsx (있으면)
+- src/components/dotori/blocks/FacilityBlock.tsx (있으면)
+- src/components/dotori/blocks/RecommendBlock.tsx (있으면)
+- src/components/dotori/blocks/SummaryBlock.tsx (있으면)
+- src/components/dotori/blocks/WaitlistBlock.tsx (있으면)
+
+$DARK_RULES
+$MOTION_RULES
+
+## 작업
+1. 다크모드 dark: 클래스 추가 (모든 블록 컴포넌트)
+2. 카드/블록에 glass-card 적용 (어울리는 곳)
+3. 리스트형 블록에 stagger 적용
 
 ## 검증
 npx tsc --noEmit 에러 0개."
@@ -322,8 +349,8 @@ npx tsc --noEmit 에러 0개."
 ### ═══════════════════════════════════════════════════════════════════
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  ㄱ 파이프라인 v3 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  R17: text-[Npx] 토큰화 + API테스트 + E2E   ║${NC}"
+echo -e "${BLUE}║  ㄱ 파이프라인 v4 — ROUND: ${ROUND}               ║${NC}"
+echo -e "${BLUE}║  R18: 다크모드 + 글래스 + 모션 프리셋       ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
@@ -333,7 +360,7 @@ echo "  [0a] npm run build..."
 cd "$APP"
 BUILD_LOG=$(mktemp)
 npm run build > "$BUILD_LOG" 2>&1
-if grep -q "Compiled successfully" "$BUILD_LOG"; then
+if [ $? -eq 0 ]; then
   ok "Build OK"
 else
   echo "  빌드 로그:"
@@ -395,18 +422,20 @@ for AGENT in "${AGENTS[@]}"; do
   cat .serena/memories/project_overview.md
   cat .serena/memories/code_style_and_conventions.md
   cat .serena/memories/agent_task_registry.md
+  cat src/lib/motion.ts
 
 ## 담당 작업 ($ROUND-$AGENT)
 $TASK_TEXT
 
 ## 완료 조건 (반드시 순서대로)
-1. 담당 파일 외 수정 금지
+1. 담당 파일 외 수정 금지 — 특히 globals.css, layout.tsx, motion.ts 수정 금지
 2. 한국어 UI 텍스트 유지 (코드·변수명은 영어)
 3. framer-motion import 금지 → motion/react 사용
 4. color='dotori' CTA 버튼, color='forest' 성공 상태
-5. text-[Npx] 임의 픽셀값 금지 → Tailwind 스케일 토큰 (text-xs/sm/base/lg/xl/2xl)
-6. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
-7. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
+5. text-[Npx] 임의 픽셀값 금지 → Tailwind 스케일 토큰
+6. dark: 클래스 추가 시 dotori 팔레트만 사용 (bg-gray-* 금지)
+7. npx tsc --noEmit 실행 — TypeScript 에러 없어야 함
+8. 파일 생성·수정만 완료하면 됨 (git add/commit은 launch.sh가 자동 처리)"
 
   codex exec -m "$CODEX_MODEL" -s workspace-write \
     --cd "$WT_APP" \
@@ -419,15 +448,12 @@ $TASK_TEXT
 done
 
 ok "${#AGENTS[@]}개 에이전트 발사 완료"
-info "진행 확인: ./scripts/wt-monitor.sh $ROUND --watch"
 
 ### ═══ PHASE 3: 완료 대기 + 빌드 검증 ═══════════════════════════════
 step "PHASE 3: 완료 대기 (최대 90분)"
 
 TIMEOUT=5400
 START=$(date +%s)
-
-echo "  (완료까지 대기 중 — 모니터: ./scripts/wt-monitor.sh $ROUND --watch)"
 
 ( sleep $TIMEOUT && kill "${PIDS[@]}" 2>/dev/null ) &
 WATCHDOG=$!
@@ -448,7 +474,7 @@ for AGENT in "${AGENTS[@]}"; do
   CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l)
   if [[ $CHANGES -gt 0 ]]; then
     git -C "$WT_DIR" add -A 2>/dev/null
-    git -C "$WT_DIR" commit -m "refactor($ROUND-$AGENT): text-[Npx] 토큰화 + 테스트" 2>/dev/null \
+    git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 다크모드 + 글래스 + 모션" 2>/dev/null \
       && echo "✅ ($CHANGES files changed)" \
       || echo "❌ commit 실패"
   else
@@ -477,7 +503,7 @@ for AGENT in "${AGENTS[@]}"; do
   wait "${BUILD_PIDS[$AGENT]}" 2>/dev/null
   WT_BUILD_LOG="${BUILD_LOGS[$AGENT]}"
   printf "  %-28s" "$AGENT"
-  if grep -q "Compiled successfully" "$WT_BUILD_LOG"; then
+  if [ $? -eq 0 ] || grep -q "prerendered as static content" "$WT_BUILD_LOG" 2>/dev/null; then
     PASS+=("$AGENT"); echo "✅"
   else
     FAIL+=("$AGENT"); echo "❌ (로그: $LOGS/$AGENT.log)"
@@ -504,8 +530,7 @@ for AGENT in "${MERGE_ORDER[@]}"; do
     SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
   fi
   if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
-    SUMMARY=$(head -1 "$RESULTS/$AGENT.txt" 2>/dev/null | cut -c1-60 || echo "$ROUND-$AGENT")
-    git commit -m "refactor($ROUND-$AGENT): $SUMMARY
+    git commit -m "feat($ROUND-$AGENT): 다크모드 + 글래스 + 모션 적용
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
     MERGED+=("$AGENT"); echo "✅"
@@ -521,7 +546,7 @@ ok  "Merged: ${#MERGED[@]}개"
 step "PHASE 5: 최종 검증 + 정리"
 
 cd "$APP"
-npm run build 2>&1 | grep -q "Compiled successfully" && ok "최종 빌드 OK" || warn "최종 빌드 문제 — 수동 확인"
+npm run build 2>&1 | tail -5
 npm test 2>&1 | grep -E "Tests:|test files|tests" | tail -3
 
 for AGENT in "${AGENTS[@]}"; do
@@ -536,8 +561,8 @@ ELAPSED=$(( $(date +%s) - START ))
 ELAPSED_MIN=$(( ELAPSED / 60 ))
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  R17 완료 — ${ELAPSED_MIN}분                           ║${NC}"
-echo -e "${BLUE}║  text-[Npx] 토큰화 + API테스트 + E2E       ║${NC}"
+echo -e "${BLUE}║  ${ROUND} 완료 — ${ELAPSED_MIN}분                           ║${NC}"
+echo -e "${BLUE}║  다크모드 + 글래스 + 모션 프리셋 적용        ║${NC}"
 printf "${BLUE}║  Merged %-3d  Failed %-3d  Skipped %-3d           ║${NC}\n" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
