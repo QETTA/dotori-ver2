@@ -1,0 +1,150 @@
+/**
+ * 도토리 모션 프리셋 — 2026 UX 표준
+ * motion/react v12 기반, 전 컴포넌트 공유
+ *
+ * 사용법:
+ *   import { fadeUp, stagger, spring, glass } from "@/lib/motion";
+ *   <motion.div {...fadeUp}>
+ *   <motion.ul {...stagger.container}> <motion.li {...stagger.item}>
+ */
+import type { Variants, Transition } from "motion/react";
+
+/* ── Easing ── */
+export const ease = {
+	/** 기본 ease-out (페이지 전환, 카드 진입) */
+	out: [0.25, 0.1, 0.25, 1] as const,
+	/** 빠른 ease-out (칩, 토글) */
+	snap: [0.32, 0.72, 0, 1] as const,
+	/** 부드러운 감속 (모달, 바텀시트) */
+	gentle: [0.16, 1, 0.3, 1] as const,
+} as const;
+
+/* ── Spring 프리셋 ── */
+export const spring = {
+	/** 카드 탭/호버 (FacilityCard 등) */
+	card: { type: "spring" as const, stiffness: 420, damping: 32 },
+	/** 칩/태그 선택 (SourceChip 등) */
+	chip: { type: "spring" as const, stiffness: 420, damping: 26 },
+	/** 바텀시트 드래그 */
+	sheet: { type: "spring" as const, stiffness: 300, damping: 30 },
+	/** 레이아웃 시프트 */
+	layout: { type: "spring" as const, stiffness: 300, damping: 30 },
+} as const;
+
+/* ── Fade + Slide 프리셋 ── */
+export const fadeUp = {
+	initial: { opacity: 0, y: 12 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.3, ease: ease.out } satisfies Transition,
+} as const;
+
+export const fadeIn = {
+	initial: { opacity: 0 },
+	animate: { opacity: 1 },
+	transition: { duration: 0.25, ease: ease.out } satisfies Transition,
+} as const;
+
+export const fadeScale = {
+	initial: { opacity: 0, scale: 0.96 },
+	animate: { opacity: 1, scale: 1 },
+	transition: { duration: 0.2, ease: ease.out } satisfies Transition,
+} as const;
+
+/* ── 페이지 전환 (PageTransition 호환) ── */
+export const pageTransition = {
+	initial: { opacity: 0, y: 8 },
+	target: { opacity: 1, y: 0 },
+	transition: { duration: 0.25, ease: ease.out } satisfies Transition,
+} as const;
+
+/* ── Stagger (리스트 순차 등장) ── */
+export const stagger = {
+	/** 부모 컨테이너에 적용 */
+	container: {
+		variants: {
+			hidden: { opacity: 1 },
+			show: {
+				opacity: 1,
+				transition: { staggerChildren: 0.06 },
+			},
+		} satisfies Variants,
+		initial: "hidden" as const,
+		animate: "show" as const,
+	},
+	/** 자식 아이템에 적용 */
+	item: {
+		variants: {
+			hidden: { opacity: 0, y: 8 },
+			show: {
+				opacity: 1,
+				y: 0,
+				transition: { ease: "easeOut", duration: 0.24 },
+			},
+		} satisfies Variants,
+	},
+	/** 빠른 스태거 (검색 결과 등) */
+	fast: {
+		container: {
+			variants: {
+				hidden: { opacity: 1 },
+				show: {
+					opacity: 1,
+					transition: { staggerChildren: 0.04 },
+				},
+			} satisfies Variants,
+			initial: "hidden" as const,
+			animate: "show" as const,
+		},
+		item: {
+			variants: {
+				hidden: { opacity: 0, y: 6 },
+				show: {
+					opacity: 1,
+					y: 0,
+					transition: { ease: "easeOut", duration: 0.18 },
+				},
+			} satisfies Variants,
+		},
+	},
+} as const;
+
+/* ── 인터랙션 (whileHover, whileTap) ── */
+export const tap = {
+	/** 카드 탭 피드백 */
+	card: {
+		whileHover: { scale: 1.01 },
+		whileTap: { scale: 0.97 },
+		transition: spring.card,
+	},
+	/** 버튼 탭 피드백 */
+	button: {
+		whileTap: { scale: 0.96 },
+		transition: spring.chip,
+	},
+	/** 칩/태그 탭 */
+	chip: {
+		whileTap: { scale: 0.94 },
+		transition: spring.chip,
+	},
+} as const;
+
+/* ── 스켈레톤 → 콘텐츠 전환 (AnimatePresence) ── */
+export const morphTransition = {
+	exit: { opacity: 0, scale: 0.98 },
+	transition: { duration: 0.15, ease: ease.out } satisfies Transition,
+} as const;
+
+/* ── 글래스 모피즘 (Tailwind 클래스 조합) ── */
+export const glass = {
+	/** 헤더/내비게이션 바 */
+	header: "bg-white/80 backdrop-blur-lg backdrop-saturate-150 border-b border-dotori-100/50",
+	/** 바텀시트/모달 오버레이 */
+	sheet: "bg-white/90 backdrop-blur-xl backdrop-saturate-150 rounded-t-2xl",
+	/** 플로팅 카드 */
+	card: "bg-white/85 backdrop-blur-md backdrop-saturate-125 shadow-lg rounded-2xl",
+	/** 오버레이 배경 (어두운) */
+	overlay: "bg-dotori-900/40 backdrop-blur-sm",
+} as const;
+
+/* ── Reduced Motion 유틸 ── */
+export const noMotion = { duration: 0 } satisfies Transition;

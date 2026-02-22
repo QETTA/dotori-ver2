@@ -99,8 +99,13 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="ko" className={plusJakarta.variable}>
+		<html lang="ko" className={plusJakarta.variable} suppressHydrationWarning>
 			<head>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `(function(){try{var t=localStorage.getItem("dotori-theme");if(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+					}}
+				/>
 				<link
 					rel="stylesheet"
 					crossOrigin="anonymous"
@@ -113,7 +118,7 @@ export default function RootLayout({
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
 				/>
 			</head>
-			<body className="bg-white text-dotori-900 antialiased">
+			<body className="bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] antialiased transition-colors duration-200">
 				<WebVitalsReporter />
 				{children}
 				{/* 카카오 JavaScript SDK */}

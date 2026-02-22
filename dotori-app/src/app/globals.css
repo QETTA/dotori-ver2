@@ -74,24 +74,78 @@
   }
 }
 
-/* ── 다크모드 토큰 (준비용, 비활성) ──
+/* ── 다크모드 토큰 ──
    도토리의 크림 배경이 아이덴티티이므로 완전한 검정이 아닌 "다크 브라운" 기조
    심볼은 어두운 배경 위에서 symbol-mono-white.svg 사용
+   class="dark" 기반 토글 (시스템 설정 연동 + 수동 전환 지원)
 */
-/*
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-primary:   #1a1510;
-    --color-bg-surface:   #2d2418;
-    --color-bg-elevated:  #3a3020;
-    --color-text-primary: #f5ede0;
-    --color-text-muted:   #d4b48e;
-    --color-brand:        var(--color-dotori-400);
-    --color-border:       #5a3a24;
-    --color-border-lt:    #3a3020;
-  }
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-bg-primary:   var(--color-dotori-50);
+  --color-bg-surface:   #ffffff;
+  --color-bg-elevated:  #ffffff;
+  --color-text-primary: var(--color-dotori-900);
+  --color-text-muted:   var(--color-dotori-600);
+  --color-brand:        var(--color-dotori-400);
+  --color-border:       var(--color-dotori-200);
+  --color-border-lt:    var(--color-dotori-100);
 }
-*/
+
+.dark {
+  --color-bg-primary:   #1a1510;
+  --color-bg-surface:   #2d2418;
+  --color-bg-elevated:  #3a3020;
+  --color-text-primary: #f5ede0;
+  --color-text-muted:   #d4b48e;
+  --color-brand:        var(--color-dotori-400);
+  --color-border:       #5a3a24;
+  --color-border-lt:    #3a3020;
+}
+
+/* ── 글래스 모피즘 유틸리티 (2026 Liquid Glass) ── */
+@utility glass-header {
+  background-color: rgb(255 255 255 / 0.8);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border-bottom: 1px solid rgb(200 149 106 / 0.1);
+}
+
+@utility glass-sheet {
+  background-color: rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-radius: 24px 24px 0 0;
+}
+
+@utility glass-card {
+  background-color: rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(12px) saturate(1.25);
+  -webkit-backdrop-filter: blur(12px) saturate(1.25);
+}
+
+@utility glass-overlay {
+  background-color: rgb(45 36 24 / 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.dark .glass-header {
+  background-color: rgb(26 21 16 / 0.8);
+  border-bottom-color: rgb(90 58 36 / 0.2);
+}
+
+.dark .glass-sheet {
+  background-color: rgb(45 36 24 / 0.9);
+}
+
+.dark .glass-card {
+  background-color: rgb(45 36 24 / 0.85);
+}
+
+.dark .glass-overlay {
+  background-color: rgb(0 0 0 / 0.5);
+}
 
 /* ── 베이스 레이어 ── */
 @layer base {
