@@ -24,19 +24,19 @@ const SENTIMENT_STYLES = {
 	positive: {
 		label: "긍정",
 		icon: CheckCircleIcon,
-		wrap: "bg-forest-50 ring-forest-200",
-		iconClass: "text-forest-700",
+		wrap: "bg-forest-50 ring-forest-200 dark:bg-forest-900/20 dark:ring-forest-700/40",
+		iconClass: "text-forest-700 dark:text-forest-200",
 	},
 	neutral: {
 		label: "중립",
 		icon: MinusCircleIcon,
-		wrap: "bg-dotori-50 ring-dotori-200",
-		iconClass: "text-dotori-700",
+		wrap: "bg-dotori-50 ring-dotori-200 dark:bg-dotori-900/40 dark:ring-dotori-700/40",
+		iconClass: "text-dotori-700 dark:text-dotori-100",
 	},
 	caution: {
 		label: "주의",
 		icon: ExclamationTriangleIcon,
-		wrap: "bg-dotori-100/60 ring-warning/35",
+		wrap: "bg-dotori-100/60 ring-warning/35 dark:bg-dotori-900/40",
 		iconClass: "text-warning",
 	},
 } as const;
@@ -103,7 +103,7 @@ export function AiBriefingCard({
 		<Surface
 			className={cn(
 				"p-5 motion-safe:animate-in motion-safe:fade-in duration-300",
-				"bg-gradient-to-br from-white via-white to-dotori-50/70",
+				"bg-gradient-to-br from-white via-white to-dotori-50/70 dark:from-dotori-950 dark:via-dotori-950 dark:to-dotori-900/70",
 			)}
 		>
 			{/* 브랜드 워터마크 */}
@@ -115,7 +115,7 @@ export function AiBriefingCard({
 					aria-hidden="true"
 					className="absolute -right-8 -bottom-8 h-40 w-40 opacity-10"
 				/>
-				<div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
+				<div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent dark:from-dotori-950" />
 			</div>
 
 			<div className="relative">
@@ -124,8 +124,8 @@ export function AiBriefingCard({
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-7 w-7" />
 						<div>
-							<p className="text-sm font-semibold text-dotori-900">오늘의 이동 브리핑</p>
-							<p className="mt-0.5 text-xs text-dotori-600">조건에 맞는 시설부터 빠르게 정리했어요</p>
+							<p className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">오늘의 이동 브리핑</p>
+							<p className="mt-0.5 text-xs text-dotori-600 dark:text-dotori-300">조건에 맞는 시설부터 빠르게 정리했어요</p>
 						</div>
 					</div>
 					<SourceChip source={sourceLabel} updatedAt={updatedAt} freshness="realtime" />
@@ -133,9 +133,9 @@ export function AiBriefingCard({
 
 				<div className="mt-3">
 					{hasMessage ? (
-						<p className="text-sm leading-relaxed text-dotori-800">{message}</p>
+						<p className="text-sm leading-relaxed text-dotori-800 dark:text-dotori-100">{message}</p>
 					) : hasInsightItems ? (
-						<ul aria-label="insight 항목 리스트" className="space-y-2 text-sm text-dotori-800">
+						<ul aria-label="insight 항목 리스트" className="space-y-2 text-sm text-dotori-800 dark:text-dotori-100">
 							{insightItems.map((insight, index) => {
 								const style = SENTIMENT_STYLES[insight.sentiment];
 								const Icon = style.icon;
@@ -158,7 +158,7 @@ export function AiBriefingCard({
 											<p className="leading-relaxed">
 												{insight.label}
 												{insight.source ? (
-													<span className="ml-1 text-xs text-dotori-500">({insight.source})</span>
+													<span className="ml-1 text-xs text-dotori-500 dark:text-dotori-300">({insight.source})</span>
 												) : null}
 											</p>
 										</div>

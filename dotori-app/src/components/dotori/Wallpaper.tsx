@@ -21,14 +21,14 @@ export function Wallpaper({
 		<div
 			className={cn(
 				"relative overflow-hidden",
-				color === "warm" && "bg-[#b8956a]",
-				color === "green" && "bg-[#7a9468]",
-				color === "neutral" && "bg-[#9a9590]",
+				color === "warm" && "bg-dotori-400 dark:bg-dotori-900",
+				color === "green" && "bg-forest-400 dark:bg-forest-900",
+				color === "neutral" && "bg-dotori-200 dark:bg-dotori-950",
 				className,
 			)}
 		>
 			<div
-				className="absolute inset-0 opacity-25 mix-blend-overlay"
+				className="absolute inset-0 opacity-25 mix-blend-overlay dark:opacity-20"
 				style={{ backgroundPosition: "center", backgroundImage: noisePattern }}
 			/>
 			<div className="relative">{children}</div>

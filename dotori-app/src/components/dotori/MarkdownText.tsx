@@ -23,7 +23,7 @@ function parseInline(text: string): ReactNode[] {
 			segments.push(
 				<strong
 					key={`bold-${index}`}
-					className="font-semibold text-dotori-900"
+					className="font-semibold text-dotori-900 dark:text-dotori-50"
 				>
 					{parseInline(match[1])}
 				</strong>,
@@ -32,7 +32,7 @@ function parseInline(text: string): ReactNode[] {
 			segments.push(
 				<em
 					key={`italic-${index}`}
-					className="text-dotori-800 italic"
+					className="text-dotori-800 italic dark:text-dotori-100"
 				>
 					{parseInline(match[2])}
 				</em>,
@@ -64,11 +64,11 @@ export function MarkdownText({ content }: MarkdownTextProps) {
 	const hasContent = content.trim().length > 0;
 
 	if (!hasContent) {
-		return <p className="text-base leading-relaxed text-dotori-900" />;
+		return <p className="text-base leading-relaxed text-dotori-900 dark:text-dotori-50" />;
 	}
 
 	return (
-		<div className="max-w-full text-base leading-relaxed text-dotori-900">
+		<div className="max-w-full text-base leading-relaxed text-dotori-900 dark:text-dotori-50">
 			{blocks.map((block, blockIndex) => {
 				const lines = block.split("\n");
 				const bulletLines = lines.filter((line) => line.trim().length > 0);
@@ -81,7 +81,7 @@ export function MarkdownText({ content }: MarkdownTextProps) {
 					return (
 						<h2
 							key={`header-${blockIndex}`}
-							className="mb-2 mt-1 font-semibold text-dotori-800"
+							className="mb-2 mt-1 font-semibold text-dotori-800 dark:text-dotori-100"
 						>
 							{parseInline(headerMatch[1])}
 						</h2>

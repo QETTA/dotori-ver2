@@ -16,15 +16,15 @@ type ToastProps = ToastData & { onDismiss: () => void };
 const backgroundByType: Record<ToastProps["type"], string> = {
 	success: "bg-forest-500",
 	error: "bg-danger",
-	info: "bg-dotori-900",
-	undo: "bg-dotori-900",
+	info: "bg-dotori-900 dark:bg-dotori-800",
+	undo: "bg-dotori-900 dark:bg-dotori-800",
 };
 
 const iconClassByType: Record<ToastProps["type"], string> = {
 	success: "text-white",
 	error: "text-white",
 	info: "text-white",
-	undo: "text-dotori-100",
+	undo: "text-dotori-100 dark:text-dotori-50",
 };
 
 export function Toast({ type, message, action, onDismiss }: ToastProps) {
@@ -48,12 +48,12 @@ export function Toast({ type, message, action, onDismiss }: ToastProps) {
 				}
 			}}
 			className={cn(
-				"pointer-events-auto relative mx-4 mb-2 flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-white shadow-2xl",
+				"pointer-events-auto relative mx-4 mb-2 flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-white shadow-2xl dark:shadow-none",
 				backgroundByType[type],
 			)}
 		>
 			<motion.div
-				className="absolute -top-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/60"
+				className="absolute -top-1 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/60 dark:bg-dotori-200/30"
 				animate={{ opacity: isDragging ? 0.95 : 0.35 }}
 				transition={{ duration: 0.2 }}
 			/>

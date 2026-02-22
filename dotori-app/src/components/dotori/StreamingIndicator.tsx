@@ -7,7 +7,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 	const message = text ?? "토리가 생각 중이에요...";
 
 	return (
-		<div className="flex items-center gap-2 rounded-full bg-dotori-50 px-2.5 py-1.5">
+		<div className="flex items-center gap-2 rounded-full bg-dotori-50 px-2.5 py-1.5 dark:bg-dotori-900">
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={BRAND.symbol} alt="" className="h-5 w-5 animate-pulse" />
 			<div className="flex items-end gap-1">
@@ -26,7 +26,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 					/>
 				))}
 			</div>
-			<span className="text-sm font-medium text-forest-700">{message}</span>
+			<span className="text-sm font-medium text-forest-700 dark:text-forest-200">{message}</span>
 		</div>
 	);
 }

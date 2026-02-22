@@ -18,28 +18,28 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 	const isNearLimit = hasLimit && !isLimitReached && ratio >= 0.8;
 
 	const containerColor = isLimitReached
-		? "border-dotori-200"
+		? "border-dotori-200 dark:border-dotori-700"
 		: isNearLimit
-			? "border-amber-200"
+			? "border-amber-200 dark:border-amber-700"
 			: isUnlimited
-				? "border-dotori-100"
-				: "border-forest-100";
+				? "border-dotori-100 dark:border-dotori-800"
+				: "border-forest-100 dark:border-forest-700";
 
 	const labelColor = isLimitReached
-		? "text-dotori-700"
+		? "text-dotori-700 dark:text-dotori-200"
 		: isNearLimit
-			? "text-amber-700"
+			? "text-amber-700 dark:text-amber-200"
 			: isUnlimited
-				? "text-dotori-700"
-				: "text-forest-700";
+				? "text-dotori-700 dark:text-dotori-200"
+				: "text-forest-700 dark:text-forest-200";
 
 	const trackColor = isLimitReached
-		? "bg-dotori-100 text-dotori-700"
+		? "bg-dotori-100 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100"
 		: isNearLimit
-			? "bg-amber-100 text-amber-700"
+			? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
 			: isUnlimited
-				? "bg-dotori-100 text-dotori-700"
-				: "bg-forest-100 text-forest-700";
+				? "bg-dotori-100 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100"
+				: "bg-forest-100 text-forest-700 dark:bg-forest-900/20 dark:text-forest-200";
 
 	const barColor = isLimitReached
 		? "bg-dotori-500"
@@ -50,28 +50,28 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 				: "bg-forest-500";
 
 	return (
-		<div className={cn("space-y-2 rounded-2xl border bg-white p-4", containerColor)}>
+		<div className={cn("space-y-2 rounded-2xl border bg-white p-4 dark:bg-dotori-950", containerColor)}>
 			<div className="flex items-end justify-between gap-3">
 				<Text className={cn("text-sm font-medium", labelColor)}>{label}</Text>
 				<div className={cn("rounded-full px-3 py-1 text-xs font-semibold tabular-nums", trackColor)}>
 					{isUnlimited ? "무제한" : `${current}/${limit}`}
 				</div>
 			</div>
-			<div className="h-2 overflow-hidden rounded-full bg-dotori-100">
+			<div className="h-2 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 				<div
 					className={cn("h-full rounded-full transition-all duration-300", barColor)}
 					style={{ width: isUnlimited ? "100%" : `${percent}%` }}
 				/>
 			</div>
 			{isNearLimit ? (
-				<Text className="text-sm text-amber-700">
+				<Text className="text-sm text-amber-700 dark:text-amber-200">
 					이번 달 사용 한도의 80% 이상을 사용했어요.
 				</Text>
 			) : null}
 			{isLimitReached ? (
-				<Text className="text-sm text-dotori-700">
+				<Text className="text-sm text-dotori-700 dark:text-dotori-200">
 					{isOverLimit ? "현재 사용량을 초과했습니다." : "이번 달 사용 한도에 도달했습니다."}{" "}
-					<Link href="/my/settings" className="font-semibold text-dotori-700">
+					<Link href="/my/settings" className="font-semibold text-dotori-700 dark:text-dotori-200">
 						업그레이드
 					</Link>
 				</Text>

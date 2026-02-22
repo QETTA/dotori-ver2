@@ -68,7 +68,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 
 	return (
 		<nav
-			className="fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl bg-white/85 pb-[env(safe-area-inset-bottom)] shadow-xl ring-1 ring-dotori-100/70 backdrop-blur-2xl"
+			className="glass-header fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl pb-[env(safe-area-inset-bottom)] shadow-xl ring-1 ring-dotori-100/70 dark:ring-dotori-800/70"
 			role="navigation"
 			aria-label="메인 내비게이션"
 		>
@@ -89,7 +89,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"
 						>
 							<motion.span
-								className="pointer-events-none absolute inset-1 rounded-2xl bg-dotori-100/80"
+								className="pointer-events-none absolute inset-1 rounded-2xl bg-dotori-100/80 dark:bg-dotori-800/70"
 								animate={active ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
 								initial={false}
 								transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -97,8 +97,10 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							<motion.div
 								className={cn(
 									"relative z-10 grid h-9 w-9 place-items-center rounded-2xl transition-colors duration-200",
-									isChat && active && "bg-dotori-900 text-white",
-									isChat && !active && "bg-dotori-100 text-dotori-900",
+									isChat && active && "bg-dotori-900 text-white dark:bg-dotori-500",
+									isChat &&
+										!active &&
+										"bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
 								)}
 								whileTap={{ scale: 0.85 }}
 								transition={{ type: "spring", stiffness: 500, damping: 25 }}
@@ -109,9 +111,9 @@ export const BottomTabBar = memo(function BottomTabBar() {
 										isChat
 											? active
 												? "text-white"
-												: "text-dotori-800"
+												: "text-dotori-800 dark:text-dotori-100"
 											: active
-												? "text-dotori-900"
+												? "text-dotori-900 dark:text-dotori-50"
 												: "text-dotori-500",
 									)}
 								/>
@@ -120,7 +122,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 								className={cn(
 									"relative z-10 text-xs tracking-tight transition-colors duration-200",
 									active
-										? "font-semibold text-dotori-900"
+										? "font-semibold text-dotori-900 dark:text-dotori-50"
 										: "text-dotori-500",
 								)}
 							>

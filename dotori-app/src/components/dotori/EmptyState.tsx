@@ -39,8 +39,8 @@ export default function EmptyStateFallback({
 					aria-hidden="true"
 					className="h-20 w-20 opacity-70"
 				/>
-				<h3 className="text-base font-semibold text-dotori-900">{title}</h3>
-				{message ? <p className="text-sm text-dotori-600">{message}</p> : null}
+				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
+				{message ? <p className="text-sm text-dotori-600 dark:text-dotori-300">{message}</p> : null}
 				{actionLabel && onAction ? (
 					<Button color="dotori" onClick={onAction} className="min-h-11">
 						{actionLabel}
@@ -105,7 +105,7 @@ export function EmptyState({
 		>
 			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
 				{resolvedIcon ? (
-					<div className="rounded-full bg-dotori-100 p-5 text-dotori-700">
+					<div className="rounded-full bg-dotori-100 p-5 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 						{resolvedIcon}
 					</div>
 				) : (
@@ -117,9 +117,9 @@ export function EmptyState({
 						className="h-24 w-24 opacity-80"
 					/>
 				)}
-				<h3 className="text-base font-semibold text-dotori-900">{title}</h3>
+				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
 				{resolvedDescription ? (
-					<p className="max-w-xs text-sm leading-relaxed text-dotori-600">
+					<p className="max-w-xs text-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
 						{resolvedDescription}
 					</p>
 				) : null}
@@ -136,7 +136,7 @@ export function EmptyState({
 				{secondaryLabel && secondaryHref ? (
 					<Link
 						href={secondaryHref}
-						className="text-sm font-medium text-dotori-600 underline decoration-dotori-200 underline-offset-4 transition-colors hover:text-dotori-800"
+						className="text-sm font-medium text-dotori-600 underline decoration-dotori-200 underline-offset-4 transition-colors hover:text-dotori-800 dark:text-dotori-300 dark:decoration-dotori-700 dark:hover:text-dotori-100"
 					>
 						{secondaryLabel}
 					</Link>

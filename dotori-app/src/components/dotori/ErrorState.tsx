@@ -40,9 +40,9 @@ export function ErrorState({
 					aria-hidden="true"
 					className="h-24 w-24 opacity-80"
 				/>
-				<p className="text-base font-semibold text-dotori-900">{message}</p>
+				<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{message}</p>
 				{(detail || defaultDetails[variant]) ? (
-					<p className="max-w-xs text-sm leading-relaxed text-dotori-600">
+					<p className="max-w-xs text-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
 						{detail || defaultDetails[variant]}
 					</p>
 				) : null}

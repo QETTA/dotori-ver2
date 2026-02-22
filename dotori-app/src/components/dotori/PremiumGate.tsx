@@ -18,13 +18,13 @@ export function PremiumGate({ feature, description, children, isPremium }: Premi
 	return (
 		<div className="relative">
 			<div className="pointer-events-none select-none">{children}</div>
-			<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/85 px-4 text-center backdrop-blur-sm">
-				<div className="rounded-full bg-dotori-100 p-3 text-dotori-600">
+			<div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/85 px-4 text-center backdrop-blur-sm dark:bg-dotori-950/85">
+				<div className="rounded-full bg-dotori-100 p-3 text-dotori-600 dark:bg-dotori-800 dark:text-dotori-200">
 					<LockClosedIcon className="h-6 w-6" />
 				</div>
 				<div>
-					<Strong className="text-dotori-900">{feature}</Strong>
-					<Text className="text-dotori-600">{description}</Text>
+					<Strong className="text-dotori-900 dark:text-dotori-50">{feature}</Strong>
+					<Text className="text-dotori-600 dark:text-dotori-300">{description}</Text>
 				</div>
 				<Button color="dotori" href="/my/settings">
 					프리미엄으로 업그레이드

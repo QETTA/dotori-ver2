@@ -4,6 +4,7 @@ import { memo, useMemo } from "react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
+import { tap } from "@/lib/motion";
 import { cn, facilityTypeBadgeColor, formatRelativeTime } from "@/lib/utils";
 import type { ActionType, Facility, SourceInfo } from "@/types/dotori";
 import { SourceChip } from "./SourceChip";
@@ -15,19 +16,19 @@ const statusMeta = {
 	available: {
 		label: "TO 있음",
 		dot: "bg-forest-500",
-		pill: "bg-forest-100 text-forest-900",
+		pill: "bg-forest-100 text-forest-900 dark:bg-forest-900/20 dark:text-forest-100",
 		border: "border-l-4 border-l-forest-500/80",
 	},
 	waiting: {
 		label: "대기",
 		dot: "bg-warning",
-		pill: "bg-dotori-100 text-dotori-900",
+		pill: "bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
 		border: "border-l-4 border-l-warning/80",
 	},
 	full: {
 		label: "마감",
 		dot: "bg-danger",
-		pill: "bg-dotori-100 text-dotori-900",
+		pill: "bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
 		border: "border-l-4 border-l-danger/80",
 	},
 } as const;
@@ -54,15 +55,9 @@ export const FacilityCard = memo(function FacilityCard({
 		);
 	}, [facility.lastSyncedAt]);
 
-	const motionCardProps = {
-		whileHover: { scale: 1.01 },
-		whileTap: { scale: 0.98 },
-		transition: { type: "spring" as const, stiffness: 420, damping: 32 },
-	};
-
 	if (compact) {
 		return (
-			<motion.div {...motionCardProps} className={cn("rounded-3xl", status.border)}>
+			<motion.div {...tap.card} className={cn("rounded-3xl", status.border)}>
 				<Surface className={cn("p-4")} aria-label={facility.name} role="article">
 					{facility.isPremium ? (
 						<div className="absolute right-3 top-3">
@@ -74,11 +69,11 @@ export const FacilityCard = memo(function FacilityCard({
 						<div className="min-w-0">
 							<div className="flex items-center gap-2">
 								<span className={cn("h-2 w-2 rounded-full", status.dot)} aria-hidden="true" />
-								<p className="truncate text-base font-semibold text-dotori-900">
+								<p className="truncate text-base font-semibold text-dotori-900 dark:text-dotori-50">
 									{facility.name}
 								</p>
 							</div>
-							<p className="mt-1 truncate text-sm text-dotori-600">
+							<p className="mt-1 truncate text-sm text-dotori-600 dark:text-dotori-300">
 								{facility.distance ? `${facility.distance} · ` : ""}
 								{facility.type}
 							</p>
@@ -93,14 +88,14 @@ export const FacilityCard = memo(function FacilityCard({
 										: status.label}
 							</span>
 							{facility.status === "available" ? (
-								<p className="mt-1 text-xs font-medium text-forest-700">
+								<p className="mt-1 text-xs font-medium text-forest-700 dark:text-forest-200">
 									자리 {availableSeats}석
 								</p>
 							) : null}
 							{hasRecentUpdate ? (
-								<p className="mt-1 text-xs text-dotori-600">최근 업데이트</p>
+								<p className="mt-1 text-xs text-dotori-600 dark:text-dotori-300">최근 업데이트</p>
 							) : null}
-							<p className="mt-1 text-xs text-dotori-500" suppressHydrationWarning>
+							<p className="mt-1 text-xs text-dotori-500 dark:text-dotori-300" suppressHydrationWarning>
 								{formatRelativeTime(facility.lastSyncedAt)}
 							</p>
 						</div>
@@ -111,7 +106,7 @@ export const FacilityCard = memo(function FacilityCard({
 	}
 
 	return (
-		<motion.div {...motionCardProps} className={cn("rounded-3xl", status.border)}>
+		<motion.div {...tap.card} className={cn("rounded-3xl", status.border)}>
 			<Surface className="p-5" aria-label={facility.name} role="article">
 				{facility.isPremium ? (
 					<div className="absolute right-4 top-4">
@@ -123,20 +118,20 @@ export const FacilityCard = memo(function FacilityCard({
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
 							<span className={cn("h-2 w-2 rounded-full", status.dot)} aria-hidden="true" />
-							<p className="truncate text-lg font-semibold text-dotori-900">{facility.name}</p>
+							<p className="truncate text-lg font-semibold text-dotori-900 dark:text-dotori-50">{facility.name}</p>
 						</div>
-						<p className="mt-1 line-clamp-2 text-sm text-dotori-600">
+						<p className="mt-1 line-clamp-2 text-sm text-dotori-600 dark:text-dotori-300">
 							{facility.address}
 						</p>
 						<div className="mt-2 flex flex-wrap items-center gap-2">
 							<Badge color={facilityTypeBadgeColor(facility.type)}>{facility.type}</Badge>
 							{facility.distance ? (
-								<span className="text-xs font-medium text-dotori-600">
+								<span className="text-xs font-medium text-dotori-600 dark:text-dotori-300">
 									{facility.distance}
 								</span>
 							) : null}
 							{hasRecentUpdate ? (
-								<span className="text-xs font-medium text-forest-700">최근 업데이트</span>
+								<span className="text-xs font-medium text-forest-700 dark:text-forest-200">최근 업데이트</span>
 							) : null}
 						</div>
 					</div>
@@ -149,28 +144,40 @@ export const FacilityCard = memo(function FacilityCard({
 									? `${status.label} ${facility.capacity.waiting}`
 									: status.label}
 						</span>
-						<p className="mt-2 text-xs text-dotori-500" suppressHydrationWarning>
+						<p className="mt-2 text-xs text-dotori-500 dark:text-dotori-300" suppressHydrationWarning>
 							{formatRelativeTime(facility.lastSyncedAt)}
 						</p>
 					</div>
 				</div>
 
-				<div className="mt-4 grid grid-cols-3 gap-3 rounded-2xl bg-dotori-50/70 p-4 text-center ring-1 ring-dotori-100/70">
+				<div className="mt-4 grid grid-cols-3 gap-3 rounded-2xl bg-dotori-50/70 p-4 text-center ring-1 ring-dotori-100/70 dark:bg-dotori-900/60 dark:ring-dotori-800/60">
 					<div>
-						<p className="text-lg font-semibold text-dotori-900">{facility.capacity.total}</p>
-						<p className="text-xs font-medium text-dotori-600">정원</p>
+						<p className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">{facility.capacity.total}</p>
+						<p className="text-xs font-medium text-dotori-600 dark:text-dotori-300">정원</p>
 					</div>
 					<div>
-						<p className={cn("text-lg font-semibold", facility.capacity.current >= facility.capacity.total ? "text-danger" : "text-dotori-900")}>
+						<p
+							className={cn(
+								"text-lg font-semibold",
+								facility.capacity.current >= facility.capacity.total
+									? "text-danger"
+									: "text-dotori-900 dark:text-dotori-50",
+							)}
+						>
 							{facility.capacity.current}
 						</p>
-						<p className="text-xs font-medium text-dotori-600">현원</p>
+						<p className="text-xs font-medium text-dotori-600 dark:text-dotori-300">현원</p>
 					</div>
 					<div>
-						<p className={cn("text-lg font-semibold", facility.capacity.waiting > 0 ? "text-warning" : "text-dotori-900")}>
+						<p
+							className={cn(
+								"text-lg font-semibold",
+								facility.capacity.waiting > 0 ? "text-warning" : "text-dotori-900 dark:text-dotori-50",
+							)}
+						>
 							{facility.capacity.waiting}
 						</p>
-						<p className="text-xs font-medium text-dotori-600">대기</p>
+						<p className="text-xs font-medium text-dotori-600 dark:text-dotori-300">대기</p>
 					</div>
 				</div>
 
@@ -189,7 +196,7 @@ export const FacilityCard = memo(function FacilityCard({
 								plain={true}
 								type="button"
 								onClick={() => onAction("register_interest", facility.id)}
-								className="min-h-11 text-sm text-dotori-700"
+								className="min-h-11 text-sm text-dotori-700 dark:text-dotori-200"
 								aria-label="관심 시설 추가/제거"
 							>
 								관심

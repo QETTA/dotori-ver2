@@ -10,11 +10,11 @@ const shimmerAnimation = {
 
 const ShimmerBlock = ({ className }: { className: string }) => (
 	<motion.div
-		className={cn("relative overflow-hidden rounded-xl bg-dotori-100", className)}
+		className={cn("relative overflow-hidden rounded-xl bg-dotori-100 dark:bg-dotori-800", className)}
 		aria-hidden="true"
 	>
 		<motion.div
-			className="absolute inset-0 w-full bg-gradient-to-r from-dotori-50 via-dotori-100 to-dotori-50"
+			className="absolute inset-0 w-full bg-gradient-to-r from-dotori-50 via-dotori-100 to-dotori-50 dark:from-dotori-900 dark:via-dotori-800 dark:to-dotori-900"
 			initial={{ x: "-100%" }}
 			{...shimmerAnimation}
 		/>
@@ -49,7 +49,7 @@ export function Skeleton({
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
-						className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm"
+						className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none"
 					>
 						<div className="flex-1 space-y-2.5">
 							<div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ export function Skeleton({
 				{/* Photo placeholder */}
 				<ShimmerBlock className={cn("h-48 rounded-xl")} />
 				{/* Info card */}
-				<div className="rounded-xl bg-white p-5 shadow-sm space-y-3">
+				<div className="rounded-xl bg-white p-5 shadow-sm space-y-3 dark:bg-dotori-950 dark:shadow-none">
 					<ShimmerBlock className={cn("h-6 w-3/4")} />
 					<div className="flex gap-2">
 						<ShimmerBlock className={cn("h-6 w-16 rounded-full")} />
@@ -84,7 +84,7 @@ export function Skeleton({
 				{/* Capacity cards */}
 				<div className="grid grid-cols-3 gap-2.5">
 					{[0, 1, 2].map((i) => (
-						<div key={`sk-${i}`} className="rounded-xl bg-white p-4 shadow-sm space-y-2">
+						<div key={`sk-${i}`} className="rounded-xl bg-white p-4 shadow-sm space-y-2 dark:bg-dotori-950 dark:shadow-none">
 							<ShimmerBlock className={cn("mx-auto h-8 w-12")} />
 							<ShimmerBlock className={cn("mx-auto h-3 w-8")} />
 						</div>
@@ -102,7 +102,7 @@ export function Skeleton({
 				{Array.from({ length: count }).map((_, i) => (
 					<div
 						key={`sk-${i}`}
-						className="rounded-xl bg-white p-5 shadow-sm space-y-3"
+						className="rounded-xl bg-white p-5 shadow-sm space-y-3 dark:bg-dotori-950 dark:shadow-none"
 					>
 						<div className="flex items-center gap-2.5">
 							<ShimmerBlock className={cn("h-10 w-10 rounded-full")} />
@@ -144,7 +144,7 @@ export function Skeleton({
 				{/* Facility cards */}
 				<div className="space-y-3">
 					{[0, 1, 2].map((i) => (
-						<div key={`sk-${i}`} className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm">
+						<div key={`sk-${i}`} className="flex items-center gap-3 rounded-xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none">
 							<div className="flex-1 space-y-2">
 								<ShimmerBlock className={cn("h-5 w-3/4")} />
 								<ShimmerBlock className={cn("h-3 w-1/2")} />
