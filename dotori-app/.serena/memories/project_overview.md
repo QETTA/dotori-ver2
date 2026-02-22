@@ -2,8 +2,8 @@
 
 ## 현재 상태 (2026-02-22, R13 완료)
 
-- **47 pages**, 0 TypeScript errors, **55 tests**, 빌드 성공
-- **14 models**, **35 API routes**, **48 components** (27 catalyst + 20 dotori + 1 landing)
+- **47 pages**, 0 TypeScript errors, **91 tests** (vitest), 빌드 성공
+- **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
 - **DO 배포**: DigitalOcean App Platform (sgp 리전)
   - URL: https://dotori-app-pwyc9.ondigitalocean.app
@@ -65,8 +65,11 @@ User, Facility, Waitlist, Alert, ChatHistory, Post, Comment, Subscription, Usage
 ### Catalyst (27) — 원자 UI (수정 금지)
 Button, Badge, Input, Heading, Text, Strong, Select, Fieldset, Field, Dialog, Avatar, Switch, Radio, Checkbox, Textarea, Table, DescriptionList, Divider, Link, etc.
 
-### Dotori (20) — 도메인 컴포넌트
-BottomTabBar, FacilityCard, ChatBubble, StreamingIndicator, ActionConfirmSheet, SourceChip, Toast/ToastProvider, Skeleton, EmptyState, ErrorState, MapEmbed, PremiumGate, UsageCounter, AiBriefingCard, PageTransition, CompareTable, MarkdownText, SplashScreen, Wallpaper
+### Dotori (44) — 도메인 컴포넌트
+Core(20): BottomTabBar, FacilityCard, ChatBubble, StreamingIndicator, ActionConfirmSheet, SourceChip, Toast/ToastProvider, Skeleton, EmptyState, ErrorState, MapEmbed, PremiumGate, UsageCounter, AiBriefingCard, PageTransition, CompareTable, MarkdownText, SplashScreen, Wallpaper
+blocks/(7): ActionBlock, AlertsBlock, CompareBlock, FacilityBlock, RecommendBlock, SummaryBlock, WaitlistBlock
+explore/(4): ExploreSuggestionPanel, explore-constants, explore-storage, explore-utils
+facility/(13): FacilityCapacitySection, FacilityContactSection, FacilityDetailClient, FacilityLocationSection, FacilityOperatingSection, FacilityPremiumSection, FacilityProgramSection, FacilityReviewSection, FacilityStatusBadges, FacilityWaitlistCTA, facility-detail-helpers, useFacilityDetailActions, useFacilityDetailData
 
 ## 디자인 시스템
 

@@ -122,7 +122,7 @@ scripts/
 ```bash
 npm run dev              # Dev server
 npm run build            # Production build (47 pages)
-npm test                 # Tests (55)
+npm test                 # Tests (91, vitest)
 npm run screenshot       # Mobile screenshots
 ```
 
@@ -154,7 +154,7 @@ doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 
 ## Current State (2026-02-22, R13 완료)
 
-- **47 pages**, 0 TypeScript errors, **55 tests**
+- **47 pages**, 0 TypeScript errors, **91 tests** (vitest)
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
 - **91 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11)

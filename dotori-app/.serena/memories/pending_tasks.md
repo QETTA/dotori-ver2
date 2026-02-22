@@ -33,6 +33,6 @@
 ```bash
 cd /home/sihu2129/dotori-ver2/dotori-app
 npm run build     # 47 pages, 0 errors
-npm test          # 55 tests pass
+npm test          # 91 tests pass (vitest)
 git log --oneline -5
 ```
