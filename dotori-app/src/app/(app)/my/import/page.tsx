@@ -15,7 +15,9 @@ import { useCallback, useRef, useState } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { openIsalangApp, ISALANG_PORTAL } from "@/lib/external/isalang-api";
+import { stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 interface ExtractedItem {
 	facilityName: string;
@@ -190,10 +192,14 @@ export default function ImportPage() {
 	}, []);
 
 	return (
-		<div className="min-h-dvh bg-dotori-50/30">
+		<div className="min-h-dvh bg-dotori-50/30 dark:bg-dotori-900/30">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
-				<Link href="/my/waitlist" aria-label="뒤로 가기" className="p-1">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4 text-dotori-900 dark:text-dotori-50">
+				<Link
+					href="/my/waitlist"
+					aria-label="뒤로 가기"
+					className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
 				<h1 className="text-lg font-bold">아이사랑 데이터 가져오기</h1>
@@ -204,21 +210,21 @@ export default function ImportPage() {
 				{step === "guide" && (
 					<div className="mt-4 space-y-4">
 						{/* 아이사랑 앱 열기 */}
-						<section className="rounded-3xl bg-white p-5 shadow-sm">
+						<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 							<div className="flex items-start gap-3">
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-dotori-100">
+								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-dotori-100 dark:bg-dotori-800">
 									<span className="text-xl">1</span>
 								</div>
 								<div>
-									<h3 className="font-semibold">아이사랑 앱에서 대기현황 열기</h3>
-									<p className="mt-1 text-sm text-dotori-500">
+									<h3 className="font-semibold dark:text-dotori-50">아이사랑 앱에서 대기현황 열기</h3>
+									<p className="mt-1 text-sm text-dotori-500 dark:text-dotori-300">
 										아이사랑 앱 → 로그인 → 대기현황 페이지를 열어주세요
 									</p>
 								</div>
 							</div>
 							<button
 								onClick={() => openIsalangApp(ISALANG_PORTAL.waitlistStatus)}
-								className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-dotori-900 px-4 py-3 text-sm font-semibold text-white transition-all active:scale-[0.97]"
+								className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-dotori-900 px-4 py-3 text-sm font-semibold text-white transition-all active:scale-[0.97] dark:bg-dotori-500"
 							>
 								<DevicePhoneMobileIcon className="h-5 w-5" />
 								아이사랑 앱 열기
@@ -226,36 +232,36 @@ export default function ImportPage() {
 						</section>
 
 						{/* 스크린샷 안내 */}
-						<section className="rounded-3xl bg-white p-5 shadow-sm">
+						<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 							<div className="flex items-start gap-3">
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-dotori-100">
+								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-dotori-100 dark:bg-dotori-800">
 									<span className="text-xl">2</span>
 								</div>
 								<div>
-									<h3 className="font-semibold">대기현황 스크린샷 찍기</h3>
-									<p className="mt-1 text-sm text-dotori-500">
+									<h3 className="font-semibold dark:text-dotori-50">대기현황 스크린샷 찍기</h3>
+									<p className="mt-1 text-sm text-dotori-500 dark:text-dotori-300">
 										대기 목록이 보이는 화면을 스크린샷으로 캡처해주세요.
 										시설명, 대기순번, 상태가 모두 보여야 해요.
 									</p>
 								</div>
 							</div>
-							<div className="mt-3 rounded-2xl bg-dotori-50 p-4 text-center">
-								<CameraIcon className="mx-auto h-8 w-8 text-dotori-500" />
-								<p className="mt-2 text-xs text-dotori-500">
+							<div className="mt-3 rounded-2xl bg-dotori-50 p-4 text-center dark:bg-dotori-900">
+								<CameraIcon className="mx-auto h-8 w-8 text-dotori-500 dark:text-dotori-300" />
+								<p className="mt-2 text-xs text-dotori-500 dark:text-dotori-300">
 									Android: 전원 + 볼륨↓ · iPhone: 전원 + 볼륨↑
 								</p>
 							</div>
 						</section>
 
 						{/* 업로드 */}
-						<section className="rounded-3xl bg-white p-5 shadow-sm">
+						<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 							<div className="flex items-start gap-3">
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-forest-100 text-forest-700">
+								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-forest-100 text-forest-700 dark:bg-forest-900/25 dark:text-forest-100">
 									<span className="text-xl">3</span>
 								</div>
 								<div>
-									<h3 className="font-semibold">스크린샷 업로드</h3>
-									<p className="mt-1 text-sm text-dotori-500">
+									<h3 className="font-semibold dark:text-dotori-50">스크린샷 업로드</h3>
+									<p className="mt-1 text-sm text-dotori-500 dark:text-dotori-300">
 										AI가 자동으로 대기 정보를 읽어서 도토리에 저장해요
 									</p>
 								</div>
@@ -270,7 +276,7 @@ export default function ImportPage() {
 							/>
 							<button
 								onClick={() => fileInputRef.current?.click()}
-								className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-forest-600 px-4 py-3.5 text-base font-semibold text-white shadow-md transition-all active:scale-[0.97]"
+								className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-forest-600 px-4 py-3.5 text-base font-semibold text-white shadow-md transition-all active:scale-[0.97] dark:shadow-none"
 							>
 								<PhotoIcon className="h-5 w-5" />
 								스크린샷 선택하기
@@ -282,13 +288,13 @@ export default function ImportPage() {
 				{/* ── Step 2: 미리보기 + 분석 시작 ── */}
 				{step === "upload" && previewUrl && (
 					<div className="mt-4 space-y-4">
-						<section className="rounded-3xl bg-white p-5 shadow-sm">
+						<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 							<div className="flex items-center justify-between">
-								<h3 className="font-semibold">업로드한 스크린샷</h3>
+								<h3 className="font-semibold dark:text-dotori-50">업로드한 스크린샷</h3>
 							<button
 								onClick={resetAll}
 								aria-label="닫기"
-								className="p-1 text-dotori-500"
+								className="rounded-full p-1 text-dotori-500 transition-colors hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-900"
 							>
 									<XMarkIcon className="h-5 w-5" />
 								</button>
@@ -297,19 +303,19 @@ export default function ImportPage() {
 							<img
 								src={previewUrl}
 								alt="아이사랑 스크린샷"
-								className="mt-3 w-full rounded-2xl border border-dotori-100"
+								className="mt-3 w-full rounded-2xl border border-dotori-100 dark:border-dotori-800"
 							/>
 						</section>
 
 						{error && (
-							<div className="rounded-2xl bg-red-50 p-4 text-sm text-red-600">
+							<div className="rounded-2xl border border-dotori-200 bg-dotori-50 p-4 text-sm text-dotori-700 dark:border-dotori-700 dark:bg-dotori-900 dark:text-dotori-100">
 								{error}
 							</div>
 						)}
 
 						<button
 							onClick={handleExtract}
-							className="flex w-full items-center justify-center gap-2 rounded-2xl bg-dotori-900 px-4 py-3.5 text-base font-semibold text-white shadow-md transition-all active:scale-[0.97]"
+							className="flex w-full items-center justify-center gap-2 rounded-2xl bg-dotori-900 px-4 py-3.5 text-base font-semibold text-white shadow-md transition-all active:scale-[0.97] dark:bg-dotori-500 dark:shadow-none"
 						>
 							<DocumentArrowUpIcon className="h-5 w-5" />
 							AI로 대기 정보 추출하기
@@ -320,11 +326,11 @@ export default function ImportPage() {
 				{/* ── Step 3: 추출 중 ── */}
 				{step === "extracting" && (
 					<div className="mt-16 flex flex-col items-center gap-4">
-						<div className="h-12 w-12 animate-spin rounded-full border-4 border-dotori-200 border-t-dotori-500" />
-						<p className="text-base font-medium text-dotori-700">
+						<div className="h-12 w-12 animate-spin rounded-full border-4 border-dotori-200 border-t-dotori-500 dark:border-dotori-700 dark:border-t-dotori-300" />
+						<p className="text-base font-medium text-dotori-700 dark:text-dotori-100">
 							AI가 대기 정보를 읽고 있어요...
 						</p>
-						<p className="text-sm text-dotori-500">
+						<p className="text-sm text-dotori-500 dark:text-dotori-300">
 							보통 5~10초 소요됩니다
 						</p>
 					</div>
@@ -334,56 +340,59 @@ export default function ImportPage() {
 				{step === "review" && items.length > 0 && (
 					<div className="mt-4 space-y-3">
 						<div className="flex items-center justify-between">
-							<h2 className="text-lg font-bold">
+							<h2 className="text-lg font-bold text-dotori-900 dark:text-dotori-50">
 								추출 결과 ({items.length}건)
 							</h2>
 							<button
 								onClick={resetAll}
-								className="text-sm text-dotori-500 underline"
+								className="text-sm text-dotori-500 underline dark:text-dotori-300"
 							>
 								다시하기
 							</button>
 						</div>
 
-						<p className="text-sm text-dotori-500">
+						<p className="text-sm text-dotori-500 dark:text-dotori-300">
 							정보가 맞는지 확인하고, 가져올 항목을 선택해주세요
 						</p>
 
 						{error && (
-							<div className="rounded-2xl bg-red-50 p-4 text-sm text-red-600">
+							<div className="rounded-2xl border border-dotori-200 bg-dotori-50 p-4 text-sm text-dotori-700 dark:border-dotori-700 dark:bg-dotori-900 dark:text-dotori-100">
 								{error}
 							</div>
 						)}
 
-						{items.map((item, idx) => (
-							<button
+						<motion.div {...stagger.container} className="space-y-3">
+							{items.map((item, idx) => (
+							<motion.button
 								key={`${item.facilityName}-${idx}`}
 								onClick={() => toggleConfirm(idx)}
 								className={cn(
-									"w-full rounded-2xl p-4 text-left shadow-sm transition-all active:scale-[0.99]",
+									"w-full rounded-2xl p-4 text-left shadow-sm transition-shadow hover:shadow-md dark:shadow-none",
 									item._confirmed
-										? "bg-white ring-2 ring-forest-500"
-										: "bg-white/60 opacity-60",
+										? "bg-white ring-2 ring-forest-500 dark:bg-dotori-950"
+										: "bg-white/60 opacity-60 dark:bg-dotori-950/60",
 								)}
+								{...stagger.item}
+								{...tap.card}
 							>
 								<div className="flex items-start gap-3">
 									{item._confirmed ? (
 										<CheckCircleSolid className="mt-0.5 h-5 w-5 shrink-0 text-forest-500" />
 									) : (
-										<CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-dotori-300" />
+										<CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-dotori-300 dark:text-dotori-600" />
 									)}
 									<div className="min-w-0 flex-1">
 										<div className="flex items-center gap-2">
-											<span className="font-semibold">
+											<span className="font-semibold text-dotori-900 dark:text-dotori-50">
 												{item.facilityName}
 											</span>
 											{item.facilityType && (
-												<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-xs text-dotori-600">
+												<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-xs text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
 													{item.facilityType}
 												</span>
 											)}
 										</div>
-										<div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-dotori-500">
+										<div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-dotori-500 dark:text-dotori-300">
 											{item.waitlistNumber != null && (
 												<span>대기순번 {item.waitlistNumber}번</span>
 											)}
@@ -391,10 +400,10 @@ export default function ImportPage() {
 												className={cn(
 													"font-medium",
 													item.status === "대기중"
-														? "text-dotori-700"
+														? "text-dotori-700 dark:text-dotori-100"
 														: item.status === "입소확정"
-															? "text-forest-600"
-															: "text-dotori-500",
+															? "text-forest-600 dark:text-forest-200"
+															: "text-dotori-500 dark:text-dotori-300",
 												)}
 											>
 												{item.status}
@@ -404,7 +413,7 @@ export default function ImportPage() {
 											)}
 										</div>
 										{(item.childName || item.childClass) && (
-											<div className="mt-1 text-xs text-dotori-500">
+											<div className="mt-1 text-xs text-dotori-500 dark:text-dotori-300">
 												{item.childName && <span>{item.childName}</span>}
 												{item.childClass && (
 													<span> · {item.childClass}</span>
@@ -413,8 +422,9 @@ export default function ImportPage() {
 										)}
 									</div>
 								</div>
-							</button>
+							</motion.button>
 						))}
+						</motion.div>
 
 						<button
 							onClick={handleSave}
@@ -422,8 +432,8 @@ export default function ImportPage() {
 							className={cn(
 								"flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-base font-semibold text-white shadow-md transition-all active:scale-[0.97]",
 								items.some((i) => i._confirmed)
-									? "bg-forest-600"
-									: "bg-dotori-300 cursor-not-allowed",
+									? "bg-forest-600 dark:shadow-none"
+									: "bg-dotori-300 cursor-not-allowed dark:bg-dotori-700 dark:shadow-none",
 							)}
 						>
 							선택한 {items.filter((i) => i._confirmed).length}건 가져오기
@@ -434,8 +444,8 @@ export default function ImportPage() {
 				{/* ── Step 5: 저장 중 ── */}
 				{step === "saving" && (
 					<div className="mt-16 flex flex-col items-center gap-4">
-						<div className="h-12 w-12 animate-spin rounded-full border-4 border-forest-200 border-t-forest-500" />
-						<p className="text-base font-medium text-dotori-700">
+						<div className="h-12 w-12 animate-spin rounded-full border-4 border-forest-200 border-t-forest-500 dark:border-forest-800 dark:border-t-forest-200" />
+						<p className="text-base font-medium text-dotori-700 dark:text-dotori-100">
 							대기 정보를 저장하고 있어요...
 						</p>
 					</div>
@@ -444,11 +454,11 @@ export default function ImportPage() {
 				{/* ── Step 6: 완료 ── */}
 				{step === "done" && (
 					<div className="mt-16 flex flex-col items-center gap-4">
-						<div className="grid h-16 w-16 place-items-center rounded-full bg-forest-100">
-							<CheckCircleSolid className="h-8 w-8 text-forest-600" />
+						<div className="grid h-16 w-16 place-items-center rounded-full bg-forest-100 dark:bg-forest-900/25">
+							<CheckCircleSolid className="h-8 w-8 text-forest-600 dark:text-forest-200" />
 						</div>
-						<h2 className="text-lg font-bold">가져오기 완료!</h2>
-						<p className="text-center text-sm text-dotori-500">
+						<h2 className="text-lg font-bold text-dotori-900 dark:text-dotori-50">가져오기 완료!</h2>
+						<p className="text-center text-sm text-dotori-500 dark:text-dotori-300">
 							아이사랑 대기 정보가 도토리에 저장되었어요.
 							<br />
 							이제 도토리에서 대기현황을 한눈에 관리하세요.
@@ -462,7 +472,7 @@ export default function ImportPage() {
 							</Link>
 							<button
 								onClick={resetAll}
-								className="flex-1 rounded-2xl bg-dotori-100 px-4 py-3 text-center text-sm font-medium text-dotori-700 transition-all active:scale-[0.97]"
+								className="flex-1 rounded-2xl bg-dotori-100 px-4 py-3 text-center text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100"
 							>
 								추가 가져오기
 							</button>

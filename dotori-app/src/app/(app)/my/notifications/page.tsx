@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
+import { stagger, tap } from "@/lib/motion";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import {
 	ArrowLeftIcon,
@@ -11,6 +12,7 @@ import {
 	DocumentCheckIcon,
 	HeartIcon,
 } from "@heroicons/react/24/outline";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -42,32 +44,41 @@ const toneStyles: Record<
 	{ titleColor: string; iconBg: string; iconText: string; border: string; badge: string }
 > = {
 	positive: {
-		titleColor: "text-forest-600",
-		iconBg: "bg-forest-50",
-		iconText: "text-forest-600",
-		border: "border-forest-200",
-		badge: "bg-forest-50 text-forest-600",
+		titleColor: "text-forest-600 dark:text-forest-200",
+		iconBg: "bg-forest-50 dark:bg-forest-900/25",
+		iconText: "text-forest-600 dark:text-forest-200",
+		border: "border-forest-200 dark:border-forest-800",
+		badge: "bg-forest-50 text-forest-600 dark:bg-forest-900/25 dark:text-forest-200",
 	},
 	standard: {
-		titleColor: "text-dotori-600",
-		iconBg: "bg-dotori-50",
-		iconText: "text-dotori-600",
-		border: "border-dotori-200",
-		badge: "bg-dotori-50 text-dotori-600",
+		titleColor: "text-dotori-600 dark:text-dotori-200",
+		iconBg: "bg-dotori-50 dark:bg-dotori-900/40",
+		iconText: "text-dotori-600 dark:text-dotori-200",
+		border: "border-dotori-200 dark:border-dotori-700",
+		badge: "bg-dotori-50 text-dotori-600 dark:bg-dotori-900/40 dark:text-dotori-200",
 	},
 	urgent: {
-		titleColor: "text-amber-700",
-		iconBg: "bg-amber-50",
-		iconText: "text-amber-700",
-		border: "border-amber-200",
-		badge: "bg-amber-50 text-amber-700",
+		titleColor: "text-dotori-700 dark:text-dotori-100",
+		iconBg: "bg-dotori-100 dark:bg-dotori-800",
+		iconText: "text-dotori-700 dark:text-dotori-100",
+		border: "border-dotori-200 dark:border-dotori-700",
+		badge: "bg-dotori-100 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100",
 	},
 };
 
 const statusLabels: Record<string, { text: string; color: string }> = {
-	available: { text: "여석 있음", color: "text-forest-600 bg-forest-50" },
-	waiting: { text: "대기 중", color: "text-dotori-600 bg-dotori-50" },
-	full: { text: "마감", color: "text-amber-800 bg-amber-100" },
+	available: {
+		text: "여석 있음",
+		color: "text-forest-600 bg-forest-50 dark:bg-forest-900/25 dark:text-forest-200",
+	},
+	waiting: {
+		text: "대기 중",
+		color: "text-dotori-600 bg-dotori-50 dark:bg-dotori-900/40 dark:text-dotori-200",
+	},
+	full: {
+		text: "마감",
+		color: "text-dotori-700 bg-dotori-100 dark:bg-dotori-800 dark:text-dotori-100",
+	},
 };
 
 function renderTypeIcon(icon: "bell" | "heart" | "check", colorClass: string) {
@@ -115,8 +126,12 @@ export default function NotificationsPage() {
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
-				<Link href="/my" aria-label="뒤로 가기" className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4 text-dotori-900 dark:text-dotori-50">
+				<Link
+					href="/my"
+					aria-label="뒤로 가기"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
 				<h1 className="text-lg font-bold">알림</h1>
@@ -138,8 +153,8 @@ export default function NotificationsPage() {
 						actionHref="/explore"
 					/>
 				) : (
-					<div className="space-y-3">
-						{notifications.map((notification, index) => {
+					<motion.ul {...stagger.container} className="space-y-3">
+						{notifications.map((notification) => {
 							const facility = notification.facility;
 							const status = facility ? statusLabels[facility.status] : null;
 							const typeMeta = typeLabels[notification.type] ??
@@ -150,59 +165,75 @@ export default function NotificationsPage() {
 								: 0;
 
 							return (
-								<Link
-									key={notification.id}
-									href={facility ? `/facility/${facility._id}` : "/my"}
-									className={cn(
-										"block rounded-3xl border bg-white p-5 shadow-sm transition-all hover:shadow-md active:scale-[0.99]",
-										tone.border,
-										"motion-safe:animate-in motion-safe:fade-in duration-300",
-									)}
-									style={{
-										animationDelay: `${index * 50}ms`,
-										animationFillMode: "both",
-									}}
-								>
-									<div className="flex items-start gap-3.5">
-										<div className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-2xl", tone.iconBg, tone.iconText)}>
-											{renderTypeIcon(typeMeta.icon, tone.iconText)}
-										</div>
-										<div className="min-w-0 flex-1">
-											<div className="flex items-center gap-2">
-												<span className={cn("text-sm font-semibold", tone.titleColor)}>
-													{typeMeta.label}
-												</span>
-												{status && (
-													<span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", tone.badge, status.color)}>
-														{status.text}
-													</span>
-												)}
-											</div>
-											{facility ? (
-												<>
-													<h3 className="mt-1 text-base font-semibold text-dotori-900">
-														{facility.name}
-													</h3>
-													<p className="mt-0.5 text-sm text-dotori-500">
-														{facility.status === "available"
-															? `TO ${toCount}석 (정원 ${facility.capacity.total}명)`
-															: `대기 ${facility.capacity.waiting}명 · ${facility.type}`}
-													</p>
-												</>
-											) : (
-												<h3 className="mt-1 text-base font-semibold text-dotori-900">
-													시설 정보를 확인할 수 없어요
-												</h3>
+								<motion.li key={notification.id} {...stagger.item}>
+									<Link
+										href={facility ? `/facility/${facility._id}` : "/my"}
+										className="block rounded-3xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-dotori-400/70"
+									>
+										<motion.div
+											{...tap.card}
+											className={cn(
+												"rounded-3xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:bg-dotori-950 dark:shadow-none",
+												tone.border,
 											)}
-											<span className="mt-1.5 block text-xs text-dotori-500" suppressHydrationWarning>
-												{formatRelativeTime(notification.triggeredAt)}
-											</span>
-										</div>
-									</div>
-								</Link>
+										>
+											<div className="flex items-start gap-3.5">
+												<div
+													className={cn(
+														"grid h-10 w-10 shrink-0 place-items-center rounded-2xl",
+														tone.iconBg,
+														tone.iconText,
+													)}
+												>
+													{renderTypeIcon(typeMeta.icon, tone.iconText)}
+												</div>
+												<div className="min-w-0 flex-1">
+													<div className="flex items-center gap-2">
+														<span className={cn("text-sm font-semibold", tone.titleColor)}>
+															{typeMeta.label}
+														</span>
+														{status && (
+															<span
+																className={cn(
+																	"rounded-full px-2 py-0.5 text-xs font-medium",
+																	tone.badge,
+																	status.color,
+																)}
+															>
+																{status.text}
+															</span>
+														)}
+													</div>
+													{facility ? (
+														<>
+															<h3 className="mt-1 text-base font-semibold text-dotori-900 dark:text-dotori-50">
+																{facility.name}
+															</h3>
+															<p className="mt-0.5 text-sm text-dotori-500 dark:text-dotori-300">
+																{facility.status === "available"
+																	? `TO ${toCount}석 (정원 ${facility.capacity.total}명)`
+																	: `대기 ${facility.capacity.waiting}명 · ${facility.type}`}
+															</p>
+														</>
+													) : (
+														<h3 className="mt-1 text-base font-semibold text-dotori-900 dark:text-dotori-50">
+															시설 정보를 확인할 수 없어요
+														</h3>
+													)}
+													<span
+														className="mt-1.5 block text-xs text-dotori-500 dark:text-dotori-300"
+														suppressHydrationWarning
+													>
+														{formatRelativeTime(notification.triggeredAt)}
+													</span>
+												</div>
+											</div>
+										</motion.div>
+									</Link>
+								</motion.li>
 							);
 						})}
-					</div>
+					</motion.ul>
 				)}
 			</div>
 		</div>

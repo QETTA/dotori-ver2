@@ -57,7 +57,7 @@ const statusConfig = {
 	pending: { label: "대기 중", color: "dotori" as const },
 	accepted: { label: "입소 확정", color: "forest" as const },
 	confirmed: { label: "입소 확정", color: "forest" as const },
-	cancelled: { label: "취소됨", color: "zinc" as const },
+	cancelled: { label: "취소됨", color: "dotori" as const },
 };
 
 const progressStates = {
@@ -85,7 +85,7 @@ const progressStates = {
 	cancelled: {
 		percent: 100,
 		states: ["done", "done", "fail"] as ProgressState[],
-		barColor: "bg-red-500",
+		barColor: "bg-dotori-400",
 		summary: "현재 탈락 상태입니다. 상태가 바뀌면 다시 알림이 와요.",
 		finalLabel: "탈락",
 	},
@@ -97,14 +97,14 @@ function getProgressStateClass(state: ProgressState) {
 		: state === "active"
 			? "bg-dotori-500 text-white"
 			: state === "fail"
-				? "bg-red-500 text-white"
-				: "border border-dotori-200 bg-white text-dotori-500";
+				? "bg-dotori-400 text-white"
+				: "border border-dotori-200 bg-white text-dotori-500 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-300";
 }
 
 function getProgressTextClass(state: ProgressState) {
 	return state === "done" || state === "active" || state === "fail"
-		? "text-dotori-700"
-		: "text-dotori-500";
+		? "text-dotori-700 dark:text-dotori-200"
+		: "text-dotori-500 dark:text-dotori-400";
 }
 
 function getProgressSymbol(state: ProgressState) {
@@ -207,10 +207,10 @@ export default function WaitlistDetailPage() {
 	if (isLoading) {
 		return (
 			<div className="pb-8">
-				<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/95 px-4 py-3 backdrop-blur-sm">
+				<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-900 dark:text-dotori-50">
 					<Link
 						href="/my/waitlist"
-						className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+						className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 					>
 						<ArrowLeftIcon className="h-6 w-6" />
 					</Link>
@@ -226,10 +226,10 @@ export default function WaitlistDetailPage() {
 	if (error || !data) {
 		return (
 			<div className="pb-8">
-				<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/95 px-4 py-3 backdrop-blur-sm">
+				<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-900 dark:text-dotori-50">
 					<Link
 						href="/my/waitlist"
-						className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+						className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 					>
 						<ArrowLeftIcon className="h-6 w-6" />
 					</Link>
@@ -242,12 +242,12 @@ export default function WaitlistDetailPage() {
 						alt=""
 						className="h-32 w-32 opacity-60"
 						/>
-						<p className="mt-6 text-center text-base text-dotori-500">
+						<p className="mt-6 text-center text-base text-dotori-500 dark:text-dotori-300">
 							{error || "대기 신청 정보를 찾을 수 없습니다"}
 						</p>
 						<Link
 							href="/my/waitlist"
-							className="mt-4 text-sm text-dotori-500 hover:text-dotori-700"
+							className="mt-4 text-sm text-dotori-500 transition-colors hover:text-dotori-700 dark:text-dotori-300 dark:hover:text-dotori-100"
 						>
 							← 목록으로 돌아가기
 						</Link>
@@ -268,11 +268,11 @@ export default function WaitlistDetailPage() {
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/95 px-4 py-3 backdrop-blur-sm">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-900 dark:text-dotori-50">
 				<Link
 					href="/my/waitlist"
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</Link>
@@ -284,34 +284,34 @@ export default function WaitlistDetailPage() {
 
 			{/* 시설 정보 카드 */}
 			{facility && (
-				<section className="mx-4 mt-4 rounded-2xl bg-white p-5 shadow-sm">
+				<section className="mx-4 mt-4 rounded-2xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 						<Link
 							href={`/facility/${facility._id}`}
-							className="block transition-colors hover:text-dotori-600"
+							className="block transition-colors hover:text-dotori-600 dark:hover:text-dotori-100"
 						>
-							<h2 className="text-base font-bold text-dotori-900">
+							<h2 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 								{facility.name}
 							</h2>
-							<p className="mt-0.5 text-sm text-dotori-500">
+							<p className="mt-0.5 text-sm text-dotori-500 dark:text-dotori-300">
 								{facility.type} · {facility.address}
 							</p>
 						</Link>
 
 					{/* 현황 */}
 						<div className="mt-3 flex gap-2.5">
-							<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center">
-								<span className="block text-xs text-dotori-500">
+							<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center dark:bg-dotori-900">
+								<span className="block text-xs text-dotori-500 dark:text-dotori-300">
 									정원
 								</span>
-								<span className="text-base font-bold text-dotori-900">
+								<span className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 									{facility.capacity.total}
 								</span>
 							</div>
-							<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center">
-								<span className="block text-xs text-dotori-500">
+							<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2 text-center dark:bg-dotori-900">
+								<span className="block text-xs text-dotori-500 dark:text-dotori-300">
 									현원
 								</span>
-								<span className="text-base font-bold text-dotori-900">
+								<span className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 									{facility.capacity.current}
 								</span>
 							</div>
@@ -319,11 +319,11 @@ export default function WaitlistDetailPage() {
 							className={cn(
 								"flex-1 rounded-xl px-3 py-2 text-center",
 								facility.status === "available"
-									? "bg-forest-50"
-									: "bg-dotori-50",
+									? "bg-forest-50 dark:bg-forest-900/25"
+									: "bg-dotori-50 dark:bg-dotori-900",
 							)}
 							>
-								<span className="block text-xs text-dotori-500">
+								<span className="block text-xs text-dotori-500 dark:text-dotori-300">
 									{facility.status === "available"
 										? "여석"
 										: "대기"}
@@ -333,7 +333,7 @@ export default function WaitlistDetailPage() {
 										"text-base font-bold",
 										facility.status === "available"
 											? "text-forest-600"
-											: "text-dotori-900",
+											: "text-dotori-900 dark:text-dotori-50",
 									)}
 							>
 								{facility.status === "available"
@@ -347,8 +347,8 @@ export default function WaitlistDetailPage() {
 			)}
 
 				{/* 상태 진행 바 */}
-				<section className="mx-4 mt-3 rounded-2xl bg-white p-5 shadow-sm">
-					<h3 className="text-sm font-semibold text-dotori-700">
+				<section className="mx-4 mt-3 rounded-2xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
+					<h3 className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
 						대기 진행 현황
 					</h3>
 					<div className="mt-3 grid grid-cols-3 gap-2 text-center">
@@ -378,7 +378,7 @@ export default function WaitlistDetailPage() {
 						},
 					)}
 				</div>
-				<div className="mt-3 h-2 overflow-hidden rounded-full bg-dotori-100">
+				<div className="mt-3 h-2 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 					<div
 						className={cn(
 							"h-full rounded-full transition-all duration-500",
@@ -387,48 +387,48 @@ export default function WaitlistDetailPage() {
 						style={{ width: `${progress.percent}%` }}
 					/>
 				</div>
-					<p className="mt-2 text-xs text-dotori-500">
+					<p className="mt-2 text-xs text-dotori-500 dark:text-dotori-300">
 						{progress.summary}
 					</p>
 				</section>
 
 			{/* 신청 정보 */}
-				<section className="mx-4 mt-3 rounded-2xl bg-white p-5 shadow-sm">
+				<section className="mx-4 mt-3 rounded-2xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-semibold text-dotori-700">
+						<h3 className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
 							신청 정보
 						</h3>
 						{data.position && (
-							<span className="rounded-full bg-dotori-100 px-3 py-1 text-xs font-bold text-dotori-700">
+							<span className="rounded-full bg-dotori-100 px-3 py-1 text-xs font-bold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 								대기 {data.position}번째
 							</span>
 						)}
 					</div>
 					<div className="mt-3 space-y-2 text-sm">
 						<div className="flex justify-between">
-							<span className="text-dotori-500">아이 이름</span>
-							<span className="font-medium text-dotori-900">
+							<span className="text-dotori-500 dark:text-dotori-300">아이 이름</span>
+							<span className="font-medium text-dotori-900 dark:text-dotori-50">
 							{data.childName}
 						</span>
 					</div>
 					<div className="flex justify-between">
-						<span className="text-dotori-500">생년월일</span>
-						<span className="font-medium text-dotori-900">
+						<span className="text-dotori-500 dark:text-dotori-300">생년월일</span>
+						<span className="font-medium text-dotori-900 dark:text-dotori-50">
 							{data.childBirthDate}
 						</span>
 					</div>
 					{data.ageClass && (
 						<div className="flex justify-between">
-							<span className="text-dotori-500">배정 연령반</span>
-							<span className="font-medium text-dotori-900">
+							<span className="text-dotori-500 dark:text-dotori-300">배정 연령반</span>
+							<span className="font-medium text-dotori-900 dark:text-dotori-50">
 								{data.ageClass}
 							</span>
 						</div>
 					)}
 					<div className="flex justify-between">
-						<span className="text-dotori-500">신청일</span>
+						<span className="text-dotori-500 dark:text-dotori-300">신청일</span>
 						<span
-							className="font-medium text-dotori-900"
+							className="font-medium text-dotori-900 dark:text-dotori-50"
 							suppressHydrationWarning
 						>
 							{formatRelativeTime(data.appliedAt)}
@@ -441,12 +441,12 @@ export default function WaitlistDetailPage() {
 			{totalDocs > 0 && (
 				<section className="mx-4 mt-3">
 					{/* 진행률 */}
-					<div className="rounded-t-2xl bg-white px-5 pt-5 pb-4 shadow-sm">
+					<div className="rounded-t-2xl border border-b-0 border-dotori-100 bg-white px-5 pt-5 pb-4 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 						<div className="flex items-center gap-3">
-							<DocumentTextIcon className="h-6 w-6 text-dotori-500" />
+							<DocumentTextIcon className="h-6 w-6 text-dotori-500 dark:text-dotori-300" />
 							<div className="flex-1">
 								<div className="flex items-center justify-between">
-										<h3 className="text-base font-bold text-dotori-900">
+										<h3 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 											서류 제출 체크리스트
 										</h3>
 										<span
@@ -454,13 +454,13 @@ export default function WaitlistDetailPage() {
 												"text-sm font-semibold",
 												docProgress === 100
 													? "text-forest-600"
-													: "text-dotori-500",
+													: "text-dotori-500 dark:text-dotori-300",
 										)}
 									>
 										{submittedDocs}/{totalDocs}
 									</span>
 								</div>
-								<div className="mt-2 h-2 overflow-hidden rounded-full bg-dotori-100">
+								<div className="mt-2 h-2 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 									<div
 										className={cn(
 											"h-full rounded-full transition-all duration-500",
@@ -479,22 +479,22 @@ export default function WaitlistDetailPage() {
 						</div>
 
 							{docProgress === 100 ? (
-								<div className="mt-3 flex items-center gap-2 rounded-xl bg-forest-50 p-3">
-									<CheckCircleIcon className="h-5 w-5 text-forest-600" />
-									<span className="text-sm font-medium text-forest-700">
+								<div className="mt-3 flex items-center gap-2 rounded-xl bg-forest-50 p-3 dark:bg-forest-900/25">
+									<CheckCircleIcon className="h-5 w-5 text-forest-600 dark:text-forest-200" />
+									<span className="text-sm font-medium text-forest-700 dark:text-forest-100">
 										모든 서류가 준비되었어요!
 									</span>
 								</div>
 							) : (
-								<p className="mt-3 text-sm text-dotori-500">
+								<p className="mt-3 text-sm text-dotori-500 dark:text-dotori-300">
 									준비된 서류를 체크하세요. 실시간으로 저장됩니다.
 								</p>
 							)}
 						</div>
 
 					{/* 서류 목록 */}
-					<div className="rounded-b-2xl bg-white px-5 pb-5 shadow-sm">
-						<ul className="divide-y divide-dotori-100">
+					<div className="rounded-b-2xl border border-t-0 border-dotori-100 bg-white px-5 pb-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
+						<ul className="divide-y divide-dotori-100 dark:divide-dotori-800">
 							{data.requiredDocs.map((doc) => {
 								const isToggling =
 									togglingDoc === doc.docId;
@@ -523,7 +523,7 @@ export default function WaitlistDetailPage() {
 											{doc.submitted ? (
 												<CheckCircleSolidIcon className="h-6 w-6 shrink-0 text-forest-500" />
 											) : (
-												<div className="h-6 w-6 shrink-0 rounded-full border-2 border-dotori-200" />
+												<div className="h-6 w-6 shrink-0 rounded-full border-2 border-dotori-200 dark:border-dotori-700" />
 											)}
 											<div className="min-w-0 flex-1">
 													<span
@@ -531,7 +531,7 @@ export default function WaitlistDetailPage() {
 															"text-sm leading-snug",
 															doc.submitted
 																? "text-dotori-500 line-through"
-																: "text-dotori-900",
+																: "text-dotori-900 dark:text-dotori-50",
 														)}
 												>
 													{doc.name}
@@ -539,7 +539,7 @@ export default function WaitlistDetailPage() {
 												{doc.submitted &&
 													doc.submittedAt && (
 															<p
-																className="text-xs text-dotori-300"
+																className="text-xs text-dotori-300 dark:text-dotori-400"
 																suppressHydrationWarning
 															>
 																{formatRelativeTime(
@@ -560,28 +560,28 @@ export default function WaitlistDetailPage() {
 
 			{/* 서류 없는 경우 안내 */}
 			{totalDocs === 0 && (
-					<section className="mx-4 mt-3 rounded-2xl bg-dotori-50 p-5 text-center">
-						<ExclamationTriangleIcon className="mx-auto h-8 w-8 text-dotori-500" />
-						<p className="mt-2 text-sm text-dotori-500">
+					<section className="mx-4 mt-3 rounded-2xl bg-dotori-50 p-5 text-center dark:bg-dotori-900">
+						<ExclamationTriangleIcon className="mx-auto h-8 w-8 text-dotori-500 dark:text-dotori-300" />
+						<p className="mt-2 text-sm text-dotori-500 dark:text-dotori-300">
 							서류 체크리스트가 아직 생성되지 않았어요
 						</p>
-						<p className="mt-1 text-xs text-dotori-500">
+						<p className="mt-1 text-xs text-dotori-500 dark:text-dotori-300">
 							이전에 신청한 건이라면 시설에 직접 문의해주세요
 						</p>
 					</section>
 				)}
 
 			{/* 아이사랑 앱 연동 */}
-				<section className="mx-4 mt-3 rounded-2xl bg-gradient-to-br from-dotori-50 to-white p-5 shadow-sm">
-					<h3 className="text-sm font-semibold text-dotori-700">
+				<section className="mx-4 mt-3 rounded-2xl bg-gradient-to-br from-dotori-50 to-white p-5 shadow-sm dark:from-dotori-900 dark:to-dotori-950 dark:shadow-none">
+					<h3 className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
 						아이사랑 앱으로 바로가기
 					</h3>
-					<p className="mt-1 text-xs text-dotori-500">
+					<p className="mt-1 text-xs text-dotori-500 dark:text-dotori-300">
 						공식 대기현황 조회 및 서류제출은 아이사랑 앱에서 진행해요
 					</p>
 					<button
 						onClick={() => openIsalangApp(ISALANG_PORTAL.waitlistStatus)}
-						className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 py-3 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.97]"
+						className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 py-3 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.97] dark:bg-dotori-500 dark:shadow-none"
 					>
 						<DevicePhoneMobileIcon className="h-4.5 w-4.5" />
 						아이사랑 앱 열기
@@ -589,18 +589,18 @@ export default function WaitlistDetailPage() {
 					<div className="mt-2 grid grid-cols-2 gap-2">
 						<button
 							onClick={() => openIsalangLink(ISALANG_PORTAL.waitlistStatus)}
-							className="rounded-xl bg-white px-3 py-3 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
+							className="rounded-xl bg-white px-3 py-3 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
 						>
 							대기현황 확인
 						</button>
 						<button
 							onClick={() => openIsalangLink(ISALANG_PORTAL.documentSubmit)}
-							className="rounded-xl bg-white px-3 py-3 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97]"
+							className="rounded-xl bg-white px-3 py-3 text-center text-sm font-medium text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
 						>
 							서류제출
 						</button>
 					</div>
-					<p className="mt-2 text-center text-xs text-dotori-500">
+					<p className="mt-2 text-center text-xs text-dotori-500 dark:text-dotori-300">
 						모바일: 앱 실행 · 데스크톱: 웹 포털 (공동인증서 필요)
 					</p>
 				</section>
@@ -611,7 +611,7 @@ export default function WaitlistDetailPage() {
 						{facility?.phone && (
 							<a
 								href={`tel:${facility.phone}`}
-								className="mb-3 block w-full rounded-2xl bg-dotori-900 py-4 text-center text-base font-semibold text-white transition-all active:scale-[0.97]"
+								className="mb-3 block w-full rounded-2xl bg-dotori-900 py-4 text-center text-base font-semibold text-white transition-all active:scale-[0.97] dark:bg-dotori-500"
 							>
 								어린이집 전화하기
 							</a>
@@ -619,11 +619,11 @@ export default function WaitlistDetailPage() {
 					<Button
 						onClick={cancelWaitlist}
 						disabled={isCancelling}
-							color="red"
-							className={cn(
-								"w-full justify-center px-4 py-3 text-sm",
-								isCancelling && "opacity-70",
-							)}
+						plain={true}
+						className={cn(
+							"w-full justify-center px-4 py-3 text-sm text-dotori-700 ring-1 ring-dotori-200/60 data-hover:bg-dotori-50 data-active:bg-dotori-50 dark:text-dotori-100 dark:ring-dotori-700/60 dark:data-hover:bg-dotori-900 dark:data-active:bg-dotori-900",
+							isCancelling && "opacity-70",
+						)}
 						>
 							{isCancelling ? "취소 중..." : "대기 취소"}
 					</Button>
