@@ -95,6 +95,13 @@ function parseToNumber(value: unknown, fallback: number): number {
 	return fallback;
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+	if (!value || typeof value !== "object") {
+		return null;
+	}
+	return value as Record<string, unknown>;
+}
+
 export function parseUsageResponse(
 	payload: unknown,
 	fallbackLimit: number,
@@ -104,16 +111,19 @@ export function parseUsageResponse(
 	}
 
 	const record = payload as Record<string, unknown>;
-	const data = record.data;
-	const nested =
-		data && typeof data === "object" ? (data as Record<string, unknown>) : null;
+	const nested = asRecord(record.data) ?? record;
+	const limits = asRecord(nested.limits) ?? asRecord(record.limits);
+	const freeLimits = asRecord(limits?.free);
 
 	return {
 		count: parseToNumber(
-			nested?.count ?? nested?.used ?? record.count ?? record.used,
+			nested.chat ?? nested.count ?? nested.used ?? record.chat ?? record.count ?? record.used,
 			0,
 		),
-		limit: parseToNumber(nested?.limit ?? record.limit, fallbackLimit),
+		limit: parseToNumber(
+			freeLimits?.chat ?? limits?.chat ?? nested.limit ?? record.limit,
+			fallbackLimit,
+		),
 	};
 }
 
