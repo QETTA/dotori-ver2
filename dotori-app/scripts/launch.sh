@@ -220,7 +220,10 @@ step "PHASE 1: 워크트리 병렬 생성 (${#AGENTS[@]}개)"
 mkdir -p "$WT_BASE"
 
 WT_PIDS=()
+WT_IDX=0
 for AGENT in "${AGENTS[@]}"; do
+  # 0.3초 스태거: git config.lock 동시 접근 충돌 방지
+  sleep "0.$(printf '%02d' $((WT_IDX * 3 % 100)))"
   (
     if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
       WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
@@ -229,10 +232,21 @@ for AGENT in "${AGENTS[@]}"; do
       chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
       echo "✅ $ROUND-$AGENT"
     else
-      echo "❌ $ROUND-$AGENT 생성 실패"
+      # 재시도 1회 (lock 해제 후)
+      sleep 1
+      if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
+        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
+        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
+        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
+        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
+        echo "✅ $ROUND-$AGENT (재시도)"
+      else
+        echo "❌ $ROUND-$AGENT 생성 실패"
+      fi
     fi
   ) &
   WT_PIDS+=($!)
+  WT_IDX=$((WT_IDX + 1))
 done
 wait "${WT_PIDS[@]}"
 ok "모든 워크트리 생성 완료"
