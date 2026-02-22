@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useToast } from "@/components/dotori/ToastProvider";
@@ -15,6 +15,7 @@ import type {
 
 type UseFacilityDetailActionsParams = {
 	facilityId: string;
+	facilityName: string;
 	facilityStatus: Facility["status"];
 };
 
@@ -22,10 +23,12 @@ type UseFacilityDetailActionsResult = {
 	sheetOpen: boolean;
 	actionStatus: ActionStatus;
 	sheetPreview: Record<string, string>;
+	sheetPreviewForConfirm: Record<string, string>;
 	liked: boolean;
 	isTogglingLike: boolean;
 	checklist: ChecklistBlockType | null;
 	showChecklist: boolean;
+	applyActionLabel: string;
 	error: string | null;
 	loadChecklist: () => Promise<void>;
 	handleApplyClick: () => Promise<void>;
@@ -37,6 +40,7 @@ type UseFacilityDetailActionsResult = {
 
 export function useFacilityDetailActions({
 	facilityId,
+	facilityName,
 	facilityStatus,
 }: UseFacilityDetailActionsParams): UseFacilityDetailActionsResult {
 	const [sheetOpen, setSheetOpen] = useState(false);
@@ -51,6 +55,10 @@ export function useFacilityDetailActions({
 	const [error, setError] = useState<string | null>(null);
 	const { addToast } = useToast();
 	const router = useRouter();
+	const applyActionLabel = useMemo(
+		() => (facilityStatus === "available" ? "입소 신청" : "대기 신청"),
+		[facilityStatus],
+	);
 
 	useEffect(() => {
 		apiFetch<{ data: { children?: ChildProfile[]; interests?: string[] } }>("/api/users/me")
@@ -211,14 +219,27 @@ export function useFacilityDetailActions({
 		setIntentId(null);
 	}, []);
 
+	const sheetPreviewForConfirm = useMemo(() => {
+		if (Object.keys(sheetPreview).length > 0) {
+			return sheetPreview;
+		}
+
+		return {
+			시설명: facilityName,
+			신청유형: applyActionLabel,
+		};
+	}, [applyActionLabel, facilityName, sheetPreview]);
+
 	return {
 		sheetOpen,
 		actionStatus,
 		sheetPreview,
+		sheetPreviewForConfirm,
 		liked,
 		isTogglingLike,
 		checklist,
 		showChecklist,
+		applyActionLabel,
 		error,
 		loadChecklist,
 		handleApplyClick,

@@ -37,7 +37,7 @@ import {
 	getSafeNumber,
 	getWaitingHintText,
 } from "@/components/dotori/facility/facility-detail-helpers";
-import type { CommunityPost, Facility } from "@/types/dotori";
+import type { ActionStatus, CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
 	() =>
@@ -134,6 +134,158 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 	);
 }
 
+function FacilityFeatureSection({ features }: { features: FeatureOption[] }) {
+	return (
+		<section className="rounded-3xl bg-white p-5 shadow-sm">
+			<h2 className="text-sm font-semibold text-dotori-900">특징</h2>
+			{features.length > 0 ? (
+				<div className="mt-3 flex flex-wrap gap-2">
+					{features.map((feature) => (
+						<Badge key={feature.key} color={feature.color} className="text-[14px]">
+							{feature.label} ✓
+						</Badge>
+					))}
+				</div>
+			) : (
+				<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
+			)}
+		</section>
+	);
+}
+
+function FacilityAdmissionGuideSection() {
+	return (
+		<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5">
+			<h2 className="text-sm font-semibold text-dotori-900">입소 설명회 안내</h2>
+			<p className="mt-2 text-[14px] leading-6 text-dotori-600">
+				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
+				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
+			</p>
+			<a
+				href="https://www.childcare.go.kr"
+				target="_blank"
+				rel="noopener noreferrer"
+				className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200"
+			>
+				아이사랑포털에서 확인
+				<ArrowTopRightOnSquareIcon className="h-4 w-4" />
+			</a>
+		</div>
+	);
+}
+
+type FacilityActionBarProps = {
+	liked: boolean;
+	isTogglingLike: boolean;
+	actionStatus: ActionStatus;
+	error: string | null;
+	waitingHintText: string;
+	applyActionLabel: string;
+	onToggleLike: () => Promise<void>;
+	onApplyClick: () => Promise<void>;
+	onResetActionStatus: () => void;
+};
+
+function FacilityActionBar({
+	liked,
+	isTogglingLike,
+	actionStatus,
+	error,
+	waitingHintText,
+	applyActionLabel,
+	onToggleLike,
+	onApplyClick,
+	onResetActionStatus,
+}: FacilityActionBarProps) {
+	return (
+		<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
+			<div className="space-y-2">
+				<div className="flex gap-3">
+					<Button
+						plain={true}
+						disabled={isTogglingLike}
+						onClick={onToggleLike}
+						aria-label="관심 시설 추가/제거"
+						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97]"
+					>
+						{liked ? (
+							<HeartSolid className="h-5 w-5 text-red-500" />
+						) : (
+							<HeartIcon className="h-5 w-5" />
+						)}
+						{liked ? "관심 추가됨" : "관심 추가"}
+					</Button>
+					<div className="flex-1">
+						{actionStatus === "executing" ? (
+							<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
+								<div className="flex h-full items-center justify-center gap-2">
+									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
+									<span className="text-sm font-semibold text-dotori-700">
+										신청 처리 중...
+									</span>
+								</div>
+							</div>
+						) : actionStatus === "success" ? (
+							<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center">
+								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300" />
+								<p className="mt-2 text-sm font-semibold text-dotori-900">
+									대기 신청 완료!
+								</p>
+								<Link
+									href="/my/waitlist"
+									className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900"
+								>
+									MY &gt; 대기 현황에서 확인하세요
+								</Link>
+								<Button
+									plain={true}
+									onClick={onResetActionStatus}
+									className="mt-2 min-h-10 w-full rounded-2xl"
+								>
+									확인
+								</Button>
+							</div>
+						) : actionStatus === "error" ? (
+							<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left">
+								<p className="text-sm font-semibold text-danger">
+									{error ?? "대기 신청 중 오류가 발생했어요."}
+								</p>
+								<div className="mt-2 flex gap-2">
+									<Button
+										plain={true}
+										onClick={onResetActionStatus}
+										className="min-h-10 flex-1 rounded-2xl"
+									>
+										닫기
+									</Button>
+									<Button
+										color="dotori"
+										onClick={onApplyClick}
+										className="min-h-10 flex-1 rounded-2xl"
+									>
+										다시 신청
+									</Button>
+								</div>
+							</div>
+						) : (
+							<>
+								<Button
+									color="dotori"
+									onClick={onApplyClick}
+									className="min-h-12 w-full py-3 text-base font-semibold"
+								>
+									{applyActionLabel}
+								</Button>
+								<p className="mt-1 text-xs text-dotori-500">{waitingHintText}</p>
+							</>
+						)}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function FacilityDetailClient({
 	facility,
 	loadError,
@@ -155,11 +307,12 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	const {
 		sheetOpen,
 		actionStatus,
-		sheetPreview,
+		sheetPreviewForConfirm,
 		liked,
 		isTogglingLike,
 		checklist,
 		showChecklist,
+		applyActionLabel,
 		error,
 		loadChecklist,
 		handleApplyClick,
@@ -169,6 +322,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		closeSheet,
 	} = useFacilityDetailActions({
 		facilityId: facility.id,
+		facilityName: facility.name,
 		facilityStatus: facility.status,
 	});
 
@@ -370,24 +524,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					keyStats={keyStats}
 				/>
 
-				<section className="rounded-3xl bg-white p-5 shadow-sm">
-					<h2 className="text-sm font-semibold text-dotori-900">특징</h2>
-					{activeFeatures.length > 0 ? (
-						<div className="mt-3 flex flex-wrap gap-2">
-							{activeFeatures.map((feature: FeatureOption) => (
-								<Badge
-									key={feature.key}
-									color={feature.color}
-									className="text-[14px]"
-								>
-									{feature.label} ✓
-								</Badge>
-							))}
-						</div>
-					) : (
-						<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
-					)}
-				</section>
+				<FacilityFeatureSection features={activeFeatures} />
 
 				<FacilityPremiumSection
 					showPremiumSection={showPremiumSection}
@@ -451,123 +588,27 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					facilityName={facility.name}
 				/>
 				<FacilityInsights facility={facility} />
-				<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5">
-					<h2 className="text-sm font-semibold text-dotori-900">입소 설명회 안내</h2>
-					<p className="mt-2 text-[14px] leading-6 text-dotori-600">
-						이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
-						시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
-					</p>
-					<a
-						href="https://www.childcare.go.kr"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200"
-					>
-						아이사랑포털에서 확인
-						<ArrowTopRightOnSquareIcon className="h-4 w-4" />
-					</a>
-				</div>
+				<FacilityAdmissionGuideSection />
 			</div>
 
-			<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
-				<div className="space-y-2">
-					<div className="flex gap-3">
-						<Button
-							plain={true}
-							disabled={isTogglingLike}
-							onClick={toggleLike}
-							aria-label="관심 시설 추가/제거"
-							className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97]"
-						>
-							{liked ? (
-								<HeartSolid className="h-5 w-5 text-red-500" />
-							) : (
-								<HeartIcon className="h-5 w-5" />
-							)}
-							{liked ? "관심 추가됨" : "관심 추가"}
-						</Button>
-						<div className="flex-1">
-							{actionStatus === "executing" ? (
-								<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
-									<div className="flex h-full items-center justify-center gap-2">
-										<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
-										<span className="text-sm font-semibold text-dotori-700">
-											신청 처리 중...
-										</span>
-									</div>
-								</div>
-							) : actionStatus === "success" ? (
-								<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center">
-									<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300" />
-									<p className="mt-2 text-sm font-semibold text-dotori-900">
-										대기 신청 완료!
-									</p>
-									<Link
-										href="/my/waitlist"
-										className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900"
-									>
-										MY &gt; 대기 현황에서 확인하세요
-									</Link>
-										<Button
-											plain={true}
-											onClick={resetActionStatus}
-											className="mt-2 min-h-10 w-full rounded-2xl"
-										>
-										확인
-									</Button>
-								</div>
-							) : actionStatus === "error" ? (
-								<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left">
-									<p className="text-sm font-semibold text-danger">
-										{error ?? "대기 신청 중 오류가 발생했어요."}
-									</p>
-									<div className="mt-2 flex gap-2">
-											<Button
-												plain={true}
-												onClick={resetActionStatus}
-												className="min-h-10 flex-1 rounded-2xl"
-											>
-											닫기
-										</Button>
-										<Button
-											color="dotori"
-											onClick={handleApplyClick}
-											className="min-h-10 flex-1 rounded-2xl"
-										>
-											다시 신청
-										</Button>
-									</div>
-								</div>
-							) : (
-								<>
-									<Button
-										color="dotori"
-										onClick={handleApplyClick}
-										className="min-h-12 w-full py-3 text-base font-semibold"
-									>
-										{facility.status === "available" ? "입소 신청" : "대기 신청"}
-									</Button>
-									<p className="mt-1 text-xs text-dotori-500">{waitingHintText}</p>
-								</>
-							)}
-						</div>
-					</div>
-				</div>
-			</div>
+			<FacilityActionBar
+				liked={liked}
+				isTogglingLike={isTogglingLike}
+				actionStatus={actionStatus}
+				error={error}
+				waitingHintText={waitingHintText}
+				applyActionLabel={applyActionLabel}
+				onToggleLike={toggleLike}
+				onApplyClick={handleApplyClick}
+				onResetActionStatus={resetActionStatus}
+			/>
 
 			<ActionConfirmSheet
 				open={sheetOpen}
 				onClose={closeSheet}
 				title="신청 확인"
 				description="아래 내용을 확인해주세요"
-				preview={
-					Object.keys(sheetPreview).length > 0
-						? sheetPreview
-						: {
-							시설명: facility.name,
-							신청유형: facility.status === "available" ? "입소 신청" : "대기 신청",
-						}
-				}
+				preview={sheetPreviewForConfirm}
 				onConfirm={handleConfirm}
 				status={actionStatus}
 				{...(actionStatus === "error" && error ? { error } : {})}
