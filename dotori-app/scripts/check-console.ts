@@ -9,6 +9,19 @@ type CapturedError = {
   locationUrl?: string
 }
 
+type FacilityListItem = {
+  id?: unknown
+  _id?: unknown
+}
+
+type FacilityDetailPayload = {
+  data?: {
+    id?: unknown
+    _id?: unknown
+    name?: unknown
+  }
+}
+
 function toValidFacilityId(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
@@ -43,7 +56,29 @@ function isSameUrl(left: string | undefined, right: string | undefined): boolean
 async function canInspectFacilityRoute(facilityId: string): Promise<boolean> {
   try {
     const res = await fetch(`${BASE}/api/facilities/${facilityId}`)
-    return res.ok
+    if (!res.ok) {
+      return false
+    }
+
+    const contentType = res.headers.get('content-type')?.toLowerCase() ?? ''
+    if (!contentType.includes('application/json')) {
+      return false
+    }
+
+    const json = (await res.json()) as FacilityDetailPayload
+    const payload = json?.data
+    if (!payload || typeof payload !== 'object') {
+      return false
+    }
+
+    const payloadId = toValidFacilityId(payload.id) ?? toValidFacilityId(payload._id)
+    const facilityName = (payload as { name?: unknown }).name
+
+    return (
+      payloadId === facilityId &&
+      typeof facilityName === 'string' &&
+      facilityName.trim().length > 0
+    )
   } catch {
     return false
   }
@@ -51,10 +86,16 @@ async function canInspectFacilityRoute(facilityId: string): Promise<boolean> {
 
 async function getFacilityId(): Promise<string | null> {
   try {
-    const res = await fetch(`${BASE}/api/facilities?limit=5`)
+    const res = await fetch(`${BASE}/api/facilities?limit=20`)
     if (!res.ok) {
       return null
     }
+
+    const contentType = res.headers.get('content-type')?.toLowerCase() ?? ''
+    if (!contentType.includes('application/json')) {
+      return null
+    }
+
     const json = await res.json()
     const facilities = Array.isArray(json?.data) ? json.data : []
     const checkedIds = new Set<string>()
@@ -63,8 +104,8 @@ async function getFacilityId(): Promise<string | null> {
       if (!facility || typeof facility !== 'object') continue
 
       const candidateId =
-        toValidFacilityId((facility as { id?: unknown }).id) ??
-        toValidFacilityId((facility as { _id?: unknown })._id)
+        toValidFacilityId((facility as FacilityListItem).id) ??
+        toValidFacilityId((facility as FacilityListItem)._id)
 
       if (!candidateId || checkedIds.has(candidateId)) continue
       checkedIds.add(candidateId)
@@ -113,36 +154,41 @@ type NoiseFilterContext = {
 }
 
 function isNoisyError(error: CapturedError, context: NoiseFilterContext): boolean {
+  if (error.source !== 'console') {
+    return false
+  }
+
   const message = error.message.toLowerCase()
   const locationUrl = error.locationUrl?.toLowerCase() ?? ''
   const hasKakaoSdkUrl =
     message.includes('dapi.kakao.com/v2/maps/sdk.js') ||
     locationUrl.includes('dapi.kakao.com/v2/maps/sdk.js')
-  const isFailedToLoadResource = message.startsWith('failed to load resource:')
+  const is404FailedToLoadResource =
+    message.startsWith('failed to load resource:') &&
+    (message.includes('status of 404') || message.includes('(not found)'))
 
-  if (message.includes('download the react devtools')) {
+  if (
+    message.includes('download the react devtools for a better development experience')
+  ) {
     return true
   }
 
   if (
-    error.source === 'console' &&
     context.status === 404 &&
-    isFailedToLoadResource &&
+    is404FailedToLoadResource &&
     isSameUrl(error.locationUrl, context.routeUrl)
   ) {
     return true
   }
 
   if (
-    error.source === 'console' &&
-    isFailedToLoadResource &&
+    is404FailedToLoadResource &&
     locationUrl.includes('/favicon.ico')
   ) {
     return true
   }
 
   if (
-    error.source === 'console' &&
     hasKakaoSdkUrl &&
     message.includes('failed to find a valid digest in the') &&
     message.includes('integrity')
@@ -151,7 +197,6 @@ function isNoisyError(error: CapturedError, context: NoiseFilterContext): boolea
   }
 
   if (
-    error.source === 'console' &&
     hasKakaoSdkUrl &&
     message.includes('net::err_blocked_by_client')
   ) {

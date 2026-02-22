@@ -34,6 +34,25 @@ function toSafeCount(value: unknown): number {
 	return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
 }
 
+function toSafeOptionalString(value: unknown): string | undefined {
+	if (typeof value !== "string") {
+		return undefined;
+	}
+
+	const trimmed = value.trim();
+	return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function toSafeStringArray(value: unknown): string[] | undefined {
+	if (!Array.isArray(value)) {
+		return undefined;
+	}
+
+	return value
+		.map((item) => (typeof item === "string" ? item.trim() : ""))
+		.filter((item): item is string => item.length > 0);
+}
+
 function toSafeFacilityDTO(
 	facility: ReturnType<typeof toFacilityDTO>,
 ): ReturnType<typeof toFacilityDTO> {
@@ -41,6 +60,18 @@ function toSafeFacilityDTO(
 	const capacity =
 		rawCapacity && typeof rawCapacity === "object"
 			? (rawCapacity as { total?: unknown; current?: unknown; waiting?: unknown })
+			: null;
+
+	const rawPremiumProfile = (facility as { premiumProfile?: unknown }).premiumProfile;
+	const premiumProfile =
+		rawPremiumProfile && typeof rawPremiumProfile === "object"
+			? (rawPremiumProfile as {
+					directorMessage?: unknown;
+					photos?: unknown;
+					programs?: unknown;
+					highlights?: unknown;
+					contactNote?: unknown;
+				})
 			: null;
 
 	const rawFeatures = (facility as { features?: unknown }).features;
@@ -56,6 +87,15 @@ function toSafeFacilityDTO(
 			waiting: toSafeCount(capacity?.waiting),
 		},
 		features,
+		premiumProfile: premiumProfile
+			? {
+					directorMessage: toSafeOptionalString(premiumProfile.directorMessage),
+					photos: toSafeStringArray(premiumProfile.photos),
+					programs: toSafeStringArray(premiumProfile.programs),
+					highlights: toSafeStringArray(premiumProfile.highlights),
+					contactNote: toSafeOptionalString(premiumProfile.contactNote),
+				}
+			: undefined,
 	};
 }
 
