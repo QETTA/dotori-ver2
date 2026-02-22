@@ -130,17 +130,17 @@ export function toFacilityDTO(doc: FacilityDocument, distanceMeters?: number): F
 					}
 				: undefined,
 			isPremium: doc.isPremium || activePremium,
-		premium: activePremium
-			? {
-					isActive: true,
-					plan: doc.premium?.plan ?? "basic",
-					features: doc.premium?.features ?? [],
-					sortBoost: doc.premium?.sortBoost ?? 0,
-					verifiedAt: doc.premium?.verifiedAt
-						? toIsoDate(doc.premium.verifiedAt)
-						: undefined,
-				}
-				: undefined,
+		...(activePremium && {
+			premium: {
+				isActive: true,
+				plan: doc.premium?.plan ?? "basic",
+				features: doc.premium?.features ?? [],
+				sortBoost: doc.premium?.sortBoost ?? 0,
+				verifiedAt: doc.premium?.verifiedAt
+					? toIsoDate(doc.premium.verifiedAt)
+					: undefined,
+			},
+		}),
 			premiumExpiresAt:
 				doc.premiumExpiresAt instanceof Date
 					? doc.premiumExpiresAt.toISOString()

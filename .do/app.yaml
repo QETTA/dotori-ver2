@@ -18,10 +18,6 @@ services:
     # source_dir 미설정 → 빌드 컨텍스트 = repo root
     # Dockerfile 내부에서 dotori-app/ 경로 참조
 
-    # ── 유료 계정 인스턴스 ──
-    # 시작: apps-s-1vcpu-2gb ($25/mo) — 20K 시설 SSR + AI 챗에 충분
-    # 스케일업: apps-d-1vcpu-2gb ($39/mo, dedicated) — 오토스케일 필요 시
-    # $200 크레딧: $25/mo → 8개월 사용 가능
     instance_size_slug: apps-s-1vcpu-2gb
     instance_count: 1
     http_port: 3000
@@ -51,9 +47,6 @@ services:
       - key: NEXT_PUBLIC_KAKAO_JS_KEY
         type: GENERAL
         scope: BUILD_TIME
-      - key: NEXT_PUBLIC_KAKAO_KEY
-        type: GENERAL
-        scope: BUILD_TIME
       - key: NEXT_PUBLIC_KAKAO_MAP_KEY
         type: GENERAL
         scope: BUILD_TIME
@@ -64,8 +57,7 @@ services:
         type: SECRET
         scope: RUN_TIME
 
-      # ── MongoDB Atlas (M10+ 유료) ──
-      # 연결 문자열에 maxPoolSize=10&serverSelectionTimeoutMS=5000 포함 권장
+      # ── MongoDB Atlas ──
       - key: MONGODB_URI
         type: SECRET
         scope: RUN_TIME
@@ -78,35 +70,18 @@ services:
       - key: ANTHROPIC_API_KEY
         type: SECRET
         scope: RUN_TIME
-      - key: AI_PROVIDER
-        value: anthropic
-        type: GENERAL
-        scope: RUN_TIME
       - key: AI_MODEL
-        value: claude-opus-4-6
+        value: claude-sonnet-4-6
         type: GENERAL
         scope: RUN_TIME
 
-      # ── Naver API ──
-      - key: NAVER_CLIENT_ID
+      # ── Public Data APIs ──
+      - key: PUBLIC_DATA_API_KEY
         type: SECRET
         scope: RUN_TIME
-      - key: NAVER_CLIENT_SECRET
+      - key: CHILDCARE_PORTAL_KEY
         type: SECRET
         scope: RUN_TIME
-
-      # ── Mapbox ──
-      - key: NEXT_PUBLIC_MAPBOX_TOKEN
-        type: GENERAL
-        scope: BUILD_TIME
-      - key: NEXT_PUBLIC_MAPBOX_STYLE
-        type: GENERAL
-        scope: BUILD_TIME
-
-      # ── Toss Payments ──
-      - key: NEXT_PUBLIC_TOSS_CLIENT_KEY
-        type: GENERAL
-        scope: BUILD_TIME
 
       # ── App ──
       - key: NODE_ENV
@@ -122,26 +97,38 @@ services:
         type: GENERAL
         scope: BUILD_TIME
 
-      # ── Monitoring (Sentry) ──
-      - key: NEXT_PUBLIC_SENTRY_DSN
+      # ── Analytics ──
+      - key: NEXT_PUBLIC_GA_ID
         type: GENERAL
         scope: BUILD_TIME
-      - key: SENTRY_AUTH_TOKEN
-        type: SECRET
-        scope: BUILD_TIME
-
-      # ── Public Data APIs ──
-      - key: PUBLIC_DATA_API_KEY
-        type: SECRET
-        scope: RUN_TIME
-      - key: CHILDCARE_PORTAL_KEY
-        type: SECRET
-        scope: RUN_TIME
 
       # ── Cron ──
       - key: CRON_SECRET
         type: SECRET
         scope: RUN_TIME
+
+      # ── 미래 기능 (활성화 시 주석 해제) ──
+      # # Toss Payments (Phase 3)
+      # - key: NEXT_PUBLIC_TOSS_CLIENT_KEY
+      #   type: GENERAL
+      #   scope: BUILD_TIME
+      # # Sentry (Phase 4)
+      # - key: NEXT_PUBLIC_SENTRY_DSN
+      #   type: GENERAL
+      #   scope: BUILD_TIME
+      # - key: SENTRY_AUTH_TOKEN
+      #   type: SECRET
+      #   scope: BUILD_TIME
+      # # Solapi Alimtalk (Phase 3)
+      # - key: SOLAPI_API_KEY
+      #   type: SECRET
+      #   scope: RUN_TIME
+      # - key: SOLAPI_API_SECRET
+      #   type: SECRET
+      #   scope: RUN_TIME
+      # - key: KAKAO_SENDER_KEY
+      #   type: SECRET
+      #   scope: RUN_TIME
 
     health_check:
       http_path: /api/health
@@ -160,12 +147,3 @@ alerts:
 #   - domain: dotori.app
 #     type: PRIMARY
 #     minimum_tls_version: "1.3"
-
-# ── Dedicated instance + autoscaling (트래픽 증가 시 전환) ──
-# instance_size_slug: apps-d-1vcpu-2gb  # $39/mo dedicated
-# autoscaling:
-#   min_instance_count: 1
-#   max_instance_count: 3
-#   metrics:
-#     cpu:
-#       percent: 70

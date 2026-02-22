@@ -58,6 +58,7 @@ ehthumbs.db
 # ── Codex ──
 .codex-running.lock
 .codex-dev.log
+.codex-local/
 .worktrees/
 
 # ── Prisma ──

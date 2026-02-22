@@ -31,6 +31,28 @@
       "env": {
         "SERENA_PROJECT_DIR": "/home/sihu2129/dotori-ver2"
       }
+    },
+    "openaiDeveloperDocs": {
+      "type": "http",
+      "url": "https://developers.openai.com/mcp"
+    },
+    "mongodb": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "source ~/.codex/env && npx -y mongodb-mcp-server --connectionString \"${MONGODB_URI}\" --readOnly"
+      ],
+      "env": {}
+    },
+    "sentry": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "source ~/.codex/env && npx -y @sentry/mcp-server@latest"
+      ],
+      "env": {}
     }
   }
 }

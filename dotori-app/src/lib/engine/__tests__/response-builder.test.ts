@@ -1,50 +1,50 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { buildResponse } from "../response-builder";
 
-const mockDbConnect = jest.fn<() => Promise<void>>();
-const mockGenerateChatResponse = jest.fn<
+const mockDbConnect = vi.fn<() => Promise<void>>();
+const mockGenerateChatResponse = vi.fn<
 	(prompt: string, context?: Record<string, unknown>) => Promise<{
 		success: boolean;
 		content: string | undefined;
 	}>
 >();
-const mockFacilityFind = jest.fn();
-const mockUserFindById = jest.fn();
-const mockWaitlistFind = jest.fn();
+const mockFacilityFind = vi.fn();
+const mockUserFindById = vi.fn();
+const mockWaitlistFind = vi.fn();
 
-jest.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", () => ({
 	__esModule: true,
 	default: () => mockDbConnect(),
 }));
 
-jest.mock("@/lib/ai/claude", () => ({
+vi.mock("@/lib/ai/claude", () => ({
 	__esModule: true,
 	generateChatResponse: (prompt: string, context?: Record<string, unknown>) =>
 		mockGenerateChatResponse(prompt, context),
 }));
 
-jest.mock("@/models/Facility", () => ({
+vi.mock("@/models/Facility", () => ({
 	__esModule: true,
 	default: {
 		find: (...args: unknown[]) => mockFacilityFind(...args),
 	},
 }));
 
-jest.mock("@/models/User", () => ({
+vi.mock("@/models/User", () => ({
 	__esModule: true,
 	default: {
 		findById: (...args: unknown[]) => mockUserFindById(...args),
 	},
 }));
 
-jest.mock("@/models/Waitlist", () => ({
+vi.mock("@/models/Waitlist", () => ({
 	__esModule: true,
 	default: {
 		find: (...args: unknown[]) => mockWaitlistFind(...args),
 	},
 }));
 
-jest.mock("@/lib/dto", () => ({
+vi.mock("@/lib/dto", () => ({
 	__esModule: true,
 	toFacilityDTO: (facility: Record<string, unknown>) => ({
 		id: facility.id ?? facility._id ?? "facility-id",
@@ -65,21 +65,21 @@ jest.mock("@/lib/dto", () => ({
 
 const buildFacilityQuery = (items: unknown[]) => {
 	const query = {
-		sort: jest.fn().mockReturnThis(),
-		limit: jest.fn().mockReturnThis(),
-		lean: jest.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
+		sort: vi.fn().mockReturnThis(),
+		limit: vi.fn().mockReturnThis(),
+		lean: vi.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
 	} as {
-		sort: jest.Mock;
-		limit: jest.Mock;
-		lean: jest.Mock<() => Promise<unknown[]>>;
+		sort: Mock;
+		limit: Mock;
+		lean: Mock<() => Promise<unknown[]>>;
 	};
 
 	return query;
 };
 
 const buildWaitlistQuery = (items: unknown[]) => ({
-	populate: jest.fn().mockReturnThis(),
-	lean: jest.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
+	populate: vi.fn().mockReturnThis(),
+	lean: vi.fn<() => Promise<unknown[]>>().mockResolvedValue(items),
 });
 
 const sampleFacility = {
@@ -105,7 +105,7 @@ const sampleFacility2 = {
 
 describe("buildResponse", () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		mockDbConnect.mockResolvedValue(undefined);
 		mockGenerateChatResponse.mockResolvedValue({
 			success: false,
@@ -241,7 +241,7 @@ describe("buildResponse", () => {
 			]),
 		);
 		mockUserFindById.mockReturnValue({
-			lean: jest
+			lean: vi
 				.fn<() => Promise<{ interests: string[] }>>()
 				.mockResolvedValue({ interests: ["f1"] }),
 		});
