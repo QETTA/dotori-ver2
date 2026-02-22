@@ -380,10 +380,11 @@ export default function OnboardingPage() {
 						</div>
 
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-child-name" className="mb-2 block text-sm font-medium text-dotori-500">
 								아이 이름
 							</label>
 							<input
+								id="onboarding-child-name"
 								type="text"
 								value={childName}
 								onChange={(e) => setChildName(e.target.value)}
@@ -392,7 +393,7 @@ export default function OnboardingPage() {
 							/>
 						</div>
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-birth-year" className="mb-2 block text-sm font-medium text-dotori-500">
 								출생년도
 							</label>
 							<div className="rounded-3xl bg-dotori-100/70 px-4 py-3 dark:bg-dotori-800/60">
@@ -411,6 +412,7 @@ export default function OnboardingPage() {
 									)}
 								</div>
 								<input
+									id="onboarding-birth-year"
 									type="range"
 									min={birthYearOptionsRange.minYear}
 									max={birthYearOptionsRange.maxYear}
@@ -422,10 +424,11 @@ export default function OnboardingPage() {
 							</div>
 						</div>
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-birth-month" className="mb-2 block text-sm font-medium text-dotori-500">
 								생월
 							</label>
 							<select
+								id="onboarding-birth-month"
 								value={birthMonth}
 								onChange={(e) => setBirthMonth(e.target.value)}
 								className={cn(inputCls, !birthMonth && "text-dotori-500")}
@@ -492,10 +495,11 @@ export default function OnboardingPage() {
 						</div>
 
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-sido" className="mb-2 block text-sm font-medium text-dotori-500">
 								시/도
 							</label>
 							<select
+								id="onboarding-sido"
 								value={sido}
 								onChange={(e) => handleSidoChange(e.target.value)}
 								disabled={isLoadingSido}
@@ -524,10 +528,11 @@ export default function OnboardingPage() {
 							</p>
 						</div>
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-sigungu" className="mb-2 block text-sm font-medium text-dotori-500">
 								시/군/구
 							</label>
 							<select
+								id="onboarding-sigungu"
 								value={sigungu}
 								onChange={(e) => setSigungu(e.target.value)}
 								disabled={!sido || isLoadingSigungu}
@@ -569,10 +574,11 @@ export default function OnboardingPage() {
 							</p>
 						</div>
 						<div>
-							<label className="mb-2 block text-sm font-medium text-dotori-500">
+							<label htmlFor="onboarding-dong" className="mb-2 block text-sm font-medium text-dotori-500">
 								동/읍/면 (선택)
 							</label>
 							<input
+								id="onboarding-dong"
 								type="text"
 								value={dong}
 								onChange={(e) => setDong(e.target.value)}
