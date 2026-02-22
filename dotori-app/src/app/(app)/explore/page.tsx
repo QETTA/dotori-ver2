@@ -21,7 +21,7 @@ export default function ExplorePage() {
 		<Suspense
 			fallback={
 				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
-					<div className="px-5 pt-4">
+					<div className="px-4 pt-3">
 						<Skeleton variant="facility-card" count={6} />
 					</div>
 				</div>

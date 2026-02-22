@@ -45,8 +45,14 @@ export const ExploreResultList = memo(function ExploreResultList({
 
 	const hasResults = facilities.length > 0;
 
+	const emptyPrimaryAction = hasSearchInput
+		? { label: "검색어 지우고 다시 찾기", onClick: onResetSearch }
+		: hasFilterApplied
+			? { label: "필터 풀고 다시 찾기", onClick: onResetFilters }
+			: { label: "조건 다시 설정", onClick: onResetSearch };
+
 	return (
-		<div className="flex-1 overflow-y-auto bg-dotori-50 px-5 pt-3 dark:bg-dotori-950">
+		<div className="flex-1 overflow-y-auto bg-dotori-50 px-4 pt-2 dark:bg-dotori-950">
 			{isLoading && !isTimeout ? (
 				<div className="pb-4">
 					<Skeleton variant="facility-card" count={6} />
@@ -70,7 +76,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 			) : null}
 
 			{!isLoading && !error && hasResults ? (
-				<motion.ul {...stagger.fast.container} className="space-y-3 pb-4">
+				<motion.ul {...stagger.fast.container} className="space-y-4 pb-4">
 					<motion.li {...stagger.fast.item}>
 						<AiBriefingCard
 							message={
@@ -94,7 +100,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								{...stagger.fast.item}
 								className="space-y-2"
 							>
-								<Link href={`/facility/${facility.id}`} className="block min-h-[44px]">
+								<Link href={`/facility/${facility.id}`} className="block min-h-11">
 									<FacilityCard facility={facility} compact />
 								</Link>
 
@@ -104,7 +110,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 										type="button"
 										disabled={isActionLoading}
 										onClick={() => onRegisterInterest(facility.id)}
-										className="min-h-[44px] text-sm text-dotori-700 dark:text-dotori-100"
+										className="min-h-11 text-sm text-dotori-700 transition-transform duration-150 active:scale-[0.97] dark:text-dotori-100"
 									>
 										<HeartIcon className="h-3.5 w-3.5" />
 										관심
@@ -115,7 +121,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 											type="button"
 											disabled={isActionLoading}
 											onClick={() => onApplyWaiting(facility.id)}
-											className="min-h-[44px] bg-forest-100 px-4 text-sm font-semibold text-forest-900 ring-1 ring-forest-300 transition-colors hover:bg-forest-200"
+											className="min-h-11 bg-forest-100 px-4 text-sm font-semibold text-forest-900 ring-1 ring-forest-300 transition-colors transition-transform duration-150 hover:bg-forest-200 active:scale-[0.97] dark:bg-forest-900/30 dark:text-forest-100 dark:ring-forest-700/60 dark:hover:bg-forest-900/40"
 										>
 											입소신청
 										</Button>
@@ -125,7 +131,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 											type="button"
 											disabled={isActionLoading}
 											onClick={() => onApplyWaiting(facility.id)}
-											className="min-h-[44px]"
+											className="min-h-11 transition-transform duration-150 active:scale-[0.97]"
 										>
 											대기신청
 										</Button>
@@ -141,7 +147,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								color="dotori"
 								onClick={onLoadMore}
 								disabled={isLoadingMore}
-								className="min-h-[44px]"
+								className="min-h-11 w-full transition-transform duration-150 active:scale-[0.97]"
 							>
 								{isLoadingMore ? "불러오는 중..." : "더 보기"}
 							</Button>
@@ -151,24 +157,33 @@ export const ExploreResultList = memo(function ExploreResultList({
 			) : null}
 
 			{!isLoading && !error && !isTimeout && !hasResults ? (
-				<div className="space-y-3">
+				<div className="space-y-4 pb-4">
 					<EmptyState
-						title={
-							hasSearchInput
-								? `"${debouncedSearch}"로 이동 가능 시설을 찾지 못했어요. 조건을 바꿔보세요`
-								: "이 조건의 이동 가능 시설이 없어요. 조건을 바꿔보세요"
-						}
+						variant="transfer"
+						title={hasSearchInput ? `"${debouncedSearch}"로는 결과가 없어요` : "이 조건에 맞는 시설이 없어요"}
 						description={
 							!hasSearchInput && !hasFilterApplied
-								? "검색어나 필터 없이 결과가 없어요. 이동 가능한 시설만 보려면 '이동 가능 시설' 토글을 켜 보세요."
-								: "다른 지역이나 시설 유형으로 검색해보세요. 반경을 넓히거나 필터를 변경해보세요."
+								? "현재 지역 기준으로 바로 이동 가능한 시설을 찾지 못했어요. ‘이동 가능 시설만 보기’를 켜거나 지역을 넓혀보세요."
+								: "지역·시설 유형·정렬을 조금만 바꾸면 결과가 나올 수 있어요. 필터를 조정해 다시 찾아볼까요?"
 						}
-						actionLabel={hasSearchInput ? "검색 초기화" : hasFilterApplied ? "필터 초기화" : "검색 초기화"}
-						onAction={hasSearchInput ? onResetSearch : hasFilterApplied ? onResetFilters : onResetSearch}
 					/>
-					<Button color="dotori" href={chatPromptHref} className="min-h-[44px] w-full">
-						토리에게 물어보기
-					</Button>
+					<div className="space-y-2.5">
+						<Button
+							color="dotori"
+							type="button"
+							onClick={emptyPrimaryAction.onClick}
+							className="min-h-11 w-full transition-transform duration-150 active:scale-[0.97]"
+						>
+							{emptyPrimaryAction.label}
+						</Button>
+						<Button
+							plain={true}
+							href={chatPromptHref}
+							className="min-h-11 w-full justify-center rounded-2xl bg-white text-dotori-700 ring-1 ring-dotori-100 transition-colors transition-transform duration-150 hover:bg-dotori-50 active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:ring-dotori-800 dark:hover:bg-dotori-900"
+						>
+							토리에게 물어보기
+						</Button>
+					</div>
 				</div>
 			) : null}
 		</div>
