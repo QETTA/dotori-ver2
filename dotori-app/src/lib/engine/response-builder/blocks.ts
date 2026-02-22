@@ -425,6 +425,14 @@ async function buildStatusResponse(
 	userProfile?: UserContext,
 	conversationContext?: ConversationContext,
 ): Promise<{ content: string; blocks: ChatBlock[] }> {
+	function asRecord(value: unknown): Record<string, unknown> | null {
+		if (!value || typeof value !== "object") {
+			return null;
+		}
+
+		return value as Record<string, unknown>;
+	}
+
 	if (!userId) {
 		const content =
 			"대기 상태를 확인하려면 로그인이 필요해요. 로그인하면 관심시설 현황과 대기 순번을 바로 알려드릴게요!";
@@ -462,11 +470,12 @@ async function buildStatusResponse(
 		if (waitlists.length > 0) {
 			statusInfo += `\n[대기 현황]\n`;
 			for (const w of waitlists) {
-				const facility = w.facilityId as unknown as {
-					name: string;
-					status: string;
-				};
-				statusInfo += `- ${facility?.name || "시설"}: ${w.status === "pending" ? "대기 중" : w.status}${w.position ? ` (${w.position}번째)` : ""}\n`;
+				const facilityRecord = asRecord(w.facilityId);
+				const facilityName =
+					facilityRecord && typeof facilityRecord.name === "string"
+						? facilityRecord.name
+						: "시설";
+				statusInfo += `- ${facilityName}: ${w.status === "pending" ? "대기 중" : w.status}${w.position ? ` (${w.position}번째)` : ""}\n`;
 			}
 		}
 		statusInfo += `\n관심시설 ${interests.length}곳 등록됨`;

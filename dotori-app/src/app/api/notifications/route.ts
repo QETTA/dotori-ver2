@@ -5,13 +5,47 @@ import Alert from "@/models/Alert";
 // Facility must be imported so Mongoose registers the model for populate()
 import "@/models/Facility";
 
-interface PopulatedFacility {
-	_id: unknown;
+interface NotificationFacility {
+	_id: string;
 	name: string;
 	type: string;
 	status: string;
 	address: string;
 	capacity: { total: number; current: number; waiting: number };
+}
+
+function toFiniteNumber(value: unknown, fallback = 0): number {
+	return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function toNotificationFacility(value: unknown): NotificationFacility | null {
+	if (!value || typeof value !== "object") {
+		return null;
+	}
+
+	const record = value as Record<string, unknown>;
+	const id = record._id ?? record.id;
+	if (id == null) {
+		return null;
+	}
+
+	const capRecord =
+		record.capacity && typeof record.capacity === "object"
+			? (record.capacity as Record<string, unknown>)
+			: null;
+
+	return {
+		_id: String(id),
+		name: typeof record.name === "string" ? record.name : "시설",
+		type: typeof record.type === "string" ? record.type : "",
+		status: typeof record.status === "string" ? record.status : "waiting",
+		address: typeof record.address === "string" ? record.address : "",
+		capacity: {
+			total: toFiniteNumber(capRecord?.total),
+			current: toFiniteNumber(capRecord?.current),
+			waiting: toFiniteNumber(capRecord?.waiting),
+		},
+	};
 }
 
 export const GET = withApiHandler(async (_req, { userId }) => {
@@ -28,25 +62,12 @@ export const GET = withApiHandler(async (_req, { userId }) => {
 
 	const notifications = alerts.map((alert) => {
 		// After populate + lean, facilityId is either a plain facility object or null
-		const fac = alert.facilityId as unknown as PopulatedFacility | null;
+		const facility = toNotificationFacility(alert.facilityId);
 
 		return {
 			id: String(alert._id),
 			type: alert.type,
-			facility: fac
-				? {
-						_id: String(fac._id),
-						name: fac.name,
-						type: fac.type,
-						status: fac.status,
-						address: fac.address,
-						capacity: {
-							total: fac.capacity?.total ?? 0,
-							current: fac.capacity?.current ?? 0,
-							waiting: fac.capacity?.waiting ?? 0,
-						},
-					}
-				: null,
+			facility,
 			channels: alert.channels,
 			triggeredAt:
 				alert.lastTriggeredAt instanceof Date

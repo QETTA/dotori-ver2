@@ -99,7 +99,7 @@ export async function list(params: ListPostsParams = {}): Promise<PostListResult
 	const skip = (page - 1) * limit;
 
 	const filter: Record<string, unknown> = {};
-	const category = parseCategory(params.category as unknown as string);
+	const category = parseCategory(params.category);
 	if (params.category && !category) {
 		throw new BadRequestError("유효하지 않은 카테고리입니다");
 	}

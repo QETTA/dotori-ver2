@@ -7,6 +7,61 @@ import { applyWaitlist } from "@/lib/services/waitlist-service";
 import { waitlistCreateSchema } from "@/lib/validations";
 import Waitlist from "@/models/Waitlist";
 
+function toFiniteNumber(value: unknown, fallback = 0): number {
+	return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function looksLikePopulatedFacility(value: unknown): value is Record<string, unknown> {
+	if (!value || typeof value !== "object") {
+		return false;
+	}
+
+	const record = value as Record<string, unknown>;
+	return (
+		"name" in record ||
+		"type" in record ||
+		"status" in record ||
+		"address" in record ||
+		"capacity" in record
+	);
+}
+
+function toWaitlistFacilityDTO(value: unknown): ReturnType<typeof toFacilityDTO> | null {
+	if (!looksLikePopulatedFacility(value)) {
+		return null;
+	}
+
+	const record = value as Record<string, unknown>;
+	const capRecord =
+		record.capacity && typeof record.capacity === "object"
+			? (record.capacity as Record<string, unknown>)
+			: null;
+
+	const doc: Parameters<typeof toFacilityDTO>[0] = {
+		_id: record._id,
+		id: typeof record.id === "string" ? record.id : undefined,
+		name: typeof record.name === "string" ? record.name : "시설",
+		type: typeof record.type === "string" ? record.type : "민간",
+		status: typeof record.status === "string" ? record.status : "waiting",
+		address: typeof record.address === "string" ? record.address : "",
+		capacity: {
+			total: toFiniteNumber(capRecord?.total),
+			current: toFiniteNumber(capRecord?.current),
+			waiting: toFiniteNumber(capRecord?.waiting),
+		},
+		features: Array.isArray(record.features)
+			? record.features.filter((feature): feature is string => typeof feature === "string")
+			: undefined,
+		lastSyncedAt:
+			record.lastSyncedAt instanceof Date ||
+			typeof record.lastSyncedAt === "string"
+				? record.lastSyncedAt
+				: undefined,
+	};
+
+	return toFacilityDTO(doc);
+}
+
 const waitlistCreateSchemaWithFlags = waitlistCreateSchema.extend({
 	hasMultipleChildren: z.boolean().optional(),
 	isDualIncome: z.boolean().optional(),
@@ -38,12 +93,14 @@ export const GET = withApiHandler(async (req, { userId }) => {
 	]);
 
 	// Transform populated facilityId to DTO (prevent leaking internal fields)
-	const data = waitlists.map((w) => ({
-		...w,
-		facilityId: w.facilityId && typeof w.facilityId === "object" && "name" in w.facilityId
-			? toFacilityDTO(w.facilityId as unknown as Parameters<typeof toFacilityDTO>[0])
-			: w.facilityId,
-	}));
+	const data = waitlists.map((w) => {
+		const facilityDTO = toWaitlistFacilityDTO(w.facilityId);
+
+		return {
+			...w,
+			facilityId: facilityDTO ?? w.facilityId,
+		};
+	});
 
 	return NextResponse.json({
 		data,
