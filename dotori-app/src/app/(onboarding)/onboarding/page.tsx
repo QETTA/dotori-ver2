@@ -269,7 +269,7 @@ export default function OnboardingPage() {
 	}
 
 	const inputCls =
-		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-[15px] outline-none transition-all focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300";
+		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base outline-none transition-all focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300";
 	const sliderCls =
 		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500";
 
@@ -299,7 +299,7 @@ export default function OnboardingPage() {
 						<div className="h-8 w-8" />
 					)}
 				</div>
-				<p className="pt-4 text-[14px] text-dotori-400">
+					<p className="pt-4 text-sm text-dotori-400">
 					{Math.min(step + 1, totalSteps)}/{totalSteps}
 				</p>
 			</header>
@@ -315,7 +315,7 @@ export default function OnboardingPage() {
 			</div>
 			<div className="mt-3 rounded-2xl border border-dotori-100 bg-white/90 px-4 py-3 shadow-sm">
 				<div className="flex items-center justify-between">
-					<Badge color="dotori" className="text-[11px] font-semibold">
+						<Badge color="dotori" className="text-xs font-semibold">
 						AI 맞춤 온보딩
 					</Badge>
 					<p className="text-xs font-medium text-dotori-500">{activeGuide.eta}</p>
@@ -341,13 +341,13 @@ export default function OnboardingPage() {
 							<h1 className="text-xl font-bold">
 								아이 정보를 알려주세요
 							</h1>
-							<p className="mt-1 text-[14px] text-dotori-400">
+								<p className="mt-1 text-sm text-dotori-400">
 								맞춤 입소 전략을 위해 필요해요
 							</p>
 						</div>
 
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								아이 이름
 							</label>
 							<input
@@ -359,7 +359,7 @@ export default function OnboardingPage() {
 							/>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								출생년도
 							</label>
 							<div className="rounded-3xl bg-dotori-100/70 px-4 py-3">
@@ -368,11 +368,11 @@ export default function OnboardingPage() {
 										{birthYear}년
 									</span>
 									{childAge !== null ? (
-										<span className="text-[13px] text-dotori-500">
+											<span className="text-xs text-dotori-500">
 											만 {childAge}세
 										</span>
 									) : (
-										<span className="text-[13px] text-dotori-400">
+											<span className="text-xs text-dotori-400">
 											월을 선택해 만 나이를 확인하세요
 										</span>
 									)}
@@ -389,7 +389,7 @@ export default function OnboardingPage() {
 							</div>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								생월
 							</label>
 							<select
@@ -409,7 +409,7 @@ export default function OnboardingPage() {
 							</select>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								성별
 							</label>
 							<div className="flex gap-2" role="radiogroup" aria-label="성별 선택">
@@ -421,7 +421,7 @@ export default function OnboardingPage() {
 										aria-label={`성별 ${g}`}
 										onClick={() => setGender(g)}
 										className={cn(
-											"flex-1 rounded-3xl py-3.5 text-[15px] font-medium transition-all active:scale-[0.97]",
+											"flex-1 rounded-3xl py-3.5 text-base font-medium transition-all active:scale-[0.97]",
 											gender === g
 												? "bg-dotori-900 text-white"
 												: "bg-white text-dotori-600 shadow-sm",
@@ -450,13 +450,13 @@ export default function OnboardingPage() {
 							<h1 className="text-xl font-bold">
 								거주 지역을 알려주세요
 							</h1>
-							<p className="mt-1 text-[14px] text-dotori-400">
+								<p className="mt-1 text-sm text-dotori-400">
 								주변 시설을 찾기 위해 필요해요
 							</p>
 						</div>
 
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								시/도
 							</label>
 							<select
@@ -483,12 +483,12 @@ export default function OnboardingPage() {
 										</option>
 									))}
 							</select>
-							<p className="mt-2 text-[13px] text-dotori-500">
+								<p className="mt-2 text-xs text-dotori-500">
 								현재 시/도: {sido || "미선택"}
 							</p>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								시/군/구
 							</label>
 							<select
@@ -510,12 +510,12 @@ export default function OnboardingPage() {
 									</option>
 								))}
 							</select>
-							<p className="mt-2 text-[13px] text-dotori-500">
+								<p className="mt-2 text-xs text-dotori-500">
 								현재 시/군/구: {sigungu || "미선택"}
 							</p>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								동/읍/면 (선택)
 							</label>
 							<input
@@ -525,7 +525,7 @@ export default function OnboardingPage() {
 								placeholder="역삼동"
 								className={inputCls}
 							/>
-							<p className="mt-2 text-[13px] text-dotori-500">
+								<p className="mt-2 text-xs text-dotori-500">
 								현재 동/읍/면: {dong || "미입력"}
 							</p>
 							{sido || sigungu || dong ? (
@@ -554,13 +554,13 @@ export default function OnboardingPage() {
 							<h1 className="text-xl font-bold">
 								관심 유형을 선택하세요
 							</h1>
-							<p className="mt-1 text-[14px] text-dotori-400">
+								<p className="mt-1 text-sm text-dotori-400">
 								여러 개 선택할 수 있어요
 							</p>
 						</div>
 
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								시설 유형
 							</label>
 							<div className="flex flex-wrap gap-2">
@@ -575,7 +575,7 @@ export default function OnboardingPage() {
 											)
 										}
 										className={cn(
-											"rounded-full px-5 py-3 text-[15px] font-medium transition-all active:scale-[0.97]",
+											"rounded-full px-5 py-3 text-base font-medium transition-all active:scale-[0.97]",
 											selectedTypes.includes(type)
 												? "bg-dotori-900 text-white"
 												: "bg-white text-dotori-600 shadow-sm",
@@ -587,7 +587,7 @@ export default function OnboardingPage() {
 							</div>
 						</div>
 						<div>
-							<label className="mb-2 block text-[14px] font-medium text-dotori-500">
+								<label className="mb-2 block text-sm font-medium text-dotori-500">
 								관심 특징
 							</label>
 							<div className="flex flex-wrap gap-2">
@@ -602,7 +602,7 @@ export default function OnboardingPage() {
 											)
 										}
 										className={cn(
-											"rounded-full px-5 py-3 text-[15px] font-medium transition-all active:scale-[0.97]",
+											"rounded-full px-5 py-3 text-base font-medium transition-all active:scale-[0.97]",
 											selectedFeatures.includes(feat)
 												? "bg-dotori-900 text-white"
 												: "bg-white text-dotori-600 shadow-sm",
@@ -644,7 +644,7 @@ export default function OnboardingPage() {
 							>
 								월 1,900원으로 시작
 							</Badge>
-							<p className="mt-2 text-[13px] leading-relaxed text-dotori-500">
+								<p className="mt-2 text-xs leading-relaxed text-dotori-500">
 								빈자리 알림은 무료 체험 후 원할 경우 계속 이용할 수 있어요.
 							</p>
 						</div>
@@ -666,7 +666,7 @@ export default function OnboardingPage() {
 							<h1 className="text-xl font-bold">
 								토리챗 AI가 이동 전략을 짜줘요
 							</h1>
-							<p className="mt-1 text-[14px] text-dotori-400">
+								<p className="mt-1 text-sm text-dotori-400">
 								입소 가능성, 이사 일정, 대기순위까지 한 번에 정리해드려요.
 							</p>
 						</div>
@@ -691,7 +691,7 @@ export default function OnboardingPage() {
 			{/* ── 하단 CTA ── */}
 			<div className="pb-8 pt-5">
 				{saveError && (
-					<div className="mb-3 rounded-2xl bg-dotori-100 px-4 py-3 text-[13px] text-dotori-700">
+						<div className="mb-3 rounded-2xl bg-dotori-100 px-4 py-3 text-xs text-dotori-700">
 						{saveError}
 					</div>
 				)}
@@ -702,7 +702,7 @@ export default function OnboardingPage() {
 							onClick={next}
 							disabled={isSaving}
 							className={cn(
-								"w-full py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
+									"w-full py-4.5 text-base font-semibold transition-all active:scale-[0.98]",
 								isSaving && "opacity-60",
 							)}
 						>
@@ -714,7 +714,7 @@ export default function OnboardingPage() {
 							type="button"
 							onClick={skipStep}
 							disabled={isSaving}
-							className="mt-2 w-full text-[13px] text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50"
+							className="mt-2 w-full text-xs text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50"
 						>
 							무료로 먼저 체험하기
 						</button>
@@ -724,14 +724,14 @@ export default function OnboardingPage() {
 						<Button
 							color="dotori"
 							onClick={() => router.push("/")}
-							className="w-full py-4.5 text-[16px] font-semibold"
+							className="w-full py-4.5 text-base font-semibold"
 						>
 							무료로 시작하기
 						</Button>
 						<button
 							type="button"
 							onClick={() => router.push("/my/settings")}
-							className="w-full rounded-full border border-forest-200 py-3.5 text-[14px] font-medium text-forest-700 transition-colors hover:border-forest-300 hover:text-forest-800"
+							className="w-full rounded-full border border-forest-200 py-3.5 text-sm font-medium text-forest-700 transition-colors hover:border-forest-300 hover:text-forest-800"
 						>
 							프리미엄 보기
 						</button>
