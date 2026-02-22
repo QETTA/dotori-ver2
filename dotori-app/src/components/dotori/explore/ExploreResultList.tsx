@@ -82,6 +82,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 						const isActionLoading =
 							loadingAction === `interest-${facility.id}` ||
 							loadingAction === `waiting-${facility.id}`;
+						const isAvailable = facility.status === "available";
 
 						return (
 							<div
@@ -109,15 +110,27 @@ export const ExploreResultList = memo(function ExploreResultList({
 										<HeartIcon className="h-3.5 w-3.5" />
 										관심
 									</Button>
-									<Button
-										color="dotori"
-										type="button"
-										disabled={isActionLoading}
-										onClick={() => onApplyWaiting(facility.id)}
-										className="min-h-[44px]"
-									>
-										{facility.status === "available" ? "입소신청" : "대기신청"}
-									</Button>
+									{isAvailable ? (
+										<Button
+											plain={true}
+											type="button"
+											disabled={isActionLoading}
+											onClick={() => onApplyWaiting(facility.id)}
+											className="min-h-[44px] bg-forest-100 px-4 text-sm font-semibold text-forest-900 ring-1 ring-forest-300 transition-colors hover:bg-forest-200"
+										>
+											입소신청
+										</Button>
+									) : (
+										<Button
+											color="dotori"
+											type="button"
+											disabled={isActionLoading}
+											onClick={() => onApplyWaiting(facility.id)}
+											className="min-h-[44px]"
+										>
+											대기신청
+										</Button>
+									)}
 								</div>
 							</div>
 						);
