@@ -1,4 +1,9 @@
 import { Badge } from "@/components/catalyst/badge";
+import {
+	VERIFIED_FACILITY_DATE_LABEL,
+	VERIFIED_FACILITY_INFO_LABEL,
+	VERIFIED_FACILITY_LABEL,
+} from "./facility-detail-helpers";
 
 interface FacilityPremiumSectionProps {
 	showPremiumSection: boolean;
@@ -24,10 +29,12 @@ export function FacilityPremiumSection({
 	return (
 		<section className="rounded-3xl bg-white p-5 shadow-sm">
 			<div className="flex items-center justify-between gap-2">
-				<h2 className="text-sm font-semibold text-dotori-900">인증 시설 정보</h2>
+				<h2 className="text-sm font-semibold text-dotori-900">
+					{VERIFIED_FACILITY_INFO_LABEL}
+				</h2>
 				{premiumVerifiedAt ? (
 					<p className="text-sm font-medium text-forest-700">
-						인증일: {premiumVerifiedAt}
+						{VERIFIED_FACILITY_DATE_LABEL}: {premiumVerifiedAt}
 					</p>
 				) : null}
 			</div>
@@ -74,7 +81,7 @@ export function FacilityPremiumSection({
 								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
 									src={photo}
-									alt={`${facilityName} 인증 시설 사진 ${index + 1}`}
+									alt={`${facilityName} ${VERIFIED_FACILITY_LABEL} 사진 ${index + 1}`}
 									loading="lazy"
 									className="h-28 w-full rounded-xl object-cover"
 								/>

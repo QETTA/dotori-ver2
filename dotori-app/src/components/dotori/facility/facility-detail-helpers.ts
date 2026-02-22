@@ -5,20 +5,23 @@ export type FacilityStatusBadge = {
 	label: string;
 };
 
+export const VERIFIED_FACILITY_LABEL = "인증 시설";
+export const VERIFIED_FACILITY_INFO_LABEL = `${VERIFIED_FACILITY_LABEL} 정보`;
+export const VERIFIED_FACILITY_DATE_LABEL = `${VERIFIED_FACILITY_LABEL} 인증일`;
+export const UNVERIFIED_FACILITY_HINT =
+	"이 시설은 아직 인증 시설로 등록되지 않았어요";
+
 export function getTypeBadgeColor(
 	type: string,
-): "dotori" | "blue" | "amber" | "forest" | "pink" | "emerald" {
+): "dotori" | "amber" | "forest" {
 	switch (type) {
-		case "국공립":
-			return "blue";
 		case "민간":
 			return "amber";
 		case "가정":
-			return "forest";
-		case "직장":
-			return "pink";
 		case "협동":
-			return "emerald";
+			return "forest";
+		case "국공립":
+		case "직장":
 		case "사회복지":
 			return "dotori";
 		default:

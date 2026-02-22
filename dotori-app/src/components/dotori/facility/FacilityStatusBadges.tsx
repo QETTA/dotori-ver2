@@ -4,6 +4,8 @@ import {
 	getFacilityStatusBadge,
 	getQualityColor,
 	getTypeBadgeColor,
+	UNVERIFIED_FACILITY_HINT,
+	VERIFIED_FACILITY_LABEL,
 } from "./facility-detail-helpers";
 
 interface FacilityStatusBadgesProps {
@@ -25,16 +27,16 @@ export function FacilityStatusBadges({
 		<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
 			<Badge color={getTypeBadgeColor(facilityType)}>{facilityType}</Badge>
 			<Badge color={facilityStatusBadge.color}>{facilityStatusBadge.label}</Badge>
-			{isPremiumFacility ? <Badge color="forest">인증 시설</Badge> : null}
+			{isPremiumFacility ? (
+				<Badge color="forest">{VERIFIED_FACILITY_LABEL}</Badge>
+			) : null}
 			<Badge color={getQualityColor(qualityScore)}>
 				{qualityScore == null
 					? "데이터 품질 미공개"
 					: `데이터 품질 점수 ${qualityScore}점`}
 			</Badge>
 			{!isPremiumFacility ? (
-				<span className="text-sm text-dotori-500">
-					이 시설은 아직 인증 시설로 등록되지 않았어요
-				</span>
+				<span className="text-sm text-dotori-500">{UNVERIFIED_FACILITY_HINT}</span>
 			) : null}
 		</div>
 	);
