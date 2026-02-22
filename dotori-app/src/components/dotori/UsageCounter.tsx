@@ -13,18 +13,23 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 	const isOverLimit = !isUnlimited && current > limit;
 	const ratio = isUnlimited || limit <= 0 ? 0 : current / limit;
 	const percent = Math.max(0, Math.min(1, ratio)) * 100;
+	const isNearLimit = !isUnlimited && !isOverLimit && ratio >= 0.8;
 
 	const trackColor = isOverLimit
-		? "bg-red-100 text-red-700"
-		: isUnlimited || ratio >= 0.8
+		? "bg-dotori-100 text-dotori-700"
+		: isNearLimit
 			? "bg-amber-100 text-amber-700"
-			: "bg-forest-100 text-forest-600";
+			: isUnlimited
+				? "bg-dotori-100 text-dotori-700"
+				: "bg-forest-100 text-forest-700";
 
 	const barColor = isOverLimit
-		? "bg-red-500"
-		: isUnlimited || ratio >= 0.8
+		? "bg-dotori-500"
+		: isNearLimit
 			? "bg-amber-500"
-			: "bg-forest-500";
+			: isUnlimited
+				? "bg-dotori-400"
+				: "bg-forest-500";
 
 	return (
 			<div className="space-y-2 rounded-2xl border border-dotori-100 bg-white p-4">
@@ -43,7 +48,7 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 			{isOverLimit ? (
 				<Text className="text-sm text-dotori-700">
 					현재 사용량을 초과했습니다.{" "}
-					<Link href="/my/settings" className="font-semibold text-red-700">
+					<Link href="/my/settings" className="font-semibold text-dotori-700">
 						업그레이드
 					</Link>
 				</Text>

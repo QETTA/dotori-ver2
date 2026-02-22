@@ -62,7 +62,7 @@ export const ChatBubble = memo(function ChatBubble({
 					<div className="space-y-1">
 						{children}
 						<span
-							className="mt-1 flex items-center justify-end gap-1.5 text-[12px] text-dotori-100"
+							className="mt-1 flex items-center justify-end gap-1.5 text-xs text-dotori-100"
 							suppressHydrationWarning
 						>
 							{isRead ? (
@@ -184,7 +184,7 @@ export const ChatBubble = memo(function ChatBubble({
 					</div>
 				) : null}
 				<span
-					className="px-1 text-[12px] text-dotori-500"
+					className="px-1 text-xs text-dotori-500"
 					suppressHydrationWarning
 				>
 					{relativeTime}
