@@ -1,13 +1,13 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { BRAND } from "@/lib/brand-assets";
-import type { CommunityPost } from "@/types/dotori";
 import {
 	ChatBubbleLeftIcon,
 	HeartIcon,
@@ -21,168 +21,21 @@ import { HeartIcon as HeartSolidIcon, FireIcon } from "@heroicons/react/24/solid
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const tabs = [
-	"전체",
-	"어린이집 이동",
-	"입소 고민",
-	"정보 공유",
-	"자유 토론",
-] as const;
-type TabLabel = (typeof tabs)[number];
-
-const tabToCategoryParam: Record<
-	TabLabel,
-	CommunityPost["category"] | ""
-> = {
-	전체: "",
-	"어린이집 이동": "question",
-	"입소 고민": "review",
-	"정보 공유": "info",
-	"자유 토론": "feedback",
-};
-
-const categoryLabel: Record<CommunityPost["category"], string> = {
-	feedback: "자유 토론",
-	info: "정보 공유",
-	review: "입소 고민",
-	question: "어린이집 이동",
-};
-
-const categoryStyle: Record<CommunityPost["category"], string> = {
-	feedback: "bg-forest-50 text-forest-700",
-	info: "bg-dotori-100 text-dotori-700",
-	review: "bg-forest-100 text-forest-700",
-	question: "bg-dotori-100 text-dotori-700",
-};
-
-const facilityTypes = new Set(["국공립", "민간", "가정", "직장", "협동", "사회복지"]);
-const HOT_POST_THRESHOLD = 24;
-const ANONYMOUS_BANNER_STYLES = [
-	{
-		bg: "bg-dotori-100",
-		ring: "ring-dotori-200",
-		icon: "text-dotori-700",
-	},
-	{
-		bg: "bg-forest-100",
-		ring: "ring-forest-200",
-		icon: "text-forest-700",
-	},
-	{
-		bg: "bg-dotori-200",
-		ring: "ring-dotori-300",
-		icon: "text-dotori-800",
-	},
-	{
-		bg: "bg-forest-200",
-		ring: "ring-forest-300",
-		icon: "text-forest-800",
-	},
-] as const;
-
-function hashSeed(value: string): number {
-	let hash = 5381;
-	for (let i = 0; i < value.length; i += 1) {
-		hash = (hash * 33 + value.charCodeAt(i)) >>> 0;
-	}
-	return hash;
-}
-
-function getAnonymousStyle(seed: string) {
-	const idx = hashSeed(seed) % ANONYMOUS_BANNER_STYLES.length;
-	return ANONYMOUS_BANNER_STYLES[idx] ?? ANONYMOUS_BANNER_STYLES[0];
-}
-
-function isHotPost(post: CommunityPostWithViews): boolean {
-	return post.likes + post.commentCount >= HOT_POST_THRESHOLD;
-}
-
-function tagStyle(tag: string): string {
-	if (facilityTypes.has(tag)) return "bg-forest-50 text-forest-700";
-	return "bg-dotori-50 text-dotori-700";
-}
-
-function CommunityEmptyState({ message }: { message: string }) {
-	return (
-		<div className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-dotori-50 to-white px-4 py-6 text-center">
-			<div className="mx-auto mb-5 h-44 w-44 rounded-[2rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_rgba(253,242,232,0.7))] p-4">
-				<svg
-					viewBox="0 0 180 180"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-					className="h-full w-full"
-					aria-hidden
-				>
-					<rect
-						x="35"
-						y="90"
-						width="110"
-						height="60"
-						rx="16"
-						fill="#FFF3E9"
-					/>
-					<path
-						d="M70 85c0 6 4.5 11 10 11h20c5.5 0 10-5 10-11V64.5C100 58.5 95.5 54 90 54h-20c-5.5 0-10 4.5-10 10.5V85Z"
-						fill="#F0D8BF"
-					/>
-					<path d="M68 82h22v-14a2 2 0 00-2-2h-18a2 2 0 00-2 2v14Z" fill="#D9A679" />
-					<circle cx="66" cy="82" r="3" fill="#3B5569" />
-					<circle cx="104" cy="82" r="3" fill="#3B5569" />
-					<rect x="76" y="95" width="28" height="4" rx="2" fill="#3B5569" />
-					<path
-						d="M52 128c10-12 25-12 35 0"
-						stroke="#3B5569"
-						strokeWidth="4"
-						strokeLinecap="round"
-					/>
-					<circle cx="90" cy="30" r="13" fill="#DB6A4F" />
-					<path
-						d="M82 52c5.5-11 17-11 22 0"
-						stroke="#DB6A4F"
-						strokeWidth="4"
-						strokeLinecap="round"
-					/>
-					<circle cx="32" cy="64" r="10" fill="#4D7C63" />
-					<circle cx="148" cy="74" r="10" fill="#F6A14A" />
-					<circle cx="45" cy="126" r="8" fill="#A8D3C0" />
-					<circle cx="147" cy="126" r="8" fill="#F5D5A7" />
-				</svg>
-			</div>
-			<h3 className="text-base font-semibold text-dotori-900">이웃 글이 아직 없어요</h3>
-			<p className="mt-2 text-sm text-dotori-600">{message}</p>
-			<Link
-				href="/community/write"
-				className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-dotori-900 px-5 py-3 text-[15px] font-semibold text-white transition-all active:scale-[0.98]"
-			>
-				첫 번째 이웃 이야기를 올려보세요
-			</Link>
-		</div>
-	);
-}
-
-type CommunityPostWithViews = CommunityPost & { viewCount?: number };
-
-interface PostsResponse {
-	data: CommunityPostWithViews[];
-	pagination: {
-		page: number;
-		limit: number;
-		total: number;
-		totalPages: number;
-	};
-}
-
-interface UserMeResponse {
-	data: {
-		gpsVerified: boolean;
-		region?: { sido: string; sigungu: string; dong?: string };
-	};
-}
-
-interface ReverseGeocodeResponse {
-	data: { sido: string; sigungu: string; dong: string };
-}
+import { CommunityEmptyState } from "./_components/CommunityEmptyState";
+import {
+	categoryLabel,
+	categoryStyle,
+	tabs,
+	tabToCategoryParam,
+	type TabLabel,
+} from "./_lib/community-constants";
+import type {
+	CommunityPostWithViews,
+	PostsResponse,
+	ReverseGeocodeResponse,
+	UserMeResponse,
+} from "./_lib/community-types";
+import { getAnonymousStyle, isHotPost, tagStyle } from "./_lib/community-utils";
 
 export default function CommunityPage() {
 	const { data: session } = useSession();
@@ -471,7 +324,13 @@ export default function CommunityPage() {
 		<div className="relative pb-16">
 			<header className="sticky top-0 z-20 bg-white/80 px-5 pb-0 pt-4 backdrop-blur-xl">
 				<div className="relative flex items-center justify-between pb-3">
-					<h1 className="text-xl font-bold">이웃</h1>
+					<div className="flex items-center gap-2">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-5 opacity-90" />
+						<Badge color="dotori" className="text-[10px] font-semibold">
+							이웃
+						</Badge>
+					</div>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={BRAND.socialCream}
@@ -486,7 +345,9 @@ export default function CommunityPage() {
 						{tabs.map((tab) => {
 							const isActive = activeTab === tab;
 							return (
-								<button
+								<Button
+									plain={true}
+									type="button"
 									key={tab}
 									role="tab"
 									aria-selected={isActive}
@@ -499,7 +360,7 @@ export default function CommunityPage() {
 									)}
 								>
 									{tab}
-								</button>
+								</Button>
 							);
 						})}
 					</div>
@@ -517,7 +378,9 @@ export default function CommunityPage() {
 				{userId &&
 					gpsVerified === false &&
 					hasGeolocationPermission !== true && (
-						<button
+						<Button
+							plain={true}
+							type="button"
 							onClick={handleGpsVerify}
 							disabled={isVerifying}
 							className={cn(
@@ -547,7 +410,7 @@ export default function CommunityPage() {
 									인증
 								</Badge>
 							)}
-						</button>
+						</Button>
 					)}
 
 				{isLoading ? (
@@ -656,7 +519,8 @@ export default function CommunityPage() {
 
 										{post.aiSummary ? (
 											<div className="mt-2.5">
-												<button
+												<Button
+													plain={true}
 													type="button"
 													onClick={() =>
 														setShowAiSummary((prev) => ({
@@ -673,7 +537,7 @@ export default function CommunityPage() {
 												>
 													<SparklesIcon className="h-4 w-4" />
 													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
-												</button>
+												</Button>
 												{showAiSummary[post.id] ? (
 													<div className="mt-1.5 rounded-xl bg-dotori-50 p-3 motion-safe:animate-in motion-safe:fade-in duration-200">
 														<p className="text-[13px] leading-relaxed text-dotori-600">
@@ -686,7 +550,8 @@ export default function CommunityPage() {
 									</div>
 
 									<div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
-										<button
+										<Button
+											plain={true}
 											type="button"
 											onClick={() => toggleLike(post.id)}
 											disabled={likingPosts.has(post.id)}
@@ -704,7 +569,7 @@ export default function CommunityPage() {
 												<HeartIcon className="h-5 w-5" />
 											)}
 											{post.likes}
-										</button>
+										</Button>
 										<Link
 											href={`/community/${post.id}`}
 											aria-label="댓글"

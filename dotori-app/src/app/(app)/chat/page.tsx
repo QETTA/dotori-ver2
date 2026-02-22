@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { Field, Fieldset, Label } from "@/components/catalyst/fieldset";
 import { ChatBubble } from "@/components/dotori/ChatBubble";
@@ -10,273 +9,33 @@ import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { Select } from "@/components/catalyst/select";
-import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { motion, type Variants } from "motion/react";
+import { motion } from "motion/react";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
 import type { ChatBlock, ChatMessage } from "@/types/dotori";
 import { useSession } from "next-auth/react";
 import { Text } from "@/components/catalyst/text";
-
-const FREE_PLAN_CHAT_LIMIT = 5;
-const GUEST_CHAT_LIMIT = 3;
-const MONTHLY_USAGE_API_URL = "/api/analytics/usage";
-const PREMIUM_GATE_HINT = "업그레이드하면 무제한으로 대화해요";
-const TORI_ICON = (BRAND as { TORI_ICON?: string }).TORI_ICON ?? BRAND.appIconSimple;
-
-const suggestedPrompts = [
-	{
-		label: "이동 고민",
-		prompt:
-			"지금 다니는 어린이집에서 이동하고 싶어요. 무엇부터 시작해야 할까요?",
-		icon: "🔄",
-	},
-	{
-		label: "반편성 불만",
-		prompt: "3월 반편성 결과가 마음에 안 들어요. 이동할 만한 시설이 있을까요?",
-		icon: "📋",
-	},
-	{
-		label: "빈자리 탐색",
-		prompt: "우리 동네 어린이집 중 지금 바로 입소 가능한 곳을 찾고 싶어요",
-		icon: "🔍",
-	},
-] as const;
-
-const promptListVariants: Variants = {
-	hidden: { opacity: 1 },
-	show: {
-		opacity: 1,
-		transition: {
-			staggerChildren: 0.06,
-		},
-	},
-};
-
-const promptItemVariants: Variants = {
-	hidden: { opacity: 0, y: 8 },
-	show: {
-		opacity: 1,
-		y: 0,
-		transition: {
-			ease: "easeOut",
-			duration: 0.24,
-		},
-	},
-};
-
-const RETRY_ACTION_ID = "chat:retry-last-message";
-const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
-	transfer: ["근처 대안 시설 찾기", "전원 절차 안내", "서류 체크리스트"],
-	recommend: ["더 보기", "지도에서 보기", "비교하기"],
-	general: ["이동 고민", "빈자리 탐색", "입소 체크리스트"],
-};
-
-function getMonthKey(date = new Date()) {
-	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function getGuestUsageStorageKey(monthKey: string): string {
-	return `chat:guest-monthly-usage:${monthKey}`;
-}
-
-function getGuestUsageCount(monthKey: string): number {
-	if (typeof window === "undefined") return 0;
-	const raw = window.sessionStorage.getItem(getGuestUsageStorageKey(monthKey));
-	if (!raw) return 0;
-
-	const parsed = Number(raw);
-	if (!Number.isFinite(parsed)) return 0;
-	return Math.max(0, Math.floor(parsed));
-}
-
-function setGuestUsageCount(monthKey: string, count: number): void {
-	if (typeof window === "undefined") return;
-	window.sessionStorage.setItem(
-		getGuestUsageStorageKey(monthKey),
-		String(Math.max(0, Math.floor(count))),
-	);
-}
-
-function parseToNumber(value: unknown, fallback: number): number {
-	if (typeof value === "number" && Number.isFinite(value)) {
-		return Math.max(0, Math.floor(value));
-	}
-	if (typeof value === "string") {
-		const parsed = Number(value);
-		if (Number.isFinite(parsed)) {
-			return Math.max(0, Math.floor(parsed));
-		}
-	}
-	return fallback;
-}
-
-function parseUsageResponse(
-	payload: unknown,
-	fallbackLimit: number,
-): { count: number; limit: number } {
-	if (!payload || typeof payload !== "object") {
-		return { count: 0, limit: fallbackLimit };
-	}
-
-	const record = payload as Record<string, unknown>;
-	const data = record.data;
-	const nested = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
-
-	return {
-		count: parseToNumber(
-			nested?.count ?? nested?.used ?? record.count ?? record.used,
-			0,
-		),
-		limit: parseToNumber(
-			nested?.limit ?? record.limit,
-			fallbackLimit,
-		),
-	};
-}
-
-function UsageCounter({ count, limit, isLoading }: {
-	count: number;
-	limit: number;
-	isLoading: boolean;
-}) {
-	const safeLimit = Math.max(1, Math.floor(limit));
-	const safeCount = Math.max(0, Math.floor(count));
-	const displayCount = isLoading ? 0 : Math.min(safeCount, safeLimit);
-	const percent = isLoading
-		? 0
-		: Math.min(100, Math.round((displayCount / safeLimit) * 100));
-
-	return (
-		<div className="flex items-center gap-2">
-			<Text className="text-sm font-semibold text-dotori-700">
-				{`${displayCount}/${safeLimit}`}
-			</Text>
-			<div className="h-1.5 w-20 rounded-full bg-dotori-100">
-				<div
-					className="h-full rounded-full bg-dotori-400"
-					style={{ width: `${percent}%` }}
-				/>
-			</div>
-		</div>
-	);
-}
-
-function PremiumGate({
-	usageLimit,
-	message,
-}: {
-	usageLimit: number;
-	message: string;
-}) {
-	return (
-		<div className="mb-2 rounded-2xl border border-dotori-200 bg-dotori-50 px-4 py-3">
-			<Text className="text-sm font-semibold text-dotori-800">
-				이번 달 무료 채팅 횟수를 모두 사용했어요
-			</Text>
-			<Text className="mt-1 text-sm text-dotori-700">
-				<Badge color="dotori" className="text-xs">
-					{usageLimit}회 제한
-				</Badge>
-				{` ${message}`}
-			</Text>
-			<Button href="/landing" color="dotori" className="mt-2.5 w-full">
-				프리미엄으로 업그레이드
-			</Button>
-		</div>
-	);
-}
-
-function getStreamErrorPayload(
-	response: Response,
-): Promise<{ isQuotaExceeded: boolean; message: string }> {
-	const fallback = "스트리밍 응답을 받을 수 없습니다.";
-	if (!response.headers.get("content-type")?.includes("application/json")) {
-		return response
-			.text()
-			.then((text) => ({
-				isQuotaExceeded: false,
-				message: text.trim() || fallback,
-			}))
-			.catch(() => ({
-				isQuotaExceeded: false,
-				message: fallback,
-			}));
-	}
-
-	return response
-		.json()
-		.then((payload) => {
-			if (!payload || typeof payload !== "object") {
-				return { isQuotaExceeded: false, message: fallback };
-			}
-			const record = payload as Record<string, unknown>;
-			const isQuotaExceeded = record.error === "quota_exceeded";
-			const message =
-				typeof record.message === "string" ? record.message : fallback;
-			return { isQuotaExceeded, message };
-		})
-		.catch(() => ({ isQuotaExceeded: false, message: fallback }));
-}
-
-function parseQuickReplies(intent?: string): string[] {
-	if (!intent || !QUICK_REPLIES_BY_INTENT[intent]) return [];
-	return QUICK_REPLIES_BY_INTENT[intent];
-}
-
-function LoadingSpinner() {
-	return (
-		<div
-			aria-hidden="true"
-			className="h-5 w-5 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-50"
-		/>
-	);
-}
-
-interface StreamEvent {
-	type: "start" | "block" | "text" | "done" | "error";
-	intent?: string;
-	block?: ChatBlock;
-	text?: string;
-	timestamp?: string;
-	error?: string;
-	quick_replies?: string[];
-}
-
-function parseSseEvent(rawEvent: string): StreamEvent | null {
-	const lines = rawEvent.split("\n");
-	const dataLines = lines.filter((line) => line.startsWith("data:"));
-	if (dataLines.length === 0) return null;
-
-	const data = dataLines.map((line) => line.replace(/^data:\s?/, "")).join("\n");
-	let payload: unknown;
-	try {
-		payload = JSON.parse(data);
-	} catch {
-		return null;
-	}
-
-	if (typeof payload !== "object" || payload === null || !("type" in payload)) {
-		return null;
-	}
-
-	const typed = payload as { type: string; [key: string]: unknown };
-	if (
-		typed.type !== "start" &&
-		typed.type !== "block" &&
-		typed.type !== "text" &&
-		typed.type !== "done" &&
-		typed.type !== "error"
-	) {
-		return null;
-	}
-
-	return {
-		type: typed.type,
-		...(typed as Record<string, unknown>),
-	} as StreamEvent;
-}
+import { LoadingSpinner } from "./_components/LoadingSpinner";
+import { PremiumGate } from "./_components/PremiumGate";
+import { UsageCounter } from "./_components/UsageCounter";
+import {
+	FREE_PLAN_CHAT_LIMIT,
+	GUEST_CHAT_LIMIT,
+	getGuestUsageCount,
+	getMonthKey,
+	MONTHLY_USAGE_API_URL,
+	parseQuickReplies,
+	parseUsageResponse,
+	PREMIUM_GATE_HINT,
+	RETRY_ACTION_ID,
+	setGuestUsageCount,
+	suggestedPrompts,
+	TORI_ICON,
+	promptItemVariants,
+	promptListVariants,
+} from "./_lib/chat-config";
+import { getStreamErrorPayload, parseSseEvent, type StreamEvent } from "./_lib/chat-stream";
 
 export default function ChatPage() {
 	return (
@@ -753,7 +512,9 @@ function ChatContent() {
 							>
 								{suggestedPrompts.map((sp) => (
 									<motion.div key={sp.label} variants={promptItemVariants}>
-										<button
+										<Button
+											plain={true}
+											type="button"
 											onClick={() => handleSuggest(sp.prompt)}
 											className={cn(
 												"flex w-full items-center gap-3 rounded-2xl bg-dotori-50 px-4 py-3 text-left transition-all",
@@ -771,7 +532,7 @@ function ChatContent() {
 													{sp.prompt}
 												</Text>
 											</div>
-										</button>
+										</Button>
 									</motion.div>
 								))}
 							</motion.div>
@@ -833,7 +594,9 @@ function ChatContent() {
 							/>
 						</Field>
 					</Fieldset>
-					<button
+					<Button
+						plain={true}
+						type="button"
 						onClick={() => sendMessage(input)}
 						disabled={
 							!input.trim() || isLoading || isUsageLoading || isUsageLimitReached
@@ -862,7 +625,7 @@ function ChatContent() {
 								/>
 							</svg>
 						)}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

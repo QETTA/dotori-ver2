@@ -25,6 +25,7 @@ import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
+import { BRAND } from "@/lib/brand-assets";
 import { useFacilities } from "@/hooks/use-facilities";
 import { useFacilityActions } from "@/hooks/use-facility-actions";
 import { useToast } from "@/components/dotori/ToastProvider";
@@ -483,6 +484,14 @@ function ExploreContent() {
 	return (
 		<div className="flex h-[calc(100dvh-8rem)] flex-col">
 			<header className="sticky top-0 z-20 bg-white/80 px-5 pb-2 pt-4 backdrop-blur-xl">
+				<div className="mb-2 flex items-center justify-between">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
+					<div className="rounded-full bg-dotori-50 px-2 py-1">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-4 w-4" />
+					</div>
+				</div>
 				<Heading level={2} className="text-lg">
 					이동 고민이라면, 빈자리 먼저 확인해요
 				</Heading>

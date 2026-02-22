@@ -17,6 +17,7 @@ import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
+import { BRAND } from "@/lib/brand-assets";
 import { generateNBAs } from "@/lib/engine/nba-engine";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
@@ -150,6 +151,14 @@ export default function HomePage() {
 	return (
 		<div className="px-4 pb-6 pt-5">
 			<header>
+				<div className="mb-3 flex items-center justify-between">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
+					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
+					</div>
+				</div>
 				<Heading level={1} className="text-xl font-bold text-dotori-900">
 					{greeting}
 				</Heading>
@@ -169,9 +178,21 @@ export default function HomePage() {
 							handleOpenChat();
 						}
 					}}
-					className="rounded-3xl bg-dotori-900 p-4"
+					className="relative overflow-hidden rounded-3xl bg-dotori-900 p-4"
 				>
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={BRAND.watermark}
+						alt=""
+						aria-hidden="true"
+						className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 opacity-15"
+					/>
 					<Text className="text-sm font-semibold text-white">AI 토리</Text>
+					<div className="mt-1 flex items-center gap-2">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.symbolMonoWhite} alt="" aria-hidden="true" className="h-4 w-4 opacity-90" />
+						<Text className="text-xs text-dotori-100">이동 고민 상담 · 빈자리 우선 탐색</Text>
+					</div>
 					<Fieldset className="mt-3">
 						<Field>
 							<Input

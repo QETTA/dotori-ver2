@@ -70,7 +70,7 @@ function LoginPageClient() {
 
 	return (
 		<PageTransition>
-			<div className="relative min-h-dvh bg-dotori-50 pb-[env(safe-area-inset-bottom)]">
+			<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)]">
 				{/* ── 배경 장식 ── */}
 				{/* 상단 따뜻한 그라디언트 */}
 				<div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">

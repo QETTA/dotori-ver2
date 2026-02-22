@@ -10,137 +10,16 @@ import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 import {
-	BellIcon,
 	CameraIcon,
 	ChevronRightIcon,
-	CogIcon,
-	CreditCardIcon,
-	DocumentTextIcon,
 	HeartIcon,
-	InformationCircleIcon,
-	LifebuoyIcon,
-	MegaphoneIcon,
-	SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-
-function calculateAge(birthDate: string) {
-	const birth = new Date(birthDate);
-	const now = new Date();
-	const months =
-		(now.getFullYear() - birth.getFullYear()) * 12 +
-		(now.getMonth() - birth.getMonth());
-	if (months < 12) return `${months}개월`;
-	const years = Math.floor(months / 12);
-	const rem = months % 12;
-	return rem > 0 ? `${years}세 ${rem}개월` : `${years}세`;
-}
-
-function getBirthYear(birthDate: string) {
-	const birth = new Date(birthDate);
-	const year = birth.getFullYear();
-	return Number.isNaN(year) ? "출생년도 미확인" : `${year}년생`;
-}
-
-function formatRegion(region: { sido: string; sigungu: string; dong?: string }) {
-	return [region.sido, region.sigungu, region.dong]
-		.filter(Boolean)
-		.join(" ")
-		|| "지역 미설정";
-}
-
-type MenuItem = {
-	label: string;
-	href: string;
-	icon: typeof BellIcon;
-	description: string;
-	requiresAuth?: boolean;
-};
-
-type MenuSection = {
-	title: string;
-	items: MenuItem[];
-};
-
-const menuSections: MenuSection[] = [
-	{
-		title: "내 정보",
-		items: [
-			{
-				label: "내 정보",
-				href: "/my/settings",
-				icon: CogIcon,
-				description: "닉네임·지역·아이 정보를 관리해요",
-				requiresAuth: true,
-			},
-			{
-				label: "플랜 관리",
-				href: "/my/settings",
-				icon: CreditCardIcon,
-				description: "구독 상태를 확인하고 혜택을 바꿔요",
-				requiresAuth: true,
-			},
-		],
-	},
-	{
-		title: "알림",
-		items: [
-			{
-				label: "알림",
-				href: "/my/notifications",
-				icon: BellIcon,
-				description: "입소 알림과 대기 변경사항을 볼 수 있어요",
-				requiresAuth: true,
-			},
-			{
-				label: "알림 설정",
-				href: "/my/settings",
-				icon: SparklesIcon,
-				description: "알림 수신 채널과 주기를 조정해요",
-				requiresAuth: true,
-			},
-		],
-	},
-	{
-		title: "앱 정보",
-		items: [
-			{
-				label: "공지사항",
-				href: "/my/notices",
-				icon: MegaphoneIcon,
-				description: "도토리 최신 소식과 점검 일정을 확인해요",
-			},
-			{
-				label: "이용약관",
-				href: "/my/terms",
-				icon: DocumentTextIcon,
-				description: "서비스 이용 규칙을 확인해요",
-			},
-			{
-				label: "고객센터",
-				href: "/my/support",
-				icon: LifebuoyIcon,
-				description: "문의 내역을 작성하고 답변을 받아요",
-			},
-			{
-				label: "앱 정보",
-				href: "/my/app-info",
-				icon: InformationCircleIcon,
-				description: "도토리 앱 정보를 확인해요",
-			},
-		],
-	},
-];
-
-const publicMenuSections: MenuSection[] = menuSections
-	.map((section) => ({
-		...section,
-		items: section.items.filter((item) => item.requiresAuth !== true),
-	}))
-	.filter((section) => section.items.length > 0);
+import { menuSections, publicMenuSections } from "./_lib/my-menu";
+import { calculateAge, formatRegion, getBirthYear } from "./_lib/my-utils";
 
 export default function MyPage() {
 	const {
@@ -293,6 +172,8 @@ export default function MyPage() {
 			<div className="pb-8">
 				<header className="px-5 pt-8 pb-2">
 					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 px-5 py-5">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
 						<div className="flex items-center gap-4">
 							<div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-white/70">
 								{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -368,6 +249,13 @@ export default function MyPage() {
 			{/* 프로필 헤더 */}
 			<header className="px-5 pt-8 pb-2">
 				<div className="rounded-3xl bg-white shadow-sm px-4 py-5 border border-dotori-100">
+					<div className="mb-3 flex items-center justify-between">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
+						<Badge color="dotori" className="text-[10px] font-semibold">
+							MY
+						</Badge>
+					</div>
 					<div className="flex items-start gap-4">
 						<div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-dotori-100 via-dotori-50 to-forest-100">
 							<div className="absolute inset-0 opacity-15" />
