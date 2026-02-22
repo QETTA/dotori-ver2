@@ -10,6 +10,36 @@ type PageProps = { params: { id: string } | Promise<{ id: string }> };
 
 const facilityNotFoundTitle = "시설을 찾을 수 없습니다 | 도토리";
 const facilityNotFoundDescription = "요청하신 어린이집 정보를 찾을 수 없습니다.";
+const facilityLoadErrorMessage = "시설 정보를 불러오지 못했어요";
+
+function toSafeCount(value: unknown): number {
+	return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function toSafeFacilityDTO(
+	facility: ReturnType<typeof toFacilityDTO>,
+): ReturnType<typeof toFacilityDTO> {
+	const rawCapacity = (facility as { capacity?: unknown }).capacity;
+	const capacity =
+		rawCapacity && typeof rawCapacity === "object"
+			? (rawCapacity as { total?: unknown; current?: unknown; waiting?: unknown })
+			: null;
+
+	const rawFeatures = (facility as { features?: unknown }).features;
+	const features = Array.isArray(rawFeatures)
+		? rawFeatures.filter((feature): feature is string => typeof feature === "string")
+		: [];
+
+	return {
+		...facility,
+		capacity: {
+			total: toSafeCount(capacity?.total),
+			current: toSafeCount(capacity?.current),
+			waiting: toSafeCount(capacity?.waiting),
+		},
+		features,
+	};
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 	const { id: facilityId } = await params;
@@ -53,23 +83,29 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		notFound();
 	}
 
-	let facility: ReturnType<typeof toFacilityDTO> | null = null;
+	let facilityDoc: Parameters<typeof toFacilityDTO>[0] | null = null;
 	try {
 		await dbConnect();
-		const facilityDoc = await Facility.findById(facilityId).lean();
-
-		if (!facilityDoc) {
-			notFound();
-		}
-
-		facility = toFacilityDTO(
-			facilityDoc as Parameters<typeof toFacilityDTO>[0],
-		);
+		facilityDoc = (await Facility.findById(facilityId).lean()) as Parameters<
+			typeof toFacilityDTO
+		>[0] | null;
 	} catch {
 		return (
-			<FacilityDetailClient loadError="시설 정보를 불러오지 못했어요" />
+			<FacilityDetailClient loadError={facilityLoadErrorMessage} />
 		);
 	}
 
-	return <FacilityDetailClient facility={facility} />;
+	if (!facilityDoc) {
+		notFound();
+	}
+
+	try {
+		const facility = toSafeFacilityDTO(toFacilityDTO(facilityDoc));
+		return <FacilityDetailClient facility={facility} />;
+	} catch {
+		return (
+			<FacilityDetailClient loadError={facilityLoadErrorMessage} />
+		);
+	}
+
 }
