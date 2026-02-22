@@ -40,9 +40,15 @@ export function FacilityCapacityCard({
 						<span className="text-3xl font-bold text-dotori-900">
 							{facility.capacity.total}
 						</span>
-						<span className="text-[14px] text-dotori-500">명 정원</span>
+						<span className="text-sm text-dotori-500">명 정원</span>
 					</div>
-					<span className={cn("rounded-full px-3 py-1.5 text-[13px] font-semibold", config.bgColor, config.textColor)}>
+					<span
+						className={cn(
+							"rounded-full px-3 py-1.5 text-xs font-semibold",
+							config.bgColor,
+							config.textColor,
+						)}
+					>
 						{config.label}
 					</span>
 				</div>
@@ -61,7 +67,7 @@ export function FacilityCapacityCard({
 				</div>
 
 				{/* 부가 정보 */}
-				<div className="mt-3 flex items-center gap-4 text-[13px] text-dotori-500">
+				<div className="mt-3 flex items-center gap-4 text-xs text-dotori-500">
 					{hasWaiting && (
 						<span>대기 <strong className="font-semibold text-dotori-700">{facility.capacity.waiting}명</strong></span>
 					)}
@@ -80,7 +86,7 @@ export function FacilityCapacityCard({
 					onClick={onApplyClick}
 					disabled={actionStatus === "executing"}
 					className={cn(
-						"mt-3 w-full rounded-3xl py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
+						"mt-3 w-full rounded-3xl py-4.5 text-base font-semibold transition-all active:scale-[0.98]",
 						actionStatus === "executing"
 							? "bg-dotori-200 text-dotori-500"
 							: facility.status === "available"
@@ -102,7 +108,7 @@ export function FacilityCapacityCard({
 					onClick={onApplyClick}
 					disabled={actionStatus === "executing"}
 					className={cn(
-						"mt-3 w-full rounded-3xl py-4.5 text-[16px] font-semibold transition-all active:scale-[0.98]",
+						"mt-3 w-full rounded-3xl py-4.5 text-base font-semibold transition-all active:scale-[0.98]",
 						"bg-dotori-100 text-dotori-500 hover:bg-dotori-200",
 					)}
 				>

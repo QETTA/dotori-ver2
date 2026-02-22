@@ -10,7 +10,7 @@ export function FacilityFeaturesCard({ features }: FacilityFeaturesCardProps) {
 				{features.map((feat) => (
 					<span
 						key={feat}
-						className="rounded-full bg-dotori-50 px-3.5 py-2 text-[14px] font-medium text-dotori-600"
+						className="rounded-full bg-dotori-50 px-3.5 py-2 text-sm font-medium text-dotori-600"
 					>
 						{feat}
 					</span>

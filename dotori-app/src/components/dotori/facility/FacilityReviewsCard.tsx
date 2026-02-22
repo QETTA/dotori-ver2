@@ -25,7 +25,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 				{posts.length > 0 && (
 					<Link
 						href="/community"
-						className="text-[14px] text-dotori-500 hover:text-dotori-600"
+						className="text-sm text-dotori-500 hover:text-dotori-600"
 					>
 						더보기
 					</Link>
@@ -42,15 +42,15 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 								animationFillMode: "both",
 							}}
 						>
-							<p className="text-[14px] leading-relaxed text-dotori-800">
+							<p className="text-sm leading-relaxed text-dotori-800">
 								{post.content}
 							</p>
 							<div className="mt-2 flex items-center gap-2">
-								<span className="text-[13px] font-medium text-dotori-500">
+								<span className="text-sm font-medium text-dotori-500">
 									{post.author.nickname}
 								</span>
 								<span
-									className="text-[11px] text-dotori-500"
+									className="text-xs text-dotori-500"
 									suppressHydrationWarning
 								>
 									{formatRelativeTime(post.createdAt)}
@@ -60,7 +60,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 					))}
 				</div>
 			) : (
-				<p className="py-4 text-center text-[14px] text-dotori-500">
+				<p className="py-4 text-center text-sm text-dotori-500">
 					아직 후기가 없어요
 				</p>
 			)}
@@ -68,7 +68,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 			{/* 후기 작성 버튼 */}
 			<Link
 				href={writeHref}
-				className="mt-3 flex w-full items-center justify-center rounded-2xl border border-dotori-500 py-3 text-[14px] font-semibold text-dotori-500 transition-all active:scale-[0.97] hover:bg-dotori-50"
+				className="mt-3 flex w-full items-center justify-center rounded-2xl border border-dotori-500 py-3 text-sm font-semibold text-dotori-500 transition-all active:scale-[0.97] hover:bg-dotori-50"
 			>
 				후기 작성하기
 			</Link>

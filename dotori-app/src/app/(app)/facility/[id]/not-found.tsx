@@ -9,13 +9,13 @@ export default function FacilityNotFound() {
 				<div className="mt-6 space-y-3">
 					<Link
 						href="/explore"
-						className="inline-flex min-h-12 w-full items-center justify-center rounded-3xl bg-dotori-400 px-7 text-[15px] font-bold text-white transition-all hover:bg-dotori-600 active:scale-[0.98]"
+						className="inline-flex min-h-12 w-full items-center justify-center rounded-3xl bg-dotori-400 px-7 text-base font-bold text-white transition-all hover:bg-dotori-600 active:scale-[0.98]"
 					>
 						탐색으로 돌아가기
 					</Link>
 					<Link
 						href="/explore"
-						className="inline-flex min-h-12 w-full items-center justify-center rounded-3xl border border-dotori-200 bg-white px-7 text-[15px] font-bold text-dotori-700 transition-all hover:bg-dotori-50 active:scale-[0.98]"
+						className="inline-flex min-h-12 w-full items-center justify-center rounded-3xl border border-dotori-200 bg-white px-7 text-base font-bold text-dotori-700 transition-all hover:bg-dotori-50 active:scale-[0.98]"
 					>
 						다른 어린이집 찾기
 					</Link>

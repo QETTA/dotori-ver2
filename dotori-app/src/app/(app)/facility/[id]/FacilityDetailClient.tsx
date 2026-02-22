@@ -316,7 +316,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
 				<div className="min-w-0 max-w-[21rem]">
-					<h1 className="truncate text-[18px] font-bold leading-6 text-dotori-900">
+					<h1 className="truncate text-lg font-bold leading-6 text-dotori-900">
 						{facility.name}
 					</h1>
 				</div>

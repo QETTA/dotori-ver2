@@ -20,7 +20,7 @@ export function FacilityLocationCard({ facility }: FacilityLocationCardProps) {
 					},
 				]}
 			/>
-			<div className="mt-3 space-y-1 text-[14px] text-dotori-700">
+			<div className="mt-3 space-y-1 text-sm text-dotori-700">
 				<p>{facility.address}</p>
 				{facility.phone && (
 					<p className="text-dotori-500">
@@ -37,7 +37,7 @@ export function FacilityLocationCard({ facility }: FacilityLocationCardProps) {
 						href={facility.kakaoPlaceUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="mt-1 inline-flex items-center gap-1 text-[14px] font-medium text-dotori-500 hover:text-dotori-500"
+						className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-dotori-500 hover:text-dotori-500"
 					>
 						카카오맵에서 보기 →
 					</a>

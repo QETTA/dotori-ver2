@@ -25,13 +25,13 @@ export function FacilityChecklistCard({
 				<ClipboardDocumentCheckIcon className="h-6 w-6 shrink-0 text-dotori-500" />
 				<div className="min-w-0 flex-1">
 					<h3 className="font-semibold">입소 준비 체크리스트</h3>
-					<p className="mt-0.5 text-[13px] text-dotori-500">
+					<p className="mt-0.5 text-sm text-dotori-500">
 						{facilityType} 기준 필요 서류를 미리 확인하세요
 					</p>
 				</div>
 				<span
 					className={cn(
-						"text-[13px] font-medium transition-transform",
+						"text-sm font-medium transition-transform",
 						showChecklist ? "rotate-180" : "",
 					)}
 				>
