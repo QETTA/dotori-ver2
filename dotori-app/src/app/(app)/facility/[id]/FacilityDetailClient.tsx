@@ -15,7 +15,6 @@ import {
 	ArrowTopRightOnSquareIcon,
 	ArrowPathIcon,
 	CheckCircleIcon,
-	ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
@@ -26,11 +25,20 @@ import { IsalangCard } from "@/components/dotori/facility/IsalangCard";
 import { FacilityChecklistCard } from "@/components/dotori/facility/FacilityChecklistCard";
 import { FacilityInsights } from "@/components/dotori/facility/FacilityInsights";
 import { FacilityReviewsCard } from "@/components/dotori/facility/FacilityReviewsCard";
+import { FacilityPremiumSection } from "@/components/dotori/facility/FacilityPremiumSection";
+import { FacilityStatusBadges } from "@/components/dotori/facility/FacilityStatusBadges";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { getFacilityImage } from "@/lib/facility-images";
+import {
+	getCapacityProgressColor,
+	getErrorMessage,
+	getFormattedVerifiedAt,
+	getSafeNumber,
+	getWaitingHintText,
+} from "@/components/dotori/facility/facility-detail-helpers";
 import type {
 	ActionStatus,
 	ChecklistBlock as ChecklistBlockType,
@@ -147,95 +155,6 @@ export default function FacilityDetailClient({
 	return <FacilityDetailClientContent facility={facility} />;
 }
 
-function getTypeBadgeColor(type: string): "dotori" | "blue" | "amber" | "forest" | "pink" | "emerald" {
-	switch (type) {
-		case "국공립":
-			return "blue";
-		case "민간":
-			return "amber";
-		case "가정":
-			return "forest";
-		case "직장":
-			return "pink";
-		case "협동":
-			return "emerald";
-		case "사회복지":
-			return "dotori";
-		default:
-			return "dotori";
-	}
-}
-
-function getQualityColor(score?: number): "forest" | "amber" | "dotori" {
-	if (score == null) return "dotori";
-	if (score >= 85) return "forest";
-	if (score >= 70) return "amber";
-	return "dotori";
-}
-
-type FacilityStatusBadge = {
-	color: "forest" | "amber" | "red";
-	label: string;
-};
-
-function getFacilityStatusBadge(status: Facility["status"]): FacilityStatusBadge {
-	switch (status) {
-		case "available":
-			return { color: "forest", label: "빈자리 있음" };
-		case "waiting":
-			return { color: "amber", label: "대기 중" };
-		case "full":
-		default:
-			return { color: "red", label: "마감" };
-	}
-}
-
-function getCapacityProgressColor(occupancyRate: number): "bg-forest-500" | "bg-warning" | "bg-danger" {
-	if (occupancyRate >= 90) return "bg-danger";
-	if (occupancyRate >= 60) return "bg-warning";
-	return "bg-forest-500";
-}
-
-function getSafeNumber(value?: number | null): number | null {
-	if (typeof value !== "number" || Number.isNaN(value)) return null;
-	return value;
-}
-
-function getFormattedVerifiedAt(
-	verifiedAt: string | number | Date | null | undefined,
-): string | null {
-	if (!verifiedAt) return null;
-
-	const date = verifiedAt instanceof Date ? verifiedAt : new Date(verifiedAt);
-	if (Number.isNaN(date.getTime())) return null;
-
-	const year = date.getFullYear();
-	const month = `${date.getMonth() + 1}`.padStart(2, "0");
-	return `${year}.${month}`;
-}
-
-function getErrorMessage(error: unknown, fallback: string): string {
-	if (typeof error === "string") return error.trim() || fallback;
-	if (error instanceof Error) return error.message.trim() || fallback;
-	return fallback;
-}
-
-function getWaitingHintText(facility: FacilityDetailClientFacility): string {
-	if (facility.status === "available") {
-		return "현재 입소 가능 상태로, 신청 후 곧바로 처리될 수 있어요.";
-	}
-
-	if (facility.capacity.waiting <= 0) {
-		return "현재 대기 인원이 없어 입소까지 빠르게 마감될 수 있어요.";
-	}
-
-	if (facility.capacity.waiting <= 5) {
-		return `현재 대기 ${facility.capacity.waiting}명이며 보통 1~3주 내로 처리될 수 있어요.`;
-	}
-
-	return `현재 대기 ${facility.capacity.waiting}명, 입소까지 3~8주가량 소요될 수 있어요.`;
-}
-
 function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
 	const [sheetOpen, setSheetOpen] = useState(false);
 	const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
@@ -295,10 +214,6 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		Number.isFinite(facility.lng) &&
 		!(facility.lat === 0 && facility.lng === 0);
 	const waitingHintText = useMemo(() => getWaitingHintText(facility), [facility]);
-	const facilityStatusBadge = useMemo(
-		() => getFacilityStatusBadge(facility.status),
-		[facility.status],
-	);
 	const totalCapacity = Math.max(0, facility.capacity.total);
 	const currentCapacity = Math.max(0, facility.capacity.current);
 	const waitingCapacity = Math.max(0, facility.capacity.waiting);
@@ -576,24 +491,12 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					<ShareIcon className="h-6 w-6" />
 				</button>
 			</header>
-			<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
-				<Badge color={getTypeBadgeColor(facility.type)}>{facility.type}</Badge>
-				<Badge color={facilityStatusBadge.color}>{facilityStatusBadge.label}</Badge>
-				{isPremiumFacility ? (
-					<Badge color="forest" className="inline-flex items-center gap-1.5">
-						<ShieldCheckIcon className="h-4 w-4" />
-						인증 파트너
-					</Badge>
-				) : null}
-				<Badge color={getQualityColor(qualityScore)}>
-					{qualityScore == null
-						? "데이터 품질 미공개"
-						: `데이터 품질 점수 ${qualityScore}점`}
-				</Badge>
-				{!isPremiumFacility ? (
-					<span className="text-sm text-dotori-500">이 시설은 아직 파트너 미가입</span>
-				) : null}
-			</div>
+			<FacilityStatusBadges
+				facilityType={facility.type}
+				status={facility.status}
+				qualityScore={qualityScore}
+				isPremiumFacility={isPremiumFacility}
+			/>
 
 			<div className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -661,83 +564,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					)}
 				</section>
 
-				{showPremiumSection ? (
-					<section className="rounded-3xl bg-white p-5 shadow-sm">
-						<div className="flex items-center justify-between gap-2">
-							<h2 className="text-sm font-semibold text-dotori-900">인증 파트너</h2>
-							{premiumVerifiedAt ? (
-								<p className="text-sm font-medium text-forest-700">
-									검증일: {premiumVerifiedAt}
-								</p>
-							) : null}
-						</div>
-						{premiumDirectorMessage ? (
-							<div className="mt-3 rounded-2xl bg-dotori-50 p-4">
-								<h3 className="mb-1 text-[13px] font-medium text-dotori-700">
-									원장 한마디
-								</h3>
-								<p className="text-sm leading-6 text-dotori-800">
-									{premiumDirectorMessage}
-								</p>
-							</div>
-						) : null}
-
-						{premiumPrograms && premiumPrograms.length > 0 ? (
-							<div className="mt-3">
-								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
-									프로그램
-								</h3>
-								<div className="mt-2 flex flex-wrap gap-2">
-									{premiumPrograms.map((program) => (
-										<Badge key={program} color="forest">
-											{program}
-										</Badge>
-									))}
-								</div>
-							</div>
-						) : null}
-
-						{premiumHighlights && premiumHighlights.length > 0 ? (
-							<div className="mt-3">
-								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
-									하이라이트
-								</h3>
-								<ul className="space-y-1.5">
-									{premiumHighlights.map((highlight) => (
-										<li key={highlight} className="text-sm text-dotori-700">
-											<span className="mr-2 inline-block text-forest-500">✓</span>
-											{highlight}
-										</li>
-									))}
-								</ul>
-							</div>
-						) : null}
-
-						{premiumPhotos && premiumPhotos.length > 0 ? (
-							<div className="mt-3">
-								<h3 className="mb-2 text-[13px] font-medium text-dotori-700">
-									추가 사진
-								</h3>
-								<div className="grid grid-cols-2 gap-2">
-									{premiumPhotos.map((photo, index) => (
-										<div
-											key={`${photo}-${index}`}
-											className="overflow-hidden rounded-xl"
-										>
-											{/* eslint-disable-next-line @next/next/no-img-element */}
-											<img
-												src={photo}
-												alt={`${facility.name} 파트너 시설 사진 ${index + 1}`}
-												loading="lazy"
-												className="h-28 w-full rounded-xl object-cover"
-											/>
-										</div>
-									))}
-								</div>
-							</div>
-						) : null}
-					</section>
-				) : null}
+				<FacilityPremiumSection
+					showPremiumSection={showPremiumSection}
+					premiumVerifiedAt={premiumVerifiedAt}
+					premiumDirectorMessage={premiumDirectorMessage}
+					premiumPrograms={premiumPrograms}
+					premiumHighlights={premiumHighlights}
+					premiumPhotos={premiumPhotos}
+					facilityName={facility.name}
+				/>
 
 				<section className="rounded-3xl bg-white p-5 shadow-sm">
 					<h2 className="text-sm font-semibold text-dotori-900">연락처</h2>
