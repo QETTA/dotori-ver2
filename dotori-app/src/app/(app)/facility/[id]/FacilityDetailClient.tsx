@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, ShareIcon } from "@heroicons/react/24/outline";
+import { motion } from "motion/react";
 
 import { ErrorState } from "@/components/dotori/ErrorState";
 import {
@@ -31,6 +32,7 @@ import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { getFacilityImage } from "@/lib/facility-images";
+import { fadeUp } from "@/lib/motion";
 import type { CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
@@ -90,16 +92,16 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 
 	return (
 		<div className="pb-4">
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 text-dotori-800 dark:text-dotori-100">
 				<button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
-				<h1 className="min-w-0 flex-1 truncate text-base font-semibold text-dotori-900">
+				<h1 className="min-w-0 flex-1 truncate text-base font-semibold text-dotori-900 dark:text-dotori-50">
 					시설 상세정보
 				</h1>
 				<span className="w-11" aria-hidden="true" />
@@ -306,17 +308,17 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 	return (
 		<div className="pb-32">
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-3.5 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 text-dotori-800 dark:text-dotori-100">
 				<button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
 				<div className="min-w-0 max-w-[21rem]">
-					<h1 className="truncate text-lg font-bold leading-6 text-dotori-900">
+					<h1 className="truncate text-lg font-bold leading-6 text-dotori-900 dark:text-dotori-50">
 						{facility.name}
 					</h1>
 				</div>
@@ -324,7 +326,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					type="button"
 					onClick={handleShare}
 					aria-label="공유"
-					className="ml-auto rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="ml-auto rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ShareIcon className="h-6 w-6" />
 				</button>
@@ -336,18 +338,18 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				isPremiumFacility={isPremiumFacility}
 			/>
 
-			<div className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
+			<motion.div {...fadeUp} className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img
 					src={getFacilityImage(facility)}
 					alt={`${facility.name} 사진`}
 					className="h-full w-full object-cover"
 				/>
-				<div className="absolute left-4 top-4 rounded-xl bg-white/90 p-1.5 shadow-sm">
+				<div className="absolute left-4 top-4 rounded-xl bg-white/90 p-1.5 shadow-sm dark:bg-dotori-950/90 dark:shadow-none">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.symbol} alt="도토리" className="h-5 w-5" />
 				</div>
-			</div>
+			</motion.div>
 
 			<div className="mt-4 space-y-4 px-5">
 				<FacilityCoreInfoSections
@@ -389,19 +391,27 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					status={facility.status}
 				/>
 
-				<IsalangCard />
-				<FacilityChecklistCard
-					facilityType={facility.type}
-					checklist={checklist}
-					showChecklist={showChecklist}
-					onToggle={loadChecklist}
-				/>
-				<FacilityReviewsCard
-					posts={relatedPosts}
-					facilityId={facility.id}
-					facilityName={facility.name}
-				/>
-				<FacilityInsights facility={facility} />
+				<motion.div {...fadeUp}>
+					<IsalangCard />
+				</motion.div>
+				<motion.div {...fadeUp}>
+					<FacilityChecklistCard
+						facilityType={facility.type}
+						checklist={checklist}
+						showChecklist={showChecklist}
+						onToggle={loadChecklist}
+					/>
+				</motion.div>
+				<motion.div {...fadeUp}>
+					<FacilityReviewsCard
+						posts={relatedPosts}
+						facilityId={facility.id}
+						facilityName={facility.name}
+					/>
+				</motion.div>
+				<motion.div {...fadeUp}>
+					<FacilityInsights facility={facility} />
+				</motion.div>
 				<FacilityAdmissionGuideSection />
 			</div>
 

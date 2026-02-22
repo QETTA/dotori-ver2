@@ -9,9 +9,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 import { Button } from "@/components/catalyst/button";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
+import { fadeUp } from "@/lib/motion";
 import type { ActionStatus, Facility } from "@/types/dotori";
 
 type FacilityContactSectionProps = {
@@ -59,19 +61,22 @@ export function FacilityContactSection({
 	onCopyAddress,
 }: FacilityContactSectionProps) {
 	return (
-		<section className="rounded-3xl bg-white p-5 shadow-sm">
-			<h2 className="text-sm font-semibold text-dotori-900">연락처</h2>
-			<div className="mt-3 space-y-2 text-sm text-dotori-700">
+		<motion.section
+			{...fadeUp}
+			className="rounded-3xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none"
+		>
+			<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">연락처</h2>
+			<div className="mt-3 space-y-2 text-sm text-dotori-700 dark:text-dotori-200">
 				{phone ? (
 					<a
 						href={`tel:${phone}`}
-						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
+						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<PhoneIcon className="h-5 w-5 text-dotori-500" />
 						<span>{phone}</span>
 					</a>
 				) : (
-					<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500">
+					<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500 dark:border-dotori-800 dark:text-dotori-300">
 						<PhoneIcon className="h-5 w-5" />
 						<span>전화번호 미제공</span>
 					</div>
@@ -81,7 +86,7 @@ export function FacilityContactSection({
 						href={kakaoMapUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="min-h-12 flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
+						className="min-h-12 flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<MapPinIcon className="h-5 w-5 text-dotori-500" />
 						<span className="line-clamp-2">{address}</span>
@@ -102,14 +107,14 @@ export function FacilityContactSection({
 						href={websiteUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
+						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
 						<span>홈페이지 열기</span>
 					</a>
 				)}
 			</div>
-		</section>
+		</motion.section>
 	);
 }
 
@@ -129,9 +134,12 @@ export function FacilityLocationMapSection({
 	const safeLng = Number(lng);
 
 	return (
-		<section className="rounded-3xl bg-white p-5 shadow-sm">
-			<h2 className="text-sm font-semibold text-dotori-900">지도</h2>
-			<div className="mt-3 overflow-hidden rounded-2xl border border-dotori-100">
+		<motion.section
+			{...fadeUp}
+			className="rounded-3xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none"
+		>
+			<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">지도</h2>
+			<div className="mt-3 overflow-hidden rounded-2xl border border-dotori-100 dark:border-dotori-800">
 				<MapEmbed
 					facilities={[
 						{
@@ -150,11 +158,11 @@ export function FacilityLocationMapSection({
 				href={kakaoMapUrl}
 				target="_blank"
 				rel="noopener noreferrer"
-				className="mt-3 inline-flex items-center gap-1 text-sm text-dotori-600 transition-colors hover:text-dotori-700"
+				className="mt-3 inline-flex items-center gap-1 text-sm text-dotori-600 transition-colors hover:text-dotori-700 dark:text-dotori-300 dark:hover:text-dotori-200"
 			>
 				카카오맵에서 자세히 보기
 			</a>
-		</section>
+		</motion.section>
 	);
 }
 
@@ -170,7 +178,7 @@ export function FacilityActionBar({
 	onResetActionStatus,
 }: FacilityActionBarProps) {
 	return (
-		<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl">
+		<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl dark:border-dotori-800 dark:bg-dotori-950/90 dark:shadow-none">
 			<div className="space-y-2">
 				<div className="flex gap-3">
 					<Button
@@ -178,10 +186,10 @@ export function FacilityActionBar({
 						disabled={isTogglingLike}
 						onClick={onToggleLike}
 						aria-label="관심 시설 추가/제거"
-						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97]"
+						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97] dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100"
 					>
 						{liked ? (
-							<HeartSolid className="h-5 w-5 text-red-500" />
+							<HeartSolid className="h-5 w-5 text-dotori-500" />
 						) : (
 							<HeartIcon className="h-5 w-5" />
 						)}
@@ -189,23 +197,23 @@ export function FacilityActionBar({
 					</Button>
 					<div className="flex-1">
 						{actionStatus === "executing" ? (
-							<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
+							<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4 dark:border-dotori-800 dark:bg-dotori-900">
 								<div className="flex h-full items-center justify-center gap-2">
-									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
-									<span className="text-sm font-semibold text-dotori-700">
+									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700 dark:text-dotori-100" />
+									<span className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
 										신청 처리 중...
 									</span>
 								</div>
 							</div>
 						) : actionStatus === "success" ? (
-							<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center">
-								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300" />
-								<p className="mt-2 text-sm font-semibold text-dotori-900">
+							<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center dark:border-forest-800 dark:bg-forest-950/30">
+								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300 dark:text-forest-200" />
+								<p className="mt-2 text-sm font-semibold text-dotori-900 dark:text-dotori-50">
 									대기 신청 완료!
 								</p>
 								<Link
 									href="/my/waitlist"
-									className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900"
+									className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900 dark:text-dotori-200 dark:hover:text-dotori-50"
 								>
 									MY &gt; 대기 현황에서 확인하세요
 								</Link>
@@ -218,7 +226,7 @@ export function FacilityActionBar({
 								</Button>
 							</div>
 						) : actionStatus === "error" ? (
-							<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left">
+							<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left dark:bg-danger/10">
 								<p className="text-sm font-semibold text-danger">
 									{error ?? "대기 신청 중 오류가 발생했어요."}
 								</p>
@@ -248,7 +256,9 @@ export function FacilityActionBar({
 								>
 									{applyActionLabel}
 								</Button>
-								<p className="mt-1 text-xs text-dotori-500">{waitingHintText}</p>
+								<p className="mt-1 text-xs text-dotori-500 dark:text-dotori-300">
+									{waitingHintText}
+								</p>
 							</>
 						)}
 					</div>

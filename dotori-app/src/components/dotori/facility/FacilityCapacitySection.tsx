@@ -1,6 +1,8 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { motion } from "motion/react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { fadeUp } from "@/lib/motion";
 import type { Facility } from "@/types/dotori";
 
 const FEATURE_OPTIONS = [
@@ -60,29 +62,40 @@ export function FacilityInsightSection({
 	waitingCapacity,
 }: FacilityInsightSectionProps) {
 	return (
-		<section className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
+		<motion.section
+			{...fadeUp}
+			className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:from-dotori-950 dark:via-dotori-900/60 dark:to-dotori-950 dark:shadow-none"
+		>
 			<div className="flex items-center justify-between gap-2">
 				<Badge color={status === "available" ? "forest" : "dotori"}>AI 이동 인사이트</Badge>
 				<span className="text-xs font-semibold text-dotori-500">
 					데이터 품질 {qualityScore ?? "-"}점
 				</span>
 			</div>
-			<p className="mt-3 text-sm leading-relaxed text-dotori-700">{aiInsightSummary}</p>
+			<p className="mt-3 text-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
+				{aiInsightSummary}
+			</p>
 			<div className="mt-3 grid grid-cols-3 gap-2">
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
 					<p className="text-xs text-dotori-500">정원</p>
-					<p className="mt-0.5 text-sm font-semibold text-dotori-800">{totalCapacity}명</p>
+					<p className="mt-0.5 text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+						{totalCapacity}명
+					</p>
 				</div>
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
 					<p className="text-xs text-dotori-500">현원</p>
-					<p className="mt-0.5 text-sm font-semibold text-dotori-800">{currentCapacity}명</p>
+					<p className="mt-0.5 text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+						{currentCapacity}명
+					</p>
 				</div>
-				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+				<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 dark:border-dotori-800 dark:bg-dotori-950">
 					<p className="text-xs text-dotori-500">대기</p>
-					<p className="mt-0.5 text-sm font-semibold text-dotori-800">{waitingCapacity}명</p>
+					<p className="mt-0.5 text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+						{waitingCapacity}명
+					</p>
 				</div>
 			</div>
-		</section>
+		</motion.section>
 	);
 }
 
@@ -96,37 +109,51 @@ export function FacilityCapacitySection({
 }: FacilityCapacitySectionProps) {
 	return (
 		<>
-			<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
+			<motion.section
+				{...fadeUp}
+				className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+			>
 				<div className="flex items-center justify-between gap-2">
-					<h2 className="text-sm font-semibold text-dotori-900">정원 현황</h2>
-					<span className="text-sm font-semibold text-dotori-700">{occupancyRate}%</span>
+					<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+						정원 현황
+					</h2>
+					<span className="text-sm font-semibold text-dotori-700 dark:text-dotori-200">
+						{occupancyRate}%
+					</span>
 				</div>
-				<p className="mt-2 text-sm text-dotori-700">
+				<p className="mt-2 text-sm text-dotori-700 dark:text-dotori-200">
 					현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
 				</p>
-				<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100">
+				<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 					<div
 						className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
 						style={{ width: `${occupancyRate}%` }}
 					/>
 				</div>
-			</section>
+			</motion.section>
 
 			{keyStats.length > 0 ? (
-				<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
-					<h2 className="text-sm font-semibold text-dotori-900">주요 지표</h2>
+				<motion.section
+					{...fadeUp}
+					className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+				>
+					<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+						주요 지표
+					</h2>
 					<div className="mt-3 grid grid-cols-2 gap-3">
 						{keyStats.map((stat) => (
 							<div
 								key={stat.label}
-								className="rounded-2xl border border-dotori-100 bg-dotori-50/80 px-3 py-3"
+								className="rounded-2xl border border-dotori-100 bg-dotori-50/80 px-3 py-3 dark:border-dotori-800 dark:bg-dotori-900/60"
 							>
 								<p className="text-xs text-dotori-500">{stat.label}</p>
-								<p className="mt-1 text-base font-semibold text-dotori-800">{stat.value}</p>
+								<p className="mt-1 text-base font-semibold text-dotori-800 dark:text-dotori-100">
+									{stat.value}
+								</p>
 							</div>
 						))}
 					</div>
-				</section>
+				</motion.section>
 			) : null}
 		</>
 	);
@@ -138,8 +165,11 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 	);
 
 	return (
-		<section className="rounded-3xl bg-white p-5 shadow-sm">
-			<h2 className="text-sm font-semibold text-dotori-900">특징</h2>
+		<motion.section
+			{...fadeUp}
+			className="rounded-3xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none"
+		>
+			<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">특징</h2>
 			{activeFeatures.length > 0 ? (
 				<div className="mt-3 flex flex-wrap gap-2">
 					{activeFeatures.map((feature) => (
@@ -149,17 +179,24 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 					))}
 				</div>
 			) : (
-				<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
+				<p className="mt-3 text-sm text-dotori-500 dark:text-dotori-300">
+					표시 가능한 특징이 없어요.
+				</p>
 			)}
-		</section>
+		</motion.section>
 	);
 }
 
 export function FacilityAdmissionGuideSection() {
 	return (
-		<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5">
-			<h2 className="text-sm font-semibold text-dotori-900">입소 설명회 안내</h2>
-			<p className="mt-2 text-sm leading-6 text-dotori-600">
+		<motion.div
+			{...fadeUp}
+			className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5 dark:border-dotori-800 dark:bg-dotori-900"
+		>
+			<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+				입소 설명회 안내
+			</h2>
+			<p className="mt-2 text-sm leading-6 text-dotori-600 dark:text-dotori-300">
 				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
 				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
 			</p>
@@ -167,12 +204,12 @@ export function FacilityAdmissionGuideSection() {
 				href="https://www.childcare.go.kr"
 				target="_blank"
 				rel="noopener noreferrer"
-				className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-sm font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200"
+				className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-sm font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200 dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700"
 			>
 				아이사랑포털에서 확인
 				<ArrowTopRightOnSquareIcon className="h-4 w-4" />
 			</a>
-		</div>
+		</motion.div>
 	);
 }
 

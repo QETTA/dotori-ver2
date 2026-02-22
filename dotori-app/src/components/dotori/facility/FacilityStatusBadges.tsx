@@ -1,4 +1,7 @@
+import { motion } from "motion/react";
+
 import { Badge } from "@/components/catalyst/badge";
+import { fadeUp } from "@/lib/motion";
 import type { Facility } from "@/types/dotori";
 import {
 	getFacilityStatusBadge,
@@ -24,7 +27,7 @@ export function FacilityStatusBadges({
 	const facilityStatusBadge = getFacilityStatusBadge(status);
 
 	return (
-		<div className="mx-5 mt-3 flex flex-wrap gap-1.5">
+		<motion.div {...fadeUp} className="mx-5 mt-3 flex flex-wrap gap-1.5">
 			<Badge color={getTypeBadgeColor(facilityType)}>{facilityType}</Badge>
 			<Badge color={facilityStatusBadge.color}>{facilityStatusBadge.label}</Badge>
 			{isPremiumFacility ? (
@@ -36,8 +39,10 @@ export function FacilityStatusBadges({
 					: `데이터 품질 점수 ${qualityScore}점`}
 			</Badge>
 			{!isPremiumFacility ? (
-				<span className="text-sm text-dotori-500">{UNVERIFIED_FACILITY_HINT}</span>
+				<span className="text-sm text-dotori-500 dark:text-dotori-300">
+					{UNVERIFIED_FACILITY_HINT}
+				</span>
 			) : null}
-		</div>
+		</motion.div>
 	);
 }

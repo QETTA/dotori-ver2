@@ -1,4 +1,7 @@
+import { motion } from "motion/react";
+
 import { Badge } from "@/components/catalyst/badge";
+import { fadeUp } from "@/lib/motion";
 import {
 	VERIFIED_FACILITY_DATE_LABEL,
 	VERIFIED_FACILITY_INFO_LABEL,
@@ -27,27 +30,36 @@ export function FacilityPremiumSection({
 	if (!showPremiumSection) return null;
 
 	return (
-		<section className="rounded-3xl bg-white p-5 shadow-sm">
+		<motion.section
+			{...fadeUp}
+			className="rounded-3xl bg-white p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none"
+		>
 			<div className="flex items-center justify-between gap-2">
-				<h2 className="text-sm font-semibold text-dotori-900">
+				<h2 className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
 					{VERIFIED_FACILITY_INFO_LABEL}
 				</h2>
 				{premiumVerifiedAt ? (
-					<p className="text-sm font-medium text-forest-700">
+					<p className="text-sm font-medium text-forest-700 dark:text-forest-200">
 						{VERIFIED_FACILITY_DATE_LABEL}: {premiumVerifiedAt}
 					</p>
 				) : null}
 			</div>
 			{premiumDirectorMessage ? (
-				<div className="mt-3 rounded-2xl bg-dotori-50 p-4">
-					<h3 className="mb-1 text-sm font-medium text-dotori-700">원장 한마디</h3>
-					<p className="text-sm leading-6 text-dotori-800">{premiumDirectorMessage}</p>
+				<div className="mt-3 rounded-2xl bg-dotori-50 p-4 dark:bg-dotori-900">
+					<h3 className="mb-1 text-sm font-medium text-dotori-700 dark:text-dotori-200">
+						원장 한마디
+					</h3>
+					<p className="text-sm leading-6 text-dotori-800 dark:text-dotori-100">
+						{premiumDirectorMessage}
+					</p>
 				</div>
 			) : null}
 
 			{premiumPrograms && premiumPrograms.length > 0 ? (
 				<div className="mt-3">
-					<h3 className="mb-2 text-sm font-medium text-dotori-700">프로그램</h3>
+					<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
+						프로그램
+					</h3>
 					<div className="mt-2 flex flex-wrap gap-2">
 						{premiumPrograms.map((program) => (
 							<Badge key={program} color="forest">
@@ -60,10 +72,12 @@ export function FacilityPremiumSection({
 
 			{premiumHighlights && premiumHighlights.length > 0 ? (
 				<div className="mt-3">
-					<h3 className="mb-2 text-sm font-medium text-dotori-700">하이라이트</h3>
+					<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
+						하이라이트
+					</h3>
 					<ul className="space-y-1.5">
 						{premiumHighlights.map((highlight) => (
-							<li key={highlight} className="text-sm text-dotori-700">
+							<li key={highlight} className="text-sm text-dotori-700 dark:text-dotori-200">
 								<span className="mr-2 inline-block text-forest-500">✓</span>
 								{highlight}
 							</li>
@@ -74,7 +88,9 @@ export function FacilityPremiumSection({
 
 			{premiumPhotos && premiumPhotos.length > 0 ? (
 				<div className="mt-3">
-					<h3 className="mb-2 text-sm font-medium text-dotori-700">추가 사진</h3>
+					<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
+						추가 사진
+					</h3>
 					<div className="grid grid-cols-2 gap-2">
 						{premiumPhotos.map((photo, index) => (
 							<div key={`${photo}-${index}`} className="overflow-hidden rounded-xl">
@@ -90,6 +106,6 @@ export function FacilityPremiumSection({
 					</div>
 				</div>
 			) : null}
-		</section>
+		</motion.section>
 	);
 }
