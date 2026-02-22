@@ -8,15 +8,12 @@ import { ArrowLeftIcon, ShareIcon } from "@heroicons/react/24/outline";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import {
 	FacilityAdmissionGuideSection,
-	FacilityCapacitySection,
-	FacilityFeatureSection,
-	FacilityInsightSection,
+	FacilityCoreInfoSections,
 } from "@/components/dotori/facility/FacilityCapacitySection";
 import { FacilityChecklistCard } from "@/components/dotori/facility/FacilityChecklistCard";
 import {
 	FacilityActionBar,
-	FacilityContactSection,
-	FacilityLocationMapSection,
+	FacilityContactMapSections,
 } from "@/components/dotori/facility/FacilityContactSection";
 import { FacilityInsights } from "@/components/dotori/facility/FacilityInsights";
 import { FacilityPremiumSection } from "@/components/dotori/facility/FacilityPremiumSection";
@@ -353,25 +350,18 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</div>
 
 			<div className="mt-4 space-y-4 px-5">
-				<FacilityInsightSection
+				<FacilityCoreInfoSections
 					status={facility.status}
 					qualityScore={qualityScore}
 					aiInsightSummary={aiInsightSummary}
-					totalCapacity={totalCapacity}
-					currentCapacity={currentCapacity}
-					waitingCapacity={waitingCapacity}
-				/>
-
-				<FacilityCapacitySection
 					occupancyRate={occupancyRate}
-					currentCapacity={currentCapacity}
 					totalCapacity={totalCapacity}
+					currentCapacity={currentCapacity}
 					waitingCapacity={waitingCapacity}
 					occupancyProgressColor={occupancyProgressColor}
 					keyStats={keyStats}
+					features={facility.features}
 				/>
-
-				<FacilityFeatureSection features={facility.features} />
 
 				<FacilityPremiumSection
 					showPremiumSection={showPremiumSection}
@@ -383,7 +373,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					facilityName={facility.name}
 				/>
 
-				<FacilityContactSection
+				<FacilityContactMapSections
 					phone={facility.phone}
 					address={facility.address}
 					kakaoMapUrl={kakaoMapUrl}
@@ -391,16 +381,12 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					copyableAddress={copyableAddress}
 					copyingAddress={copyingAddress}
 					onCopyAddress={handleCopyAddress}
-				/>
-
-				<FacilityLocationMapSection
 					hasMapLocation={hasMapLocation}
 					facilityId={facility.id}
 					facilityName={facility.name}
 					lat={facility.lat}
 					lng={facility.lng}
 					status={facility.status}
-					kakaoMapUrl={kakaoMapUrl}
 				/>
 
 				<IsalangCard />

@@ -46,6 +46,9 @@ type FacilityActionBarProps = {
 	onResetActionStatus: () => void;
 };
 
+type FacilityContactMapSectionsProps = FacilityContactSectionProps &
+	FacilityLocationMapSectionProps;
+
 export function FacilityContactSection({
 	phone,
 	address,
@@ -252,5 +255,44 @@ export function FacilityActionBar({
 				</div>
 			</div>
 		</div>
+	);
+}
+
+export function FacilityContactMapSections({
+	phone,
+	address,
+	kakaoMapUrl,
+	websiteUrl,
+	copyableAddress,
+	copyingAddress,
+	onCopyAddress,
+	hasMapLocation,
+	facilityId,
+	facilityName,
+	lat,
+	lng,
+	status,
+}: FacilityContactMapSectionsProps) {
+	return (
+		<>
+			<FacilityContactSection
+				phone={phone}
+				address={address}
+				kakaoMapUrl={kakaoMapUrl}
+				websiteUrl={websiteUrl}
+				copyableAddress={copyableAddress}
+				copyingAddress={copyingAddress}
+				onCopyAddress={onCopyAddress}
+			/>
+			<FacilityLocationMapSection
+				hasMapLocation={hasMapLocation}
+				facilityId={facilityId}
+				facilityName={facilityName}
+				lat={lat}
+				lng={lng}
+				status={status}
+				kakaoMapUrl={kakaoMapUrl}
+			/>
+		</>
 	);
 }

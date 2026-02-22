@@ -11,7 +11,7 @@ const FEATURE_OPTIONS = [
 	{ key: "대규모", label: "대규모", color: "forest" },
 ] as const;
 
-type FacilityKeyStat = {
+export type FacilityKeyStat = {
 	label: string;
 	value: string;
 };
@@ -35,6 +35,19 @@ type FacilityInsightSectionProps = {
 };
 
 type FacilityFeatureSectionProps = {
+	features: string[];
+};
+
+type FacilityCoreInfoSectionsProps = {
+	status: Facility["status"];
+	qualityScore?: number;
+	aiInsightSummary: string;
+	occupancyRate: number;
+	currentCapacity: number;
+	totalCapacity: number;
+	waitingCapacity: number;
+	occupancyProgressColor: string;
+	keyStats: FacilityKeyStat[];
 	features: string[];
 };
 
@@ -160,5 +173,40 @@ export function FacilityAdmissionGuideSection() {
 				<ArrowTopRightOnSquareIcon className="h-4 w-4" />
 			</a>
 		</div>
+	);
+}
+
+export function FacilityCoreInfoSections({
+	status,
+	qualityScore,
+	aiInsightSummary,
+	occupancyRate,
+	currentCapacity,
+	totalCapacity,
+	waitingCapacity,
+	occupancyProgressColor,
+	keyStats,
+	features,
+}: FacilityCoreInfoSectionsProps) {
+	return (
+		<>
+			<FacilityInsightSection
+				status={status}
+				qualityScore={qualityScore}
+				aiInsightSummary={aiInsightSummary}
+				totalCapacity={totalCapacity}
+				currentCapacity={currentCapacity}
+				waitingCapacity={waitingCapacity}
+			/>
+			<FacilityCapacitySection
+				occupancyRate={occupancyRate}
+				currentCapacity={currentCapacity}
+				totalCapacity={totalCapacity}
+				waitingCapacity={waitingCapacity}
+				occupancyProgressColor={occupancyProgressColor}
+				keyStats={keyStats}
+			/>
+			<FacilityFeatureSection features={features} />
+		</>
 	);
 }

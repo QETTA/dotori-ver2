@@ -39,6 +39,31 @@ type UseFacilityDetailActionsResult = {
 	closeSheet: () => void;
 };
 
+type UserProfileResponse = {
+	data: {
+		children?: ChildProfile[];
+		interests?: string[];
+	};
+};
+
+type ActionIntentResponse = {
+	data: {
+		intentId: string;
+		preview: Record<string, string>;
+	};
+};
+
+type ActionExecuteResponse = {
+	data: {
+		success: boolean;
+		data?: {
+			waitlistId?: string;
+			position?: number;
+		};
+		error?: string;
+	};
+};
+
 export function useFacilityDetailActions({
 	facilityId,
 	facilityName,
@@ -61,6 +86,44 @@ export function useFacilityDetailActions({
 		() => (facilityStatus === "available" ? "입소 신청" : "대기 신청"),
 		[facilityStatus],
 	);
+	const fetchUserProfile = useCallback(async () => {
+		const res = await apiFetch<UserProfileResponse>("/api/users/me");
+		return {
+			children: res.data.children ?? [],
+			liked: Boolean(res.data.interests?.includes(facilityId)),
+		};
+	}, [facilityId]);
+	const requestApplyIntent = useCallback(
+		async (child?: ChildProfile) =>
+			apiFetch<ActionIntentResponse>("/api/actions/intent", {
+				method: "POST",
+				body: JSON.stringify({
+					actionType: "apply_waiting",
+					params: {
+						facilityId,
+						childName: child?.name,
+						childBirthDate: child?.birthDate,
+					},
+				}),
+			}),
+		[facilityId],
+	);
+	const executeApplyIntent = useCallback(
+		async (currentIntentId: string) =>
+			apiFetch<ActionExecuteResponse>("/api/actions/execute", {
+				method: "POST",
+				body: JSON.stringify({ intentId: currentIntentId }),
+			}),
+		[],
+	);
+	const syncInterest = useCallback(
+		async (nextLiked: boolean) =>
+			apiFetch("/api/users/me/interests", {
+				method: nextLiked ? "POST" : "DELETE",
+				body: JSON.stringify({ facilityId }),
+			}),
+		[facilityId],
+	);
 
 	useEffect(() => {
 		if (status === "loading") {
@@ -73,13 +136,13 @@ export function useFacilityDetailActions({
 			return;
 		}
 
-		apiFetch<{ data: { children?: ChildProfile[]; interests?: string[] } }>("/api/users/me")
-			.then((res) => {
-				setUserChildren(res.data.children ?? []);
-				setLiked(Boolean(res.data.interests?.includes(facilityId)));
+		fetchUserProfile()
+			.then((userProfile) => {
+				setUserChildren(userProfile.children);
+				setLiked(userProfile.liked);
 			})
 			.catch(() => {});
-	}, [facilityId, status]);
+	}, [fetchUserProfile, status]);
 
 	const loadChecklist = useCallback(async () => {
 		if (checklist) {
@@ -106,20 +169,8 @@ export function useFacilityDetailActions({
 		setIntentId(null);
 
 		try {
-			const child = userChildren?.[0];
-			const res = await apiFetch<{
-				data: { intentId: string; preview: Record<string, string> };
-			}>("/api/actions/intent", {
-				method: "POST",
-				body: JSON.stringify({
-					actionType: "apply_waiting",
-					params: {
-						facilityId,
-						childName: child?.name,
-						childBirthDate: child?.birthDate,
-					},
-				}),
-			});
+			const child = userChildren[0];
+			const res = await requestApplyIntent(child);
 
 			setIntentId(res.data.intentId);
 			setSheetPreview(res.data.preview);
@@ -134,7 +185,7 @@ export function useFacilityDetailActions({
 			);
 			setSheetOpen(false);
 		}
-	}, [facilityId, userChildren]);
+	}, [requestApplyIntent, userChildren]);
 
 	const handleConfirm = useCallback(async () => {
 		if (!intentId) return;
@@ -142,19 +193,7 @@ export function useFacilityDetailActions({
 		setError(null);
 
 		try {
-			const res = await apiFetch<{
-				data: {
-					success: boolean;
-					data?: {
-						waitlistId?: string;
-						position?: number;
-					};
-					error?: string;
-				};
-			}>("/api/actions/execute", {
-				method: "POST",
-				body: JSON.stringify({ intentId }),
-			});
+			const res = await executeApplyIntent(intentId);
 
 			if (res.data.success) {
 				const position = res.data.data?.position;
@@ -194,7 +233,7 @@ export function useFacilityDetailActions({
 			);
 			setSheetOpen(false);
 		}
-	}, [addToast, facilityStatus, intentId, router]);
+	}, [addToast, executeApplyIntent, facilityStatus, intentId, router]);
 
 	const toggleLike = useCallback(async () => {
 		if (isTogglingLike) return;
@@ -212,10 +251,7 @@ export function useFacilityDetailActions({
 		setLiked(nextLiked);
 
 		try {
-			await apiFetch("/api/users/me/interests", {
-				method: nextLiked ? "POST" : "DELETE",
-				body: JSON.stringify({ facilityId }),
-			});
+			await syncInterest(nextLiked);
 			addToast({
 				type: "success",
 				message: nextLiked ? "관심 목록에 추가했어요" : "관심 목록에서 삭제했어요",
@@ -225,7 +261,7 @@ export function useFacilityDetailActions({
 		} finally {
 			setIsTogglingLike(false);
 		}
-	}, [addToast, facilityId, isTogglingLike, liked, router, status]);
+	}, [addToast, isTogglingLike, liked, router, status, syncInterest]);
 
 	const resetActionStatus = useCallback(() => {
 		setError(null);
