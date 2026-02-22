@@ -68,7 +68,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 
 	return (
 		<nav
-			className="fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl bg-white/85 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_24px_rgba(200,149,106,0.12)] ring-1 ring-white/60 backdrop-blur-2xl"
+			className="fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl bg-white/85 pb-[env(safe-area-inset-bottom)] shadow-xl ring-1 ring-dotori-100/70 backdrop-blur-2xl"
 			role="navigation"
 			aria-label="메인 내비게이션"
 		>
@@ -76,6 +76,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 				{tabs.map((tab) => {
 					const active = isActive(tab.href);
 					const Icon = active ? tab.activeIcon : tab.icon;
+					const isChat = tab.id === "chat";
 
 					return (
 						<Link
@@ -85,7 +86,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							aria-selected={active}
 							aria-current={active ? "page" : undefined}
 							aria-label={tab.label}
-							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-0.5 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"
+							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"
 						>
 							<motion.span
 								className="pointer-events-none absolute inset-1 rounded-2xl bg-dotori-100/80"
@@ -94,22 +95,30 @@ export const BottomTabBar = memo(function BottomTabBar() {
 								transition={{ type: "spring", stiffness: 400, damping: 30 }}
 							/>
 							<motion.div
-								className="relative z-10"
+								className={cn(
+									"relative z-10 grid h-9 w-9 place-items-center rounded-2xl transition-colors duration-200",
+									isChat && active && "bg-dotori-900 text-white",
+									isChat && !active && "bg-dotori-100 text-dotori-900",
+								)}
 								whileTap={{ scale: 0.85 }}
 								transition={{ type: "spring", stiffness: 500, damping: 25 }}
 							>
 								<Icon
 									className={cn(
 										"h-6 w-6 transition-colors duration-200",
-										active
-											? "text-dotori-900"
-											: "text-dotori-500",
+										isChat
+											? active
+												? "text-white"
+												: "text-dotori-800"
+											: active
+												? "text-dotori-900"
+												: "text-dotori-500",
 									)}
 								/>
 							</motion.div>
 							<span
 								className={cn(
-									"relative z-10 text-[12px] tracking-tight transition-colors duration-200",
+									"relative z-10 text-xs tracking-tight transition-colors duration-200",
 									active
 										? "font-semibold text-dotori-900"
 										: "text-dotori-500",

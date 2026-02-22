@@ -603,7 +603,7 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
+				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
 				style={{ width: "56px", height: "56px" }}
 			>
 				<div className="grid h-full w-full place-items-center text-white">

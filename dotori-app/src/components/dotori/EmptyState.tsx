@@ -5,6 +5,8 @@ import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { Button } from "@/components/catalyst/button";
+import { Surface } from "@/components/dotori/Surface";
 
 /* ── Simplified default export (ErrorFallback-style) ── */
 
@@ -28,27 +30,23 @@ export default function EmptyStateFallback({
 	}
 
 	return (
-		<motion.div className="flex flex-col items-center justify-center px-6 py-10 text-center" {...motionProps}>
-			{/* eslint-disable-next-line @next/next/no-img-element */}
-			<img
-				src={BRAND.emptyState}
-				alt=""
-				aria-hidden="true"
-				className="mb-4 h-20 w-20 opacity-50"
-			/>
-			<h3 className="mb-1 text-base font-semibold text-dotori-900">{title}</h3>
-			{message && (
-				<p className="text-sm text-dotori-900/60 mb-4">{message}</p>
-			)}
-			{actionLabel && onAction && (
-				<button
-					type="button"
-					onClick={onAction}
-					className="rounded-xl bg-dotori-400 px-5 py-2 text-sm font-medium text-white transition-transform active:scale-[0.97]"
-				>
-					{actionLabel}
-				</button>
-			)}
+		<motion.div className="px-5 py-8 text-center" {...motionProps}>
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={BRAND.emptyState}
+					alt=""
+					aria-hidden="true"
+					className="h-20 w-20 opacity-70"
+				/>
+				<h3 className="text-base font-semibold text-dotori-900">{title}</h3>
+				{message ? <p className="text-sm text-dotori-600">{message}</p> : null}
+				{actionLabel && onAction ? (
+					<Button color="dotori" onClick={onAction} className="min-h-11">
+						{actionLabel}
+					</Button>
+				) : null}
+			</Surface>
 		</motion.div>
 	);
 }
@@ -102,52 +100,48 @@ export function EmptyState({
 
 	return (
 		<motion.div
-			className={cn("flex flex-col items-center justify-center px-6 py-10 text-center")}
+			className={cn("px-5 py-8 text-center")}
 			{...motionProps}
 		>
-			{resolvedIcon ? (
-				<div className="mb-5 rounded-full bg-dotori-100 p-6 text-dotori-500">
-					{resolvedIcon}
-				</div>
-			) : (
-				// eslint-disable-next-line @next/next/no-img-element
-				<img
-					src={BRAND.emptyState}
-					alt=""
-					aria-hidden="true"
-					className="mb-4 h-24 w-24"
-				/>
-			)}
-			<h3 className="text-base font-semibold text-dotori-800">{title}</h3>
-			{resolvedDescription && (
-				<p className="mt-2 max-w-xs text-sm leading-relaxed text-dotori-500">
-					{resolvedDescription}
-				</p>
-			)}
-			{actionLabel && (
-				<a
-					href={actionHref}
-					onClick={
-						onAction
-							? (e) => {
-									e.preventDefault();
-									onAction();
-								}
-							: undefined
-					}
-					className="mt-4 inline-block rounded-3xl bg-dotori-400 px-6 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
-				>
-					{actionLabel}
-				</a>
-			)}
-			{secondaryLabel && secondaryHref && (
-				<Link
-					href={secondaryHref}
-					className="mt-3 py-2 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
-				>
-					{secondaryLabel}
-				</Link>
-			)}
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+				{resolvedIcon ? (
+					<div className="rounded-full bg-dotori-100 p-5 text-dotori-700">
+						{resolvedIcon}
+					</div>
+				) : (
+					// eslint-disable-next-line @next/next/no-img-element
+					<img
+						src={BRAND.emptyState}
+						alt=""
+						aria-hidden="true"
+						className="h-24 w-24 opacity-80"
+					/>
+				)}
+				<h3 className="text-base font-semibold text-dotori-900">{title}</h3>
+				{resolvedDescription ? (
+					<p className="max-w-xs text-sm leading-relaxed text-dotori-600">
+						{resolvedDescription}
+					</p>
+				) : null}
+				{actionLabel ? (
+					<Button
+						color="dotori"
+						href={actionHref}
+						onClick={onAction}
+						className="min-h-11"
+					>
+						{actionLabel}
+					</Button>
+				) : null}
+				{secondaryLabel && secondaryHref ? (
+					<Link
+						href={secondaryHref}
+						className="text-sm font-medium text-dotori-600 underline decoration-dotori-200 underline-offset-4 transition-colors hover:text-dotori-800"
+					>
+						{secondaryLabel}
+					</Link>
+				) : null}
+			</Surface>
 		</motion.div>
 	);
 }

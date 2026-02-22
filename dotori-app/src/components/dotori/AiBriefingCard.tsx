@@ -18,24 +18,25 @@ import { cn } from "@/lib/utils";
 import type { DataSource } from "@/types/dotori";
 import { Skeleton } from "./Skeleton";
 import { SourceChip } from "./SourceChip";
+import { Surface } from "./Surface";
 
 const SENTIMENT_STYLES = {
 	positive: {
 		label: "긍정",
 		icon: CheckCircleIcon,
-		wrap: "bg-emerald-50 ring-emerald-200",
-		iconClass: "text-emerald-700",
+		wrap: "bg-forest-50 ring-forest-200",
+		iconClass: "text-forest-700",
 	},
 	neutral: {
 		label: "중립",
 		icon: MinusCircleIcon,
-		wrap: "bg-slate-50 ring-slate-200",
-		iconClass: "text-slate-700",
+		wrap: "bg-dotori-50 ring-dotori-200",
+		iconClass: "text-dotori-700",
 	},
 	caution: {
 		label: "주의",
 		icon: ExclamationTriangleIcon,
-		wrap: "bg-warning/15 ring-warning/35",
+		wrap: "bg-dotori-100/60 ring-warning/35",
 		iconClass: "text-warning",
 	},
 } as const;
@@ -99,43 +100,49 @@ export function AiBriefingCard({
 	const labeledChildren = useMemo(() => addA11yLabelToInsightList(children), [children]);
 
 	return (
-		<div
+		<Surface
 			className={cn(
-				"relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-white to-amber-50/40 p-5 shadow-sm ring-1 ring-dotori-200/20",
-				"motion-safe:animate-in motion-safe:fade-in duration-300",
+				"p-5 motion-safe:animate-in motion-safe:fade-in duration-300",
+				"bg-gradient-to-br from-white via-white to-dotori-50/70",
 			)}
-			>
-				{/* 브랜드 워터마크 */}
-				<div className="pointer-events-none absolute inset-0">
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={BRAND.symbol}
-						alt=""
-					className="absolute -right-4 -bottom-4 h-36 w-36 opacity-[0.08]"
+		>
+			{/* 브랜드 워터마크 */}
+			<div className="pointer-events-none absolute inset-0">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={BRAND.watermark}
+					alt=""
+					aria-hidden="true"
+					className="absolute -right-8 -bottom-8 h-40 w-40 opacity-10"
 				/>
 				<div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
 			</div>
-			<div className="relative z-10">
-				<div className="mb-2 flex items-center gap-2">
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img src={BRAND.symbol} alt="" className="h-7 w-7" />
-					<span className="text-[15px] font-semibold text-dotori-800">오늘의 이동 브리핑</span>
+
+			<div className="relative">
+				<div className="flex items-start justify-between gap-3">
+					<div className="flex items-center gap-2">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-7 w-7" />
+						<div>
+							<p className="text-sm font-semibold text-dotori-900">오늘의 이동 브리핑</p>
+							<p className="mt-0.5 text-xs text-dotori-600">조건에 맞는 시설부터 빠르게 정리했어요</p>
+						</div>
+					</div>
+					<SourceChip source={sourceLabel} updatedAt={updatedAt} freshness="realtime" />
 				</div>
-				<div className="prose prose-sm max-w-none">
+
+				<div className="mt-3">
 					{hasMessage ? (
-						<p className="text-[15px] leading-relaxed text-dotori-700">{message}</p>
+						<p className="text-sm leading-relaxed text-dotori-800">{message}</p>
 					) : hasInsightItems ? (
-						<ul
-							aria-label="insight 항목 리스트"
-							className="mt-2 space-y-2 text-[14px] text-dotori-700"
-						>
+						<ul aria-label="insight 항목 리스트" className="space-y-2 text-sm text-dotori-800">
 							{insightItems.map((insight, index) => {
 								const style = SENTIMENT_STYLES[insight.sentiment];
 								const Icon = style.icon;
 								return (
 									<li
 										key={`${insight.label}-${index}`}
-										className="flex items-start gap-1.5"
+										className="flex items-start gap-2"
 										aria-label={`인사이트 항목 ${index + 1}: ${style.label}. ${insight.label}`}
 									>
 										<div
@@ -151,9 +158,7 @@ export function AiBriefingCard({
 											<p className="leading-relaxed">
 												{insight.label}
 												{insight.source ? (
-													<span className="ml-1 text-[12px] text-dotori-500">
-														({insight.source})
-													</span>
+													<span className="ml-1 text-xs text-dotori-500">({insight.source})</span>
 												) : null}
 											</p>
 										</div>
@@ -162,7 +167,7 @@ export function AiBriefingCard({
 							})}
 						</ul>
 					) : children ? (
-						<div className="prose prose-sm max-w-none">{labeledChildren}</div>
+						<div>{labeledChildren}</div>
 					) : (
 						<div className="space-y-2">
 							<Skeleton variant="text" />
@@ -171,14 +176,7 @@ export function AiBriefingCard({
 						</div>
 					)}
 				</div>
-				<div className="mt-3">
-					<SourceChip
-						source={sourceLabel}
-						updatedAt={updatedAt}
-						freshness="realtime"
-					/>
-				</div>
 			</div>
-		</div>
+		</Surface>
 	);
 }

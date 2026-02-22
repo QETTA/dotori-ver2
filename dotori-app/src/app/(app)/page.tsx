@@ -15,6 +15,7 @@ import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { Surface } from "@/components/dotori/Surface";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { generateNBAs } from "@/lib/engine/nba-engine";
@@ -171,7 +172,7 @@ export default function HomePage() {
 				<div className="mb-3 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
-					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1">
+					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
 					</div>
@@ -184,11 +185,12 @@ export default function HomePage() {
 				</Text>
 				<div className="mt-4 grid grid-cols-3 gap-2">
 					{statusCards.map((card) => (
-						<div
+						<Surface
 							key={card.label}
-							className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 shadow-sm"
+							className="px-3 py-2.5"
+							aria-label={card.label}
 						>
-							<Text className="text-[11px] text-dotori-500">{card.label}</Text>
+							<Text className="text-xs font-medium text-dotori-600">{card.label}</Text>
 							<Text
 								className={cn(
 									"mt-0.5 text-sm font-semibold",
@@ -197,7 +199,7 @@ export default function HomePage() {
 							>
 								{card.value}
 							</Text>
-						</div>
+						</Surface>
 					))}
 				</div>
 			</header>
@@ -213,42 +215,55 @@ export default function HomePage() {
 							handleOpenChat();
 						}
 					}}
-					className="relative overflow-hidden rounded-3xl bg-dotori-900 p-4"
+					className="group"
 				>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={BRAND.watermark}
-						alt=""
-						aria-hidden="true"
-						className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 opacity-15"
-					/>
-					<Text className="text-sm font-semibold text-white">AI 토리</Text>
-					<div className="mt-1 flex items-center gap-2">
+					<Surface
+						tone="brand"
+						className="p-4 transition-transform duration-200 group-active:scale-[0.99]"
+					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.symbolMonoWhite} alt="" aria-hidden="true" className="h-4 w-4 opacity-90" />
-						<Text className="text-xs text-dotori-100">이동 고민 상담 · 빈자리 우선 탐색</Text>
-					</div>
-					<Fieldset className="mt-3">
-						<Field>
-							<Input
-								readOnly
-								value=""
-								placeholder={AI_PLACEHOLDER}
-								aria-label="토리에게 고민 입력"
+						<img
+							src={BRAND.watermark}
+							alt=""
+							aria-hidden="true"
+							className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 opacity-10"
+						/>
+						<Text className="text-sm font-semibold text-white">AI 토리</Text>
+						<div className="mt-1 flex items-center gap-2">
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img
+								src={BRAND.symbolMonoWhite}
+								alt=""
+								aria-hidden="true"
+								className="h-4 w-4 opacity-90"
 							/>
-						</Field>
-					</Fieldset>
-					<div className="mt-3 flex flex-wrap gap-2">
-						{AI_CHIPS.map((chip) => (
-							<Link
-								key={chip}
-								href={`/chat?prompt=${encodeURIComponent(chip)}`}
-								onClick={(event) => event.stopPropagation()}
-							>
-								<Badge color="dotori">{chip}</Badge>
-							</Link>
-						))}
-					</div>
+							<Text className="text-xs text-dotori-100">
+								이동 고민 상담 · 빈자리 우선 탐색
+							</Text>
+						</div>
+						<Fieldset className="mt-3">
+							<Field>
+								<Input
+									readOnly
+									value=""
+									placeholder={AI_PLACEHOLDER}
+									aria-label="토리에게 고민 입력"
+									className="min-h-12 rounded-2xl border-white/10 bg-white/10 text-white placeholder:text-dotori-100/80 focus:bg-white/15"
+								/>
+							</Field>
+						</Fieldset>
+						<div className="mt-3 flex flex-wrap gap-2">
+							{AI_CHIPS.map((chip) => (
+								<Link
+									key={chip}
+									href={`/chat?prompt=${encodeURIComponent(chip)}`}
+									onClick={(event) => event.stopPropagation()}
+								>
+									<Badge color="dotori">{chip}</Badge>
+								</Link>
+							))}
+						</div>
+					</Surface>
 				</div>
 			</section>
 
@@ -297,7 +312,7 @@ export default function HomePage() {
 						))}
 					</div>
 				) : (
-					<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-3 text-center shadow-[0_8px_24px_rgba(200,149,106,0.08)]">
+					<Surface className="px-4 py-4 text-center">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.emptyState}
@@ -305,10 +320,18 @@ export default function HomePage() {
 							aria-hidden="true"
 							className="mx-auto h-14 w-14"
 						/>
-						<Heading level={3} className="mt-1 text-sm font-semibold text-dotori-800">
+						<Heading level={3} className="mt-2 text-base font-semibold text-dotori-900">
 							현재 보이는 빈자리가 없어요
 						</Heading>
-					</div>
+						<Text className="mt-1 text-sm text-dotori-600">
+							조건을 조정하거나 잠시 후 다시 확인해보세요
+						</Text>
+						<div className="mt-3">
+							<Button color="dotori" href="/explore" className="min-h-11">
+								탐색 조건 조정하기
+							</Button>
+						</div>
+					</Surface>
 				)}
 			</section>
 

@@ -1,5 +1,7 @@
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/catalyst/button";
+import { Surface } from "@/components/dotori/Surface";
 
 export function ErrorState({
 	message,
@@ -26,31 +28,30 @@ export function ErrorState({
 	return (
 		<div
 			className={cn(
-				"flex flex-col items-center justify-center px-6 py-10 text-center",
+				"px-5 py-8 text-center",
 				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-300",
 			)}
 		>
-			{/* eslint-disable-next-line @next/next/no-img-element */}
-			<img
-				src={illustrations[variant]}
-				alt=""
-				aria-hidden="true"
-				className="mb-4 h-24 w-24"
-			/>
-			<p className="text-base font-semibold text-dotori-800">{message}</p>
-			{(detail || defaultDetails[variant]) && (
-				<p className="mt-2 max-w-xs text-sm leading-relaxed text-dotori-500">
-					{detail || defaultDetails[variant]}
-				</p>
-			)}
-			{action && (
-				<button
-					onClick={action.onClick}
-					className="mt-4 rounded-3xl bg-dotori-400 px-6 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
-				>
-					{action.label}
-				</button>
-			)}
+			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-6">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={illustrations[variant]}
+					alt=""
+					aria-hidden="true"
+					className="h-24 w-24 opacity-80"
+				/>
+				<p className="text-base font-semibold text-dotori-900">{message}</p>
+				{(detail || defaultDetails[variant]) ? (
+					<p className="max-w-xs text-sm leading-relaxed text-dotori-600">
+						{detail || defaultDetails[variant]}
+					</p>
+				) : null}
+				{action ? (
+					<Button color="dotori" onClick={action.onClick} className="min-h-11">
+						{action.label}
+					</Button>
+				) : null}
+			</Surface>
 		</div>
 	);
 }

@@ -147,6 +147,6 @@ export const config = {
      * - _next (Next.js internals)
      * - static files (favicon, brand assets, etc.)
 	 */
-	"/((?!_next/static|_next/image|favicon\\.ico|brand/).*)",
+	"/((?!_next/|favicon\\.ico|brand/).*)",
 	],
 };
