@@ -93,7 +93,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 									className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
 									style={{ animationFillMode: "both" }}
 								>
-									<Link href={`/facility/${facility.id}`}>
+									<Link href={`/facility/${facility.id}`} className="block min-h-[44px]">
 										<FacilityCard facility={facility} compact />
 									</Link>
 								</div>
@@ -104,7 +104,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 										type="button"
 										disabled={isActionLoading}
 										onClick={() => onRegisterInterest(facility.id)}
-										className="min-h-[44px] text-sm"
+										className="min-h-[44px] text-sm text-dotori-700"
 									>
 										<HeartIcon className="h-3.5 w-3.5" />
 										관심

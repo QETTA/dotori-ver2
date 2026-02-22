@@ -131,7 +131,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 				</div>
 			</div>
 
-			<Heading level={2} className="text-[31px] leading-tight tracking-tight text-dotori-900">
+			<Heading level={2} className="text-xl leading-tight tracking-tight text-dotori-900">
 				이동 고민이라면, 빈자리 먼저 확인해요
 			</Heading>
 			<Text className="mt-1.5 text-sm text-dotori-600">
@@ -220,7 +220,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleFilters}
-						className="relative inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm shadow-sm"
+						className="relative inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm text-dotori-700 shadow-sm"
 					>
 						<AdjustmentsHorizontalIcon className="h-4 w-4" />
 						필터
@@ -234,7 +234,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleMap}
-						className="inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm shadow-sm"
+						className="inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm text-dotori-700 shadow-sm"
 					>
 						{showMap ? (
 							<ListBulletIcon className="h-4 w-4" />
@@ -358,7 +358,11 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 						{activeFilterCount > 0 ? (
 							<div className="mt-3 flex items-center justify-between gap-2">
-								<Button plain={true} onClick={onResetFilters} className="min-h-[44px] text-sm">
+								<Button
+									plain={true}
+									onClick={onResetFilters}
+									className="min-h-[44px] text-sm text-dotori-700"
+								>
 									필터 초기화
 								</Button>
 							</div>
