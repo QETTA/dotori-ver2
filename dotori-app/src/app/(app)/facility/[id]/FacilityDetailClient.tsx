@@ -196,6 +196,8 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		Number.isFinite(facility.lat) &&
 		Number.isFinite(facility.lng) &&
 		!(facility.lat === 0 && facility.lng === 0);
+	const hasFacilityImage = Boolean(facility.images?.[0]);
+	const facilityImageUrl = getFacilityImage(facility);
 	const waitingHintText = useMemo(() => getWaitingHintText(facility), [facility]);
 	const totalCapacity = Math.max(0, facility.capacity.total);
 	const currentCapacity = Math.max(0, facility.capacity.current);
@@ -338,13 +340,35 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				isPremiumFacility={isPremiumFacility}
 			/>
 
-			<motion.div {...fadeUp} className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl">
-				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img
-					src={getFacilityImage(facility)}
-					alt={`${facility.name} 사진`}
-					className="h-full w-full object-cover"
-				/>
+			<motion.div
+				{...fadeUp}
+				className="relative mx-5 mt-4 h-52 overflow-hidden rounded-3xl border border-dotori-100 bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950"
+			>
+				{hasFacilityImage ? (
+					// eslint-disable-next-line @next/next/no-img-element
+					<img
+						src={facilityImageUrl}
+						alt={`${facility.name} 사진`}
+						className="h-full w-full object-cover"
+					/>
+				) : (
+					<div className="absolute inset-0 bg-dotori-100 dark:bg-dotori-900">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.watermark}
+							alt=""
+							className="pointer-events-none absolute left-1/2 top-1/2 w-80 -translate-x-1/2 -translate-y-1/2 opacity-25 dark:opacity-20 sm:w-96"
+						/>
+						<div className="absolute inset-0 flex flex-col justify-end gap-1 p-4">
+							<p className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+								사진 준비 중이에요
+							</p>
+							<p className="text-xs text-dotori-600 dark:text-dotori-200">
+								대신 정원/연락처 등 핵심 정보를 먼저 확인해보세요.
+							</p>
+						</div>
+					</div>
+				)}
 				<div className="absolute left-4 top-4 rounded-xl bg-white/90 p-1.5 shadow-sm dark:bg-dotori-950/90 dark:shadow-none">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.symbol} alt="도토리" className="h-5 w-5" />

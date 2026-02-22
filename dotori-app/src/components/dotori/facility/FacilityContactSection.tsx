@@ -70,7 +70,7 @@ export function FacilityContactSection({
 				{phone ? (
 					<a
 						href={`tel:${phone}`}
-						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
+						className="flex min-h-12 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<PhoneIcon className="h-5 w-5 text-dotori-500" />
 						<span>{phone}</span>
@@ -86,7 +86,7 @@ export function FacilityContactSection({
 						href={kakaoMapUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="min-h-12 flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
+						className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<MapPinIcon className="h-5 w-5 text-dotori-500" />
 						<span className="line-clamp-2">{address}</span>
@@ -96,7 +96,7 @@ export function FacilityContactSection({
 						type="button"
 						onClick={onCopyAddress}
 						disabled={!copyableAddress || copyingAddress}
-						className="min-h-12 min-w-28 px-3"
+						className="min-h-12 min-w-28 px-3 active:scale-[0.97]"
 					>
 						<ClipboardDocumentIcon className="h-5 w-5" />
 						주소 복사
@@ -107,7 +107,7 @@ export function FacilityContactSection({
 						href={websiteUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
+						className="flex min-h-12 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 					>
 						<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
 						<span>홈페이지 열기</span>
@@ -158,7 +158,7 @@ export function FacilityLocationMapSection({
 				href={kakaoMapUrl}
 				target="_blank"
 				rel="noopener noreferrer"
-				className="mt-3 inline-flex items-center gap-1 text-sm text-dotori-600 transition-colors hover:text-dotori-700 dark:text-dotori-300 dark:hover:text-dotori-200"
+				className="mt-3 inline-flex min-h-11 items-center gap-1 rounded-xl px-3 py-2.5 text-sm font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-50 hover:text-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-900 dark:hover:text-dotori-50"
 			>
 				카카오맵에서 자세히 보기
 			</a>
@@ -220,7 +220,7 @@ export function FacilityActionBar({
 								<Button
 									plain={true}
 									onClick={onResetActionStatus}
-									className="mt-2 min-h-10 w-full rounded-2xl"
+									className="mt-2 min-h-11 w-full rounded-2xl"
 								>
 									확인
 								</Button>
@@ -234,14 +234,14 @@ export function FacilityActionBar({
 									<Button
 										plain={true}
 										onClick={onResetActionStatus}
-										className="min-h-10 flex-1 rounded-2xl"
+										className="min-h-11 flex-1 rounded-2xl"
 									>
 										닫기
 									</Button>
 									<Button
 										color="dotori"
 										onClick={onApplyClick}
-										className="min-h-10 flex-1 rounded-2xl"
+										className="min-h-11 flex-1 rounded-2xl"
 									>
 										다시 신청
 									</Button>
@@ -252,7 +252,7 @@ export function FacilityActionBar({
 								<Button
 									color="dotori"
 									onClick={onApplyClick}
-									className="min-h-12 w-full py-3 text-base font-semibold"
+									className="min-h-12 w-full py-3 text-base font-semibold active:scale-[0.97]"
 								>
 									{applyActionLabel}
 								</Button>
