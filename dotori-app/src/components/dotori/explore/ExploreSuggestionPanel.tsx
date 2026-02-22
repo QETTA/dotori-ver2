@@ -16,7 +16,7 @@ export function ExploreSuggestionPanel({
   onSelectTerm,
 }: ExploreSuggestionPanelProps) {
   return (
-    <div className="absolute top-full right-0 left-0 z-30 mt-2 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-dotori-100 duration-150 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1">
+    <div className="absolute top-full right-0 left-0 z-30 mt-2 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-dotori-100 duration-150 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1 dark:bg-dotori-950 dark:shadow-none dark:ring-dotori-800">
       {recentSearches.length > 0 ? (
         <div className="mb-4">
           <div className="mb-2.5 flex items-center justify-between">
@@ -40,9 +40,9 @@ export function ExploreSuggestionPanel({
                 type="button"
                 onClick={() => onSelectTerm(term)}
                 plain={true}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-2 text-sm text-dotori-700 transition-all hover:bg-dotori-100"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-2 text-sm text-dotori-700 transition-all hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-100 dark:hover:bg-dotori-800"
               >
-                <ClockIcon className="h-3.5 w-3.5 text-dotori-300" />
+                <ClockIcon className="h-3.5 w-3.5 text-dotori-300 dark:text-dotori-600" />
                 {term}
               </Button>
             ))}
@@ -62,7 +62,7 @@ export function ExploreSuggestionPanel({
               type="button"
               plain={true}
               onClick={() => onSelectTerm(term)}
-              className="inline-flex min-h-[44px] items-center rounded-full bg-white px-3 py-2 text-sm font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all hover:bg-dotori-50 hover:text-dotori-700"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-white px-3 py-2 text-sm font-medium text-dotori-500 shadow-sm ring-1 ring-dotori-100 transition-all hover:bg-dotori-50 hover:text-dotori-700 dark:bg-dotori-950 dark:shadow-none dark:ring-dotori-800 dark:hover:bg-dotori-900 dark:hover:text-dotori-50"
             >
               {term}
             </Button>

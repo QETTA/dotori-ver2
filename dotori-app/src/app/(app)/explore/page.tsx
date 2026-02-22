@@ -20,7 +20,7 @@ export default function ExplorePage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-[calc(100dvh-8rem)] flex-col">
+				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
 					<div className="px-5 pt-4">
 						<Skeleton variant="facility-card" count={6} />
 					</div>
@@ -59,7 +59,7 @@ function ExploreContent() {
 	const resultInteraction = useExploreResultInteraction();
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col">
+		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
 			<ExploreSearchHeader state={headerState} actions={headerActions} />
 
 			<ExploreMapSection mapState={mapState} />

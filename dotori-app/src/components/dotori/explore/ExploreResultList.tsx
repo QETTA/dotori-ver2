@@ -1,6 +1,7 @@
 "use client";
 
 import { HeartIcon } from "@heroicons/react/24/solid";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { memo } from "react";
 import { Button } from "@/components/catalyst/button";
@@ -9,6 +10,7 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { stagger } from "@/lib/motion";
 import type {
 	ExploreResultActions,
 	ExploreResultInteraction,
@@ -44,7 +46,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 	const hasResults = facilities.length > 0;
 
 	return (
-		<div className="flex-1 overflow-y-auto px-5 pt-3">
+		<div className="flex-1 overflow-y-auto bg-dotori-50 px-5 pt-3 dark:bg-dotori-950">
 			{isLoading && !isTimeout ? (
 				<div className="pb-4">
 					<Skeleton variant="facility-card" count={6} />
@@ -68,44 +70,41 @@ export const ExploreResultList = memo(function ExploreResultList({
 			) : null}
 
 			{!isLoading && !error && hasResults ? (
-				<div className="space-y-3 pb-4">
-					<AiBriefingCard
-						message={
-							hasSearchInput
-								? `"${debouncedSearch}" 이동 고민 기준으로 이동 가능한 시설부터 정렬했어요.`
-								: "지도와 이동 수요 우선순위 기준으로 시설을 정렬했어요."
-						}
-						source="AI분석"
-					/>
+				<motion.ul {...stagger.fast.container} className="space-y-3 pb-4">
+					<motion.li {...stagger.fast.item}>
+						<AiBriefingCard
+							message={
+								hasSearchInput
+									? `"${debouncedSearch}" 이동 고민 기준으로 이동 가능한 시설부터 정렬했어요.`
+									: "지도와 이동 수요 우선순위 기준으로 시설을 정렬했어요."
+							}
+							source="AI분석"
+						/>
+					</motion.li>
 
-					{facilities.map((facility, index) => {
+					{facilities.map((facility) => {
 						const isActionLoading =
 							loadingAction === `interest-${facility.id}` ||
 							loadingAction === `waiting-${facility.id}`;
 						const isAvailable = facility.status === "available";
 
 						return (
-							<div
+							<motion.li
 								key={facility.id}
+								{...stagger.fast.item}
 								className="space-y-2"
-								style={{ animationDelay: `${index * 50}ms` }}
 							>
-								<div
-									className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
-									style={{ animationFillMode: "both" }}
-								>
-									<Link href={`/facility/${facility.id}`} className="block min-h-[44px]">
-										<FacilityCard facility={facility} compact />
-									</Link>
-								</div>
+								<Link href={`/facility/${facility.id}`} className="block min-h-[44px]">
+									<FacilityCard facility={facility} compact />
+								</Link>
 
-								<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2">
+								<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2 dark:border-dotori-800/60">
 									<Button
 										plain={true}
 										type="button"
 										disabled={isActionLoading}
 										onClick={() => onRegisterInterest(facility.id)}
-										className="min-h-[44px] text-sm text-dotori-700"
+										className="min-h-[44px] text-sm text-dotori-700 dark:text-dotori-100"
 									>
 										<HeartIcon className="h-3.5 w-3.5" />
 										관심
@@ -132,12 +131,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 										</Button>
 									)}
 								</div>
-							</div>
+							</motion.li>
 						);
 					})}
 
 					{hasMore ? (
-						<div className="pt-2">
+						<motion.li {...stagger.fast.item} className="pt-2">
 							<Button
 								color="dotori"
 								onClick={onLoadMore}
@@ -146,9 +145,9 @@ export const ExploreResultList = memo(function ExploreResultList({
 							>
 								{isLoadingMore ? "불러오는 중..." : "더 보기"}
 							</Button>
-						</div>
+						</motion.li>
 					) : null}
-				</div>
+				</motion.ul>
 			) : null}
 
 			{!isLoading && !error && !isTimeout && !hasResults ? (
