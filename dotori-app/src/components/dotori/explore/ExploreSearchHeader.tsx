@@ -3,8 +3,8 @@
 import {
 	AdjustmentsHorizontalIcon,
 	ListBulletIcon,
-	MapIcon,
 	MagnifyingGlassIcon,
+	MapIcon,
 	XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { MapPinIcon } from "@heroicons/react/24/solid";
@@ -145,7 +145,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							onChange={(event) => onSearchInputChange(event.target.value)}
 							onFocus={() => setIsSearchFocused(true)}
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
-							className="w-full rounded-3xl bg-white/70 py-3 pl-11 pr-10 text-base ring-1 ring-dotori-200/40 outline-none transition-all focus:ring-2 focus:ring-dotori-300"
+							className="min-h-[44px] w-full rounded-3xl bg-white/70 py-3 pl-11 pr-10 text-base ring-1 ring-dotori-200/40 outline-none transition-all focus:ring-2 focus:ring-dotori-300"
 							aria-label="시설 검색"
 							name="q"
 						/>
@@ -155,7 +155,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								plain={true}
 								onClick={onClearSearch}
 								aria-label="검색어 지우기"
-								className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-dotori-500"
+								className="absolute right-3 top-1/2 inline-flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center text-dotori-500"
 							>
 								<XMarkIcon className="h-5 w-5" />
 							</Button>
@@ -169,7 +169,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							onClick={onUseCurrentLocation}
 							disabled={isGpsLoading}
 							className={cn(
-								"inline-flex items-center gap-1.5 rounded-full border border-dotori-200 px-3 py-2 text-sm font-medium text-dotori-600",
+								"inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-dotori-200 px-3 py-2 text-sm font-medium text-dotori-600",
 								isGpsLoading && "opacity-70",
 							)}
 						>
@@ -191,7 +191,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									type="button"
 									plain={true}
 									onClick={() => handleSelectTerm(chip)}
-									className="rounded-full border border-dotori-100 bg-dotori-50 px-3 py-1.5 text-sm text-dotori-700"
+									className="min-h-[44px] rounded-full border border-dotori-100 bg-dotori-50 px-3 py-1.5 text-sm text-dotori-700"
 								>
 									{chip}
 								</Button>
@@ -217,7 +217,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleFilters}
-						className="relative inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm"
+						className="relative inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-2 text-sm"
 					>
 						<AdjustmentsHorizontalIcon className="h-4 w-4" />
 						필터
@@ -231,7 +231,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleMap}
-						className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm"
+						className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-2 text-sm"
 					>
 						{showMap ? (
 							<ListBulletIcon className="h-4 w-4" />
@@ -248,7 +248,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						onClick={onToggleToOnly}
 						aria-pressed={toOnly}
 						className={cn(
-							"inline-flex w-full items-center gap-1 rounded-full px-4 py-2.5 text-sm transition-all",
+							"inline-flex min-h-[44px] w-full items-center gap-1 rounded-full px-4 py-2.5 text-sm transition-all",
 							toOnly
 								? "bg-forest-100 font-semibold text-forest-900 ring-2 ring-forest-300/80"
 								: "bg-forest-50 text-forest-700",
@@ -281,7 +281,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 											onClick={() => onToggleType(type)}
 											aria-pressed={isSelectedType}
 											className={cn(
-												"rounded-full px-4 py-2 text-sm transition-all",
+												"min-h-[44px] rounded-full px-4 py-2 text-sm transition-all",
 												isSelectedType
 													? "bg-dotori-900 text-white"
 													: "bg-white text-dotori-600",
@@ -301,6 +301,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									<Select
 										value={selectedSido}
 										onChange={(event) => onSidoChange(event.target.value)}
+										className="min-h-[44px]"
 									>
 										<option value="">{isLoadingSido ? "시도 불러오는 중" : "시도 선택"}</option>
 										{sidoOptions.map((sido) => (
@@ -315,6 +316,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										value={selectedSigungu}
 										disabled={!selectedSido || isLoadingSigungu}
 										onChange={(event) => onSigunguChange(event.target.value)}
+										className="min-h-[44px]"
 									>
 										<option value="">
 											{isLoadingSigungu ? "구군 불러오는 중" : "구/군 선택"}
@@ -339,7 +341,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										plain={true}
 										onClick={() => onSortChange(option.key)}
 										className={cn(
-											"rounded-full px-4 py-2 text-sm transition-all",
+											"min-h-[44px] rounded-full px-4 py-2 text-sm transition-all",
 											sortBy === option.key
 												? "bg-dotori-900 text-white"
 												: "bg-white text-dotori-600",
@@ -353,7 +355,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 						{activeFilterCount > 0 ? (
 							<div className="mt-3 flex items-center justify-between gap-2">
-								<Button plain={true} onClick={onResetFilters}>
+								<Button plain={true} onClick={onResetFilters} className="min-h-[44px] text-sm">
 									필터 초기화
 								</Button>
 							</div>

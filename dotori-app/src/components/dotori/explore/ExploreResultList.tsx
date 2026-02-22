@@ -53,7 +53,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 				</div>
 			) : null}
 
-			{((!isLoading && error) || isTimeout) ? (
+			{(!isLoading && error) || isTimeout ? (
 				<div className="duration-300 motion-safe:animate-in motion-safe:fade-in">
 					<ErrorState
 						variant="network"
@@ -80,53 +80,59 @@ export const ExploreResultList = memo(function ExploreResultList({
 						source="AI분석"
 					/>
 
-						{facilities.map((facility, index) => {
-							const isActionLoading =
-								loadingAction === `interest-${facility.id}` ||
-								loadingAction === `waiting-${facility.id}`;
+					{facilities.map((facility, index) => {
+						const isActionLoading =
+							loadingAction === `interest-${facility.id}` ||
+							loadingAction === `waiting-${facility.id}`;
 
-							return (
+						return (
+							<div
+								key={facility.id}
+								className="space-y-2"
+								style={{ animationDelay: `${index * 50}ms` }}
+							>
 								<div
-									key={facility.id}
-									className="space-y-2"
-									style={{ animationDelay: `${index * 50}ms` }}
+									className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
+									style={{ animationFillMode: "both" }}
 								>
-									<div
-										className="duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2"
-										style={{ animationFillMode: "both" }}
-									>
-										<Link href={`/facility/${facility.id}`}>
-											<FacilityCard facility={facility} compact />
-										</Link>
-									</div>
-
-									<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2">
-										<Button
-											plain={true}
-											type="button"
-											disabled={isActionLoading}
-											onClick={() => onRegisterInterest(facility.id)}
-											className="text-sm"
-										>
-											<HeartIcon className="h-3.5 w-3.5" />
-											관심
-										</Button>
-										<Button
-											color="dotori"
-											type="button"
-											disabled={isActionLoading}
-											onClick={() => onApplyWaiting(facility.id)}
-										>
-											{facility.status === "available" ? "입소신청" : "대기신청"}
-										</Button>
-									</div>
+									<Link href={`/facility/${facility.id}`}>
+										<FacilityCard facility={facility} compact />
+									</Link>
 								</div>
-							);
-						})}
+
+								<div className="flex items-center justify-end gap-2 border-t border-dotori-100/60 pt-2">
+									<Button
+										plain={true}
+										type="button"
+										disabled={isActionLoading}
+										onClick={() => onRegisterInterest(facility.id)}
+										className="min-h-[44px] text-sm"
+									>
+										<HeartIcon className="h-3.5 w-3.5" />
+										관심
+									</Button>
+									<Button
+										color="dotori"
+										type="button"
+										disabled={isActionLoading}
+										onClick={() => onApplyWaiting(facility.id)}
+										className="min-h-[44px]"
+									>
+										{facility.status === "available" ? "입소신청" : "대기신청"}
+									</Button>
+								</div>
+							</div>
+						);
+					})}
 
 					{hasMore ? (
 						<div className="pt-2">
-							<Button color="dotori" onClick={onLoadMore} disabled={isLoadingMore}>
+							<Button
+								color="dotori"
+								onClick={onLoadMore}
+								disabled={isLoadingMore}
+								className="min-h-[44px]"
+							>
 								{isLoadingMore ? "불러오는 중..." : "더 보기"}
 							</Button>
 						</div>
@@ -150,7 +156,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 						actionLabel={hasSearchInput ? "검색 초기화" : hasFilterApplied ? "필터 초기화" : "검색 초기화"}
 						onAction={hasSearchInput ? onResetSearch : hasFilterApplied ? onResetFilters : onResetSearch}
 					/>
-					<Button color="dotori" href={chatPromptHref} className="w-full">
+					<Button color="dotori" href={chatPromptHref} className="min-h-[44px] w-full">
 						토리에게 물어보기
 					</Button>
 				</div>

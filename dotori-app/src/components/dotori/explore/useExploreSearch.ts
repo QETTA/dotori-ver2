@@ -423,7 +423,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		setShowMap((prev) => !prev);
 	}, []);
 
-	const useCurrentLocation = useCallback(async () => {
+	const requestCurrentLocation = useCallback(async () => {
 		if (gpsState.loading) return;
 
 		if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -509,8 +509,8 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	}, [refresh]);
 
 	const handleUseCurrentLocation = useCallback(() => {
-		void useCurrentLocation();
-	}, [useCurrentLocation]);
+		void requestCurrentLocation();
+	}, [requestCurrentLocation]);
 
 	useEffect(() => {
 		if (!isLoading || facilities.length > 0 || error) {

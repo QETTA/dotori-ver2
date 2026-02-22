@@ -99,13 +99,16 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 		return <FacilityDetailClient loadError={facilityNotFoundErrorMessage} />;
 	}
 
+	let facility: ReturnType<typeof toSafeFacilityDTO> | null = null;
 	try {
-		const facility = toSafeFacilityDTO(toFacilityDTO(facilityDoc));
-		return <FacilityDetailClient facility={facility} />;
+		facility = toSafeFacilityDTO(toFacilityDTO(facilityDoc));
 	} catch {
-		return (
-			<FacilityDetailClient loadError={facilityLoadErrorMessage} />
-		);
+		facility = null;
 	}
 
+	if (!facility) {
+		return <FacilityDetailClient loadError={facilityLoadErrorMessage} />;
+	}
+
+	return <FacilityDetailClient facility={facility} />;
 }
