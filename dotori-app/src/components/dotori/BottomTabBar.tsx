@@ -68,7 +68,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 
 	return (
 		<nav
-			className="glass-header fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl pb-[env(safe-area-inset-bottom)] shadow-xl ring-1 ring-dotori-100/70 dark:ring-dotori-800/70"
+			className="glass-float fixed bottom-3 left-4 right-4 z-50 mx-auto max-w-md rounded-3xl pb-[env(safe-area-inset-bottom)] shadow-xl ring-1 ring-dotori-100/70 dark:ring-dotori-800/70"
 			role="navigation"
 			aria-label="메인 내비게이션"
 		>
@@ -97,7 +97,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							<motion.div
 								className={cn(
 									"relative z-10 grid h-9 w-9 place-items-center rounded-2xl transition-colors duration-200",
-									isChat && active && "bg-dotori-900 text-white dark:bg-dotori-500",
+									isChat && active && "bg-dotori-900 text-white dark:bg-dotori-400",
 									isChat &&
 										!active &&
 										"bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",

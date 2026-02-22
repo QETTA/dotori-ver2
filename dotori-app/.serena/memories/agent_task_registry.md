@@ -1,63 +1,115 @@
-# 에이전트 파일 소유권 맵 (R17 — 2026-02-22)
+# Agent Task Registry — R18 (다크모드 + 글래스 + 모션)
 
-## R17 목표: text-[Npx] 토큰화 286건 + API 테스트 + E2E smoke
+## 머지 순서 (MERGE_ORDER)
+1. ux-core-comp (공통 컴포넌트 먼저)
+2. ux-blocks
+3. ux-home
+4. ux-chat
+5. ux-explore
+6. ux-community
+7. ux-facility
+8. ux-my-core
+9. ux-my-waitlist
+10. ux-onboarding
+11. ux-auth-landing
 
----
+## 파일 소유권
 
-## R17 태스크 배분
+### ux-home
+- src/app/(app)/page.tsx
 
-| 에이전트 | 담당 파일 | 목적 | 건수 |
-|---------|---------|------|------|
-| **token-my-core** | my/page, my/import, my/support, my/notifications, my/interests, my/notices | text-[Npx]→Tailwind | 83건 |
-| **token-my-waitlist** | my/waitlist/page, my/waitlist/[id] | text-[Npx]→Tailwind | 68건 |
-| **token-onboarding** | onboarding/page, onboarding/error | text-[Npx]→Tailwind | 33건 |
-| **token-community** | community/[id], community/page, CommunityEmptyState | text-[Npx]→Tailwind | 36건 |
-| **token-auth-misc** | login/page, auth/error, not-found, ErrorBoundary | text-[Npx]→Tailwind | 17건 |
-| **token-facility** | facility/* 컴포넌트 11개 | text-[Npx]→Tailwind | 30건 |
-| **token-dotori-comp** | MapEmbed, ChecklistBlock, ChatPromptPanel, Toast 등 8개 | text-[Npx]→Tailwind | 19건 |
-| **refactor-blocks** | response-builder/blocks.ts → search/status/recommendation 분리 | 688줄 모듈화 | - |
-| **test-api-core** | NEW: __tests__/api/facilities, waitlist, chat | API 유닛 테스트 | - |
-| **test-api-ext** | NEW: __tests__/api/subscriptions, admin, community | API 유닛 테스트 | - |
-| **test-e2e-smoke** | NEW: e2e/smoke.spec.ts, playwright.config.ts | E2E smoke | - |
+### ux-chat
+- src/app/(app)/chat/page.tsx
+- src/components/dotori/chat/ChatBubble.tsx
+- src/components/dotori/chat/ChatPromptPanel.tsx
 
----
+### ux-explore
+- src/app/(app)/explore/page.tsx
+- src/components/dotori/explore/ExploreSuggestionPanel.tsx
+- src/components/dotori/explore/ExploreSearchHeader.tsx
+- src/components/dotori/explore/ExploreResultList.tsx
 
-## 머지 순서
+### ux-community
+- src/app/(app)/community/page.tsx
+- src/app/(app)/community/[id]/page.tsx
+- src/app/(app)/community/write/page.tsx
+- src/app/(app)/community/_components/CommunityEmptyState.tsx
 
-```
-1. token-my-core
-2. token-my-waitlist
-3. token-onboarding
-4. token-community
-5. token-auth-misc
-6. token-facility
-7. token-dotori-comp
-8. refactor-blocks
-9. test-api-core
-10. test-api-ext
-11. test-e2e-smoke
-```
+### ux-facility
+- src/app/(app)/facility/[id]/page.tsx
+- src/app/(app)/facility/[id]/FacilityDetailClient.tsx
+- src/components/dotori/facility/FacilityCapacitySection.tsx
+- src/components/dotori/facility/FacilityContactSection.tsx
+- src/components/dotori/facility/FacilityPremiumSection.tsx
+- src/components/dotori/facility/FacilityReviewSection.tsx
+- src/components/dotori/facility/FacilityStatusBadges.tsx
+- src/components/dotori/facility/FacilityWaitlistCTA.tsx
+- src/components/dotori/facility/FacilityLocationSection.tsx
+- src/components/dotori/facility/FacilityOperatingSection.tsx
+- src/components/dotori/facility/FacilityProgramSection.tsx
+- src/components/dotori/facility/facility-detail-helpers.ts
 
----
+### ux-my-core
+- src/app/(app)/my/page.tsx
+- src/app/(app)/my/settings/page.tsx (다크모드 토글 UI!)
+- src/app/(app)/my/support/page.tsx
+- src/app/(app)/my/app-info/page.tsx
+- src/app/(app)/my/terms/page.tsx
+- src/app/(app)/my/notices/page.tsx
 
-## 파일 충돌 방지
+### ux-my-waitlist
+- src/app/(app)/my/waitlist/page.tsx
+- src/app/(app)/my/waitlist/[id]/page.tsx
+- src/app/(app)/my/notifications/page.tsx
+- src/app/(app)/my/interests/page.tsx
+- src/app/(app)/my/import/page.tsx
 
-- token 에이전트 7개: 각각 다른 페이지/컴포넌트 담당 (겹침 0)
-- refactor-blocks: response-builder/ 내부만
-- test 에이전트 3개: 새 파일 생성만 (기존 파일 수정 0)
+### ux-onboarding
+- src/app/(onboarding)/onboarding/page.tsx
+- src/app/(onboarding)/layout.tsx
+- src/app/(onboarding)/error.tsx
 
----
+### ux-auth-landing
+- src/app/(auth)/login/page.tsx
+- src/app/(auth)/error.tsx
+- src/app/(landing)/landing/page.tsx
+- src/components/landing/*
 
-## 완료된 라운드 기록
+### ux-core-comp
+- src/components/dotori/BottomTabBar.tsx (glass-header!)
+- src/components/dotori/FacilityCard.tsx (tap.card 교체)
+- src/components/dotori/Toast.tsx
+- src/components/dotori/ToastProvider.tsx
+- src/components/dotori/Skeleton.tsx
+- src/components/dotori/EmptyState.tsx
+- src/components/dotori/ErrorState.tsx
+- src/components/dotori/Surface.tsx
+- src/components/dotori/Wallpaper.tsx
+- src/components/dotori/PremiumGate.tsx
+- src/components/dotori/UsageCounter.tsx
+- src/components/dotori/AiBriefingCard.tsx
+- src/components/dotori/MapEmbed.tsx
+- src/components/dotori/SourceChip.tsx (spring 교체)
+- src/components/dotori/StreamingIndicator.tsx
+- src/components/dotori/ActionConfirmSheet.tsx
+- src/components/dotori/CompareTable.tsx
+- src/components/dotori/MarkdownText.tsx
 
-| 라운드 | 에이전트 수 | 결과 | 주요 내용 |
-|--------|----------|------|---------|
-| R1-R3 | 36개 | 성공 | 기초 구조, 채팅, 시설탐색 |
-| R5 | 11개 | 성공 | GPS/지도, 커뮤니티, 온보딩 |
-| R8 | 11개 | 성공 | 수익화 퍼널 |
-| R9 | 11개 | 성공 | 프리미엄 모델 + 테스트 |
-| R11 | 6개 | 3/6 merged | 혼란 제거 + 엔진 테스트 40개 |
-| R12 | 5개 | 5/5 merged | 폴리싱 + 테스트 50개 |
-| R13 | 11개 | 11/11 완료 | Opus P0~P2 보안+품질 수정 |
-| R14-R16 | 33커밋 | Codex CLI 직접 | 구조분리 + 타입안전성 |
-| R17 | 11개 | 진행중 | text-[Npx] 토큰화 + API테스트 + E2E |
+### ux-blocks
+- src/components/dotori/blocks/ChecklistBlock.tsx
+- src/components/dotori/blocks/TextBlock.tsx
+- src/components/dotori/blocks/ActionBlock.tsx
+- src/components/dotori/blocks/AlertsBlock.tsx
+- src/components/dotori/blocks/CompareBlock.tsx
+- src/components/dotori/blocks/FacilityBlock.tsx
+- src/components/dotori/blocks/RecommendBlock.tsx
+- src/components/dotori/blocks/SummaryBlock.tsx
+- src/components/dotori/blocks/WaitlistBlock.tsx
+
+## 공유 금지 파일 (수정 불가)
+- src/app/globals.css
+- src/app/layout.tsx
+- src/lib/motion.ts
+- src/hooks/useTheme.ts
+- src/hooks/useAppState.ts
+- src/types/dotori.ts
