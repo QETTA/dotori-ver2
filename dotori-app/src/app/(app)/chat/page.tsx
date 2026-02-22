@@ -125,20 +125,40 @@ function ChatContent() {
 	}, [messages]);
 
 	useEffect(() => {
+		if (status === "loading") {
+			return;
+		}
+
+		if (status !== "authenticated") {
+			setMessages([]);
+			setIsHistoryLoading(false);
+			return;
+		}
+
+		let isMounted = true;
 		setIsHistoryLoading(true);
 		apiFetch<{ data: { messages: ChatMessage[] } }>("/api/chat/history")
 			.then((res) => {
+				if (!isMounted) return;
 				if (res.data.messages.length > 0) {
 					setMessages(res.data.messages);
 				}
 			})
 			.catch(() => {
-				// Not logged in or no history — that's fine
+				if (!isMounted) return;
+				// Logged-in user with empty/expired history
+				setMessages([]);
 			})
 			.finally(() => {
-				setIsHistoryLoading(false);
+				if (isMounted) {
+					setIsHistoryLoading(false);
+				}
 			});
-	}, []);
+
+		return () => {
+			isMounted = false;
+		};
+	}, [status]);
 
 	useEffect(() => {
 		if (promptHandled.current) return;

@@ -11,6 +11,7 @@
     "lint": "eslint",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
     "screenshot": "npx tsx scripts/screenshot-check.ts",
+    "qa:mobile": "./scripts/mobile-qa.sh",
     "check-console": "npx tsx scripts/check-console.ts",
     "clean": "rm -rf .next node_modules/.cache",
     "test": "vitest run",

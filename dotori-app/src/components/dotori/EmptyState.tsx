@@ -28,15 +28,15 @@ export default function EmptyStateFallback({
 	}
 
 	return (
-		<motion.div className="flex flex-col items-center justify-center py-16 px-6 text-center" {...motionProps}>
+		<motion.div className="flex flex-col items-center justify-center px-6 py-10 text-center" {...motionProps}>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
 				src={BRAND.emptyState}
 				alt=""
 				aria-hidden="true"
-				className="w-28 h-28 mb-6 opacity-50"
+				className="mb-4 h-20 w-20 opacity-50"
 			/>
-			<h3 className="text-base font-semibold text-dotori-900 mb-1">{title}</h3>
+			<h3 className="mb-1 text-base font-semibold text-dotori-900">{title}</h3>
 			{message && (
 				<p className="text-sm text-dotori-900/60 mb-4">{message}</p>
 			)}
@@ -44,7 +44,7 @@ export default function EmptyStateFallback({
 				<button
 					type="button"
 					onClick={onAction}
-					className="px-5 py-2 bg-dotori-400 text-white text-sm font-medium rounded-xl active:scale-[0.97] transition-transform"
+					className="rounded-xl bg-dotori-400 px-5 py-2 text-sm font-medium text-white transition-transform active:scale-[0.97]"
 				>
 					{actionLabel}
 				</button>
@@ -102,7 +102,7 @@ export function EmptyState({
 
 	return (
 		<motion.div
-			className={cn("flex flex-col items-center justify-center px-6 py-16 text-center")}
+			className={cn("flex flex-col items-center justify-center px-6 py-10 text-center")}
 			{...motionProps}
 		>
 			{resolvedIcon ? (
@@ -115,12 +115,12 @@ export function EmptyState({
 					src={BRAND.emptyState}
 					alt=""
 					aria-hidden="true"
-					className="mb-5 h-36 w-36"
+					className="mb-4 h-24 w-24"
 				/>
 			)}
-			<h3 className="text-lg font-semibold text-dotori-800">{title}</h3>
+			<h3 className="text-base font-semibold text-dotori-800">{title}</h3>
 			{resolvedDescription && (
-				<p className="mt-2 max-w-xs text-[15px] leading-relaxed text-dotori-500">
+				<p className="mt-2 max-w-xs text-sm leading-relaxed text-dotori-500">
 					{resolvedDescription}
 				</p>
 			)}
@@ -135,7 +135,7 @@ export function EmptyState({
 								}
 							: undefined
 					}
-					className="mt-5 inline-block rounded-3xl bg-dotori-400 px-7 py-4 text-[15px] font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
+					className="mt-4 inline-block rounded-3xl bg-dotori-400 px-6 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
 				>
 					{actionLabel}
 				</a>

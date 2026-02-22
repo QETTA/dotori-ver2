@@ -482,8 +482,17 @@ step "PHASE 5: 최종 검증 + 정리"
 
 cd "$APP"
 npm run build 2>&1 | grep -q "Compiled successfully" && ok "최종 빌드 OK" || warn "최종 빌드 문제 — 수동 확인"
-BASE_URL=http://localhost:3000 npm run check-console > /tmp/check-console-$ROUND.log 2>&1 || true
-tail -10 /tmp/check-console-$ROUND.log
+
+echo ""
+info "모바일 실검수 실행 (check-console + e2e + screenshot + scroll)"
+if QA_PORT=3002 STRICT_QA=true ./scripts/mobile-qa.sh; then
+  ok "모바일 QA 통과"
+else
+  if [ "${STOP_ON_QA_FAIL:-true}" = "true" ]; then
+    fail "모바일 QA 실패 — 배포 전 수정 필요"
+  fi
+  warn "모바일 QA 실패 — STOP_ON_QA_FAIL=false 로 계속 진행"
+fi
 
 for AGENT in "${AGENTS[@]}"; do
   git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
@@ -506,4 +515,3 @@ echo "  1. ./scripts/vision-eval.sh 로 후속 비전평가"
 echo "  2. git push origin main"
 echo "  3. 배포 후 /api/health 및 핵심 화면 점검"
 echo ""
-

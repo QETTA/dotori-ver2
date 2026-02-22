@@ -10,7 +10,8 @@ set -uo pipefail
 
 APP=/home/sihu2129/dotori-ver2/dotori-app
 OUT=/tmp/dotori-screenshots
-PORT=3000
+PORT=3002
+BASE_URL=${BASE_URL:-http://localhost:$PORT}
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
@@ -25,20 +26,20 @@ echo -e "${BLUE}╚════════════════════�
 ### ── 개발 서버 확인 ────────────────────────────────────────────────
 step "서버 확인"
 
-if curl -s "http://localhost:$PORT/api/health" > /dev/null 2>&1; then
+if curl -s "$BASE_URL/api/health" > /dev/null 2>&1; then
   ok "개발 서버 실행 중 (포트 $PORT)"
   SERVER_STARTED=false
 else
   warn "개발 서버 미실행 — 시작 중..."
   cd "$APP"
-  npm run dev > /tmp/dev-server.log 2>&1 &
+  NEXTAUTH_URL="$BASE_URL" npm run dev:3002 > /tmp/dev-server.log 2>&1 &
   DEV_PID=$!
   SERVER_STARTED=true
 
   # 최대 30초 대기
   for i in $(seq 1 30); do
     sleep 1
-    if curl -s "http://localhost:$PORT/api/health" > /dev/null 2>&1; then
+    if curl -s "$BASE_URL/api/health" > /dev/null 2>&1; then
       ok "서버 시작 완료 (${i}초)"
       break
     fi
@@ -54,7 +55,7 @@ step "스크린샷 촬영 (10개 페이지)"
 
 mkdir -p "$OUT"
 cd "$APP"
-npx tsx scripts/screenshot-check.ts
+BASE_URL="$BASE_URL" npx tsx scripts/screenshot-check.ts
 
 ok "스크린샷 저장: $OUT"
 
@@ -86,5 +87,5 @@ echo "   3. 브랜드 일관성 (dotori 색상, 컴포넌트 통일성)"
 echo "   4. 전환 퍼널 (다음 액션이 명확한가)"
 echo "   평가 후 개선 항목을 Codex 태스크로 정리.』"
 echo ""
-echo "  또는 ㄱ 실행 시 자동으로 평가 포함됩니다."
+echo "  또는 ./scripts/mobile-qa.sh 실행 시 자동 QA에 포함됩니다."
 echo ""

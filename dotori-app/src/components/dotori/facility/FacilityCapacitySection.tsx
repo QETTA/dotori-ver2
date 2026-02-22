@@ -22,7 +22,7 @@ export function FacilityCapacitySection({
 }: FacilityCapacitySectionProps) {
 	return (
 		<>
-			<section className="rounded-3xl bg-white p-5 shadow-sm">
+			<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
 				<div className="flex items-center justify-between gap-2">
 					<h2 className="text-sm font-semibold text-dotori-900">정원 현황</h2>
 					<span className="text-sm font-semibold text-dotori-700">{occupancyRate}%</span>
@@ -39,13 +39,13 @@ export function FacilityCapacitySection({
 			</section>
 
 			{keyStats.length > 0 ? (
-				<section className="rounded-3xl bg-white p-5 shadow-sm">
+				<section className="rounded-3xl border border-dotori-100 bg-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
 					<h2 className="text-sm font-semibold text-dotori-900">주요 지표</h2>
 					<div className="mt-3 grid grid-cols-2 gap-3">
 						{keyStats.map((stat) => (
 							<div
 								key={stat.label}
-								className="rounded-2xl border border-dotori-100 bg-dotori-50/60 px-3 py-3"
+								className="rounded-2xl border border-dotori-100 bg-dotori-50/80 px-3 py-3"
 							>
 								<p className="text-[12px] text-dotori-500">{stat.label}</p>
 								<p className="mt-1 text-base font-semibold text-dotori-800">{stat.value}</p>

@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 import fs from 'fs'
 import path from 'path'
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const OUT = '/tmp/dotori-screenshots'
 
 async function getFacilityId(): Promise<string> {
@@ -27,7 +27,7 @@ async function main() {
     { path: '/explore', name: '03-explore', waitUntil: 'load' as const },  // Kakao Map 외부 요청으로 networkidle 불가
     { path: '/landing', name: '04-landing' },
     { path: '/login', name: '05-login' },
-    { path: '/onboarding', name: '06-onboarding' },
+    { path: '/onboarding', name: '06-onboarding', waitUntil: 'domcontentloaded' as const },
     { path: `/facility/${facilityId}`, name: '07-facility' },
     { path: '/community', name: '08-community' },
     { path: '/my', name: '09-my' },
@@ -46,7 +46,7 @@ async function main() {
     const page = await context.newPage()
     try {
       await page.goto(`${BASE}${route.path}`, {
-        waitUntil: (route as { waitUntil?: 'networkidle' | 'load' }).waitUntil ?? 'networkidle',
+        waitUntil: (route as { waitUntil?: 'networkidle' | 'load' | 'domcontentloaded' }).waitUntil ?? 'networkidle',
         timeout: 30000,
       })
       // Wait for fonts + animations + Tailwind CSS

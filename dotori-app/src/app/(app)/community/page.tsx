@@ -322,7 +322,7 @@ export default function CommunityPage() {
 
 	return (
 		<div className="relative pb-16">
-			<header className="sticky top-0 z-20 bg-white/80 px-5 pb-0 pt-4 backdrop-blur-xl">
+			<header className="sticky top-0 z-20 border-b border-dotori-100/60 bg-gradient-to-b from-white via-dotori-50/90 to-dotori-50/60 px-4 pb-1 pt-4 backdrop-blur-xl">
 				<div className="relative flex items-center justify-between pb-3">
 					<div className="flex items-center gap-2">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -353,10 +353,10 @@ export default function CommunityPage() {
 									aria-selected={isActive}
 									onClick={() => setActiveTab(tab)}
 									className={cn(
-										"min-h-[56px] min-w-max rounded-full px-4 py-3 text-[14px] font-semibold transition-all",
+										"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-[14px] font-semibold transition-all",
 										isActive
-											? "bg-dotori-900 text-white shadow-sm shadow-dotori-200"
-											: "border border-dotori-100 bg-dotori-50/80 text-dotori-700 hover:bg-dotori-100/80",
+											? "bg-dotori-900 text-white shadow-md shadow-dotori-200"
+											: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70",
 									)}
 								>
 									{tab}
@@ -367,7 +367,7 @@ export default function CommunityPage() {
 				</div>
 			</header>
 
-			<div className="px-5 pt-4">
+			<div className="px-4 pt-4">
 				{isTransitionMonth ? (
 					<div className="rounded-2xl bg-forest-50 p-4 mb-4 text-[14px] text-forest-700">
 						<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
@@ -427,7 +427,7 @@ export default function CommunityPage() {
 						}}
 					/>
 				) : posts.length > 0 ? (
-					<div className="space-y-3">
+					<div className="space-y-3.5">
 						{posts.map((post, index) => {
 							const anonStyle = getAnonymousStyle(post.id);
 							const postHot = isHotPost(post);
@@ -436,7 +436,7 @@ export default function CommunityPage() {
 								<article
 									key={post.id}
 									className={cn(
-										"rounded-3xl bg-white p-5 shadow-sm",
+										"rounded-[28px] border border-dotori-100 bg-white p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)]",
 										"motion-safe:animate-in motion-safe:fade-in duration-300",
 									)}
 									style={{
@@ -444,7 +444,7 @@ export default function CommunityPage() {
 										animationFillMode: "both",
 									}}
 								>
-									<div className="relative rounded-2xl bg-dotori-50/40 p-4">
+									<div className="relative rounded-2xl bg-gradient-to-b from-dotori-50/70 to-white p-4">
 										<div className="mb-2 flex items-start justify-between gap-2">
 											<div className="flex min-w-0 items-start gap-2.5">
 												<div
@@ -603,7 +603,7 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-24 right-5 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
+				className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97]"
 				style={{ width: "56px", height: "56px" }}
 			>
 				<div className="grid h-full w-full place-items-center text-white">

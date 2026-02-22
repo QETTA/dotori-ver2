@@ -35,19 +35,19 @@ export function ChatPromptPanel({
 	};
 
 	return (
-		<div className="relative px-6 pb-4 pt-10">
-			<div className="mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-dotori-100 bg-white/90 p-6 shadow-sm">
-				<div className="relative">
+		<div className="relative px-5 pb-4 pt-8">
+			<div className="mx-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-dotori-100 bg-white p-6 shadow-[0_10px_30px_rgba(200,149,106,0.10)]">
+				<div className="relative rounded-3xl bg-gradient-to-b from-dotori-50 to-white px-4 py-5">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={toriIcon}
 						alt=""
-						className="mx-auto mb-4 h-14 w-14 rounded-full border border-dotori-100 bg-white"
+						className="mx-auto mb-4 h-16 w-16 rounded-full border border-dotori-100 bg-white"
 					/>
-					<Heading level={3} className="text-center text-lg text-dotori-800">
+					<Heading level={3} className="text-center text-[32px] leading-tight tracking-tight text-dotori-900">
 						이동 고민이라면 뭐든 물어보세요
 					</Heading>
-					<Text className="mt-1.5 block text-center text-sm text-dotori-500">
+					<Text className="mt-2 block text-center text-sm text-dotori-600">
 						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 					</Text>
 				</div>
@@ -69,7 +69,7 @@ export function ChatPromptPanel({
 				</Fieldset>
 
 				<motion.div
-					className="relative mt-6 space-y-2.5"
+					className="relative mt-5 space-y-2.5"
 					variants={promptListVariants}
 					initial="hidden"
 					animate="show"
@@ -81,15 +81,15 @@ export function ChatPromptPanel({
 								type="button"
 								onClick={() => onSuggestPrompt(prompt)}
 								className={cn(
-									"flex w-full items-center gap-3 rounded-2xl bg-dotori-50 px-4 py-3 text-left transition-all",
-									"hover:bg-dotori-100 active:scale-95",
+									"flex w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3 text-left transition-all",
+									"hover:-translate-y-0.5 hover:bg-dotori-100 active:scale-95",
 								)}
 							>
-								<span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-lg">
+								<span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm">
 									{prompt.icon}
 								</span>
 								<div className="min-w-0">
-									<Text className="block font-semibold text-dotori-700">
+									<Text className="block text-[15px] font-semibold text-dotori-800">
 										{prompt.label}
 									</Text>
 									<Text className="mt-0.5 block line-clamp-1 text-sm text-dotori-500">

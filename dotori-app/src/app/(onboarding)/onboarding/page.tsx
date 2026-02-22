@@ -37,6 +37,33 @@ const sidoFallbackOptions = [
 	"제주특별자치도",
 ];
 const popularSidoOptions = ["서울특별시", "경기도", "인천광역시"];
+const stepGuides = [
+	{
+		label: "아이 기본정보",
+		eta: "약 40초",
+		hint: "아이 연령/상황 기반으로 맞춤 입소 전략 정확도를 높여요",
+	},
+	{
+		label: "거주 지역",
+		eta: "약 30초",
+		hint: "내 동네 기준으로 실제 이동 가능한 시설을 빠르게 찾게 돼요",
+	},
+	{
+		label: "선호 조건",
+		eta: "약 30초",
+		hint: "시설 유형과 특징을 반영해 추천 결과를 압축해드려요",
+	},
+	{
+		label: "알림 설정",
+		eta: "약 20초",
+		hint: "빈자리 발생 시 우선순위 시설을 즉시 확인할 수 있어요",
+	},
+	{
+		label: "AI 전략",
+		eta: "약 20초",
+		hint: "토리챗이 반편성·교사·입소 시나리오를 한 번에 정리해줘요",
+	},
+] as const;
 
 export default function OnboardingPage() {
 	const router = useRouter();
@@ -98,6 +125,7 @@ export default function OnboardingPage() {
 	}, [sidoList]);
 
 	const progressPercent = (Math.min(step + 1, totalSteps) / totalSteps) * 100;
+	const activeGuide = stepGuides[Math.min(step, stepGuides.length - 1)];
 
 	useEffect(() => {
 		if (birthYear && birthMonth) {
@@ -241,7 +269,7 @@ export default function OnboardingPage() {
 	}
 
 	const inputCls =
-		"w-full rounded-3xl border-none bg-dotori-100/60 px-5 py-4 text-[15px] outline-none transition-all focus:ring-2 focus:ring-dotori-300";
+		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-[15px] outline-none transition-all focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300";
 	const sliderCls =
 		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500";
 
@@ -285,9 +313,19 @@ export default function OnboardingPage() {
 					/>
 				</div>
 			</div>
+			<div className="mt-3 rounded-2xl border border-dotori-100 bg-white/90 px-4 py-3 shadow-sm">
+				<div className="flex items-center justify-between">
+					<Badge color="dotori" className="text-[11px] font-semibold">
+						AI 맞춤 온보딩
+					</Badge>
+					<p className="text-xs font-medium text-dotori-500">{activeGuide.eta}</p>
+				</div>
+				<p className="mt-2 text-sm font-semibold text-dotori-800">{activeGuide.label}</p>
+				<p className="mt-1 text-xs leading-relaxed text-dotori-500">{activeGuide.hint}</p>
+			</div>
 
 			{/* ── 컨텐츠 ── */}
-			<div className="mt-8 flex-1">
+			<div className="mt-4 flex-1 rounded-[30px] border border-dotori-100 bg-white/90 px-4 py-5 shadow-[0_12px_28px_rgba(200,149,106,0.10)]">
 				{step === 0 && (
 					<div
 						key="step0"
@@ -651,7 +689,7 @@ export default function OnboardingPage() {
 			</div>
 
 			{/* ── 하단 CTA ── */}
-			<div className="pb-8 pt-6">
+			<div className="pb-8 pt-5">
 				{saveError && (
 					<div className="mb-3 rounded-2xl bg-dotori-100 px-4 py-3 text-[13px] text-dotori-700">
 						{saveError}

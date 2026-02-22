@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 import fs from 'fs'
 import path from 'path'
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const OUT = '/tmp/dotori-ux-review'
 
 async function getFacilityId(): Promise<string> {

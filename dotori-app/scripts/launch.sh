@@ -520,6 +520,17 @@ cd "$APP"
 npm run build 2>&1 | grep -q "Compiled successfully" && ok "최종 빌드 OK" || warn "최종 빌드 문제 — 수동 확인"
 npm test 2>&1 | grep -E "Tests:|Test Suites:" | tail -3
 
+echo ""
+info "모바일 실검수 실행 (check-console + e2e + screenshot + scroll)"
+if QA_PORT=3002 STRICT_QA=true ./scripts/mobile-qa.sh; then
+  ok "모바일 QA 통과"
+else
+  if [ "${STOP_ON_QA_FAIL:-true}" = "true" ]; then
+    fail "모바일 QA 실패 — 배포 전 수정 필요"
+  fi
+  warn "모바일 QA 실패 — STOP_ON_QA_FAIL=false 로 계속 진행"
+fi
+
 for AGENT in "${AGENTS[@]}"; do
   git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
   git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true

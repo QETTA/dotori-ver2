@@ -12,13 +12,13 @@ import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
-import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { generateNBAs } from "@/lib/engine/nba-engine";
+import { cn } from "@/lib/utils";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
 const AI_PLACEHOLDER = "이동 고민이라면 뭐든 물어보세요";
@@ -124,6 +124,23 @@ export default function HomePage() {
 	const communityLine = hotPost
 		? `${hotPost.author.nickname}: ${hotPost.content}`
 		: "이동 고민 글을 커뮤니티에서 확인해보세요";
+	const statusCards = [
+		{
+			label: "내 주변 가능",
+			value: `${nearbyAvailableFacilities.length}곳`,
+			tone: "forest",
+		},
+		{
+			label: "관심 시설",
+			value: `${homeData?.interestFacilities.length ?? 0}곳`,
+			tone: "dotori",
+		},
+		{
+			label: "받은 알림",
+			value: `${homeData?.alertCount ?? 0}건`,
+			tone: "dotori",
+		},
+	] as const;
 
 	const handleOpenChat = useCallback(() => {
 		router.push("/chat");
@@ -149,7 +166,7 @@ export default function HomePage() {
 	}
 
 	return (
-		<div className="px-4 pb-6 pt-5">
+		<div className="px-4 pb-12 pt-5">
 			<header>
 				<div className="mb-3 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -165,6 +182,24 @@ export default function HomePage() {
 				<Text className="mt-1 text-sm text-dotori-600">
 					어린이집 이동, 도토리가 함께해요
 				</Text>
+				<div className="mt-4 grid grid-cols-3 gap-2">
+					{statusCards.map((card) => (
+						<div
+							key={card.label}
+							className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5 shadow-sm"
+						>
+							<Text className="text-[11px] text-dotori-500">{card.label}</Text>
+							<Text
+								className={cn(
+									"mt-0.5 text-sm font-semibold",
+									card.tone === "forest" ? "text-forest-700" : "text-dotori-800",
+								)}
+							>
+								{card.value}
+							</Text>
+						</div>
+					))}
+				</div>
 			</header>
 
 			<section className="mt-5">
@@ -262,10 +297,18 @@ export default function HomePage() {
 						))}
 					</div>
 				) : (
-					<EmptyState
-						title="현재 보이는 빈자리가 없어요"
-						description="조건을 바꾸거나 잠시 후 다시 확인해보세요"
-					/>
+					<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-3 text-center shadow-[0_8px_24px_rgba(200,149,106,0.08)]">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={BRAND.emptyState}
+							alt=""
+							aria-hidden="true"
+							className="mx-auto h-14 w-14"
+						/>
+						<Heading level={3} className="mt-1 text-sm font-semibold text-dotori-800">
+							현재 보이는 빈자리가 없어요
+						</Heading>
+					</div>
 				)}
 			</section>
 

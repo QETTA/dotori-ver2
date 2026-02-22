@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
@@ -53,6 +54,7 @@ export function useFacilityDetailActions({
 	const [checklist, setChecklist] = useState<ChecklistBlockType | null>(null);
 	const [showChecklist, setShowChecklist] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const { status } = useSession();
 	const { addToast } = useToast();
 	const router = useRouter();
 	const applyActionLabel = useMemo(
@@ -61,13 +63,23 @@ export function useFacilityDetailActions({
 	);
 
 	useEffect(() => {
+		if (status === "loading") {
+			return;
+		}
+
+		if (status !== "authenticated") {
+			setUserChildren([]);
+			setLiked(false);
+			return;
+		}
+
 		apiFetch<{ data: { children?: ChildProfile[]; interests?: string[] } }>("/api/users/me")
 			.then((res) => {
 				setUserChildren(res.data.children ?? []);
 				setLiked(Boolean(res.data.interests?.includes(facilityId)));
 			})
 			.catch(() => {});
-	}, [facilityId]);
+	}, [facilityId, status]);
 
 	const loadChecklist = useCallback(async () => {
 		if (checklist) {
@@ -186,6 +198,14 @@ export function useFacilityDetailActions({
 
 	const toggleLike = useCallback(async () => {
 		if (isTogglingLike) return;
+		if (status !== "authenticated") {
+			addToast({
+				type: "error",
+				message: "관심 시설 등록은 로그인 후 이용할 수 있어요",
+			});
+			router.push(`/login?callbackUrl=${encodeURIComponent(`/facility/${facilityId}`)}`);
+			return;
+		}
 
 		setIsTogglingLike(true);
 		const nextLiked = !liked;
@@ -205,7 +225,7 @@ export function useFacilityDetailActions({
 		} finally {
 			setIsTogglingLike(false);
 		}
-	}, [addToast, facilityId, isTogglingLike, liked]);
+	}, [addToast, facilityId, isTogglingLike, liked, router, status]);
 
 	const resetActionStatus = useCallback(() => {
 		setError(null);

@@ -121,22 +121,25 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	);
 
 	return (
-		<header className="sticky top-0 z-20 bg-white/80 px-5 pb-2 pt-4 backdrop-blur-xl">
-			<div className="mb-2 flex items-center justify-between">
+		<header className="sticky top-0 z-20 border-b border-dotori-100/60 bg-gradient-to-b from-white via-dotori-50/90 to-dotori-50/70 px-4 pb-3 pt-4 backdrop-blur-xl">
+			<div className="mb-3 flex items-center justify-between">
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
-				<div className="rounded-full bg-dotori-50 px-2 py-1">
+				<div className="rounded-full border border-dotori-100 bg-white px-2.5 py-1 shadow-sm">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-4 w-4" />
 				</div>
 			</div>
 
-			<Heading level={2} className="text-lg">
+			<Heading level={2} className="text-[31px] leading-tight tracking-tight text-dotori-900">
 				이동 고민이라면, 빈자리 먼저 확인해요
 			</Heading>
+			<Text className="mt-1.5 text-sm text-dotori-600">
+				지역·시나리오·필터를 조합해 지금 이동 가능한 시설을 빠르게 확인하세요
+			</Text>
 
-			<Fieldset className="mt-3 space-y-2">
-				<div ref={searchContainerRef} className="relative">
+			<Fieldset className="mt-4 space-y-2.5">
+				<div ref={searchContainerRef} className="relative rounded-3xl bg-white p-3.5 shadow-sm ring-1 ring-dotori-100">
 					<form onSubmit={handleFormSubmit}>
 						<MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dotori-500" />
 						<Input
@@ -145,7 +148,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							onChange={(event) => onSearchInputChange(event.target.value)}
 							onFocus={() => setIsSearchFocused(true)}
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
-							className="min-h-[44px] w-full rounded-3xl bg-white/70 py-3 pl-11 pr-10 text-base ring-1 ring-dotori-200/40 outline-none transition-all focus:ring-2 focus:ring-dotori-300"
+							className="min-h-[48px] w-full rounded-3xl bg-dotori-50 py-3 pl-11 pr-10 text-base ring-1 ring-dotori-200/50 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-dotori-300"
 							aria-label="시설 검색"
 							name="q"
 						/>
@@ -162,14 +165,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						) : null}
 					</form>
 
-					<div className="mt-2 flex flex-wrap gap-2">
+					<div className="mt-2.5 flex flex-wrap gap-2">
 						<Button
 							type="button"
 							plain={true}
 							onClick={onUseCurrentLocation}
 							disabled={isGpsLoading}
 							className={cn(
-								"inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-dotori-200 px-3 py-2 text-sm font-medium text-dotori-600",
+								"inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-dotori-200 bg-dotori-50 px-3 py-2 text-sm font-semibold text-dotori-700",
 								isGpsLoading && "opacity-70",
 							)}
 						>
@@ -182,7 +185,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						</Button>
 					</div>
 
-					<div className="mt-3">
+					<div className="mt-3.5">
 						<Text className="text-sm font-medium text-dotori-500">이동 수요 시나리오</Text>
 						<div className="mt-2 flex flex-wrap gap-2">
 							{MOVE_SCENARIO_CHIPS.map((chip) => (
@@ -191,7 +194,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									type="button"
 									plain={true}
 									onClick={() => handleSelectTerm(chip)}
-									className="min-h-[44px] rounded-full border border-dotori-100 bg-dotori-50 px-3 py-1.5 text-sm text-dotori-700"
+									className="min-h-[44px] rounded-full border border-dotori-100 bg-dotori-50 px-3 py-1.5 text-sm font-semibold text-dotori-700"
 								>
 									{chip}
 								</Button>
@@ -209,7 +212,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					) : null}
 				</div>
 
-				<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+				<div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
 					<Text className="mr-auto shrink-0 whitespace-nowrap text-sm text-dotori-500">
 						{resultLabel}
 					</Text>
@@ -217,7 +220,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleFilters}
-						className="relative inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-2 text-sm"
+						className="relative inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm shadow-sm"
 					>
 						<AdjustmentsHorizontalIcon className="h-4 w-4" />
 						필터
@@ -231,7 +234,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						type="button"
 						plain={true}
 						onClick={onToggleMap}
-						className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-3 py-2 text-sm"
+						className="inline-flex min-h-[44px] items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm shadow-sm"
 					>
 						{showMap ? (
 							<ListBulletIcon className="h-4 w-4" />
@@ -242,16 +245,16 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					</Button>
 				</div>
 
-				<div className="mt-2">
+				<div className="mt-1">
 					<Button
 						type="button"
 						onClick={onToggleToOnly}
 						aria-pressed={toOnly}
 						className={cn(
-							"inline-flex min-h-[44px] w-full items-center gap-1 rounded-full px-4 py-2.5 text-sm transition-all",
+							"inline-flex min-h-[46px] w-full items-center gap-1 rounded-full px-4 py-2.5 text-sm transition-all",
 							toOnly
 								? "bg-forest-100 font-semibold text-forest-900 ring-2 ring-forest-300/80"
-								: "bg-forest-50 text-forest-700",
+								: "bg-white text-forest-700 ring-1 ring-forest-200",
 						)}
 					>
 						<span

@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test'
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:3000'
+const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i
 
 type CapturedError = {

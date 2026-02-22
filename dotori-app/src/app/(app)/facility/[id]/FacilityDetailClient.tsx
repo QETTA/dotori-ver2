@@ -121,14 +121,12 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 				<span className="w-11" aria-hidden="true" />
 			</header>
 			<div className="px-5">
-				<ErrorState message={message} />
-				<Button
-					type="button"
-					onClick={handleRetry}
-					className="mt-5 min-h-12 w-full rounded-3xl bg-dotori-400 font-bold text-white transition-all active:scale-[0.98] hover:bg-dotori-600"
-				>
-					다시 시도
-				</Button>
+				<ErrorState
+					message={message}
+					detail="네트워크 상태를 확인하고 다시 시도해 주세요"
+					variant="notfound"
+					action={{ label: "다시 시도", onClick: handleRetry }}
+				/>
 			</div>
 		</div>
 	);
@@ -384,6 +382,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		() => getCapacityProgressColor(occupancyRate),
 		[occupancyRate],
 	);
+	const aiInsightSummary = useMemo(() => {
+		if (facility.status === "available") {
+			return `현재 입소 가능 상태예요. 정원 대비 충원율 ${occupancyRate}%로, 바로 신청을 검토할 수 있어요.`;
+		}
+		if (waitingCapacity > 0) {
+			return `현재 대기 ${waitingCapacity}명이에요. 서류 준비와 우선순위 체크를 먼저 진행하면 좋아요.`;
+		}
+		return `현재 충원율 ${occupancyRate}% 상태예요. 관심 등록 후 공석 알림으로 변화를 빠르게 확인해보세요.`;
+	}, [facility.status, occupancyRate, waitingCapacity]);
 
 	const websiteUrl = useMemo(() => {
 		const raw = facility.website || facility.homepage;
@@ -514,7 +521,33 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</div>
 			</div>
 
-			<div className="mt-4 space-y-3 px-5">
+			<div className="mt-4 space-y-4 px-5">
+				<section className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
+					<div className="flex items-center justify-between gap-2">
+						<Badge color={facility.status === "available" ? "forest" : "dotori"}>
+							AI 이동 인사이트
+						</Badge>
+						<span className="text-xs font-semibold text-dotori-500">
+							데이터 품질 {qualityScore ?? "-"}점
+						</span>
+					</div>
+					<p className="mt-3 text-sm leading-relaxed text-dotori-700">{aiInsightSummary}</p>
+					<div className="mt-3 grid grid-cols-3 gap-2">
+						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+							<p className="text-[11px] text-dotori-500">정원</p>
+							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{totalCapacity}명</p>
+						</div>
+						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+							<p className="text-[11px] text-dotori-500">현원</p>
+							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{currentCapacity}명</p>
+						</div>
+						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
+							<p className="text-[11px] text-dotori-500">대기</p>
+							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{waitingCapacity}명</p>
+						</div>
+					</div>
+				</section>
+
 				<FacilityCapacitySection
 					occupancyRate={occupancyRate}
 					currentCapacity={currentCapacity}

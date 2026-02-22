@@ -21,28 +21,62 @@ echo "→ 현재 스펙 가져오는 중..."
 doctl apps spec get "$APP_ID" > "$SPEC_FILE"
 
 echo "→ '$KEY' 값 업데이트 중..."
-python3 - <<EOF
-import re
+SPEC_FILE="$SPEC_FILE" KEY="$KEY" VALUE="$VALUE" python3 - <<'PY'
+import os
+import sys
+import yaml
 
-with open('$SPEC_FILE', 'r') as f:
-    content = f.read()
+spec_path = os.environ["SPEC_FILE"]
+key = os.environ["KEY"]
+value = os.environ["VALUE"]
 
-# KEY 바로 다음 value: 만 교체 (type: SECRET 여부 무관)
-# 패턴: "- key: KEY\n  (scope/type 라인들)\n  value: OLD" → "value: NEW"
-pattern = r'(- key: $KEY\n(?:(?!- key:).)*?value:)[^\n]*'
-replacement = r'\1 $VALUE'
+with open(spec_path, "r", encoding="utf-8") as f:
+    spec = yaml.safe_load(f)
 
-new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+services = spec.get("services") or []
+if not services:
+    print("ERROR: spec.services가 비어 있습니다", file=sys.stderr)
+    raise SystemExit(1)
 
-if new_content == content:
-    print(f"WARNING: '$KEY' 키를 찾지 못했습니다")
-    exit(1)
+updated = False
+for service in services:
+    envs = service.setdefault("envs", [])
+    for env in envs:
+        if env.get("key") == key:
+            env["value"] = value
+            updated = True
+            break
+    if updated:
+        break
 
-with open('$SPEC_FILE', 'w') as f:
-    f.write(new_content)
+if not updated:
+    first_service = services[0]
+    envs = first_service.setdefault("envs", [])
+    new_env = {
+        "key": key,
+        "scope": "RUN_TIME",
+        "value": value,
+    }
+    secret_like_keys = {
+        "AUTH_SECRET",
+        "AUTH_KAKAO_ID",
+        "AUTH_KAKAO_SECRET",
+        "MONGODB_URI",
+        "KAKAO_REST_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "PUBLIC_DATA_API_KEY",
+        "CHILDCARE_PORTAL_KEY",
+        "CRON_SECRET",
+    }
+    if key in secret_like_keys or key.endswith("_SECRET"):
+        new_env["type"] = "SECRET"
+    envs.append(new_env)
 
-print(f"OK: '$KEY' 업데이트 완료")
-EOF
+with open(spec_path, "w", encoding="utf-8") as f:
+    yaml.safe_dump(spec, f, sort_keys=False, allow_unicode=True)
+
+print(f"OK: '{key}' 업데이트 완료")
+PY
 
 echo "→ DO 앱 스펙 적용 중..."
 doctl apps update "$APP_ID" --spec "$SPEC_FILE"

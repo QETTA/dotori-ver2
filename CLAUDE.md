@@ -51,7 +51,7 @@ Claude Code (지휘관, Opus 4.6)
 ## 축약어
 | 입력 | 동작 |
 |------|------|
-| `ㄱ` | launch.sh 설계 → Codex(최대11) 병렬 → 빌드 검증 → 머지 → push → 배포 |
+| `ㄱ` | launch.sh 설계 → Codex(최대11) 병렬 → 빌드 검증/머지 → **모바일 QA(check-console/e2e/screenshot/scroll)** → push → 배포 |
 | `ㄱㄱ` | 위 사이클 반복 |
 | `ㅂ` | 빌드 검증만 (`npm run build && npm test && eslint`) |
 | `ㅅ` | 스크린샷 (`npm run screenshot`) |
@@ -61,8 +61,9 @@ Claude Code (지휘관, Opus 4.6)
 1. 분석: 빌드 상태 + Serena/Opus로 개선점 도출
 2. 설계: launch.sh의 AGENTS/get_task 업데이트 + agent_task_registry.md 갱신
 3. 발사: ./scripts/launch.sh rN (11개 워크트리 → Codex 병렬)
-4. 자동: 빌드 검증(4병렬) → squash merge → 최종 빌드 → 워크트리 정리
-5. 후처리: git push origin main → doctl 배포
+4. 자동: 빌드 검증(4병렬) → squash merge → 최종 빌드
+5. 자동 QA: `./scripts/mobile-qa.sh` (포트 3002 기준 콘솔/시나리오/스크린샷 검수)
+6. 후처리: git push origin main → doctl 배포
 ```
 
 ### launch.sh 핵심 설정값
