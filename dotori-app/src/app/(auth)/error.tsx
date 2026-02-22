@@ -9,9 +9,9 @@ export default function AuthError({
 	reset: () => void;
 }) {
 	return (
-		<div className="flex min-h-dvh items-center justify-center px-5">
+		<div className="flex min-h-dvh items-center justify-center bg-dotori-50 px-5 dark:bg-dotori-900">
 			<div className="text-center">
-				<h2 className="text-lg font-semibold text-dotori-900">
+				<h2 className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
 					로그인 중 문제가 발생했어요
 				</h2>
 				<p className="mt-2 text-sm text-dotori-500">
@@ -26,7 +26,7 @@ export default function AuthError({
 					</button>
 					<Link
 						href="/"
-						className="rounded-full bg-dotori-100 px-5 py-2.5 text-sm font-bold text-dotori-700 hover:bg-dotori-200"
+						className="rounded-full bg-dotori-100 px-5 py-2.5 text-sm font-bold text-dotori-700 hover:bg-dotori-200 dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700"
 					>
 						홈으로
 					</Link>

@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/dotori/Skeleton'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
 import { PageTransition } from '@/components/dotori/PageTransition'
 import { BRAND } from '@/lib/brand-assets'
+import { fadeUp } from '@/lib/motion'
 import type { Facility } from '@/types/dotori'
 
 const SCENARIOS = [
@@ -149,21 +150,21 @@ export default function LandingPage() {
 
 	return (
 		<PageTransition>
-			<div className="bg-dotori-50">
-				<header className="sticky top-0 z-50 border-b border-dotori-100/30 bg-white/80 backdrop-blur">
+			<div className="bg-dotori-50 dark:bg-dotori-900">
+				<header className="sticky top-0 z-50 border-b border-dotori-100/30 bg-white/80 backdrop-blur dark:border-dotori-800/50 dark:bg-dotori-950/80">
 					<div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
 						<Link href="/landing" className="flex shrink-0 items-center gap-2">
 							{/* eslint-disable-next-line @next/next/no-img-element */}
 							<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-7" />
 						</Link>
-						<nav className="hidden items-center gap-6 text-sm text-dotori-600 sm:flex">
-							<a href="#features" className="transition-colors hover:text-dotori-700">
+						<nav className="hidden items-center gap-6 text-sm text-dotori-600 dark:text-dotori-300 sm:flex">
+							<a href="#features" className="transition-colors hover:text-dotori-700 dark:hover:text-dotori-200">
 								기능
 							</a>
-							<a href="#testimonials" className="transition-colors hover:text-dotori-700">
+							<a href="#testimonials" className="transition-colors hover:text-dotori-700 dark:hover:text-dotori-200">
 								후기
 							</a>
-							<a href="#faq" className="transition-colors hover:text-dotori-700">
+							<a href="#faq" className="transition-colors hover:text-dotori-700 dark:hover:text-dotori-200">
 								FAQ
 							</a>
 						</nav>
@@ -176,16 +177,19 @@ export default function LandingPage() {
 				<section className="relative overflow-hidden px-6 py-16 text-center sm:py-20">
 					<div className="pointer-events-none absolute inset-0">
 						<motion.div
-							className="absolute left-0 top-10 h-52 w-52 rounded-full bg-dotori-300/20 blur-3xl"
+							className="absolute left-0 top-10 h-52 w-52 rounded-full bg-dotori-300/20 blur-3xl dark:bg-dotori-700/20"
 							animate={{ y: [0, -10, 0], opacity: [0.2, 0.35, 0.2] }}
 							transition={{ duration: 7, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
 						/>
 					</div>
-					<div className="relative mx-auto max-w-3xl">
-						<Heading level={1} className="text-3xl font-semibold leading-tight sm:text-4xl">
+					<motion.div {...fadeUp} className="relative mx-auto max-w-3xl">
+						<Heading
+							level={1}
+							className="text-3xl font-semibold leading-tight text-dotori-900 dark:text-dotori-50 sm:text-4xl"
+						>
 							아이에게 맞는 어린이집, 더 빨리 찾으세요
 						</Heading>
-						<Text className="mx-auto mt-4 max-w-2xl text-base text-dotori-700">
+						<Text className="mx-auto mt-4 max-w-2xl text-base text-dotori-700 dark:text-dotori-200">
 							빈자리 확인부터 AI 이동 상담까지, 도토리에서 한 번에 진행해요.
 						</Text>
 						<div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -196,10 +200,10 @@ export default function LandingPage() {
 							{HERO_STATS.map((stat) => (
 								<div
 									key={stat.label}
-									className="rounded-2xl bg-white/85 p-4 ring-1 ring-dotori-100/80"
+									className="rounded-2xl bg-white/85 p-4 ring-1 ring-dotori-100/80 dark:bg-dotori-950/80 dark:ring-dotori-800/70"
 								>
-									<Text className="text-2xl font-semibold text-dotori-900">{stat.value}</Text>
-									<Text className="mt-1 text-sm text-dotori-600">{stat.label}</Text>
+									<Text className="text-2xl font-semibold text-dotori-900 dark:text-dotori-50">{stat.value}</Text>
+									<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">{stat.label}</Text>
 								</div>
 							))}
 						</div>
@@ -211,12 +215,12 @@ export default function LandingPage() {
 								토리에게 먼저 질문하기
 							</Button>
 						</div>
-					</div>
+					</motion.div>
 				</section>
 
 				<section className="px-6 pb-2">
-					<div className="mx-auto max-w-4xl rounded-2xl bg-white p-4 shadow-sm ring-1 ring-dotori-100/80">
-						<Text className="font-semibold text-dotori-900">이동 우선순위 입력</Text>
+					<motion.div {...fadeUp} className="mx-auto max-w-4xl rounded-2xl bg-white p-4 shadow-sm ring-1 ring-dotori-100/80 dark:bg-dotori-950 dark:ring-dotori-800/70 dark:shadow-none">
+						<Text className="font-semibold text-dotori-900 dark:text-dotori-50">이동 우선순위 입력</Text>
 						<Fieldset className="mt-4">
 							<div className="grid gap-3 md:grid-cols-3">
 								<Field>
@@ -248,45 +252,45 @@ export default function LandingPage() {
 								</Field>
 							</div>
 						</Fieldset>
-						<Text className="mt-4 text-sm text-dotori-600">
+						<Text className="mt-4 text-sm text-dotori-600 dark:text-dotori-300">
 							선택 내용: {scenario} · {district} · {ageRange}
 						</Text>
-					</div>
+					</motion.div>
 				</section>
 
 				<section id="features" className="px-6 py-12">
-					<div className="mx-auto max-w-4xl">
+					<motion.div {...fadeUp} className="mx-auto max-w-4xl">
 						<div className="mb-6 text-center">
-							<Heading level={2} className="text-2xl">
+							<Heading level={2} className="text-2xl text-dotori-900 dark:text-dotori-50">
 								이동 시나리오별 핵심 기능
 							</Heading>
-							<Text className="mt-2 text-base text-dotori-600">3단계로 이동 준비 시간을 줄입니다.</Text>
+							<Text className="mt-2 text-base text-dotori-600 dark:text-dotori-300">3단계로 이동 준비 시간을 줄입니다.</Text>
 						</div>
 						<div className="grid gap-3 md:grid-cols-3">
 							{FEATURE_CARDS.map((feature) => (
-								<article key={feature.title} className="rounded-2xl bg-dotori-50 p-4">
+								<article key={feature.title} className="rounded-2xl bg-dotori-50 p-4 dark:bg-dotori-950">
 									<div className="flex items-start gap-3">
-										<span className="mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-dotori-100">
+										<span className="mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-dotori-100 dark:bg-dotori-800">
 											<feature.Icon className="h-5 w-5 text-forest-500" aria-hidden="true" />
 										</span>
 										<div className="min-w-0 flex-1">
-											<Text className="text-base font-semibold text-dotori-900">{feature.title}</Text>
-											<Text className="mt-1 text-sm text-dotori-600">{feature.description}</Text>
+											<Text className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{feature.title}</Text>
+											<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">{feature.description}</Text>
 										</div>
 									</div>
 								</article>
 							))}
 						</div>
-					</div>
+					</motion.div>
 				</section>
 
-				<section className="bg-dotori-50 px-6 py-12">
-					<div className="mx-auto max-w-4xl">
+				<section className="bg-dotori-50 px-6 py-12 dark:bg-dotori-900">
+					<motion.div {...fadeUp} className="mx-auto max-w-4xl">
 						<div className="mb-6 text-center">
-							<Heading level={2} className="text-2xl">
+							<Heading level={2} className="text-2xl text-dotori-900 dark:text-dotori-50">
 								실전 이동 브리핑
 							</Heading>
-							<Text className="mt-2 text-base text-dotori-600">
+							<Text className="mt-2 text-base text-dotori-600 dark:text-dotori-300">
 								시나리오 입력 즉시 확인 가능한 이동 요약입니다.
 							</Text>
 						</div>
@@ -298,8 +302,8 @@ export default function LandingPage() {
 								insightItems={FEATURE_BRIEFING.insightItems}
 							/>
 							<div className="space-y-3">
-								<div className="rounded-2xl bg-white p-4 ring-1 ring-dotori-100/70">
-									<Text className="text-sm text-dotori-700">
+								<div className="rounded-2xl bg-white p-4 ring-1 ring-dotori-100/70 dark:bg-dotori-950 dark:ring-dotori-800/70">
+									<Text className="text-sm text-dotori-700 dark:text-dotori-200">
 										최신 추천 반영 상태를 실시간 점검하고 있어요.
 									</Text>
 									<Skeleton variant="text" count={2} />
@@ -322,16 +326,16 @@ export default function LandingPage() {
 								) : null}
 							</div>
 						</div>
-					</div>
+					</motion.div>
 				</section>
 
 				<section id="testimonials" className="px-6 py-12">
-					<div className="mx-auto max-w-4xl">
+					<motion.div {...fadeUp} className="mx-auto max-w-4xl">
 						<div className="text-center">
-							<Heading level={2} className="text-2xl">
+							<Heading level={2} className="text-2xl text-dotori-900 dark:text-dotori-50">
 								이동 성공 후기
 							</Heading>
-							<Text className="mt-2 text-base text-dotori-600">
+							<Text className="mt-2 text-base text-dotori-600 dark:text-dotori-300">
 								강남·성동·서초 부모님들의 실제 이동 사례
 							</Text>
 						</div>
@@ -339,22 +343,22 @@ export default function LandingPage() {
 							{TESTIMONIALS.map((item) => (
 								<article
 									key={item.name}
-									className="rounded-2xl border border-dotori-100 bg-white p-4"
+									className="rounded-2xl border border-dotori-100 bg-white p-4 dark:border-dotori-800 dark:bg-dotori-950"
 								>
-									<Text className="font-semibold text-dotori-900">{item.name}</Text>
+									<Text className="font-semibold text-dotori-900 dark:text-dotori-50">{item.name}</Text>
 									<Text className="text-sm text-dotori-500">{item.location}</Text>
-									<Text className="mt-3 text-sm leading-relaxed text-dotori-700">&ldquo;{item.content}&rdquo;</Text>
+									<Text className="mt-3 text-sm leading-relaxed text-dotori-700 dark:text-dotori-200">&ldquo;{item.content}&rdquo;</Text>
 								</article>
 							))}
 						</div>
-					</div>
+					</motion.div>
 				</section>
 
-				<section id="faq" className="bg-white px-6 py-12">
-					<div className="mx-auto max-w-2xl">
+				<section id="faq" className="bg-white px-6 py-12 dark:bg-dotori-950">
+					<motion.div {...fadeUp} className="mx-auto max-w-2xl">
 						<div className="mb-6 text-center">
 							<Badge color="dotori">이동 FAQ</Badge>
-							<Heading level={2} className="mt-2 text-2xl">
+							<Heading level={2} className="mt-2 text-2xl text-dotori-900 dark:text-dotori-50">
 								자주 묻는 질문
 							</Heading>
 						</div>
@@ -364,7 +368,7 @@ export default function LandingPage() {
 								return (
 									<div
 										key={item.question}
-										className="overflow-hidden rounded-2xl border border-dotori-100 bg-white"
+										className="overflow-hidden rounded-2xl border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-950"
 									>
 										<button
 											type="button"
@@ -373,26 +377,26 @@ export default function LandingPage() {
 											aria-controls={`faq-answer-${index}`}
 											className="flex w-full items-center justify-between px-4 py-3 text-left"
 										>
-											<Text className="text-sm font-semibold text-dotori-900">{item.question}</Text>
+											<Text className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">{item.question}</Text>
 											<Text className={`text-lg text-dotori-500 ${isOpen ? 'rotate-45' : ''}`}>＋</Text>
 										</button>
 										{isOpen && (
 											<div
 												id={`faq-answer-${index}`}
-												className="border-t border-dotori-100 px-4 py-3"
+												className="border-t border-dotori-100 px-4 py-3 dark:border-dotori-800"
 											>
-												<Text className="text-sm text-dotori-600">{item.answer}</Text>
+												<Text className="text-sm text-dotori-600 dark:text-dotori-300">{item.answer}</Text>
 											</div>
 										)}
 									</div>
 								)
 							})}
 						</div>
-					</div>
+					</motion.div>
 				</section>
 
 				<Wallpaper color="warm" className="py-14">
-					<div className="mx-auto max-w-2xl px-6 text-center text-white">
+					<motion.div {...fadeUp} className="mx-auto max-w-2xl px-6 text-center text-white">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.symbolMonoWhite}
@@ -408,10 +412,10 @@ export default function LandingPage() {
 						<Button href="/onboarding" color="dotori" className="mt-6">
 							이동 시작하기
 						</Button>
-					</div>
+					</motion.div>
 				</Wallpaper>
 
-				<footer className="border-t border-dotori-100/30 bg-white px-6 py-10">
+				<footer className="border-t border-dotori-100/30 bg-white px-6 py-10 dark:border-dotori-800/50 dark:bg-dotori-950">
 					<div className="mx-auto max-w-4xl">
 						<div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
 							<div className="flex items-center gap-2">
@@ -419,19 +423,19 @@ export default function LandingPage() {
 								<img src={BRAND.lockupHorizontal} alt="도토리" className="h-7" />
 							</div>
 							<nav className="flex gap-6 text-sm text-dotori-500">
-								<a href="#features" className="hover:text-dotori-700">
+								<a href="#features" className="hover:text-dotori-700 dark:hover:text-dotori-200">
 									기능
 								</a>
-								<a href="#testimonials" className="hover:text-dotori-700">
+								<a href="#testimonials" className="hover:text-dotori-700 dark:hover:text-dotori-200">
 									후기
 								</a>
-								<a href="#faq" className="hover:text-dotori-700">
+								<a href="#faq" className="hover:text-dotori-700 dark:hover:text-dotori-200">
 									FAQ
 								</a>
-								<a href="/my/terms" className="hover:text-dotori-700">
+								<a href="/my/terms" className="hover:text-dotori-700 dark:hover:text-dotori-200">
 									이용약관
 								</a>
-								<a href="/my/terms" className="hover:text-dotori-700">
+								<a href="/my/terms" className="hover:text-dotori-700 dark:hover:text-dotori-200">
 									개인정보처리방침
 								</a>
 							</nav>

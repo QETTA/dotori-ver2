@@ -47,9 +47,9 @@ function getAuthErrorMessage(error: string | null) {
 
 function LoginPageErrorFallback() {
 	return (
-		<div className="mt-10 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 text-center shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)]">
-			<div className="h-4 w-2/3 motion-safe:animate-pulse rounded-full bg-dotori-100/80" />
-			<div className="mt-4 h-11 motion-safe:animate-pulse rounded-xl bg-dotori-100/80" />
+		<div className="mt-10 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 text-center shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+			<div className="h-4 w-2/3 rounded-full bg-dotori-100/80 motion-safe:animate-pulse dark:bg-dotori-800/60" />
+			<div className="mt-4 h-11 rounded-xl bg-dotori-100/80 motion-safe:animate-pulse dark:bg-dotori-800/60" />
 		</div>
 	);
 }
@@ -57,10 +57,10 @@ function LoginPageErrorFallback() {
 const LoginBackgroundDecoration = memo(function LoginBackgroundDecoration() {
 	return (
 		<div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-			<div className="absolute inset-0 bg-gradient-to-b from-dotori-100 via-dotori-50 to-white" />
+			<div className="absolute inset-0 bg-gradient-to-b from-dotori-100 via-dotori-50 to-white dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-950" />
 
 			<svg
-				className="absolute -left-16 -top-16 h-64 w-64 text-dotori-200/50"
+				className="absolute -left-16 -top-16 h-64 w-64 text-dotori-200/50 dark:text-dotori-700/35"
 				viewBox="0 0 200 200"
 				fill="currentColor"
 			>
@@ -68,7 +68,7 @@ const LoginBackgroundDecoration = memo(function LoginBackgroundDecoration() {
 			</svg>
 
 			<svg
-				className="absolute -right-10 top-12 h-40 w-40 text-dotori-200/30"
+				className="absolute -right-10 top-12 h-40 w-40 text-dotori-200/30 dark:text-dotori-700/25"
 				viewBox="0 0 200 200"
 				fill="currentColor"
 			>
@@ -76,7 +76,7 @@ const LoginBackgroundDecoration = memo(function LoginBackgroundDecoration() {
 			</svg>
 
 			<svg
-				className="absolute bottom-32 left-6 h-20 w-20 text-dotori-200/20"
+				className="absolute bottom-32 left-6 h-20 w-20 text-dotori-200/20 dark:text-dotori-700/20"
 				viewBox="0 0 200 200"
 				fill="currentColor"
 			>
@@ -84,7 +84,7 @@ const LoginBackgroundDecoration = memo(function LoginBackgroundDecoration() {
 			</svg>
 
 			<svg
-				className="absolute -right-8 bottom-48 h-32 w-32 text-dotori-100/60"
+				className="absolute -right-8 bottom-48 h-32 w-32 text-dotori-100/60 dark:text-dotori-800/45"
 				viewBox="0 0 200 200"
 				fill="currentColor"
 			>
@@ -131,7 +131,7 @@ const LoginIntro = memo(function LoginIntro({
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
-				className="mt-3 text-lg leading-relaxed font-bold text-dotori-700"
+				className="mt-3 text-lg leading-relaxed font-bold text-dotori-700 dark:text-dotori-200"
 			>
 				반편성 불만·교사 교체·빈자리 탐색, 도토리가 한 번에
 			</motion.p>
@@ -158,19 +158,19 @@ const LoginErrorAlert = memo(function LoginErrorAlert({
 			initial={shouldReduceMotion ? false : ERROR_INITIAL}
 			animate={ERROR_ANIMATE}
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : ERROR_TRANSITION}
-			className="mt-6 w-full max-w-md rounded-2xl border border-dotori-300 bg-dotori-100/90 px-4 py-3 text-left shadow-sm"
+			className="mt-6 w-full max-w-md rounded-2xl border border-dotori-300 bg-dotori-100/90 px-4 py-3 text-left shadow-sm dark:border-dotori-700 dark:bg-dotori-900/60"
 			role="alert"
 			aria-live="assertive"
 			aria-atomic="true"
 		>
 			<div className="inline-flex items-center gap-2">
 				<span
-					className="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-dotori-200 text-xs font-bold text-dotori-700"
+					className="inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-dotori-200 text-xs font-bold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100"
 					aria-hidden="true"
 				>
 					!
 				</span>
-				<p className="text-xs font-medium leading-relaxed text-dotori-700">
+				<p className="text-xs font-medium leading-relaxed text-dotori-700 dark:text-dotori-200">
 					{message}
 				</p>
 			</div>
@@ -190,7 +190,7 @@ const LoginCard = memo(function LoginCard({
 			initial={shouldReduceMotion ? false : LOGIN_CARD_INITIAL}
 			animate={LOGIN_CARD_ANIMATE}
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
-			className="mt-7 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur"
+			className="mt-7 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
 		>
 			<p className="text-xs leading-relaxed text-dotori-500">
 				빠르게 시작하고, 서비스와 바로 연결해보세요.
@@ -242,7 +242,7 @@ const LoginFooter = memo(function LoginFooter({
 			>
 				<Link
 					href="/"
-					className="mt-7 inline-block py-2.5 text-sm text-dotori-500 transition-colors hover:text-dotori-700"
+					className="mt-7 inline-block py-2.5 text-sm text-dotori-500 transition-colors hover:text-dotori-700 dark:hover:text-dotori-200"
 				>
 					로그인 없이 둘러보기
 				</Link>
@@ -252,7 +252,7 @@ const LoginFooter = memo(function LoginFooter({
 				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
 				animate={FADE_IN_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-				className="mt-auto pt-10 pb-6 text-xs leading-relaxed text-dotori-300"
+				className="mt-auto pt-10 pb-6 text-xs leading-relaxed text-dotori-300 dark:text-dotori-200"
 			>
 				로그인 시{" "}
 				<Link href="/my/terms" className="font-medium underline">
@@ -326,7 +326,7 @@ function LoginPageClient() {
 	);
 
 	return (
-		<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)]">
+		<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)] dark:bg-dotori-900">
 			<LoginBackgroundDecoration />
 
 			{/* ── 메인 콘텐츠 ── */}
