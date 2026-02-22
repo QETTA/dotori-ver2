@@ -7,6 +7,7 @@ import { Text } from "@/components/catalyst/text";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useTheme } from "@/hooks/useTheme";
 import { apiFetch } from "@/lib/api";
+import { BRAND } from "@/lib/brand-assets";
 import type { UserPlan } from "@/types/dotori";
 import { CheckCircleIcon, CreditCardIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -57,7 +58,7 @@ export default function SettingsPage() {
 	const [successMessage, setSuccessMessage] = useState("");
 
 	const isPremium = plan === "premium";
-	const planLabel = useMemo(() => (isPremium ? "premium" : "free"), [isPremium]);
+	const planLabel = useMemo(() => (isPremium ? "프리미엄" : "무료"), [isPremium]);
 	const themeLabel =
 		mode === "system"
 			? `시스템 (${resolved === "dark" ? "다크" : "라이트"})`
@@ -118,7 +119,7 @@ export default function SettingsPage() {
 
 	if (isLoading) {
 		return (
-			<div className="pb-8 px-5 pt-8">
+			<div className="pb-8 px-5 pt-6">
 				<div className="h-7 w-36 rounded-full bg-dotori-100 dark:bg-dotori-800" />
 				<div className="mt-4 h-28 rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950" />
 				<div className="mt-3 h-24 rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950" />
@@ -128,13 +129,24 @@ export default function SettingsPage() {
 
 	if (error && !user) {
 		return (
-			<div className="pb-8">
-				<div className="px-5 pt-8">
-					<Heading level={1}>설정</Heading>
-					<Text className="mt-2 text-dotori-500">{error}</Text>
-					<Button href="/login" color="dotori" className="mt-4 w-full">
-						로그인하기
-					</Button>
+			<div className="pb-8 px-5 pt-6 text-dotori-900 dark:text-dotori-50">
+				<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
+					<Heading level={1} className="text-xl">
+						설정
+					</Heading>
+					<Text className="mt-1 text-sm text-dotori-700 dark:text-dotori-200">
+						{error}
+					</Text>
+					<div className="mt-4 space-y-2">
+						<Button onClick={refresh} color="dotori" className="w-full min-h-11">
+							다시 시도
+						</Button>
+						<Button href="/login" color="dotori" className="w-full min-h-11">
+							로그인하기
+						</Button>
+					</div>
 				</div>
 			</div>
 		);
@@ -142,13 +154,22 @@ export default function SettingsPage() {
 
 	if (!user) {
 		return (
-			<div className="pb-8">
-				<div className="px-5 pt-8">
-					<Heading level={1}>설정</Heading>
-					<Text className="mt-2 text-dotori-500">로그인 후 플랜 관리가 가능합니다.</Text>
-					<Button href="/login" color="dotori" className="mt-4 w-full">
+			<div className="pb-8 px-5 pt-6 text-dotori-900 dark:text-dotori-50">
+				<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
+					<Heading level={1} className="text-xl">
+						설정
+					</Heading>
+					<Text className="mt-1 text-sm text-dotori-700 dark:text-dotori-200">
+						로그인하면 플랜 관리와 테마 설정을 바로 할 수 있어요.
+					</Text>
+					<Button href="/login" color="dotori" className="mt-4 w-full min-h-11">
 						로그인하기
 					</Button>
+					<Text className="mt-2 text-center text-xs text-dotori-500 dark:text-dotori-300">
+						로그인 후 마이페이지에서 관심·대기·알림도 함께 확인할 수 있어요.
+					</Text>
 				</div>
 			</div>
 		);
@@ -156,7 +177,7 @@ export default function SettingsPage() {
 
 	return (
 		<div className="pb-8">
-			<header className="px-5 pt-8 pb-2">
+			<header className="px-5 pt-6 pb-2">
 				<Heading level={1}>플랜 설정</Heading>
 				<Text className="mt-1 text-dotori-500">
 					현재 플랜과 혜택을 확인하고 관리해요
@@ -175,7 +196,7 @@ export default function SettingsPage() {
 					<div
 						role="radiogroup"
 						aria-label="화면 테마 선택"
-						className="mt-3 flex gap-1 rounded-2xl border border-dotori-200 dark:border-dotori-700 bg-dotori-50 dark:bg-dotori-900 p-1"
+						className="mt-3 flex gap-1 rounded-2xl border border-dotori-200 dark:border-dotori-700 bg-dotori-50 dark:bg-dotori-950/60 p-1"
 					>
 						{([
 							{ value: "light", label: "라이트" },
@@ -191,9 +212,9 @@ export default function SettingsPage() {
 									aria-checked={isSelected}
 									onClick={() => setMode(option.value)}
 									className={[
-										"flex-1 min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
+										"flex-1 min-h-11 rounded-xl px-3 text-sm font-semibold transition-colors transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 active:scale-[0.98]",
 										isSelected
-											? "bg-white dark:bg-dotori-950 text-dotori-900 dark:text-dotori-50 shadow-sm"
+											? "bg-dotori-900 text-white shadow-sm"
 											: "text-dotori-600 dark:text-dotori-300 hover:bg-white/70 dark:hover:bg-dotori-950/40",
 									].join(" ")}
 								>
@@ -216,7 +237,7 @@ export default function SettingsPage() {
 							현재 플랜
 						</Heading>
 						<Badge color={isPremium ? "forest" : "dotori"} className="text-xs">
-							{planLabel}
+							{isPremium ? "프리미엄" : "무료"}
 						</Badge>
 					</div>
 					<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">{planLabel}</p>
@@ -263,7 +284,7 @@ export default function SettingsPage() {
 					) : (
 						<Button
 							color="dotori"
-							className="w-full"
+							className="w-full min-h-11"
 							onClick={handleStartPremium}
 							disabled={isUpgrading}
 						>
@@ -298,7 +319,7 @@ export default function SettingsPage() {
 						href={supportChannelUrl}
 						target="_blank"
 						rel="noreferrer noopener"
-						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 dark:border-dotori-700 px-4 py-2.5 text-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors hover:bg-dotori-50 dark:hover:bg-dotori-900"
+						className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 dark:border-dotori-700 px-4 text-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
 					>
 						카카오톡 채널로 문의하기
 					</a>
@@ -308,7 +329,7 @@ export default function SettingsPage() {
 			<div className="mt-6 px-5">
 				<Link
 					href="/my"
-					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 dark:border-dotori-800 px-4 py-2.5 text-center text-sm text-dotori-500 dark:text-dotori-300"
+					className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-100 dark:border-dotori-800 px-4 text-center text-sm font-semibold text-dotori-600 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
 				>
 					MY로 돌아가기
 				</Link>

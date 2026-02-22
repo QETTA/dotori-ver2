@@ -4,6 +4,7 @@ import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { Surface } from "@/components/dotori/Surface";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
@@ -36,7 +37,8 @@ export default function MyPage() {
 	const pathname = usePathname();
 	const [interestPreview, setInterestPreview] = useState<Facility[]>([]);
 	const [isInterestLoading, setIsInterestLoading] = useState(false);
-	const menuItemClass = "min-h-12 flex items-start gap-3 px-4 py-4";
+	const menuItemClass =
+		"flex min-h-12 items-center justify-between gap-3 px-4 py-4";
 
 	const visibleMenuSections = useMemo(
 		() => (user ? menuSections : publicMenuSections),
@@ -172,7 +174,7 @@ export default function MyPage() {
 	if (!user) {
 		return (
 			<div className="pb-8 text-dotori-900 dark:text-dotori-50">
-				<header className="px-5 pt-8 pb-2">
+				<header className="px-5 pt-6 pb-2">
 					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
@@ -195,15 +197,15 @@ export default function MyPage() {
 					</div>
 				</header>
 
-				<div className="mt-6 px-5">
+				<div className="mt-5 px-5">
 					<Button
 						href="/login"
 						color="amber"
-						className="w-full py-4 text-base font-semibold active:scale-[0.97]"
+						className="w-full min-h-11 py-4 text-base font-semibold active:scale-[0.97]"
 					>
 						카카오 로그인
 					</Button>
-					<p className="mt-2 text-center text-xs text-dotori-300 dark:text-dotori-600">
+					<p className="mt-2 text-center text-xs text-dotori-500 dark:text-dotori-300">
 						로그인 후 관심 시설, 대기 현황, 알림을 한 번에 확인하세요
 					</p>
 				</div>
@@ -226,21 +228,23 @@ export default function MyPage() {
 												href={item.href}
 												className={cn(
 													menuItemClass,
-													"transition-colors",
+													"transition-colors transition-transform active:scale-[0.99]",
 													isActiveMenuItem(item.href) && "bg-dotori-50 dark:bg-dotori-900",
 													"active:bg-dotori-50 hover:bg-dotori-50/50 dark:active:bg-dotori-900 dark:hover:bg-dotori-900/60",
 												)}
 											>
-												<Icon className="h-5 w-5 text-dotori-500" />
-												<div className="min-w-0 flex-1">
-													<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
-														{item.label}
-													</p>
-													<p className="mt-0.5 text-xs text-dotori-400">
-														{item.description}
-													</p>
+												<div className="flex min-w-0 flex-1 items-center gap-3">
+													<Icon className="h-5 w-5 text-dotori-500" />
+													<div className="min-w-0 flex-1">
+														<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+															{item.label}
+														</p>
+														<p className="mt-0.5 text-xs text-dotori-400">
+															{item.description}
+														</p>
+													</div>
 												</div>
-												<ChevronRightIcon className="mt-1 h-5 w-5 text-dotori-300 dark:text-dotori-700" />
+												<ChevronRightIcon className="h-5 w-5 text-dotori-300 dark:text-dotori-700" />
 											</Link>
 										</motion.li>
 									);
@@ -256,8 +260,8 @@ export default function MyPage() {
 	return (
 		<div className="pb-8 text-dotori-900 dark:text-dotori-50">
 			{/* 프로필 헤더 */}
-			<header className="px-5 pt-8 pb-2">
-				<div className="rounded-3xl bg-white dark:bg-dotori-950 shadow-sm dark:shadow-none px-4 py-5 border border-dotori-100 dark:border-dotori-800">
+			<header className="px-5 pt-6 pb-2">
+				<Surface tone="muted" className="px-5 py-5">
 					<div className="mb-3 flex items-center justify-between">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
@@ -286,27 +290,31 @@ export default function MyPage() {
 						</div>
 						<div className="min-w-0 flex-1">
 							<div className="flex items-center gap-2">
-								<h1 className="text-xl font-bold">{userLabel}</h1>
-								<Link href="/my/settings" aria-label="플랜 설정으로 이동">
-									<Badge
-									color={user.plan === "free" ? "dotori" : "forest"}
-									className="text-xs"
+								<h1 className="text-lg font-bold">{userLabel}</h1>
+								<Link
+									href="/my/settings"
+									aria-label="플랜 설정으로 이동"
+									className="inline-flex min-h-11 items-center justify-center rounded-full px-1"
 								>
-									{planLabel}
-								</Badge>
+									<Badge
+										color={user.plan === "free" ? "dotori" : "forest"}
+										className="text-xs"
+									>
+										{planLabel}
+									</Badge>
 								</Link>
 							</div>
 							<p className="mt-0.5 text-sm text-dotori-500 dark:text-dotori-300">{formatRegion(user.region)}</p>
 							<p className="mt-1 text-sm text-dotori-500 dark:text-dotori-300">{childSummary}</p>
 							<Link
 								href="/my/settings"
-								className="mt-2 inline-flex items-center rounded-full bg-dotori-50 dark:bg-dotori-900 px-3 py-1.5 text-xs font-semibold text-dotori-700 dark:text-dotori-200 transition-colors hover:bg-dotori-100 dark:hover:bg-dotori-800"
+								className="mt-2 inline-flex min-h-11 items-center justify-center rounded-2xl bg-dotori-50 dark:bg-dotori-900 px-4 text-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors hover:bg-dotori-100 dark:hover:bg-dotori-800 active:scale-[0.98]"
 							>
 								프로필 수정
 							</Link>
 						</div>
 					</div>
-				</div>
+				</Surface>
 			</header>
 
 			{/* 핵심 지표 */}
@@ -320,14 +328,14 @@ export default function MyPage() {
 							className={cn(
 								"rounded-full border border-dotori-200 dark:border-dotori-700 bg-white dark:bg-dotori-950 px-3 py-2.5",
 								"flex flex-col items-center justify-center gap-0.5 text-center",
-								"active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
+								"transition-colors transition-transform hover:bg-dotori-50/60 dark:hover:bg-dotori-900/60 active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
 							)}
 						>
 							<span className="text-xl font-bold leading-none text-dotori-900 dark:text-dotori-50">
 								{stat.value}
 							</span>
 							<span className="text-xs text-dotori-500 dark:text-dotori-300">
-								{stat.label} {stat.value}개
+								{stat.label}
 							</span>
 						</Link>
 					))}
@@ -351,7 +359,7 @@ export default function MyPage() {
 						<Button
 							href="/my/settings"
 							color="dotori"
-							className="mt-4 w-full"
+							className="mt-4 w-full min-h-11"
 						>
 							지금 시작하기
 						</Button>
@@ -403,15 +411,23 @@ export default function MyPage() {
 								</div>
 							</Link>
 						))}
-				</div>
+					</div>
 				) : (
-					<div className="rounded-3xl bg-dotori-50 dark:bg-dotori-900 px-5 py-4 text-center">
-						<p className="text-sm text-dotori-500 dark:text-dotori-300">아직 관심 시설이 없어요.</p>
+					<div className="rounded-3xl bg-dotori-50 dark:bg-dotori-900 px-5 py-5 text-center">
+						<div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/70 dark:bg-dotori-950/50">
+							<HeartIcon className="h-6 w-6 text-dotori-500" />
+						</div>
+						<p className="mt-3 text-base font-semibold text-dotori-900 dark:text-dotori-50">
+							관심 시설을 저장해두면 비교가 훨씬 쉬워요
+						</p>
+						<p className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
+							탐색에서 하트를 눌러 관심 목록을 만들어보세요.
+						</p>
 						<Link
 							href="/explore"
-							className="mt-2 inline-flex w-full justify-center rounded-2xl bg-dotori-100 dark:bg-dotori-800 px-4 py-2.5 text-sm font-semibold text-dotori-700 dark:text-dotori-200"
+							className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-dotori-100 dark:bg-dotori-800 px-4 text-sm font-semibold text-dotori-700 dark:text-dotori-200 active:scale-[0.97]"
 						>
-								이동할 시설 찾기
+							이동할 시설 찾기
 						</Link>
 					</div>
 				)}
@@ -454,7 +470,11 @@ export default function MyPage() {
 						<p className="text-base text-dotori-500 dark:text-dotori-300">
 							아이를 등록하면 맞춤 전략을 받을 수 있어요
 						</p>
-						<Button href="/onboarding" color="dotori" className="mt-3">
+						<Button
+							href="/onboarding"
+							color="dotori"
+							className="mt-3 w-full min-h-11"
+						>
 							등록하기
 						</Button>
 					</div>
@@ -504,21 +524,23 @@ export default function MyPage() {
 											href={item.href}
 											className={cn(
 												menuItemClass,
-												"transition-colors",
+												"transition-colors transition-transform active:scale-[0.99]",
 												isActiveMenuItem(item.href) && "bg-dotori-50 dark:bg-dotori-900",
 												"active:bg-dotori-50 hover:bg-dotori-50/50 dark:active:bg-dotori-900 dark:hover:bg-dotori-900/60",
 											)}
 										>
-											<Icon className="h-5 w-5 text-dotori-500" />
-											<div className="min-w-0 flex-1">
-												<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
-													{item.label}
-												</p>
-												<p className="mt-0.5 text-xs text-dotori-400">
-													{item.description}
-												</p>
+											<div className="flex min-w-0 flex-1 items-center gap-3">
+												<Icon className="h-5 w-5 text-dotori-500" />
+												<div className="min-w-0 flex-1">
+													<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+														{item.label}
+													</p>
+													<p className="mt-0.5 text-xs text-dotori-400">
+														{item.description}
+													</p>
+												</div>
 											</div>
-											<ChevronRightIcon className="mt-1 h-5 w-5 text-dotori-300 dark:text-dotori-700" />
+											<ChevronRightIcon className="h-5 w-5 text-dotori-300 dark:text-dotori-700" />
 										</Link>
 									</motion.li>
 								);
@@ -530,7 +552,11 @@ export default function MyPage() {
 
 			{/* 로그아웃 */}
 			<div className="mt-6 px-5">
-				<Button color="dotori" onClick={handleLogout} className="w-full py-3">
+				<Button
+					color="dotori"
+					onClick={handleLogout}
+					className="w-full min-h-11 py-3"
+				>
 					로그아웃
 				</Button>
 			</div>
