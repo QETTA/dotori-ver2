@@ -5,6 +5,7 @@ import { Button } from "@/components/catalyst/button";
 import { Heading } from "@/components/catalyst/heading";
 import { Text } from "@/components/catalyst/text";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { useTheme } from "@/hooks/useTheme";
 import { apiFetch } from "@/lib/api";
 import type { UserPlan } from "@/types/dotori";
 import { CheckCircleIcon, CreditCardIcon, SparklesIcon } from "@heroicons/react/24/outline";
@@ -49,6 +50,7 @@ function defaultNextRenewal() {
 
 export default function SettingsPage() {
 	const { user, isLoading, error, refresh } = useUserProfile();
+	const { mode, resolved, setMode } = useTheme();
 	const [plan, setPlan] = useState<UserPlan>("free");
 	const [nextRenewalDate, setNextRenewalDate] = useState("");
 	const [isUpgrading, setIsUpgrading] = useState(false);
@@ -56,6 +58,12 @@ export default function SettingsPage() {
 
 	const isPremium = plan === "premium";
 	const planLabel = useMemo(() => (isPremium ? "premium" : "free"), [isPremium]);
+	const themeLabel =
+		mode === "system"
+			? `시스템 (${resolved === "dark" ? "다크" : "라이트"})`
+			: mode === "dark"
+				? "다크"
+				: "라이트";
 
 	useEffect(() => {
 		if (!user) {
@@ -111,9 +119,9 @@ export default function SettingsPage() {
 	if (isLoading) {
 		return (
 			<div className="pb-8 px-5 pt-8">
-				<div className="h-7 w-36 rounded-full bg-dotori-100" />
-				<div className="mt-4 h-28 rounded-3xl border border-dotori-100 bg-white" />
-				<div className="mt-3 h-24 rounded-3xl border border-dotori-100 bg-white" />
+				<div className="h-7 w-36 rounded-full bg-dotori-100 dark:bg-dotori-800" />
+				<div className="mt-4 h-28 rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950" />
+				<div className="mt-3 h-24 rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950" />
 			</div>
 		);
 	}
@@ -155,8 +163,54 @@ export default function SettingsPage() {
 				</Text>
 			</header>
 
+			<section className="mt-4 px-5">
+				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
+					<div className="flex items-center justify-between gap-3">
+						<Heading level={2} className="text-base">
+							화면 테마
+						</Heading>
+						<Text className="text-xs text-dotori-500">현재: {themeLabel}</Text>
+					</div>
+
+					<div
+						role="radiogroup"
+						aria-label="화면 테마 선택"
+						className="mt-3 flex gap-1 rounded-2xl border border-dotori-200 dark:border-dotori-700 bg-dotori-50 dark:bg-dotori-900 p-1"
+					>
+						{([
+							{ value: "light", label: "라이트" },
+							{ value: "dark", label: "다크" },
+							{ value: "system", label: "시스템" },
+						] as const).map((option) => {
+							const isSelected = mode === option.value;
+							return (
+								<button
+									key={option.value}
+									type="button"
+									role="radio"
+									aria-checked={isSelected}
+									onClick={() => setMode(option.value)}
+									className={[
+										"flex-1 min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition-colors",
+										isSelected
+											? "bg-white dark:bg-dotori-950 text-dotori-900 dark:text-dotori-50 shadow-sm"
+											: "text-dotori-600 dark:text-dotori-300 hover:bg-white/70 dark:hover:bg-dotori-950/40",
+									].join(" ")}
+								>
+									{option.label}
+								</button>
+							);
+						})}
+					</div>
+
+					<Text className="mt-2 text-xs text-dotori-500">
+						시스템은 기기 설정을 따라가요.
+					</Text>
+				</div>
+			</section>
+
 			<section className="mt-5 px-5">
-				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<div className="flex items-center justify-between gap-3">
 						<Heading level={2} className="text-base">
 							현재 플랜
@@ -165,7 +219,7 @@ export default function SettingsPage() {
 							{planLabel}
 						</Badge>
 					</div>
-					<p className="mt-2 text-lg font-bold text-dotori-900">{planLabel}</p>
+					<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">{planLabel}</p>
 					{isPremium && (
 						<p className="mt-1 text-sm text-forest-600">
 							다음 갱신일: {nextRenewalDate || "확인 중"}
@@ -175,7 +229,7 @@ export default function SettingsPage() {
 			</section>
 
 			<section className="mt-4 px-5">
-				<div className="rounded-3xl bg-dotori-50 px-4 py-4">
+				<div className="rounded-3xl bg-dotori-50 dark:bg-dotori-900 px-4 py-4">
 					<Heading level={2} className="text-base">
 						프리미엄 혜택
 					</Heading>
@@ -183,7 +237,7 @@ export default function SettingsPage() {
 						{PREMIUM_BENEFITS.map((benefit) => (
 							<li key={benefit} className="flex items-start gap-2">
 								<CheckCircleIcon className="mt-0.5 h-4 w-4 text-forest-500" />
-								<span className="text-sm text-dotori-700">{benefit}</span>
+								<span className="text-sm text-dotori-700 dark:text-dotori-200">{benefit}</span>
 							</li>
 						))}
 					</ul>
@@ -191,9 +245,9 @@ export default function SettingsPage() {
 			</section>
 
 			<section className="mt-4 px-5">
-				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					{isPremium ? (
-						<div className="flex items-center justify-between gap-3 rounded-2xl bg-forest-50 px-3 py-2.5">
+						<div className="flex items-center justify-between gap-3 rounded-2xl bg-forest-50 dark:bg-dotori-900 px-3 py-2.5">
 							<div className="flex items-center gap-2">
 								<SparklesIcon className="h-5 w-5 text-forest-600" />
 								<Badge color="forest" className="text-xs">
@@ -218,14 +272,14 @@ export default function SettingsPage() {
 					)}
 
 					{isPremium && (
-						<div className="mt-2 rounded-2xl bg-dotori-50 px-3 py-2.5 text-xs text-dotori-600">
+						<div className="mt-2 rounded-2xl bg-dotori-50 dark:bg-dotori-900 px-3 py-2.5 text-xs text-dotori-600 dark:text-dotori-300">
 							<CreditCardIcon className="h-4 w-4 inline-block translate-y-[-1px]" />
 							<span className="ml-1">월 1,900원</span>
 						</div>
 					)}
 
 					{successMessage && (
-						<p className="mt-3 rounded-2xl bg-forest-50 px-3 py-2.5 text-xs text-forest-700">
+						<p className="mt-3 rounded-2xl bg-forest-50 dark:bg-dotori-900 px-3 py-2.5 text-xs text-forest-700">
 							{successMessage}
 						</p>
 					)}
@@ -233,7 +287,7 @@ export default function SettingsPage() {
 			</section>
 
 			<section className="mt-4 px-5">
-				<div className="rounded-3xl border border-dotori-100 bg-white px-4 py-4">
+				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<Heading level={2} className="text-base">
 						고객센터
 					</Heading>
@@ -244,7 +298,7 @@ export default function SettingsPage() {
 						href={supportChannelUrl}
 						target="_blank"
 						rel="noreferrer noopener"
-						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 px-4 py-2.5 text-sm font-semibold text-dotori-700 transition-colors hover:bg-dotori-50"
+						className="mt-3 inline-flex items-center rounded-full border border-dotori-200 dark:border-dotori-700 px-4 py-2.5 text-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors hover:bg-dotori-50 dark:hover:bg-dotori-900"
 					>
 						카카오톡 채널로 문의하기
 					</a>
@@ -254,7 +308,7 @@ export default function SettingsPage() {
 			<div className="mt-6 px-5">
 				<Link
 					href="/my"
-					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 px-4 py-2.5 text-center text-sm text-dotori-500"
+					className="inline-flex w-full justify-center rounded-2xl border border-dotori-100 dark:border-dotori-800 px-4 py-2.5 text-center text-sm text-dotori-500 dark:text-dotori-300"
 				>
 					MY로 돌아가기
 				</Link>

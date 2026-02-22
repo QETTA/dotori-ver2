@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ArrowLeftIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
+import { stagger } from "@/lib/motion";
 
 const termsSections = [
 	{
@@ -38,56 +40,51 @@ export default function TermsPage() {
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 				<Link
 					href="/my"
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
 				<h1 className="text-lg font-bold">이용약관</h1>
 			</header>
 
-			<div className="space-y-3 px-5 pt-2">
-				{termsSections.map((section, index) => (
-					<div
-						key={section.id}
-						className="rounded-3xl bg-white p-5 shadow-sm motion-safe:animate-in motion-safe:fade-in duration-300"
-						style={{
-							animationDelay: `${index * 50}ms`,
-							animationFillMode: "both",
-						}}
-					>
-						<h3 className="text-base font-semibold text-dotori-900">
-							{section.title}
-						</h3>
-						<p className="mt-2 text-sm leading-relaxed text-dotori-500">
-							{section.summary}
-						</p>
-						<button
-							type="button"
-							onClick={() =>
-								setExpanded(expanded === section.id ? null : section.id)
-							}
-							className="mt-3 flex items-center gap-1 text-sm font-medium text-dotori-500 transition-colors hover:text-dotori-600"
-						>
-							{expanded === section.id ? "접기" : "전문 보기"}
-							<ChevronDownIcon
-								className={cn(
-									"h-4 w-4 transition-transform duration-200",
-									expanded === section.id && "rotate-180",
-								)}
-							/>
-						</button>
-						{expanded === section.id && (
-							<div className="mt-3 whitespace-pre-line border-t border-dotori-100 pt-3 text-sm leading-relaxed text-dotori-600">
-								{section.detail}
-							</div>
-						)}
-					</div>
+			<motion.ul {...stagger.container} className="space-y-3 px-5 pt-2">
+				{termsSections.map((section) => (
+					<motion.li key={section.id} {...stagger.item}>
+						<div className="rounded-3xl bg-white dark:bg-dotori-950 p-5 shadow-sm dark:shadow-none">
+							<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+								{section.title}
+							</h3>
+							<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+								{section.summary}
+							</p>
+							<button
+								type="button"
+								onClick={() =>
+									setExpanded(expanded === section.id ? null : section.id)
+								}
+								className="mt-3 flex items-center gap-1 text-sm font-medium text-dotori-600 dark:text-dotori-300 transition-colors hover:text-dotori-700 dark:hover:text-dotori-200"
+							>
+								{expanded === section.id ? "접기" : "전문 보기"}
+								<ChevronDownIcon
+									className={cn(
+										"h-4 w-4 transition-transform duration-200",
+										expanded === section.id && "rotate-180",
+									)}
+								/>
+							</button>
+							{expanded === section.id && (
+								<div className="mt-3 whitespace-pre-line border-t border-dotori-100 dark:border-dotori-800 pt-3 text-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
+									{section.detail}
+								</div>
+							)}
+						</div>
+					</motion.li>
 				))}
-			</div>
+			</motion.ul>
 		</div>
 	);
 }

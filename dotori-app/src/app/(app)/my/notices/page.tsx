@@ -2,6 +2,8 @@
 
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { motion } from "motion/react";
+import { stagger } from "@/lib/motion";
 
 const notices = [
 	{
@@ -28,41 +30,36 @@ export default function NoticesPage() {
 	return (
 		<div className="pb-8">
 			{/* 헤더 */}
-			<header className="sticky top-0 z-20 flex items-center gap-3 bg-white/80 px-5 py-4 backdrop-blur-xl">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 				<Link
 					href="/my"
 					aria-label="뒤로 가기"
-					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50"
+					className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
 				<h1 className="text-lg font-bold">공지사항</h1>
 			</header>
 
-			<div className="space-y-3 px-5 pt-2">
-				{notices.map((notice, index) => (
-					<div
-						key={notice.id}
-						className="rounded-3xl bg-white p-5 shadow-sm motion-safe:animate-in motion-safe:fade-in duration-300"
-						style={{
-							animationDelay: `${index * 50}ms`,
-							animationFillMode: "both",
-						}}
-					>
-						<div className="flex items-center justify-between">
-							<h3 className="text-base font-semibold text-dotori-900">
-								{notice.title}
-							</h3>
-							<span className="shrink-0 text-xs text-dotori-500">
-								{notice.date}
-							</span>
+			<motion.ul {...stagger.container} className="space-y-3 px-5 pt-2">
+				{notices.map((notice) => (
+					<motion.li key={notice.id} {...stagger.item}>
+						<div className="rounded-3xl bg-white dark:bg-dotori-950 p-5 shadow-sm dark:shadow-none">
+							<div className="flex items-center justify-between">
+								<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+									{notice.title}
+								</h3>
+								<span className="shrink-0 text-xs text-dotori-500 dark:text-dotori-300">
+									{notice.date}
+								</span>
+							</div>
+							<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+								{notice.body}
+							</p>
 						</div>
-						<p className="mt-2 text-sm leading-relaxed text-dotori-500">
-							{notice.body}
-						</p>
-					</div>
+					</motion.li>
 				))}
-			</div>
+			</motion.ul>
 		</div>
 	);
 }
