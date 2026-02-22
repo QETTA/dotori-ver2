@@ -6,12 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
 	ArrowLeftIcon,
-	GlobeAltIcon,
-	ClipboardDocumentIcon,
 	ShareIcon,
 	HeartIcon,
-	MapPinIcon,
-	PhoneIcon,
 	ArrowTopRightOnSquareIcon,
 	ArrowPathIcon,
 	CheckCircleIcon,
@@ -26,7 +22,10 @@ import { FacilityChecklistCard } from "@/components/dotori/facility/FacilityChec
 import { FacilityInsights } from "@/components/dotori/facility/FacilityInsights";
 import { FacilityReviewsCard } from "@/components/dotori/facility/FacilityReviewsCard";
 import { FacilityPremiumSection } from "@/components/dotori/facility/FacilityPremiumSection";
+import { FacilityCapacitySection } from "@/components/dotori/facility/FacilityCapacitySection";
+import { FacilityContactSection } from "@/components/dotori/facility/FacilityContactSection";
 import { FacilityStatusBadges } from "@/components/dotori/facility/FacilityStatusBadges";
+import { useFacilityDetailActions } from "@/components/dotori/facility/useFacilityDetailActions";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
@@ -34,18 +33,11 @@ import { BRAND } from "@/lib/brand-assets";
 import { getFacilityImage } from "@/lib/facility-images";
 import {
 	getCapacityProgressColor,
-	getErrorMessage,
 	getFormattedVerifiedAt,
 	getSafeNumber,
 	getWaitingHintText,
 } from "@/components/dotori/facility/facility-detail-helpers";
-import type {
-	ActionStatus,
-	ChecklistBlock as ChecklistBlockType,
-	ChildProfile,
-	CommunityPost,
-	Facility,
-} from "@/types/dotori";
+import type { CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
 	() =>
@@ -156,20 +148,29 @@ export default function FacilityDetailClient({
 }
 
 function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
-	const [sheetOpen, setSheetOpen] = useState(false);
-	const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
-	const [intentId, setIntentId] = useState<string | null>(null);
-	const [sheetPreview, setSheetPreview] = useState<Record<string, string>>({});
-	const [liked, setLiked] = useState(false);
-	const [isTogglingLike, setIsTogglingLike] = useState(false);
 	const [copyingAddress, setCopyingAddress] = useState(false);
 	const [relatedPosts, setRelatedPosts] = useState<CommunityPost[]>([]);
-	const [userChildren, setUserChildren] = useState<ChildProfile[]>([]);
-	const [checklist, setChecklist] = useState<ChecklistBlockType | null>(null);
-	const [showChecklist, setShowChecklist] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 	const { addToast } = useToast();
 	const router = useRouter();
+	const {
+		sheetOpen,
+		actionStatus,
+		sheetPreview,
+		liked,
+		isTogglingLike,
+		checklist,
+		showChecklist,
+		error,
+		loadChecklist,
+		handleApplyClick,
+		handleConfirm,
+		toggleLike,
+		resetActionStatus,
+		closeSheet,
+	} = useFacilityDetailActions({
+		facilityId: facility.id,
+		facilityStatus: facility.status,
+	});
 
 	const activeFeatures = useMemo(() => {
 		return FEATURE_OPTIONS.filter((feature) => facility.features.includes(feature.key));
@@ -307,164 +308,12 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	}, [addToast, facility.id, facility.name, facility.type]);
 
 	useEffect(() => {
-		apiFetch<{ data: { children?: ChildProfile[]; interests?: string[] } }>("/api/users/me")
-			.then((res) => {
-				setUserChildren(res.data.children ?? []);
-				setLiked(Boolean(res.data.interests?.includes(facility.id)));
-			})
-			.catch(() => {});
-	}, [facility.id]);
-
-	useEffect(() => {
 		apiFetch<{ data: CommunityPost[] }>(
 			`/api/community/posts?facilityId=${facility.id}&limit=3`,
 		)
 			.then((res) => setRelatedPosts(res.data))
 			.catch(() => {});
 	}, [facility.id]);
-
-	const loadChecklist = useCallback(async () => {
-		if (checklist) {
-			setShowChecklist(!showChecklist);
-			return;
-		}
-
-		setShowChecklist(true);
-		try {
-			const res = await apiFetch<{
-				data: { checklist: ChecklistBlockType };
-			}>(`/api/waitlist/checklist?facilityId=${facility.id}`);
-			setChecklist(res.data.checklist);
-		} catch {
-			addToast({ type: "error", message: "체크리스트를 불러올 수 없습니다" });
-			setShowChecklist(false);
-		}
-	}, [facility.id, checklist, showChecklist, addToast]);
-
-	const handleApplyClick = useCallback(async () => {
-		setActionStatus("executing");
-		setSheetOpen(true);
-		setError(null);
-		setIntentId(null);
-
-		try {
-			const child = userChildren?.[0];
-			const res = await apiFetch<{
-				data: { intentId: string; preview: Record<string, string> };
-			}>("/api/actions/intent", {
-				method: "POST",
-				body: JSON.stringify({
-					actionType: "apply_waiting",
-					params: {
-						facilityId: facility.id,
-						childName: child?.name,
-						childBirthDate: child?.birthDate,
-					},
-				}),
-			});
-
-			setIntentId(res.data.intentId);
-			setSheetPreview(res.data.preview);
-			setActionStatus("idle");
-		} catch (error) {
-			setActionStatus("error");
-			setError(
-				getErrorMessage(
-					error,
-					"대기 신청 시작에 실패했어요. 잠시 후 다시 시도해주세요",
-				),
-			);
-			setSheetOpen(false);
-		}
-	}, [facility.id, userChildren]);
-
-	const handleConfirm = useCallback(async () => {
-		if (!intentId) return;
-		setActionStatus("executing");
-		setError(null);
-
-		try {
-			const res = await apiFetch<{
-				data: {
-					success: boolean;
-					data?: {
-						waitlistId?: string;
-						position?: number;
-					};
-					error?: string;
-				};
-			}>("/api/actions/execute", {
-				method: "POST",
-				body: JSON.stringify({ intentId }),
-			});
-
-			if (res.data.success) {
-				const position = res.data.data?.position;
-				const positionLabel =
-					typeof position === "number"
-						? `현재 대기 ${position}번째로 신청되었어요`
-						: "현재 대기 현황에서 순번을 확인할 수 있어요";
-
-				setActionStatus("success");
-				addToast({
-					type: "success",
-					message: facility.status === "available"
-						? "입소 신청이 완료되었어요"
-						: `대기 신청이 완료되었어요. ${positionLabel}`,
-					action: {
-						label: "MY > 대기현황 보기",
-						onClick: () => router.push("/my/waitlist"),
-					},
-					duration: 7000,
-				});
-				setSheetOpen(false);
-			} else {
-				setActionStatus("error");
-				setError(
-					getErrorMessage(
-						res.data.error,
-						"대기 신청 처리에 실패했어요. 다시 시도해주세요",
-					),
-				);
-				setSheetOpen(false);
-			}
-		} catch (error) {
-			setActionStatus("error");
-			setError(getErrorMessage(error, "대기 신청 처리에 실패했어요. 다시 시도해주세요"));
-			setSheetOpen(false);
-		}
-	}, [addToast, facility.status, intentId, router]);
-
-	const toggleLike = useCallback(async () => {
-		if (isTogglingLike) return;
-
-		setIsTogglingLike(true);
-		const nextLiked = !liked;
-		setLiked(nextLiked);
-
-		try {
-			await apiFetch("/api/users/me/interests", {
-				method: nextLiked ? "POST" : "DELETE",
-				body: JSON.stringify({ facilityId: facility.id }),
-			});
-			addToast({
-				type: "success",
-				message: nextLiked
-					? "관심 목록에 추가했어요"
-					: "관심 목록에서 삭제했어요",
-			});
-		} catch {
-			setLiked(!nextLiked);
-		} finally {
-			setIsTogglingLike(false);
-		}
-	}, [addToast, facility.id, isTogglingLike, liked]);
-
-	const resetActionStatus = useCallback(() => {
-		setError(null);
-		setActionStatus("idle");
-		setIntentId(null);
-	}, []);
 
 	return (
 		<div className="pb-32">
@@ -512,38 +361,14 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</div>
 
 			<div className="mt-4 space-y-3 px-5">
-				<section className="rounded-3xl bg-white p-5 shadow-sm">
-					<div className="flex items-center justify-between gap-2">
-						<h2 className="text-sm font-semibold text-dotori-900">정원 현황</h2>
-						<span className="text-sm font-semibold text-dotori-700">{occupancyRate}%</span>
-					</div>
-					<p className="mt-2 text-sm text-dotori-700">
-						현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
-					</p>
-					<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100">
-						<div
-							className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
-							style={{ width: `${occupancyRate}%` }}
-						/>
-					</div>
-				</section>
-
-				{keyStats.length > 0 ? (
-					<section className="rounded-3xl bg-white p-5 shadow-sm">
-						<h2 className="text-sm font-semibold text-dotori-900">주요 지표</h2>
-						<div className="mt-3 grid grid-cols-2 gap-3">
-							{keyStats.map((stat) => (
-								<div
-									key={stat.label}
-									className="rounded-2xl border border-dotori-100 bg-dotori-50/60 px-3 py-3"
-								>
-									<p className="text-[12px] text-dotori-500">{stat.label}</p>
-									<p className="mt-1 text-base font-semibold text-dotori-800">{stat.value}</p>
-								</div>
-							))}
-						</div>
-					</section>
-				) : null}
+				<FacilityCapacitySection
+					occupancyRate={occupancyRate}
+					currentCapacity={currentCapacity}
+					totalCapacity={totalCapacity}
+					waitingCapacity={waitingCapacity}
+					occupancyProgressColor={occupancyProgressColor}
+					keyStats={keyStats}
+				/>
 
 				<section className="rounded-3xl bg-white p-5 shadow-sm">
 					<h2 className="text-sm font-semibold text-dotori-900">특징</h2>
@@ -574,57 +399,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					facilityName={facility.name}
 				/>
 
-				<section className="rounded-3xl bg-white p-5 shadow-sm">
-					<h2 className="text-sm font-semibold text-dotori-900">연락처</h2>
-					<div className="mt-3 space-y-2 text-[14px] text-dotori-700">
-					{facility.phone ? (
-						<a
-							href={`tel:${facility.phone}`}
-							className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
-						>
-							<PhoneIcon className="h-5 w-5 text-dotori-500" />
-							<span>{facility.phone}</span>
-						</a>
-					) : (
-						<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500">
-							<PhoneIcon className="h-5 w-5" />
-							<span>전화번호 미제공</span>
-						</div>
-					)}
-					<div className="flex flex-col gap-2 sm:flex-row">
-						<a
-							href={kakaoMapUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="min-h-12 flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
-						>
-							<MapPinIcon className="h-5 w-5 text-dotori-500" />
-							<span className="line-clamp-2">{facility.address}</span>
-						</a>
-						<Button
-							plain={true}
-							type="button"
-							onClick={handleCopyAddress}
-							disabled={!copyableAddress || copyingAddress}
-							className="min-h-12 min-w-28 px-3"
-						>
-							<ClipboardDocumentIcon className="h-5 w-5" />
-							주소 복사
-						</Button>
-					</div>
-					{websiteUrl && (
-						<a
-							href={websiteUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-colors hover:bg-dotori-50"
-							>
-								<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
-								<span>홈페이지 열기</span>
-							</a>
-						)}
-					</div>
-				</section>
+				<FacilityContactSection
+					phone={facility.phone}
+					address={facility.address}
+					kakaoMapUrl={kakaoMapUrl}
+					websiteUrl={websiteUrl}
+					copyableAddress={copyableAddress}
+					copyingAddress={copyingAddress}
+					onCopyAddress={handleCopyAddress}
+				/>
 
 				{hasMapLocation && (
 					<section className="rounded-3xl bg-white p-5 shadow-sm">
@@ -774,11 +557,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 			<ActionConfirmSheet
 				open={sheetOpen}
-				onClose={() => {
-					setSheetOpen(false);
-				setActionStatus("idle");
-				setIntentId(null);
-			}}
+				onClose={closeSheet}
 				title="신청 확인"
 				description="아래 내용을 확인해주세요"
 				preview={
