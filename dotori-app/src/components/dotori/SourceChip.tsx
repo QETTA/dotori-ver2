@@ -24,11 +24,11 @@ export const SourceChip = memo(function SourceChip({
 			layout
 			animate={selected ? { scale: [1, 1.08, 1] } : { scale: 1 }}
 			transition={{ type: "spring", stiffness: 420, damping: 26 }}
-			className={cn(
-				"inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-all",
-				freshnessColor(freshness),
-				selected ? "bg-dotori-100 text-dotori-700" : null,
-			)}
+				className={cn(
+					"inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-all",
+					freshnessColor(freshness),
+					selected ? "bg-dotori-100 text-dotori-700" : null,
+				)}
 			>
 				{isIsalangSource ? (
 					// eslint-disable-next-line @next/next/no-img-element

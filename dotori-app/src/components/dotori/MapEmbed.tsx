@@ -294,7 +294,7 @@ export function MapEmbed({
 					height || "h-48",
 				)}
 			>
-				<span className="text-[14px] text-dotori-500">지도를 불러올 수 없어요. 주소로 검색해보세요</span>
+					<span className="text-sm text-dotori-500">지도를 불러올 수 없어요. 주소로 검색해보세요</span>
 			</div>
 		);
 	}
@@ -327,29 +327,29 @@ export function MapEmbed({
 			{/* Error overlay */}
 			{mapError && (
 				<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-dotori-100 px-5 text-center">
-					<p className="text-[14px] text-dotori-500">{mapErrorTitle}</p>
-					{developerHint && (
-						<p className="text-[12px] text-dotori-400">{developerHint}</p>
-					)}
-					{isProd && (
-						<button
-							type="button"
-							onClick={handleRetry}
-							disabled={!hasApiKey}
-							className="mt-1 min-h-[44px] rounded-xl bg-dotori-500 px-4 py-2 text-[14px] font-semibold text-white disabled:bg-dotori-200 disabled:text-dotori-500"
-						>
-							재시도
-						</button>
-					)}
+						<p className="text-sm text-dotori-500">{mapErrorTitle}</p>
+						{developerHint && (
+							<p className="text-xs text-dotori-400">{developerHint}</p>
+						)}
+						{isProd && (
+							<button
+								type="button"
+								onClick={handleRetry}
+								disabled={!hasApiKey}
+								className="mt-1 min-h-[44px] rounded-xl bg-dotori-500 px-4 py-2 text-sm font-semibold text-white disabled:bg-dotori-200 disabled:text-dotori-500"
+							>
+								재시도
+							</button>
+						)}
 				</div>
 			)}
 
 			{/* Marker cluster hint */}
 			{!isLoading && !mapError && facilities.length >= 5 && (
 				<div className="absolute inset-x-2 bottom-2 flex justify-center">
-					<p className="rounded-lg bg-white/90 px-2.5 py-1 text-[11px] text-dotori-600 shadow-sm">
-						마커 5개 이상입니다. 줌인하면 더 자세히 보여요
-					</p>
+						<p className="rounded-lg bg-white/90 px-2.5 py-1 text-xs text-dotori-600 shadow-sm">
+							마커 5개 이상입니다. 줌인하면 더 자세히 보여요
+						</p>
 				</div>
 			)}
 

@@ -40,9 +40,9 @@ export function CompareTable({ facilities, highlightBest }: CompareTableProps) {
 						<td className="py-1.5 px-2 text-dotori-500">유형</td>
 						{facilities.map((f) => (
 							<td key={f.id} className="py-1.5 px-2 text-center">
-								<span className={`inline-block rounded-full px-1.5 py-0.5 text-[10px] font-medium ${facilityTypeBadgeColor(f.type)}`}>
-									{f.type}
-								</span>
+									<span className={`inline-block rounded-full px-1.5 py-0.5 text-xs font-medium ${facilityTypeBadgeColor(f.type)}`}>
+										{f.type}
+									</span>
 							</td>
 						))}
 					</tr>

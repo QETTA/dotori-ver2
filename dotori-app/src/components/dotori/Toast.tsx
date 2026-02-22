@@ -67,15 +67,15 @@ export function Toast({ type, message, action, onDismiss }: ToastProps) {
 			{type === "undo" && (
 				<ArrowUturnLeftIcon className={cn("h-5 w-5", iconClassByType[type])} />
 			)}
-			<span className="flex-1 text-[15px]">{message}</span>
-			{action && (
-				<button
-					onClick={action.onClick}
-					className="text-[15px] font-semibold text-white/90 hover:text-white"
-				>
-					{action.label}
-				</button>
-			)}
+				<span className="flex-1 text-sm">{message}</span>
+				{action && (
+					<button
+						onClick={action.onClick}
+						className="text-sm font-semibold text-white/90 hover:text-white"
+					>
+						{action.label}
+					</button>
+				)}
 		</motion.div>
 	);
 }

@@ -44,9 +44,9 @@ export function ChatPromptPanel({
 						alt=""
 						className="mx-auto mb-4 h-16 w-16 rounded-full border border-dotori-100 bg-white"
 					/>
-					<Heading level={3} className="text-center text-[32px] leading-tight tracking-tight text-dotori-900">
-						이동 고민이라면 뭐든 물어보세요
-					</Heading>
+						<Heading level={3} className="text-center text-3xl leading-tight tracking-tight text-dotori-900">
+							이동 고민이라면 뭐든 물어보세요
+						</Heading>
 					<Text className="mt-2 block text-center text-sm text-dotori-600">
 						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 					</Text>
@@ -89,9 +89,9 @@ export function ChatPromptPanel({
 									{prompt.icon}
 								</span>
 								<div className="min-w-0">
-									<Text className="block text-[15px] font-semibold text-dotori-800">
-										{prompt.label}
-									</Text>
+										<Text className="block text-base font-semibold text-dotori-800">
+											{prompt.label}
+										</Text>
 									<Text className="mt-0.5 block line-clamp-1 text-sm text-dotori-500">
 										{prompt.prompt}
 									</Text>

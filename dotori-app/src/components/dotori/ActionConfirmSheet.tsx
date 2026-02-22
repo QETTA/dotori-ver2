@@ -77,7 +77,7 @@ export function ActionConfirmSheet({
         <DialogBody className={dialogPanelClassName}>
           <div className="flex flex-col items-center gap-3 py-8">
             <ExclamationCircleIcon className="h-12 w-12 text-amber-700" />
-            <p className="text-[15px] text-amber-800">{error}</p>
+	            <p className="text-sm text-amber-800">{error}</p>
             <div className="flex gap-3">
               <Button plain onClick={onClose}>
                 닫기
@@ -107,7 +107,7 @@ export function ActionConfirmSheet({
         </DescriptionList>
         <CheckboxField className="mt-4">
           <Checkbox checked={agreed} onChange={setAgreed} />
-          <span className="text-[15px]">위 내용이 맞습니다</span>
+	          <span className="text-sm">위 내용이 맞습니다</span>
         </CheckboxField>
         <div className="mt-4 flex gap-3">
           <Button plain onClick={onClose}>

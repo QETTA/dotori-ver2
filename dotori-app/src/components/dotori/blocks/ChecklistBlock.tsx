@@ -113,9 +113,9 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 		<div className="overflow-hidden rounded-2xl border border-dotori-100 bg-white">
 			{/* Header */}
 			<div className="border-b border-dotori-100 px-4 py-3">
-				<h3 className="text-[15px] font-semibold text-dotori-900">
-					{block.title}
-				</h3>
+					<h3 className="text-base font-semibold text-dotori-900">
+						{block.title}
+					</h3>
 				<div className="mt-2 flex items-center gap-3">
 					<div className="h-1.5 flex-1 overflow-hidden rounded-full bg-dotori-100">
 						<div
@@ -123,9 +123,9 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 							style={{ width: `${percentage}%` }}
 						/>
 					</div>
-					<span className="text-[12px] font-medium text-dotori-500">
-						{checkedCount}/{totalItems}
-					</span>
+						<span className="text-xs font-medium text-dotori-500">
+							{checkedCount}/{totalItems}
+						</span>
 				</div>
 			</div>
 
@@ -133,9 +133,9 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 				<div className="divide-y divide-dotori-100">
 					{block.categories.map((category) => (
 					<div key={category.title} className="px-4 py-3">
-						<h4 className="mb-2 text-[13px] font-semibold text-dotori-600">
-							{category.title}
-						</h4>
+							<h4 className="mb-2 text-sm font-semibold text-dotori-600">
+								{category.title}
+							</h4>
 						<ul className="space-y-1">
 							{category.items.map((item) => {
 								const isChecked = checkedMap[item.id] ?? false;
@@ -177,24 +177,24 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 												)}
 											</span>
 											<div className="min-w-0 flex-1">
-												<span
-													className={cn(
-														"text-[14px] leading-snug",
-														isChecked
-															? "text-dotori-500 line-through"
-															: "text-dotori-900",
-													)}
-												>
-													{item.text}
-												</span>
-												{item.detail && (
-													<p
-														id={detailId}
-														className="mt-0.5 text-[12px] leading-relaxed text-dotori-500"
+													<span
+														className={cn(
+															"text-sm leading-snug",
+															isChecked
+																? "text-dotori-500 line-through"
+																: "text-dotori-900",
+														)}
 													>
-														{item.detail}
-													</p>
-												)}
+														{item.text}
+													</span>
+													{item.detail && (
+														<p
+															id={detailId}
+															className="mt-0.5 text-xs leading-relaxed text-dotori-500"
+														>
+															{item.detail}
+														</p>
+													)}
 											</div>
 										</button>
 									</li>
