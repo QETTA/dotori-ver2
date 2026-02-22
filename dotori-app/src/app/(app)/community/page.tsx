@@ -37,7 +37,7 @@ import type {
 	ReverseGeocodeResponse,
 	UserMeResponse,
 } from "./_lib/community-types";
-import { getAnonymousStyle, isHotPost, tagStyle } from "./_lib/community-utils";
+import { isHotPost, tagStyle } from "./_lib/community-utils";
 
 export default function CommunityPage() {
 	const { data: session } = useSession();
@@ -355,11 +355,11 @@ export default function CommunityPage() {
 									aria-selected={isActive}
 									onClick={() => setActiveTab(tab)}
 									className={cn(
-											"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-sm font-semibold transition-all",
-											isActive
-												? "bg-dotori-900 text-white shadow-md shadow-dotori-200 dark:bg-dotori-500 dark:shadow-none"
-												: "border border-dotori-100 bg-white text-dotori-700 hover:bg-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:hover:bg-dotori-900",
-										)}
+										"min-h-[52px] min-w-max rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.97]",
+										isActive
+											? "bg-dotori-900 text-white shadow-md shadow-dotori-200 dark:bg-dotori-500 dark:shadow-none"
+											: "border border-dotori-200 bg-white text-dotori-600 hover:bg-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900",
+									)}
 									>
 									{tab}
 								</Button>
@@ -433,9 +433,8 @@ export default function CommunityPage() {
 					/>
 				) : posts.length > 0 ? (
 					<div>
-						<motion.ul {...stagger.container} className="space-y-3.5">
+						<motion.ul {...stagger.container} className="space-y-4">
 						{posts.map((post) => {
-							const anonStyle = getAnonymousStyle(post.id);
 							const postHot = isHotPost(post);
 
 							return (
@@ -444,20 +443,14 @@ export default function CommunityPage() {
 									{...stagger.item}
 									{...tap.card}
 									className={cn(
-										"rounded-[28px] border border-dotori-100 bg-white p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+										"rounded-[28px] border border-dotori-100 bg-white p-4 shadow-[0_12px_24px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
 									)}
 								>
 									<div className="relative rounded-2xl bg-gradient-to-b from-dotori-50/70 to-white p-4 dark:from-dotori-900/70 dark:to-dotori-950">
 										<div className="mb-2 flex items-start justify-between gap-2">
 											<div className="flex min-w-0 items-start gap-2.5">
-												<div
-													className={cn(
-														"mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full ring-2",
-														anonStyle.bg,
-														anonStyle.ring,
-													)}
-												>
-													<UserCircleIcon className={cn("h-5 w-5", anonStyle.icon)} />
+												<div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-dotori-600 ring-2 ring-dotori-200/70 dark:bg-dotori-800 dark:text-dotori-100 dark:ring-dotori-700">
+													<UserCircleIcon className="h-5 w-5" />
 												</div>
 												<div className="min-w-0 flex-1">
 														<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
@@ -531,12 +524,12 @@ export default function CommunityPage() {
 															[post.id]: !prev[post.id],
 														}))
 														}
-														className={cn(
-															"flex min-h-[56px] items-center gap-1.5 py-2 text-sm font-medium transition-colors",
-															showAiSummary[post.id]
-																? "text-dotori-700 dark:text-dotori-100"
-																: "text-dotori-500 dark:text-dotori-300",
-														)}
+													className={cn(
+														"flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors active:scale-[0.97]",
+														showAiSummary[post.id]
+															? "text-dotori-700 hover:bg-dotori-50 dark:text-dotori-100 dark:hover:bg-dotori-900"
+															: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-900",
+													)}
 													>
 													<SparklesIcon className="h-4 w-4" />
 													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
@@ -555,18 +548,18 @@ export default function CommunityPage() {
 										) : null}
 									</div>
 
-										<div className="mt-3 grid grid-cols-3 gap-2 text-sm">
-											<Button
-												plain={true}
-												type="button"
-												onClick={() => toggleLike(post.id)}
-												disabled={likingPosts.has(post.id)}
+									<div className="mt-3 flex items-center gap-2 rounded-2xl bg-dotori-50/70 p-2 dark:bg-dotori-900/50">
+										<Button
+											plain={true}
+											type="button"
+											onClick={() => toggleLike(post.id)}
+											disabled={likingPosts.has(post.id)}
 											aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
 											className={cn(
-												"flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl transition-colors active:scale-[0.97]",
+												"flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition-colors active:scale-[0.97]",
 												likedPosts.has(post.id)
-													? "bg-forest-50 text-forest-700 dark:bg-dotori-900 dark:text-forest-200"
-													: "bg-dotori-50/70 text-dotori-600 hover:bg-dotori-100/70 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800",
+													? "bg-forest-50 text-forest-700 hover:bg-forest-100/60 dark:bg-dotori-900 dark:text-forest-200 dark:hover:bg-dotori-800"
+													: "bg-white/70 text-dotori-600 hover:bg-dotori-100/80 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800",
 											)}
 										>
 											{likedPosts.has(post.id) ? (
@@ -579,12 +572,12 @@ export default function CommunityPage() {
 										<Link
 											href={`/community/${post.id}`}
 											aria-label="댓글"
-											className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 transition-colors hover:bg-dotori-100/70 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800"
+											className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-semibold text-dotori-600 transition-colors hover:bg-dotori-100/80 active:scale-[0.97] dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800"
 										>
 											<ChatBubbleLeftIcon className="h-5 w-5" />
 											{post.commentCount}
 										</Link>
-										<div className="flex min-h-[56px] items-center justify-center gap-1.5 rounded-xl bg-dotori-50/70 text-dotori-600 dark:bg-dotori-900/60 dark:text-dotori-300">
+										<div className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-medium text-dotori-600 dark:bg-dotori-900/60 dark:text-dotori-300">
 											<EyeIcon className="h-5 w-5" />
 											조회 {post.viewCount ?? 0}
 										</div>
@@ -612,12 +605,9 @@ export default function CommunityPage() {
 			<Link
 				href="/community/write"
 				aria-label="글쓰기"
-				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 rounded-full bg-dotori-900 p-0 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
-				style={{ width: "56px", height: "56px" }}
+				className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-dotori-900 shadow-lg shadow-dotori-900/20 ring-2 ring-white/80 transition-all hover:bg-dotori-800 hover:shadow-xl active:scale-[0.97] dark:bg-dotori-500 dark:hover:bg-dotori-400 dark:shadow-none dark:ring-dotori-900/60"
 			>
-				<div className="grid h-full w-full place-items-center text-white">
-					<PlusIcon className="h-6 w-6" />
-				</div>
+				<PlusIcon className="h-6 w-6 text-white" />
 			</Link>
 		</div>
 	);

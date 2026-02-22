@@ -1,10 +1,12 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
+import { Button } from "@/components/catalyst/button";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
+import { glass } from "@/lib/motion";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { CommunityPost } from "@/types/dotori";
 import {
@@ -195,7 +197,7 @@ export default function CommunityPostPage() {
 	}
 
 	return (
-		<div className="pb-24">
+		<div className="pb-32">
 			{/* 헤더 */}
 			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-5 py-4">
 				<button
@@ -210,72 +212,64 @@ export default function CommunityPostPage() {
 				</h1>
 			</header>
 
-			<div className="px-5">
-				{/* 게시물 본문 */}
-				<article className="pt-2">
-					{/* 작성자 */}
-					<div className="flex items-center gap-3">
-							<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-sm font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
-								?
-							</div>
-							<div>
-								<div className="flex items-center gap-1.5">
-									<span className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
-										익명 이웃
-									</span>
-									{post.author.verified && (
-										<Badge
-											color="forest"
-											className="text-xs font-medium"
-										>
-											인증
-										</Badge>
-									)}
-									{post.category && (
-										<span className="rounded bg-dotori-50 px-1.5 py-0.5 text-xs font-medium text-dotori-500 dark:bg-dotori-900">
-											{categoryLabel[post.category]}
-										</span>
-									)}
-								</div>
-								<span
-									className="text-sm text-dotori-600 dark:text-dotori-300"
-									suppressHydrationWarning
-								>
-									{formatRelativeTime(post.createdAt)}
+			<div className="px-5 pt-4">
+				{/* 게시물 */}
+				<article className="rounded-[28px] border border-dotori-100 bg-white/90 p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)] backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+					<div className="flex items-start gap-3">
+						<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-sm font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
+							?
+						</div>
+						<div className="min-w-0 flex-1">
+							<div className="flex flex-wrap items-center gap-1.5">
+								<span className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+									익명 이웃
 								</span>
+								{post.author.verified ? (
+									<Badge color="forest" className="text-xs font-medium">
+										인증
+									</Badge>
+								) : null}
+								{post.category && categoryLabel[post.category] ? (
+									<span className="rounded-full bg-dotori-50 px-2 py-0.5 text-xs font-semibold text-dotori-600 dark:bg-dotori-900 dark:text-dotori-200">
+										{categoryLabel[post.category]}
+									</span>
+								) : null}
+							</div>
+							<span
+								className="mt-1 block text-sm text-dotori-600 dark:text-dotori-300"
+								suppressHydrationWarning
+							>
+								{formatRelativeTime(post.createdAt)}
+							</span>
 						</div>
 					</div>
 
-					{/* 본문 */}
-						<p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-dotori-800 dark:text-dotori-100">
-							{post.content}
-						</p>
+					<p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-dotori-800 dark:text-dotori-100">
+						{post.content}
+					</p>
 
-					{/* 시설 태그 */}
-					{post.facilityTags && post.facilityTags.length > 0 && (
+					{post.facilityTags && post.facilityTags.length > 0 ? (
 						<div className="mt-3 flex flex-wrap gap-2">
-								{post.facilityTags.map((tag) => (
-									<Link
-										key={tag}
-										href={`/explore?q=${encodeURIComponent(tag)}`}
-										className="rounded-full bg-dotori-50 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-colors hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-800"
-									>
-										{tag}
-									</Link>
-								))}
-							</div>
-						)}
+							{post.facilityTags.map((tag) => (
+								<Link
+									key={tag}
+									href={`/explore?q=${encodeURIComponent(tag)}`}
+									className="rounded-full bg-dotori-50 px-3 py-1.5 text-sm font-medium text-dotori-600 transition-colors hover:bg-dotori-100 active:scale-[0.97] dark:bg-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-800"
+								>
+									{tag}
+								</Link>
+							))}
+						</div>
+					) : null}
 
-					{/* 액션 바 */}
-						<div className="mt-4 flex items-center gap-4 border-b border-dotori-100/40 pb-4 text-sm text-dotori-600 dark:border-dotori-800 dark:text-dotori-300">
-							<button
-								onClick={toggleLike}
-								disabled={liking}
-								className={cn(
-									"flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors active:scale-[0.97]",
-								liked
-									? "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-400 dark:hover:bg-dotori-900"
-									: "hover:bg-dotori-50 hover:text-dotori-700 dark:hover:bg-dotori-900 dark:hover:text-dotori-100",
+					<div className="mt-4 flex items-center gap-2 rounded-2xl bg-dotori-50/70 p-2 dark:bg-dotori-900/50">
+						<button
+							onClick={toggleLike}
+							disabled={liking}
+							className={cn(
+								"flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-semibold text-dotori-700 transition-colors hover:bg-dotori-100/80 active:scale-[0.97] dark:bg-dotori-900/60 dark:text-dotori-100 dark:hover:bg-dotori-800",
+								liked &&
+									"bg-forest-50 text-forest-700 hover:bg-forest-100/60 dark:bg-dotori-900 dark:text-forest-200 dark:hover:bg-dotori-800",
 							)}
 						>
 							{liked ? (
@@ -283,54 +277,82 @@ export default function CommunityPostPage() {
 							) : (
 								<HeartIcon className="h-5 w-5" />
 							)}
-							{post.likes}
+							좋아요 {post.likes}
 						</button>
 						<button
 							onClick={() => inputRef.current?.focus()}
-							className="flex items-center gap-1.5 rounded-full px-3 py-2 transition-colors hover:bg-dotori-50 hover:text-dotori-700 active:scale-[0.97] dark:hover:bg-dotori-900 dark:hover:text-dotori-100"
+							className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-semibold text-dotori-700 transition-colors hover:bg-dotori-100/80 active:scale-[0.97] dark:bg-dotori-900/60 dark:text-dotori-100 dark:hover:bg-dotori-800"
 						>
 							<ChatBubbleLeftIcon className="h-5 w-5" />
-							{post.commentCount}
+							댓글 {post.commentCount}
 						</button>
 					</div>
 				</article>
 
-				{/* 댓글 목록 */}
-				<section className="mt-4">
+				{/* 댓글 */}
+				<section className="mt-6">
+					<div className="flex items-center justify-between">
 						<h2 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 							댓글 {comments.length}
 						</h2>
-						{comments.length === 0 ? (
-							<p className="mt-4 text-center text-sm text-dotori-600 dark:text-dotori-300">
-								첫 댓글을 남겨보세요
+					</div>
+
+					{comments.length === 0 ? (
+						<div className="mt-3 rounded-2xl border border-dotori-100 bg-white/80 p-5 text-center backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/70">
+							<div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-dotori-100 text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
+								<ChatBubbleLeftIcon className="h-5 w-5" />
+							</div>
+							<p className="mt-3 text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+								아직 댓글이 없어요
 							</p>
-						) : (
-							<div className="mt-3 space-y-4">
-									{comments.map((comment) => (
-										<div key={comment.id} className="flex gap-3">
-											<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-xs font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-200">
-												?
-											</div>
-											<div className="min-w-0 flex-1">
-												<div className="flex items-center gap-1.5">
-													<span className="text-sm font-semibold text-dotori-800 dark:text-dotori-100">
-														익명 이웃
-													</span>
-												{comment.author.verified && (
-													<Badge
-														color="forest"
-														className="text-xs"
-													>
+							<p className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
+								첫 댓글로 따뜻한 한마디를 남겨보세요.
+							</p>
+							{session?.user ? (
+								<Button
+									color="dotori"
+									type="button"
+									onClick={() => inputRef.current?.focus()}
+									className="mt-4 w-full min-h-11"
+								>
+									첫 댓글 남기기
+								</Button>
+							) : (
+								<Button
+									href="/login"
+									color="dotori"
+									className="mt-4 w-full min-h-11"
+								>
+									로그인하고 댓글 남기기
+								</Button>
+							)}
+						</div>
+					) : (
+						<div className="mt-3 space-y-3">
+							{comments.map((comment) => (
+								<div
+									key={comment.id}
+									className="rounded-2xl border border-dotori-100 bg-white/80 p-4 backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/70"
+								>
+									<div className="flex gap-3">
+										<div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-dotori-100 text-xs font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-200">
+											?
+										</div>
+										<div className="min-w-0 flex-1">
+											<div className="flex flex-wrap items-center gap-1.5">
+												<span className="text-sm font-semibold text-dotori-800 dark:text-dotori-100">
+													익명 이웃
+												</span>
+												{comment.author.verified ? (
+													<Badge color="forest" className="text-xs">
 														인증
 													</Badge>
-												)}
+												) : null}
 												<span
 													className="text-xs text-dotori-600 dark:text-dotori-300"
 													suppressHydrationWarning
 												>
-													{formatRelativeTime(
-														comment.createdAt,
-													)}
+													{formatRelativeTime(comment.createdAt)}
 												</span>
 											</div>
 											<p className="mt-1 text-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
@@ -338,14 +360,20 @@ export default function CommunityPostPage() {
 											</p>
 										</div>
 									</div>
-								))}
+								</div>
+							))}
 						</div>
 					)}
 				</section>
 			</div>
 
 			{/* 댓글 입력 — 하단 고정 */}
-			<div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 border-t border-dotori-100/40 bg-white/95 px-5 py-3 backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/90">
+			<div
+				className={cn(
+					"fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 border-t border-dotori-100/50 px-5 py-3 shadow-lg dark:border-dotori-800 dark:bg-dotori-950/90",
+					glass.sheet,
+				)}
+			>
 				<div className="mx-auto flex max-w-md items-center gap-2">
 					<input
 						ref={inputRef}
@@ -362,10 +390,10 @@ export default function CommunityPostPage() {
 								? "댓글을 입력하세요"
 								: "로그인 후 댓글을 남길 수 있어요"
 						}
-							disabled={!session?.user}
-							maxLength={2000}
-							className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
-						/>
+						disabled={!session?.user}
+						maxLength={2000}
+						className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
+					/>
 					<button
 						onClick={submitComment}
 						aria-label="댓글 보내기"
