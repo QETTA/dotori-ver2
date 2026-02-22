@@ -15,8 +15,9 @@
 
 - **목적**: R14 실행 전 문서 기준선(목적/범위/소유권/머지 순서/완료 조건) 통일
 - **범위**: `../docs/CHANGELOG.md`, `.serena/memories/agent_task_registry.md`, `.serena/memories/project_overview.md`
-- **진행상태**: `docs-sync-r14` 반영 완료, 코드 변경 에이전트는 머지 순서 기준으로 진행
-- **R14 완료 조건**: 콘솔 오류 0 (`npm run check-console`), `npm run lint` 통과, `npm run build` 통과
+- **진행상태**: `docs-sync-r14` 반영 완료, 11개 에이전트 소유권/머지 순서(1→11) 확정
+- **소유권/머지 기준 문서**: `.serena/memories/agent_task_registry.md`
+- **R14 완료 조건**: 콘솔 오류 0 (`BASE_URL=http://localhost:3000 npm run check-console`), `npm run lint` 통과, `npm run build` 통과, `npx tsc --noEmit` 에러 0
 
 ## 앱 포지셔닝 (2026 핵심 전략)
 
