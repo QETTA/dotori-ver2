@@ -119,7 +119,7 @@ export default function NotificationsPage() {
 				<Link href="/my" aria-label="뒤로 가기" className="rounded-full p-2.5 transition-all active:scale-[0.97] hover:bg-dotori-50">
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
-				<h1 className="text-[17px] font-bold">알림</h1>
+				<h1 className="text-lg font-bold">알림</h1>
 			</header>
 
 			<div className="px-5 pt-2">
@@ -169,32 +169,32 @@ export default function NotificationsPage() {
 										</div>
 										<div className="min-w-0 flex-1">
 											<div className="flex items-center gap-2">
-												<span className={cn("text-[13px] font-semibold", tone.titleColor)}>
+												<span className={cn("text-sm font-semibold", tone.titleColor)}>
 													{typeMeta.label}
 												</span>
 												{status && (
-													<span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", tone.badge, status.color)}>
+													<span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", tone.badge, status.color)}>
 														{status.text}
 													</span>
 												)}
 											</div>
 											{facility ? (
 												<>
-													<h3 className="mt-1 text-[15px] font-semibold text-dotori-900">
+													<h3 className="mt-1 text-base font-semibold text-dotori-900">
 														{facility.name}
 													</h3>
-													<p className="mt-0.5 text-[13px] text-dotori-500">
+													<p className="mt-0.5 text-sm text-dotori-500">
 														{facility.status === "available"
 															? `TO ${toCount}석 (정원 ${facility.capacity.total}명)`
 															: `대기 ${facility.capacity.waiting}명 · ${facility.type}`}
 													</p>
 												</>
 											) : (
-												<h3 className="mt-1 text-[15px] font-semibold text-dotori-900">
+												<h3 className="mt-1 text-base font-semibold text-dotori-900">
 													시설 정보를 확인할 수 없어요
 												</h3>
 											)}
-											<span className="mt-1.5 block text-[12px] text-dotori-500" suppressHydrationWarning>
+											<span className="mt-1.5 block text-xs text-dotori-500" suppressHydrationWarning>
 												{formatRelativeTime(notification.triggeredAt)}
 											</span>
 										</div>

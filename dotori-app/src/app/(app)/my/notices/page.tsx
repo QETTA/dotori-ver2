@@ -36,7 +36,7 @@ export default function NoticesPage() {
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
-				<h1 className="text-[17px] font-bold">공지사항</h1>
+				<h1 className="text-lg font-bold">공지사항</h1>
 			</header>
 
 			<div className="space-y-3 px-5 pt-2">
@@ -50,14 +50,14 @@ export default function NoticesPage() {
 						}}
 					>
 						<div className="flex items-center justify-between">
-							<h3 className="text-[15px] font-semibold text-dotori-900">
+							<h3 className="text-base font-semibold text-dotori-900">
 								{notice.title}
 							</h3>
-							<span className="shrink-0 text-[12px] text-dotori-500">
+							<span className="shrink-0 text-xs text-dotori-500">
 								{notice.date}
 							</span>
 						</div>
-						<p className="mt-2 text-[14px] leading-relaxed text-dotori-500">
+						<p className="mt-2 text-sm leading-relaxed text-dotori-500">
 							{notice.body}
 						</p>
 					</div>

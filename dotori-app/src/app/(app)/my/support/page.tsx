@@ -22,13 +22,13 @@ export default function SupportPage() {
 				>
 					<ArrowLeftIcon className="h-5 w-5" />
 				</Link>
-				<h1 className="text-[17px] font-bold">고객센터</h1>
+				<h1 className="text-lg font-bold">고객센터</h1>
 			</header>
 
 			<div className="space-y-3 px-5 pt-2">
 				{/* 연락처 */}
 				<div className="rounded-3xl bg-white p-5 shadow-sm motion-safe:animate-in motion-safe:fade-in duration-300">
-					<h3 className="text-[15px] font-semibold text-dotori-900">
+					<h3 className="text-base font-semibold text-dotori-900">
 						연락처
 					</h3>
 					<div className="mt-3 space-y-3">
@@ -37,10 +37,10 @@ export default function SupportPage() {
 								<EnvelopeIcon className="h-5 w-5 text-dotori-500" />
 							</div>
 							<div>
-								<span className="block text-[13px] text-dotori-500">
+								<span className="block text-sm text-dotori-500">
 									이메일
 								</span>
-								<span className="text-[15px] font-medium text-dotori-900">
+								<span className="text-base font-medium text-dotori-900">
 									help@dotori.app
 								</span>
 							</div>
@@ -50,10 +50,10 @@ export default function SupportPage() {
 								<PhoneIcon className="h-5 w-5 text-dotori-500" />
 							</div>
 							<div>
-								<span className="block text-[13px] text-dotori-500">
+								<span className="block text-sm text-dotori-500">
 									전화
 								</span>
-								<span className="text-[15px] font-medium text-dotori-900">
+								<span className="text-base font-medium text-dotori-900">
 									02-1234-5678
 								</span>
 							</div>
@@ -75,10 +75,10 @@ export default function SupportPage() {
 						<QuestionMarkCircleIcon className="h-5 w-5 text-dotori-500" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<h3 className="text-[15px] font-semibold text-dotori-900">
+						<h3 className="text-base font-semibold text-dotori-900">
 							자주 묻는 질문
 						</h3>
-						<p className="mt-0.5 text-[13px] text-dotori-500">
+						<p className="mt-0.5 text-sm text-dotori-500">
 							FAQ에서 궁금한 점을 확인해보세요
 						</p>
 					</div>
@@ -95,7 +95,7 @@ export default function SupportPage() {
 					style={{ animationDelay: "100ms", animationFillMode: "both" }}
 				>
 					<ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
-					<span className="text-[16px] font-semibold text-white">
+					<span className="text-base font-semibold text-white">
 						1:1 문의하기
 					</span>
 				</Link>

@@ -185,7 +185,7 @@ export default function MyPage() {
 							</div>
 							<div>
 								<h1 className="text-xl font-bold">MY 페이지</h1>
-								<p className="mt-0.5 text-[15px] text-dotori-700">
+								<p className="mt-0.5 text-sm text-dotori-700">
 									로그인하면 이동 수요 기준으로 시설 비교와 빈자리 체크를 바로 볼 수 있어요
 								</p>
 							</div>
@@ -197,18 +197,18 @@ export default function MyPage() {
 					<Button
 						href="/login"
 						color="amber"
-						className="w-full py-4 text-[16px] font-semibold active:scale-[0.97]"
+						className="w-full py-4 text-base font-semibold active:scale-[0.97]"
 					>
 						카카오 로그인
 					</Button>
-					<p className="mt-2 text-center text-[12px] text-dotori-300">
+					<p className="mt-2 text-center text-xs text-dotori-300">
 						로그인 후 관심 시설, 대기 현황, 알림을 한 번에 확인하세요
 					</p>
 				</div>
 
 				{publicMenuSections.map((section, si) => (
 					<section key={si} className="mt-5 px-5">
-						<h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-dotori-300">
+						<h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-dotori-300">
 							{section.title}
 						</h2>
 						<div className="overflow-hidden rounded-3xl bg-white shadow-sm">
@@ -228,8 +228,8 @@ export default function MyPage() {
 									>
 										<Icon className="h-5 w-5 text-dotori-500" />
 										<div className="min-w-0 flex-1">
-											<p className="text-[15px] font-semibold">{item.label}</p>
-											<p className="mt-0.5 text-[12px] text-dotori-400">
+											<p className="text-base font-semibold">{item.label}</p>
+											<p className="mt-0.5 text-xs text-dotori-400">
 												{item.description}
 											</p>
 										</div>
@@ -252,7 +252,7 @@ export default function MyPage() {
 					<div className="mb-3 flex items-center justify-between">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
-						<Badge color="dotori" className="text-[10px] font-semibold">
+						<Badge color="dotori" className="text-xs font-semibold">
 							MY
 						</Badge>
 					</div>
@@ -281,17 +281,17 @@ export default function MyPage() {
 								<Link href="/my/settings" aria-label="플랜 설정으로 이동">
 									<Badge
 									color={user.plan === "free" ? "dotori" : "forest"}
-									className="text-[10px]"
+									className="text-xs"
 								>
 									{planLabel}
 								</Badge>
 								</Link>
 							</div>
-							<p className="mt-0.5 text-[13px] text-dotori-500">{formatRegion(user.region)}</p>
-							<p className="mt-1 text-[13px] text-dotori-500">{childSummary}</p>
+							<p className="mt-0.5 text-sm text-dotori-500">{formatRegion(user.region)}</p>
+							<p className="mt-1 text-sm text-dotori-500">{childSummary}</p>
 							<Link
 								href="/my/settings"
-								className="mt-2 inline-flex items-center rounded-full bg-dotori-50 px-3 py-1.5 text-[12px] font-semibold text-dotori-700 transition-colors hover:bg-dotori-100"
+								className="mt-2 inline-flex items-center rounded-full bg-dotori-50 px-3 py-1.5 text-xs font-semibold text-dotori-700 transition-colors hover:bg-dotori-100"
 							>
 								프로필 수정
 							</Link>
@@ -314,10 +314,10 @@ export default function MyPage() {
 								"active:scale-[0.98] active:bg-dotori-50",
 							)}
 						>
-							<span className="text-[20px] font-bold leading-none text-dotori-900">
+							<span className="text-xl font-bold leading-none text-dotori-900">
 								{stat.value}
 							</span>
-							<span className="text-[12px] text-dotori-500">
+							<span className="text-xs text-dotori-500">
 								{stat.label} {stat.value}개
 							</span>
 						</Link>
@@ -328,13 +328,13 @@ export default function MyPage() {
 			{!isPremiumUser && (
 				<section className="mt-5 px-5">
 					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 px-4 py-5">
-						<p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-dotori-500">
+						<p className="text-xs font-semibold uppercase tracking-[0.18em] text-dotori-500">
 							프리미엄
 						</p>
-						<p className="mt-2 text-[18px] font-bold text-dotori-900">
+						<p className="mt-2 text-lg font-bold text-dotori-900">
 							프리미엄 · 월 1,900원
 						</p>
-						<div className="mt-2 space-y-1.5 text-[13px] text-dotori-700">
+						<div className="mt-2 space-y-1.5 text-sm text-dotori-700">
 							<p>• 즉시 알림</p>
 							<p>• 무제한 AI</p>
 							<p>• 우선 매칭</p>
@@ -357,8 +357,8 @@ export default function MyPage() {
 						href="/my/interests"
 						className="flex items-center justify-between"
 					>
-						<h2 className="text-[15px] font-bold">관심 시설 {interestsCount}곳</h2>
-						<span className="inline-flex items-center text-[13px] text-dotori-500">
+						<h2 className="text-base font-bold">관심 시설 {interestsCount}곳</h2>
+						<span className="inline-flex items-center text-sm text-dotori-500">
 							자세히 보기
 							<ChevronRightIcon className="ml-0.5 h-4 w-4" />
 						</span>
@@ -383,11 +383,11 @@ export default function MyPage() {
 											<p className="font-semibold text-dotori-900 leading-snug line-clamp-1">
 												{facility.name}
 											</p>
-											<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-[11px] text-dotori-500">
+											<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-xs text-dotori-500">
 												{facility.type}
 											</span>
 										</div>
-										<p className="mt-1 text-[12px] text-dotori-500 line-clamp-1">
+										<p className="mt-1 text-xs text-dotori-500 line-clamp-1">
 											{facility.address}
 										</p>
 									</div>
@@ -397,10 +397,10 @@ export default function MyPage() {
 				</div>
 				) : (
 					<div className="rounded-3xl bg-dotori-50 px-5 py-4 text-center">
-						<p className="text-[14px] text-dotori-500">아직 관심 시설이 없어요.</p>
+						<p className="text-sm text-dotori-500">아직 관심 시설이 없어요.</p>
 						<Link
 							href="/explore"
-							className="mt-2 inline-flex w-full justify-center rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700"
+							className="mt-2 inline-flex w-full justify-center rounded-2xl bg-dotori-100 px-4 py-2.5 text-sm font-semibold text-dotori-700"
 						>
 								이동할 시설 찾기
 						</Link>
@@ -410,7 +410,7 @@ export default function MyPage() {
 
 			{/* 내 아이 */}
 			<section className="mt-5 px-5">
-				<h2 className="mb-2.5 text-[15px] font-bold">내 아이</h2>
+				<h2 className="mb-2.5 text-base font-bold">내 아이</h2>
 				{user.children.length > 0 ? (
 					<div className="space-y-2">
 						{childDetails.map(({ child, ageLabel }) => (
@@ -418,7 +418,7 @@ export default function MyPage() {
 								key={child.id}
 								className="flex items-center gap-3.5 rounded-3xl bg-white p-5 shadow-sm"
 							>
-								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 text-[13px] font-bold text-dotori-500">
+								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 text-sm font-bold text-dotori-500">
 									{child?.gender === "female"
 										? "👧"
 										: child?.gender === "male"
@@ -426,14 +426,14 @@ export default function MyPage() {
 											: "👶"}
 								</div>
 								<div className="min-w-0 flex-1">
-									<span className="text-[15px] font-semibold">{child.name}</span>
-									<span className="ml-1.5 text-[14px] text-dotori-500">
+									<span className="text-base font-semibold">{child.name}</span>
+									<span className="ml-1.5 text-sm text-dotori-500">
 										만 {ageLabel}
 									</span>
 								</div>
 								<Link
 									href="/my/settings"
-									className="py-1 text-[14px] text-dotori-500 transition-colors hover:text-dotori-600"
+									className="py-1 text-sm text-dotori-500 transition-colors hover:text-dotori-600"
 								>
 									수정
 								</Link>
@@ -442,7 +442,7 @@ export default function MyPage() {
 				</div>
 				) : (
 					<div className="rounded-2xl bg-dotori-50 p-5 text-center">
-						<p className="text-[15px] text-dotori-500">
+						<p className="text-base text-dotori-500">
 							아이를 등록하면 맞춤 전략을 받을 수 있어요
 						</p>
 						<Button href="/onboarding" color="dotori" className="mt-3">
@@ -465,10 +465,10 @@ export default function MyPage() {
 						<CameraIcon className="h-6 w-6 text-dotori-600" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<span className="block text-[15px] font-semibold text-dotori-900">
+						<span className="block text-base font-semibold text-dotori-900">
 							아이사랑 데이터 가져오기
 						</span>
-						<span className="text-[13px] text-dotori-500">
+						<span className="text-sm text-dotori-500">
 							스크린샷 AI 분석으로 대기현황 자동 등록
 						</span>
 					</div>
@@ -479,7 +479,7 @@ export default function MyPage() {
 			{/* 메뉴 */}
 				{visibleMenuSections.map((section) => (
 				<section key={section.title} className="mt-5 px-5">
-					<h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-dotori-300">
+					<h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-dotori-300">
 						{section.title}
 					</h2>
 					<div className="overflow-hidden rounded-3xl bg-white shadow-sm">
@@ -500,8 +500,8 @@ export default function MyPage() {
 								>
 									<Icon className="h-5 w-5 text-dotori-500" />
 									<div className="min-w-0 flex-1">
-										<p className="text-[15px] font-semibold">{item.label}</p>
-										<p className="mt-0.5 text-[12px] text-dotori-400">
+										<p className="text-base font-semibold">{item.label}</p>
+										<p className="mt-0.5 text-xs text-dotori-400">
 											{item.description}
 										</p>
 									</div>
@@ -519,7 +519,7 @@ export default function MyPage() {
 					로그아웃
 				</Button>
 			</div>
-			<p className="mt-2 text-center text-[12px] text-dotori-300">버전 1.0.0</p>
+			<p className="mt-2 text-center text-xs text-dotori-300">버전 1.0.0</p>
 		</div>
 	);
 }

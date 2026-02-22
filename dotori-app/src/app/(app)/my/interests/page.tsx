@@ -84,7 +84,7 @@ export default function InterestsPage() {
 				</Link>
 				<h1 className="text-base font-bold">관심 시설</h1>
 				{facilities.length > 0 && (
-					<span className="ml-auto text-[14px] text-dotori-500">
+					<span className="ml-auto text-sm text-dotori-500">
 						{facilities.length}곳
 					</span>
 				)}
@@ -103,15 +103,15 @@ export default function InterestsPage() {
 						alt=""
 						className="h-32 w-32 opacity-60"
 					/>
-					<p className="mt-6 text-center text-[15px] font-medium text-dotori-500">
+					<p className="mt-6 text-center text-base font-medium text-dotori-500">
 						아직 관심 등록한 시설이 없어요
 					</p>
-					<p className="mt-1.5 text-center text-[14px] text-dotori-500">
+					<p className="mt-1.5 text-center text-sm text-dotori-500">
 						탐색에서 마음에 드는 어린이집에 하트를 눌러보세요
 					</p>
 					<Link
 						href="/explore"
-						className="mt-6 rounded-2xl bg-dotori-900 px-6 py-3.5 text-[15px] font-semibold text-white transition-all active:scale-[0.97]"
+						className="mt-6 rounded-2xl bg-dotori-900 px-6 py-3.5 text-base font-semibold text-white transition-all active:scale-[0.97]"
 					>
 						시설 탐색하기
 					</Link>
@@ -141,7 +141,7 @@ export default function InterestsPage() {
 
 							{/* 상태 뱃지 */}
 							{facility.status === "available" && (
-								<span className="absolute left-3 top-3 rounded-full bg-forest-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+								<span className="absolute left-3 top-3 rounded-full bg-forest-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
 									TO 발생
 								</span>
 							)}
