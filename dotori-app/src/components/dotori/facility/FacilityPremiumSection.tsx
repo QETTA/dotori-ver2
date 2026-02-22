@@ -27,7 +27,7 @@ export function FacilityPremiumSection({
 				<h2 className="text-sm font-semibold text-dotori-900">인증 시설 정보</h2>
 				{premiumVerifiedAt ? (
 					<p className="text-sm font-medium text-forest-700">
-						검증일: {premiumVerifiedAt}
+						인증일: {premiumVerifiedAt}
 					</p>
 				) : null}
 			</div>

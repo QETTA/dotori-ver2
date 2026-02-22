@@ -32,7 +32,9 @@ export function FacilityStatusBadges({
 					: `데이터 품질 점수 ${qualityScore}점`}
 			</Badge>
 			{!isPremiumFacility ? (
-				<span className="text-sm text-dotori-500">이 시설은 아직 인증 시설 미등록</span>
+				<span className="text-sm text-dotori-500">
+					이 시설은 아직 인증 시설로 등록되지 않았어요
+				</span>
 			) : null}
 		</div>
 	);
