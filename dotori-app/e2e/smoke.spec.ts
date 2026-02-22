@@ -27,6 +27,8 @@ test("홈페이지 로드", async ({ page }) => {
 });
 
 test("로그인 페이지 로드", async ({ page }) => {
+	// 잔존 쿠키 제거 후 비로그인 상태에서 테스트
+	await page.context().clearCookies();
 	await gotoAndExpect200(page, "/login");
 
 	await expect(page.getByRole("button", { name: "카카오 계정으로 로그인" })).toBeVisible();
