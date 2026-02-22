@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import dbConnect from "@/lib/db";
 import { toFacilityDTO } from "@/lib/dto";
 import FacilityDetailClient from "./FacilityDetailClient";
@@ -10,6 +9,7 @@ type PageProps = { params: { id: string } | Promise<{ id: string }> };
 
 const facilityNotFoundTitle = "시설을 찾을 수 없습니다 | 도토리";
 const facilityNotFoundDescription = "요청하신 어린이집 정보를 찾을 수 없습니다.";
+const facilityNotFoundErrorMessage = "요청하신 어린이집 정보를 찾을 수 없어요.";
 const facilityLoadErrorMessage = "시설 정보를 불러오지 못했어요";
 
 function toSafeCount(value: unknown): number {
@@ -80,7 +80,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 	const facilityId = resolvedParams.id;
 
 	if (!mongoose.Types.ObjectId.isValid(facilityId)) {
-		notFound();
+		return <FacilityDetailClient loadError={facilityNotFoundErrorMessage} />;
 	}
 
 	let facilityDoc: Parameters<typeof toFacilityDTO>[0] | null = null;
@@ -96,7 +96,7 @@ export default async function FacilityDetailPage({ params }: PageProps) {
 	}
 
 	if (!facilityDoc) {
-		notFound();
+		return <FacilityDetailClient loadError={facilityNotFoundErrorMessage} />;
 	}
 
 	try {

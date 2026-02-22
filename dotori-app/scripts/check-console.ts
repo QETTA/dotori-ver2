@@ -6,6 +6,7 @@ const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i
 type CapturedError = {
   source: 'console' | 'pageerror'
   message: string
+  locationUrl?: string
 }
 
 function toValidFacilityId(value: unknown): string | null {
@@ -45,12 +46,31 @@ async function canInspectFacilityRoute(facilityId: string): Promise<boolean> {
   }
 }
 
+async function canInspectRoute(route: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE}${route}`)
+    return res.status < 400
+  } catch {
+    return false
+  }
+}
+
 function normalizeErrorMessage(message: string): string {
   return message.replace(/\s+/g, ' ').trim()
 }
 
+function normalizeErrorUrl(url: string | undefined): string | undefined {
+  if (typeof url !== 'string') return undefined
+  const trimmed = url.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
 function isNoisyError(error: CapturedError): boolean {
   const message = error.message.toLowerCase()
+  const locationUrl = error.locationUrl?.toLowerCase() ?? ''
+  const hasKakaoSdkUrl =
+    message.includes('dapi.kakao.com/v2/maps/sdk.js') ||
+    locationUrl.includes('dapi.kakao.com/v2/maps/sdk.js')
 
   if (message.includes('download the react devtools')) {
     return true
@@ -59,14 +79,15 @@ function isNoisyError(error: CapturedError): boolean {
   if (
     error.source === 'console' &&
     message.includes('failed to load resource') &&
-    message.includes('favicon.ico')
+    (message.includes('favicon.ico') || locationUrl.includes('/favicon.ico'))
   ) {
     return true
   }
 
   if (
     error.source === 'console' &&
-    message.includes('kakao') &&
+    hasKakaoSdkUrl &&
+    message.includes('failed to find a valid digest in the') &&
     message.includes('integrity')
   ) {
     return true
@@ -74,7 +95,7 @@ function isNoisyError(error: CapturedError): boolean {
 
   if (
     error.source === 'console' &&
-    message.includes('kakao') &&
+    hasKakaoSdkUrl &&
     message.includes('net::err_blocked_by_client')
   ) {
     return true
@@ -98,7 +119,14 @@ async function main() {
   ]
 
   if (facilityId && (await canInspectFacilityRoute(facilityId))) {
-    routes.push(`/facility/${facilityId}`)
+    const facilityRoute = `/facility/${facilityId}`
+    if (await canInspectRoute(facilityRoute)) {
+      routes.push(facilityRoute)
+    } else {
+      console.log(
+        `ℹ️ ${facilityRoute} 응답 상태를 확인할 수 없어 /facility/:id 검사를 건너뜁니다.`
+      )
+    }
   } else if (facilityId) {
     console.log(
       'ℹ️ 시설 상세 API 확인에 실패해 /facility/:id 검사를 건너뜁니다.'
@@ -124,6 +152,7 @@ async function main() {
         errors.push({
           source: 'console',
           message: normalizeErrorMessage(msg.text()),
+          locationUrl: normalizeErrorUrl(msg.location().url),
         })
       }
     })
@@ -149,7 +178,10 @@ async function main() {
         new Map(
           errors
             .filter((error) => !isNoisyError(error))
-            .map((error) => [`${error.source}:${error.message}`, error])
+            .map((error) => [
+              `${error.source}:${error.locationUrl ?? ''}:${error.message}`,
+              error,
+            ])
         ).values()
       )
 
@@ -159,7 +191,7 @@ async function main() {
           console.log(
             `   ${
               error.source === 'pageerror' ? '[PAGE ERROR]' : '[CONSOLE ERROR]'
-            } ${error.message}`
+            } ${error.message}${error.locationUrl ? ` (${error.locationUrl})` : ''}`
           )
         )
         totalErrors += actionableErrors.length
@@ -186,4 +218,8 @@ async function main() {
   process.exit(totalErrors > 0 ? 1 : 0)
 }
 
-main()
+main().catch((err: unknown) => {
+  const msg = err instanceof Error ? err.message : String(err)
+  console.error(`\n❌ check-console 실행 중 예외가 발생했습니다: ${msg}`)
+  process.exit(1)
+})
