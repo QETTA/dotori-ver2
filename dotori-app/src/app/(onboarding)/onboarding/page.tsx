@@ -271,7 +271,7 @@ export default function OnboardingPage() {
 	}
 
 	const inputCls =
-		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
+		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
 	const sliderCls =
 		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500 dark:bg-dotori-700";
 	const choicePillBase =
@@ -311,7 +311,7 @@ export default function OnboardingPage() {
 				) : (
 					<div className="h-11 w-11" />
 				)}
-				<p className="text-sm font-medium text-dotori-400">
+				<p className="text-sm font-medium text-dotori-500">
 					{Math.min(step + 1, totalSteps)}/{totalSteps}
 				</p>
 			</header>
@@ -374,7 +374,7 @@ export default function OnboardingPage() {
 							<h1 className="text-2xl font-bold tracking-tight">
 								아이 정보를 알려주세요
 							</h1>
-							<p className="mt-1 text-sm text-dotori-400">
+							<p className="mt-1 text-sm text-dotori-500">
 								맞춤 입소 전략을 위해 필요해요
 							</p>
 						</div>
@@ -405,7 +405,7 @@ export default function OnboardingPage() {
 											만 {childAge}세
 										</span>
 									) : (
-										<span className="text-xs text-dotori-400">
+										<span className="text-xs text-dotori-500">
 											월을 선택해 만 나이를 확인하세요
 										</span>
 									)}
@@ -428,7 +428,7 @@ export default function OnboardingPage() {
 							<select
 								value={birthMonth}
 								onChange={(e) => setBirthMonth(e.target.value)}
-								className={cn(inputCls, !birthMonth && "text-dotori-400")}
+								className={cn(inputCls, !birthMonth && "text-dotori-500")}
 							>
 								<option value="">월 선택</option>
 								{Array.from({ length: 12 }, (_, i) => {
@@ -486,7 +486,7 @@ export default function OnboardingPage() {
 							<h1 className="text-2xl font-bold tracking-tight">
 								거주 지역을 알려주세요
 							</h1>
-							<p className="mt-1 text-sm text-dotori-400">
+							<p className="mt-1 text-sm text-dotori-500">
 								주변 시설을 찾기 위해 필요해요
 							</p>
 						</div>
@@ -609,7 +609,7 @@ export default function OnboardingPage() {
 							<h1 className="text-2xl font-bold tracking-tight">
 								관심 유형을 선택하세요
 							</h1>
-							<p className="mt-1 text-sm text-dotori-400">
+							<p className="mt-1 text-sm text-dotori-500">
 								여러 개 선택할 수 있어요
 							</p>
 						</div>
@@ -623,6 +623,7 @@ export default function OnboardingPage() {
 									<motion.button
 										key={type}
 										type="button"
+										aria-pressed={selectedTypes.includes(type)}
 										onClick={() =>
 											toggle(
 												selectedTypes,
@@ -652,6 +653,7 @@ export default function OnboardingPage() {
 									<motion.button
 										key={feat}
 										type="button"
+										aria-pressed={selectedFeatures.includes(feat)}
 										onClick={() =>
 											toggle(
 												selectedFeatures,
@@ -716,7 +718,7 @@ export default function OnboardingPage() {
 							<h1 className="text-2xl font-bold tracking-tight">
 								토리챗 AI가 이동 전략을 짜줘요
 							</h1>
-							<p className="mt-1 text-sm text-dotori-400">
+							<p className="mt-1 text-sm text-dotori-500">
 								입소 가능성, 이사 일정, 대기순위까지 한 번에 정리해드려요.
 							</p>
 						</div>
@@ -809,7 +811,7 @@ export default function OnboardingPage() {
 							type="button"
 							onClick={skipStep}
 							disabled={isSaving}
-							className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-xs font-semibold text-dotori-400 transition-colors hover:text-dotori-600 disabled:opacity-50 dark:hover:text-dotori-300"
+							className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-xs font-semibold text-dotori-500 transition-colors hover:text-dotori-600 disabled:opacity-50 dark:hover:text-dotori-300"
 						>
 							무료로 먼저 체험하기
 						</button>

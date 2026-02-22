@@ -6,6 +6,7 @@ import { useToast } from "@/components/dotori/ToastProvider";
 import { useFacilityActions } from "@/hooks/use-facility-actions";
 import { useFacilities } from "@/hooks/use-facilities";
 import { apiFetch } from "@/lib/api";
+import { trackEvent } from "@/lib/analytics";
 import type { Facility, FacilityStatus } from "@/types/dotori";
 import {
 	EXPLORE_TYPE_FILTERS,
@@ -89,6 +90,8 @@ export interface ExploreResultState {
 	hasSearchInput: boolean;
 	hasFilterApplied: boolean;
 	debouncedSearch: string;
+	sortBy: ExploreSortKey;
+	vacancyOnly: boolean;
 	chatPromptHref: string;
 }
 
@@ -97,6 +100,8 @@ export interface ExploreResultActions {
 	onLoadMore: () => void;
 	onResetSearch: () => void;
 	onResetFilters: () => void;
+	onOpenFilters: () => void;
+	onOpenMap: () => void;
 }
 
 export interface ExploreResultInteraction {
@@ -160,6 +165,8 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	const initialSearch = searchParams.get("q") ?? "";
 	const initialSido = searchParams.get("sido") ?? "";
 	const initialSigungu = searchParams.get("sigungu") ?? "";
+	const shouldFocusMapRadius = searchParams.get("focusRadius") === "1";
+	const shouldOpenFiltersFromQuery = searchParams.get("openFilters") === "1";
 
 	const [searchInput, setSearchInputState] = useState(initialSearch);
 	const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
@@ -183,10 +190,11 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	});
 	const [selectedSido, setSelectedSido] = useState(initialSido);
 	const [selectedSigungu, setSelectedSigungu] = useState(initialSigungu);
-	const [showMap, setShowMap] = useState(false);
+	const [showMap, setShowMap] = useState(searchParams.get("view") === "map");
 	const [showFilters, setShowFilters] = useState(() => {
 		return Boolean(
-			searchParams.get("type") ||
+			shouldOpenFiltersFromQuery ||
+				searchParams.get("type") ||
 				searchParams.get("to") ||
 				searchParams.get("sido") ||
 				searchParams.get("sigungu"),
@@ -206,6 +214,63 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
 	const [isTimeout, setIsTimeout] = useState(false);
 	const isInitialMount = useRef(true);
+	const hasHandledFocusRadiusRef = useRef(false);
+	const hasAutoFilterOpenTrackedRef = useRef(false);
+
+	const activeFilterCount = useMemo(
+		() =>
+			selectedTypes.length +
+			(toOnly ? 1 : 0) +
+			(selectedSigungu ? 1 : 0) +
+			(selectedSido ? 1 : 0),
+		[selectedSido, selectedSigungu, selectedTypes.length, toOnly],
+	);
+
+	const facilityQuery = useMemo(
+		() => ({
+			search: debouncedSearch || undefined,
+			type: selectedTypes.length > 0 ? selectedTypes.join(",") : undefined,
+			status: toOnly ? "available" : undefined,
+			sido: selectedSido || undefined,
+			sigungu: selectedSigungu || undefined,
+			sort: sortBy,
+		}),
+		[debouncedSearch, selectedSido, selectedSigungu, selectedTypes, sortBy, toOnly],
+	);
+
+	const {
+		facilities,
+		total,
+		isLoading,
+		isLoadingMore,
+		error,
+		loadMore,
+		refresh,
+		hasMore,
+	} = useFacilities(facilityQuery);
+
+	useEffect(() => {
+		const shouldOpenFilters = searchParams.get("openFilters") === "1";
+		if (!shouldOpenFilters || hasAutoFilterOpenTrackedRef.current) {
+			return;
+		}
+
+		hasAutoFilterOpenTrackedRef.current = true;
+		setShowFilters(true);
+		trackEvent("filter_open", "explore", {
+			entry_point: "explore_filter",
+			funnel_step: "open_sheet",
+			active_filter_count: activeFilterCount,
+			result_count: total,
+			filters: {
+				types: selectedTypes,
+				sido: selectedSido || undefined,
+				sigungu: selectedSigungu || undefined,
+				vacancyOnly: toOnly,
+				sortBy,
+			},
+		});
+	}, [activeFilterCount, selectedSigungu, selectedSido, selectedTypes, sortBy, searchParams, toOnly, total]);
 
 	useEffect(() => {
 		let active = true;
@@ -278,6 +343,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		if (selectedSido) params.set("sido", selectedSido);
 		if (selectedSigungu) params.set("sigungu", selectedSigungu);
 		if (sortBy !== "distance") params.set("sort", sortBy);
+		if (showMap) params.set("view", "map");
 
 		const queryString = params.toString();
 		router.replace(`/explore${queryString ? `?${queryString}` : ""}`, {
@@ -290,12 +356,39 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		selectedSigungu,
 		selectedTypes,
 		sortBy,
+		showMap,
 		toOnly,
 	]);
 
 	useEffect(() => {
 		syncUrl();
 	}, [syncUrl]);
+
+	useEffect(() => {
+		if (!shouldFocusMapRadius || hasHandledFocusRadiusRef.current) {
+			return;
+		}
+
+		hasHandledFocusRadiusRef.current = true;
+		setShowMap(true);
+		addToast({
+			type: "info",
+			message: "반경을 넓히면 후보가 더 많이 보여요",
+		});
+		trackEvent("filter_open", "explore", {
+			entry_point: "explore_empty_map",
+			funnel_step: "map_radius_focus",
+			map_view: true,
+		});
+
+		const nextParams = new URLSearchParams(searchParams.toString());
+		nextParams.delete("focusRadius");
+		nextParams.set("view", "map");
+		const query = nextParams.toString();
+		router.replace(`/explore${query ? `?${query}` : ""}`, {
+			scroll: false,
+		});
+	}, [addToast, router, searchParams, shouldFocusMapRadius]);
 
 	useEffect(() => {
 		const timeoutId = window.setTimeout(() => {
@@ -305,28 +398,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		return () => window.clearTimeout(timeoutId);
 	}, [searchInput]);
 
-	const {
-		facilities,
-		total,
-		isLoading,
-		isLoadingMore,
-		error,
-		loadMore,
-		refresh,
-		hasMore,
-	} = useFacilities({
-		search: debouncedSearch || undefined,
-		type: selectedTypes.length > 0 ? selectedTypes.join(",") : undefined,
-		status: toOnly ? "available" : undefined,
-		sido: selectedSido || undefined,
-		sigungu: selectedSigungu || undefined,
-		sort: sortBy,
-	});
-
-	const toCount = useMemo(
-		() => facilities.filter((facility) => facility.status === "available").length,
-		[facilities],
-	);
+	const toCount = total;
 
 	const sortedFacilities = useMemo(() => {
 		if (facilities.length === 0) return facilities;
@@ -376,15 +448,6 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		};
 	}, [mapFacilityPoints, userLocation]);
 
-	const activeFilterCount = useMemo(
-		() =>
-			selectedTypes.length +
-			(toOnly ? 1 : 0) +
-			(selectedSigungu ? 1 : 0) +
-			(selectedSido ? 1 : 0),
-		[selectedSido, selectedSigungu, selectedTypes.length, toOnly],
-	);
-
 	const hasSearchInput = useMemo(
 		() => debouncedSearch.trim().length > 0,
 		[debouncedSearch],
@@ -429,33 +492,176 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	}, []);
 
 	const toggleType = useCallback((type: string) => {
-		setSelectedTypes((prev) =>
-			prev.includes(type)
+		setSelectedTypes((prev) => {
+			const nextTypes = prev.includes(type)
 				? prev.filter((currentType) => currentType !== type)
-				: [...prev, type],
-		);
-	}, []);
+				: [...prev, type];
+			const nextActiveFilterCount =
+				nextTypes.length +
+				(toOnly ? 1 : 0) +
+				(selectedSigungu ? 1 : 0) +
+				(selectedSido ? 1 : 0);
+			trackEvent("filter_apply", "explore", {
+				entry_point: "explore_filter",
+				funnel_step: "apply_type",
+				active_filter_count: nextActiveFilterCount,
+				result_count: total,
+				filters: {
+					types: nextTypes,
+					sido: selectedSido || undefined,
+					sigungu: selectedSigungu || undefined,
+					vacancyOnly: toOnly,
+					sortBy,
+				},
+			});
+			return nextTypes;
+		});
+	}, [selectedSido, selectedSigungu, sortBy, toOnly, total]);
 
 	const toggleToOnly = useCallback(() => {
-		setToOnly((prev) => !prev);
-	}, []);
+		setToOnly((prev) => {
+			const next = !prev;
+			const nextActiveFilterCount =
+				selectedTypes.length +
+				(next ? 1 : 0) +
+				(selectedSigungu ? 1 : 0) +
+				(selectedSido ? 1 : 0);
+			trackEvent(next ? "vacancy_only_toggle_on" : "vacancy_only_toggle_off", "explore", {
+				entry_point: "explore_filter",
+				funnel_step: next ? "toggle_vacancy_on" : "toggle_vacancy_off",
+				active_filter_count: nextActiveFilterCount,
+				result_count: total,
+				filters: {
+					types: selectedTypes,
+					sido: selectedSido || undefined,
+					sigungu: selectedSigungu || undefined,
+					vacancyOnly: next,
+					sortBy,
+				},
+			});
+			trackEvent("filter_apply", "explore", {
+				entry_point: "explore_filter",
+				funnel_step: "apply_vacancy_toggle",
+				active_filter_count: nextActiveFilterCount,
+				result_count: total,
+				filters: {
+					types: selectedTypes,
+					sido: selectedSido || undefined,
+					sigungu: selectedSigungu || undefined,
+					vacancyOnly: next,
+					sortBy,
+				},
+			});
+			return next;
+		});
+	}, [selectedSido, selectedSigungu, selectedTypes, sortBy, total]);
 
 	const changeSortBy = useCallback((nextSort: ExploreSortKey) => {
 		setSortBy(nextSort);
-	}, []);
+		trackEvent("filter_apply", "explore", {
+			entry_point: "explore_filter",
+			funnel_step: "apply_sort",
+			active_filter_count: activeFilterCount,
+			result_count: total,
+			filters: {
+				types: selectedTypes,
+				sido: selectedSido || undefined,
+				sigungu: selectedSigungu || undefined,
+				vacancyOnly: toOnly,
+				sortBy: nextSort,
+			},
+		});
+	}, [activeFilterCount, selectedSido, selectedSigungu, selectedTypes, toOnly, total]);
 
 	const changeSido = useCallback((nextSido: string) => {
 		setSelectedSido(nextSido);
 		setSelectedSigungu("");
-	}, []);
+		const nextActiveFilterCount =
+			selectedTypes.length +
+			(toOnly ? 1 : 0) +
+			(nextSido ? 1 : 0);
+		trackEvent("filter_apply", "explore", {
+			entry_point: "explore_filter",
+			funnel_step: "apply_sido",
+			active_filter_count: nextActiveFilterCount,
+			result_count: total,
+			filters: {
+				types: selectedTypes,
+				sido: nextSido || undefined,
+				sigungu: undefined,
+				vacancyOnly: toOnly,
+				sortBy,
+			},
+		});
+	}, [selectedTypes, sortBy, toOnly, total]);
 
 	const changeSigungu = useCallback((nextSigungu: string) => {
 		setSelectedSigungu(nextSigungu);
-	}, []);
+		const nextActiveFilterCount =
+			selectedTypes.length +
+			(toOnly ? 1 : 0) +
+			(selectedSido ? 1 : 0) +
+			(nextSigungu ? 1 : 0);
+		trackEvent("filter_apply", "explore", {
+			entry_point: "explore_filter",
+			funnel_step: "apply_sigungu",
+			active_filter_count: nextActiveFilterCount,
+			result_count: total,
+			filters: {
+				types: selectedTypes,
+				sido: selectedSido || undefined,
+				sigungu: nextSigungu || undefined,
+				vacancyOnly: toOnly,
+				sortBy,
+			},
+		});
+	}, [selectedSido, selectedTypes, sortBy, toOnly, total]);
 
 	const toggleFilters = useCallback(() => {
-		setShowFilters((prev) => !prev);
-	}, []);
+		setShowFilters((prev) => {
+			const next = !prev;
+			if (next) {
+				trackEvent("filter_open", "explore", {
+					entry_point: "explore_filter",
+					funnel_step: "open_sheet",
+					active_filter_count: activeFilterCount,
+					result_count: total,
+					filters: {
+						types: selectedTypes,
+						sido: selectedSido || undefined,
+						sigungu: selectedSigungu || undefined,
+						vacancyOnly: toOnly,
+						sortBy,
+					},
+				});
+			}
+			return next;
+		});
+	}, [activeFilterCount, selectedSido, selectedSigungu, selectedTypes, sortBy, toOnly, total]);
+
+	const openFilters = useCallback(() => {
+		setShowFilters((prev) => {
+			if (prev) {
+				return true;
+			}
+
+			trackEvent("filter_open", "explore", {
+				entry_point: "explore_filter",
+				funnel_step: "open_sheet",
+				active_filter_count: activeFilterCount,
+				result_count: total,
+				filters: {
+					types: selectedTypes,
+					sido: selectedSido || undefined,
+					sigungu: selectedSigungu || undefined,
+					vacancyOnly: toOnly,
+					sortBy,
+				},
+			});
+
+			return true;
+		});
+	}, [activeFilterCount, selectedSido, selectedSigungu, selectedTypes, sortBy, toOnly, total]);
 
 	const toggleMap = useCallback(() => {
 		setShowMap((prev) => !prev);
@@ -532,6 +738,19 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	}, [addToast, gpsState.loading]);
 
 	const resetFilters = useCallback(() => {
+		trackEvent("filter_reset", "explore", {
+			entry_point: "explore_filter",
+			funnel_step: "reset",
+			active_filter_count: activeFilterCount,
+			result_count: total,
+			filters: {
+				types: selectedTypes,
+				sido: selectedSido || undefined,
+				sigungu: selectedSigungu || undefined,
+				vacancyOnly: toOnly,
+				sortBy,
+			},
+		});
 		setSearchInputState("");
 		setDebouncedSearch("");
 		setSelectedTypes([]);
@@ -539,7 +758,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		setSortBy("distance");
 		setSelectedSido("");
 		setSelectedSigungu("");
-	}, []);
+	}, [activeFilterCount, selectedSido, selectedSigungu, selectedTypes, sortBy, toOnly, total]);
 
 	const retry = useCallback(() => {
 		setIsTimeout(false);
@@ -650,6 +869,8 @@ export function useExploreSearch(): UseExploreSearchReturn {
 			hasSearchInput,
 			hasFilterApplied,
 			debouncedSearch,
+			sortBy,
+			vacancyOnly: toOnly,
 			chatPromptHref,
 		}),
 		[
@@ -662,7 +883,9 @@ export function useExploreSearch(): UseExploreSearchReturn {
 			isLoading,
 			isLoadingMore,
 			isTimeout,
+			sortBy,
 			sortedFacilities,
+			toOnly,
 		],
 	);
 
@@ -672,8 +895,19 @@ export function useExploreSearch(): UseExploreSearchReturn {
 			onLoadMore: loadMore,
 			onResetSearch: clearSearch,
 			onResetFilters: resetFilters,
+			onOpenFilters: openFilters,
+			onOpenMap: () => {
+				const nextParams = new URLSearchParams(searchParams.toString());
+				nextParams.set("view", "map");
+				nextParams.set("focusRadius", "1");
+				const query = nextParams.toString();
+				router.replace(`/explore${query ? `?${query}` : ""}`, {
+					scroll: false,
+				});
+				setShowMap(true);
+			},
 		}),
-		[clearSearch, loadMore, resetFilters, retry],
+		[clearSearch, loadMore, openFilters, resetFilters, retry, router, searchParams],
 	);
 
 	const mapState = useMemo<ExploreMapState>(
