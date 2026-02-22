@@ -7,14 +7,14 @@ export function StreamingIndicator({ text }: { text?: string }) {
 	const message = text ?? "토리가 생각 중이에요...";
 
 	return (
-		<div className="flex items-center gap-2">
+		<div className="flex items-center gap-2 rounded-full bg-dotori-50 px-2.5 py-1.5">
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={BRAND.symbol} alt="" className="h-5 w-5 animate-pulse" />
 			<div className="flex items-end gap-1">
 				{[0, 1, 2].map((i) => (
 					<motion.span
 						key={i}
-						className="h-3 w-1.5 rounded-full bg-gradient-to-t from-forest-500 to-forest-300"
+						className="h-3 w-1.5 rounded-full bg-gradient-to-t from-forest-500 to-dotori-300"
 						animate={{ scaleY: [0.35, 1, 0.35], opacity: [0.4, 1, 0.4] }}
 						transition={{
 							repeat: Infinity,
@@ -26,7 +26,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 					/>
 				))}
 			</div>
-			<span className="text-sm font-medium text-dotori-600">{message}</span>
+			<span className="text-sm font-medium text-forest-700">{message}</span>
 		</div>
 	);
 }

@@ -17,6 +17,22 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 	const percent = Math.max(0, Math.min(1, ratio)) * 100;
 	const isNearLimit = hasLimit && !isLimitReached && ratio >= 0.8;
 
+	const containerColor = isLimitReached
+		? "border-dotori-200"
+		: isNearLimit
+			? "border-amber-200"
+			: isUnlimited
+				? "border-dotori-100"
+				: "border-forest-100";
+
+	const labelColor = isLimitReached
+		? "text-dotori-700"
+		: isNearLimit
+			? "text-amber-700"
+			: isUnlimited
+				? "text-dotori-700"
+				: "text-forest-700";
+
 	const trackColor = isLimitReached
 		? "bg-dotori-100 text-dotori-700"
 		: isNearLimit
@@ -34,9 +50,9 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 				: "bg-forest-500";
 
 	return (
-		<div className="space-y-2 rounded-2xl border border-dotori-100 bg-white p-4">
+		<div className={cn("space-y-2 rounded-2xl border bg-white p-4", containerColor)}>
 			<div className="flex items-end justify-between gap-3">
-				<Text className="text-sm font-medium text-dotori-700">{label}</Text>
+				<Text className={cn("text-sm font-medium", labelColor)}>{label}</Text>
 				<div className={cn("rounded-full px-3 py-1 text-xs font-semibold tabular-nums", trackColor)}>
 					{isUnlimited ? "무제한" : `${current}/${limit}`}
 				</div>
@@ -47,6 +63,11 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 					style={{ width: isUnlimited ? "100%" : `${percent}%` }}
 				/>
 			</div>
+			{isNearLimit ? (
+				<Text className="text-sm text-amber-700">
+					이번 달 사용 한도의 80% 이상을 사용했어요.
+				</Text>
+			) : null}
 			{isLimitReached ? (
 				<Text className="text-sm text-dotori-700">
 					{isOverLimit ? "현재 사용량을 초과했습니다." : "이번 달 사용 한도에 도달했습니다."}{" "}

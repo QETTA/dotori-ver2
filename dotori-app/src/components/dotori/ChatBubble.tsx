@@ -56,7 +56,7 @@ export const ChatBubble = memo(function ChatBubble({
 			>
 				<div
 					className={cn(
-						'max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-400 px-4 py-3 text-white shadow-none'
+						'max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-500 px-4 py-3 text-white shadow-none'
 					)}
 				>
 					<div className="space-y-1">
@@ -114,7 +114,7 @@ export const ChatBubble = memo(function ChatBubble({
 			<div className="flex max-w-[85%] flex-col gap-2">
 				<div
 					className={cn(
-						'rounded-2xl rounded-bl-sm border-none bg-white px-4 py-3 shadow-sm'
+						'rounded-2xl rounded-bl-sm border border-dotori-100 bg-white px-4 py-3 shadow-sm'
 					)}
 				>
 					{isStreaming && !hasStreamingContent ? (
