@@ -132,11 +132,11 @@ export default function InterestsPage() {
 								className={cn(
 									"absolute right-3 top-3 rounded-full p-2",
 									"bg-white/90 shadow-sm transition-all",
-									"active:scale-[0.95] hover:bg-red-50",
+									"active:scale-[0.95] hover:bg-dotori-50",
 									removingIds.has(facility.id) && "opacity-50",
 								)}
 							>
-								<HeartIcon className="h-4.5 w-4.5 fill-red-400 text-red-400" />
+								<HeartIcon className="h-4.5 w-4.5 fill-dotori-400 text-dotori-400" />
 							</button>
 
 							{/* 상태 뱃지 */}

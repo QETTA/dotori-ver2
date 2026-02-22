@@ -56,18 +56,18 @@ const toneStyles: Record<
 		badge: "bg-dotori-50 text-dotori-600",
 	},
 	urgent: {
-		titleColor: "text-red-600",
-		iconBg: "bg-red-50",
-		iconText: "text-red-600",
-		border: "border-red-200",
-		badge: "bg-red-50 text-red-600",
+		titleColor: "text-amber-700",
+		iconBg: "bg-amber-50",
+		iconText: "text-amber-700",
+		border: "border-amber-200",
+		badge: "bg-amber-50 text-amber-700",
 	},
 };
 
 const statusLabels: Record<string, { text: string; color: string }> = {
 	available: { text: "여석 있음", color: "text-forest-600 bg-forest-50" },
-	waiting: { text: "대기 중", color: "text-amber-700 bg-amber-50" },
-	full: { text: "마감", color: "text-red-600 bg-red-50" },
+	waiting: { text: "대기 중", color: "text-dotori-600 bg-dotori-50" },
+	full: { text: "마감", color: "text-amber-800 bg-amber-100" },
 };
 
 function renderTypeIcon(icon: "bell" | "heart" | "check", colorClass: string) {
