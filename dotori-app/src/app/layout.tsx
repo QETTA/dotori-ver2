@@ -103,7 +103,7 @@ export default function RootLayout({
 			<head>
 				<script
 					dangerouslySetInnerHTML={{
-						__html: `(function(){try{var t=localStorage.getItem("dotori-theme");if(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+						__html: `(function(){try{var t=localStorage.getItem("dotori-theme");if(t==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})()`,
 					}}
 				/>
 				<link
@@ -118,30 +118,9 @@ export default function RootLayout({
 					dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
 				/>
 			</head>
-			<body className="bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] antialiased transition-colors duration-200">
+			<body className="bg-dotori-50 text-dotori-900 antialiased transition-colors duration-200 dark:bg-dotori-950 dark:text-dotori-50">
 				<WebVitalsReporter />
 				{children}
-				{/* 카카오 JavaScript SDK */}
-				<Script
-					src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
-					crossOrigin="anonymous"
-					strategy="afterInteractive"
-				/>
-				<Script
-					id="kakao-init"
-					strategy="afterInteractive"
-					dangerouslySetInnerHTML={{
-						__html: `
-							(function check(){
-								if(window.Kakao&&!window.Kakao.isInitialized()){
-									window.Kakao.init("${process.env.NEXT_PUBLIC_KAKAO_JS_KEY || ""}");
-								}else if(!window.Kakao){
-									setTimeout(check,200);
-								}
-							})();
-						`,
-					}}
-				/>
 				{/* GA4 (Google Analytics) */}
 				{GA_ID && (
 					<>
