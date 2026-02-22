@@ -1,6 +1,6 @@
 # 도토리 (Dotori) 프로젝트 개요
 
-## 현재 상태 (2026-02-22, R17 완료)
+## 현재 상태 (2026-02-22, R20 완료)
 
 - **47 pages**, 0 TypeScript errors, **106 tests** (vitest, 15 test files), 빌드 성공
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
@@ -8,9 +8,13 @@
 - **DO 배포**: DigitalOcean App Platform (sgp 리전)
   - URL: https://dotori-app-pwyc9.ondigitalocean.app
   - App ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
-- **완료 라운드**: R1(12) + R2(12) + R3(12) + R5(11) + R8(11) + R9(11) + R11(6) + R12(5) + R13(11) + R17(11) = **102 에이전트**
+- **완료 라운드**: R1(12)+R2(12)+R3(12)+R5(11)+R8(11)+R9(11)+R11(6)+R12(5)+R13(11)+R17(11)+R18(11)+R19(11)+R20(4) = **128 에이전트**
 - **보안**: P0~P1 이슈 0건 (R13에서 Opus 분석 기반 전체 수정)
-- **R17 성과**: text-[Npx] 286→0건 전체 제거, API 테스트 91→106개, response-builder 모듈 분리 완료
+- **UX 기반 완성 (R18~R20)**: dark mode, glass morphism, motion/react, layout polish, interaction feedback 전 페이지 적용
+- **R20 성과**: 나노단위 UI 검수 — 폰트/워딩/카드/배치/컬러 전면 폴리싱, auth layout pt-[22vh] 제거(로그인 중앙정렬), 카카오 K 아이콘, 채팅 헤딩 1줄(text-xl)
+- **auth 픽스**: NextAuth v5 trustHost=true (UntrustedHost 에러 해결)
+- **E2E 스펙**: e2e/smoke.spec.ts + e2e/console-errors.spec.ts (크리티컬 에러 자동 감지)
+- **106 tests** (vitest), **E2E 15/15** (Playwright)
 
 ## R14 문서 동기화 상태 (2026-02-22)
 
