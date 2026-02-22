@@ -5,7 +5,7 @@
 set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────────
-ROUND=${1:-r18}
+ROUND=${1:-r19}
 CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
 REPO=/home/sihu2129/dotori-ver2
 APP=$REPO/dotori-app
@@ -13,8 +13,8 @@ WT_BASE=$REPO/.worktrees
 RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
-AGENTS=(ux-home ux-chat ux-explore ux-community ux-facility ux-my-core ux-my-waitlist ux-onboarding ux-auth-landing ux-core-comp ux-blocks)
-MERGE_ORDER=(ux-core-comp ux-blocks ux-home ux-chat ux-explore ux-community ux-facility ux-my-core ux-my-waitlist ux-onboarding ux-auth-landing)
+AGENTS=(polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-shared polish-waitlist polish-onboarding polish-comp)
+MERGE_ORDER=(polish-comp polish-shared polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-waitlist polish-onboarding)
 PIDS=()
 PASS=()
 FAIL=()
@@ -78,264 +78,393 @@ import { fadeUp, stagger, tap, glass } from "@/lib/motion";
 - framer-motion import 금지 → motion/react만 사용
 - 새로운 인라인 variants 정의 최소화 (motion.ts 프리셋 우선)'
 
+### ── R19 공통 원칙 ─────────────────────────────────────────────────────
+R19_PRINCIPLE='## R19 원칙 (반드시 준수)
+R18에서 dark mode + glass + motion 기반을 장착했다. R19는 레이아웃 폴리싱과 인터랙션 완성이 목표다.
+
+### 금지 (R19에서 하지 말아야 할 것):
+1. dark: 클래스를 이미 있는 곳에 중복 추가 금지 — 파일을 읽어서 이미 적용됐으면 건드리지 마라
+2. globals.css 수정 금지
+3. motion.ts 수정 금지
+4. layout.tsx 수정 금지
+5. framer-motion import 금지
+
+### 해야 할 것:
+1. 간격(spacing) 개선: 과도한 빈공간 제거, 섹션 간 균형 잡기
+2. 타이포그래피: 계층 강화 (제목 크기, 본문 대비)
+3. 인터랙션: tap/hover 피드백이 빠진 곳 추가
+4. 빈 상태(empty state): 더 친근한 메시지와 시각 처리
+5. CTA 일관성: 주요 버튼은 항상 min-h-11 이상, full-width
+6. text-[Npx] 확인 및 제거
+
+### 설계 기준:
+- 화면의 20% 이상이 빈 공간이면 안 된다 (로그인 예외: 브랜딩 여백)
+- 섹션 간격: space-y-4 또는 mt-6 기본
+- 카드 패딩: px-4 py-4 또는 p-5 기본
+- 터치 타깃: 모든 버튼/링크 min-h-11 이상'
+
 ### ── 에이전트별 작업 프롬프트 ─────────────────────────────────────────────
 get_task() {
   local agent=$1
   case $agent in
-    ux-home)
-      echo "홈 페이지 UX 플러그인 적용
+    polish-login)
+      echo "로그인 페이지 레이아웃 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
+- src/app/(auth)/login/page.tsx
+- src/app/(auth)/error.tsx
+
+$R19_PRINCIPLE
+
+## 구체적 문제
+현재 login/page.tsx의 내부 flex 컨테이너가 min-h-dvh flex-col pt-8이다.
+화면 상단 40% 가량이 비어 보이고, 'mt-auto'로 인해 하단 terms 위 큰 공백이 발생한다.
+
+## 수정 방법
+LoginPageClient()의 return 문에서 내부 레이아웃을 다음으로 변경:
+
+before:
+  <div className=\"relative min-h-dvh overflow-x-hidden bg-dotori-50 ...\">
+    <LoginBackgroundDecoration />
+    {shouldReduceMotion ? (
+      <div className=\"... flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center\">
+    ) : (
+      <motion.div className=\"... flex min-h-dvh w-full max-w-md flex-col items-center px-6 pt-8 text-center\">
+
+after:
+  - 외부 div는 그대로 (bg, min-h-dvh, overflow)
+  - 내부 컨테이너: flex min-h-dvh flex-col items-center px-6 text-center
+    - 상단 영역 (flex-1 flex flex-col justify-center): LoginIntro + error + LoginCard
+    - '로그인 없이 둘러보기' 링크: 카드 바로 아래 (mt-6)
+    - Terms 단락: pb-6 pt-4 (mt-auto 제거, flex-col 끝에 자연 배치)
+
+LoginFooter 컴포넌트 수정:
+  - mt-auto pt-10 → mt-4 pb-6 pt-6 (mt-auto 제거)
+
+LoginCard 수정:
+  - mt-7 → mt-8 (약간 더 간격)
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    polish-home)
+      echo "홈 페이지 폴리싱
+
+담당 파일:
 - src/app/(app)/page.tsx
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가 (위 규칙 따라서)
-2. 섹션별 fadeUp 적용 (AI 토리, 내 주변 빈자리, NBA 카드)
-3. NBA 카드 리스트에 stagger 적용
-4. 상단 헤더 영역에 glass-header 적용 (있으면)
+## 구체적 개선
+1. 헤더 섹션 압축
+   - 인사말(Heading level=1) + 서브텍스트 + 상태카드 3개
+   - 상태카드의 py-2.5 → py-2로 세로 압축
+   - 헤더 mb-3 → mb-2
+
+2. AI 토리 섹션 개선
+   - AI 칩 스타일: 현재 <Badge color='dotori'>가 작고 눌림감 없음
+   - 각 칩에 active:scale-[0.97] transition 추가
+   - AI 칩 3개 배열을 더 균등하게
+
+3. 내 주변 빈자리 섹션
+   - AiBriefingCard 내부 Select 드롭다운에 min-h-11 확인
+   - 빈자리 없을 때 empty Surface: 좀 더 격려하는 메시지
+
+4. NBA 추천 섹션
+   - NBA 카드 리스트가 이미 stagger 적용됐으면 건드리지 마라
+   - 카드 내 action 버튼 full-width 확인
+
+5. 하단 커뮤니티 바
+   - 현재 border-t + link만 있음
+   - 약간 더 눈에 띄는 처리: bg-dotori-50/50 rounded-2xl px-4 py-3 등
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-chat)
-      echo "채팅 페이지 UX 플러그인 적용
+    polish-chat)
+      echo "채팅 페이지 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
 - src/app/(app)/chat/page.tsx
-- src/components/dotori/chat/ChatBubble.tsx (있으면)
 - src/components/dotori/chat/ChatPromptPanel.tsx
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. 채팅 버블 배경: 사용자=dotori-100 dark:dotori-800, AI=white dark:dotori-900
-3. ChatPromptPanel에서 기존 인라인 variants → motion.ts의 stagger 프리셋으로 교체
-4. 상단 헤더에 glass-header 적용
+## 구체적 개선
+1. ChatPromptPanel 개선
+   - 중앙 아이콘(acorn): 현재 크기/위치 확인, 더 임팩트 있게 h-16 w-16 또는 h-20 w-20
+   - 제목 텍스트 크기 확인 (text-2xl 이상이어야 함)
+   - 제안 칩 2개: 더 명확한 카드 스타일, 클릭 영역 min-h-14
+
+2. 채팅 헤더 영역 (chat/page.tsx)
+   - '대화 초기화' 버튼 위치/스타일 확인
+   - UsageCounter 위치 확인 (0/3이 너무 위에 있으면 헤더 안으로)
+
+3. 채팅 입력 영역
+   - 하단 입력창이 glass-sheet 또는 solid white 배경인지 확인
+   - 전송 버튼 min-h-11 확인
+
+4. 채팅 메시지 없을 때 (ChatPromptPanel)
+   - 제안 칩 2개를 stagger.container + stagger.item으로 등장 처리
+   - 각 칩에 active:scale-[0.97] transition 추가
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-explore)
-      echo "탐색 페이지 UX 플러그인 적용
+    polish-explore)
+      echo "탐색 페이지 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
 - src/app/(app)/explore/page.tsx
+- src/components/dotori/explore/ExploreSearchHeader.tsx
+- src/components/dotori/explore/ExploreResultList.tsx
 - src/components/dotori/explore/ExploreSuggestionPanel.tsx
-- src/components/dotori/explore/ExploreSearchHeader.tsx (있으면)
-- src/components/dotori/explore/ExploreResultList.tsx (있으면)
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. 검색 결과 리스트에 stagger.fast 적용
-3. 필터 칩에 tap.chip 적용
-4. 검색 헤더에 glass-header 적용
+## 구체적 개선
+1. ExploreSearchHeader 개선
+   - 시나리오 칩 (반편성 불만 / 교사 교체 등): active:scale-[0.97] 추가
+   - 필터/지도 버튼: 더 명확한 아이콘 + 텍스트 레이블
+   - '이동 가능 시설만 보기 N' 버튼: 현재 어두운 pill 스타일
+     → color='forest' Button으로 교체하거나 bg-forest-500 text-white rounded-2xl
+
+2. ExploreResultList 개선
+   - 시설 카드 리스트: 이미 FacilityCard를 사용, spacing만 확인
+   - AI 브리핑 카드가 결과 상단에 나오는지 확인
+
+3. 빈 결과 상태
+   - 더 친근한 메시지 및 조건 조정 버튼 full-width
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-community)
-      echo "커뮤니티 페이지 UX 플러그인 적용
+    polish-community)
+      echo "커뮤니티 페이지 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
 - src/app/(app)/community/page.tsx
 - src/app/(app)/community/[id]/page.tsx
-- src/app/(app)/community/write/page.tsx
-- src/app/(app)/community/_components/CommunityEmptyState.tsx (있으면)
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. 게시글 카드 리스트에 stagger 적용
-3. 카드에 tap.card 적용
-4. 헤더에 glass-header 적용
+## 구체적 개선
+1. 커뮤니티 목록 (community/page.tsx)
+   - 게시글 카드: 현재 rounded-[28px] border bg-white p-5
+     → 약간 더 compact한 p-4 또는 p-4 px-5
+   - 저자 아바타: 현재 h-8 w-8 rounded-full overflow-hidden
+     → 도토리 브랜드 bg를 bg-dotori-100 text-dotori-600으로 통일
+   - 좋아요/댓글 카운터: flex items-center gap-3 text-xs 확인
+   - 글쓰기 FAB: 하단 우측에 충분히 크게 (h-14 w-14)
+
+2. 게시글 상세 (community/[id]/page.tsx)
+   - 헤더 glass-header sticky 확인
+   - 댓글 영역: 댓글 카드에 적절한 배경 처리
+   - 댓글 입력창: 하단 고정 glass-sheet 효과
+
+3. 카테고리 필터 탭
+   - 선택된 탭: bg-dotori-900 text-white rounded-full
+   - 미선택: border border-dotori-200 text-dotori-600
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-facility)
-      echo "시설 상세 페이지 UX 플러그인 적용
+    polish-my)
+      echo "마이페이지 폴리싱
 
-담당 파일 (이 파일들만 수정):
-- src/app/(app)/facility/[id]/page.tsx
-- src/app/(app)/facility/[id]/FacilityDetailClient.tsx (있으면)
+담당 파일:
+- src/app/(app)/my/page.tsx
+- src/app/(app)/my/settings/page.tsx
+
+$R19_PRINCIPLE
+
+## 구체적 개선
+1. my/page.tsx 프로필 섹션
+   - 아바타 크기: h-16 w-16 (현재 상태 확인)
+   - 닉네임 텍스트: text-lg font-bold
+   - 프로필 상단 섹션 배경: 현재 bg-white dark:bg-dotori-950
+     → Surface 컴포넌트 사용 또는 bg-dotori-50 rounded-3xl p-5
+
+2. 메뉴 그룹핑
+   - 각 메뉴 항목: flex items-center justify-between gap-3 min-h-12
+   - 섹션 구분선: border-t border-dotori-100 dark:border-dotori-800 my-2
+   - 아이콘 있는 메뉴 항목: 아이콘 h-5 w-5 text-dotori-500
+
+3. my/settings/page.tsx 다크모드 토글 추가
+   - 현재 파일 읽어서 다크모드 설정 UI 없으면 추가:
+   - import { useTheme } from '@/hooks/useTheme'
+   - 테마 섹션: 라이트 / 다크 / 시스템 3단 세그먼트 컨트롤
+   - 선택된 세그먼트: bg-dotori-900 text-white rounded-xl
+   - 미선택: text-dotori-600
+
+4. 로그인 필요 안내 (비로그인 상태)
+   - 더 브랜드다운 빈 상태 + 로그인 버튼 full-width
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    polish-facility)
+      echo "시설 상세 페이지 폴리싱
+
+담당 파일:
+- src/app/(app)/facility/[id]/FacilityDetailClient.tsx
 - src/components/dotori/facility/FacilityCapacitySection.tsx
 - src/components/dotori/facility/FacilityContactSection.tsx
-- src/components/dotori/facility/FacilityPremiumSection.tsx
-- src/components/dotori/facility/FacilityReviewSection.tsx
-- src/components/dotori/facility/FacilityStatusBadges.tsx
 - src/components/dotori/facility/FacilityWaitlistCTA.tsx
-- src/components/dotori/facility/FacilityLocationSection.tsx
-- src/components/dotori/facility/FacilityOperatingSection.tsx
-- src/components/dotori/facility/FacilityProgramSection.tsx
-- src/components/dotori/facility/facility-detail-helpers.ts
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가 (모든 facility 컴포넌트)
-2. 섹션별 fadeUp 적용 (capacity, contact, review 등)
-3. 상단 sticky 헤더에 glass-header 적용
+## 구체적 개선
+1. FacilityDetailClient
+   - 이미지 없는 시설: 플레이스홀더 배경 더 브랜드답게 (bg-dotori-100 + acorn watermark)
+   - 섹션 구분: space-y-4 또는 divide-y 사용 확인
+   - 하단 CTA (아이사랑 앱 열기 등): w-full min-h-12
 
-## 주의
-- useFacilityDetailActions.ts, useFacilityDetailData.ts는 수정하지 마라 (훅 로직)
-- FacilityCard.tsx는 ux-core-comp 에이전트가 담당
+2. FacilityCapacitySection
+   - 정원/현원/대기 3칸 그리드: 숫자 크기 text-2xl font-bold로 강조
+   - 진행 바: 현재 존재하면 색상 확인 (forest-500 → forest-500)
 
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    ux-my-core)
-      echo "마이페이지 핵심 UX 플러그인 적용
+3. FacilityContactSection
+   - 전화번호/주소 항목: 클릭 가능하면 active:scale-[0.97] 추가
+   - 지도 섹션: MapEmbed 위에 제목 표시 확인
 
-담당 파일 (이 파일들만 수정):
-- src/app/(app)/my/page.tsx
-- src/app/(app)/my/settings/page.tsx  ← 다크모드 토글 UI 추가!
-- src/app/(app)/my/support/page.tsx
-- src/app/(app)/my/app-info/page.tsx
-- src/app/(app)/my/terms/page.tsx
-- src/app/(app)/my/notices/page.tsx
-
-$DARK_RULES
-$MOTION_RULES
-
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. my/settings/page.tsx에 다크모드 토글 추가:
-   - import { useTheme } from '@/hooks/useTheme'
-   - 라이트/다크/시스템 3단 토글 (라디오 또는 세그먼트 컨트롤)
-   - 현재 모드 표시
-3. 메뉴 항목 리스트에 stagger 적용
+4. FacilityWaitlistCTA (있으면)
+   - 대기 신청 버튼: color='dotori' w-full min-h-12
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-my-waitlist)
-      echo "마이 대기/알림 UX 플러그인 적용
+    polish-shared)
+      echo "공유 컴포넌트 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
+- src/components/dotori/AiBriefingCard.tsx
+- src/components/dotori/UsageCounter.tsx
+- src/components/dotori/EmptyState.tsx
+- src/components/dotori/ErrorState.tsx
+- src/components/dotori/Toast.tsx
+- src/components/dotori/ActionConfirmSheet.tsx
+- src/components/dotori/Wallpaper.tsx
+
+$R19_PRINCIPLE
+
+## 구체적 개선
+1. AiBriefingCard
+   - 상단 'AI분석' 배지와 업데이트 시간이 작고 흐릿함
+   - 카드 배경: bg-dotori-50/80 또는 Surface muted tone 사용
+   - 내부 패딩 적절히: px-4 py-3
+
+2. UsageCounter
+   - 0/3 형태 사용량 카운터: 현재 작은 바
+   - 프로그레스 바 색상: forest-500 (사용 가능) → dotori-300 (사용됨)
+   - 카운터 텍스트 크기/위치 확인
+
+3. EmptyState / ErrorState
+   - 더 친근한 일러스트 or 아이콘 사용
+   - 제목: text-base font-semibold, 설명: text-sm text-dotori-600
+   - 액션 버튼: full-width min-h-11
+
+4. ActionConfirmSheet
+   - glass-sheet 효과 확인 (bottom sheet)
+   - 취소/확인 버튼: 적절한 크기 및 색상 대비
+
+5. Toast
+   - 성공: bg-forest-100 text-forest-800 border-forest-200
+   - 에러: bg-red-50 text-red-700 border-red-200
+   - 다크: dark:bg-forest-900/20 dark:text-forest-100
+
+## 검증
+npx tsc --noEmit 에러 0개."
+      ;;
+    polish-waitlist)
+      echo "대기/알림 페이지 폴리싱
+
+담당 파일:
 - src/app/(app)/my/waitlist/page.tsx
 - src/app/(app)/my/waitlist/[id]/page.tsx
 - src/app/(app)/my/notifications/page.tsx
 - src/app/(app)/my/interests/page.tsx
-- src/app/(app)/my/import/page.tsx
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. 대기 목록/알림 리스트에 stagger 적용
-3. 카드에 tap.card 적용
+## 구체적 개선
+1. waitlist/page.tsx
+   - 대기 신청 카드: 더 명확한 상태 표시 (순위, 시설명 강조)
+   - 신청 날짜: text-xs text-dotori-400
+   - 빈 상태: '아직 대기 신청이 없어요' + 탐색하러 가기 버튼
+
+2. waitlist/[id]/page.tsx
+   - 상세 정보 섹션: 순위 숫자 크게 (text-4xl font-bold)
+   - 진행 상황 바: 시각적으로 더 명확
+
+3. notifications/page.tsx
+   - 알림 카드: 읽은/읽지않은 구분 더 명확
+   - 읽지 않은 알림: 좌측 border-l-4 border-l-dotori-400
+
+4. interests/page.tsx
+   - 관심 시설 목록: FacilityCard compact 사용 확인
+   - 관심 시설 없을 때 empty state
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-onboarding)
-      echo "온보딩 UX 플러그인 적용
+    polish-onboarding)
+      echo "온보딩 페이지 폴리싱
 
-담당 파일 (이 파일들만 수정):
+담당 파일:
 - src/app/(onboarding)/onboarding/page.tsx
-- src/app/(onboarding)/layout.tsx (있으면)
-- src/app/(onboarding)/error.tsx
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. 각 스텝 전환에 fadeUp 적용
-3. 선택 버튼에 tap.button 적용
+## 구체적 개선
+1. 온보딩 스텝 카드
+   - 각 스텝 컨테이너: 더 깔끔한 흰 배경 + shadow-sm
+   - 스텝 번호/타이틀: 더 큰 타이포 (text-xl font-bold)
 
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    ux-auth-landing)
-      echo "로그인 + 랜딩 UX 플러그인 적용
+2. 선택 버튼 (지역, 관심사 등)
+   - 선택됨: bg-dotori-900 text-white 또는 ring-2 ring-dotori-400
+   - 미선택: bg-white border border-dotori-200 text-dotori-700
+   - 버튼 크기: min-h-12
 
-담당 파일 (이 파일들만 수정):
-- src/app/(auth)/login/page.tsx
-- src/app/(auth)/error.tsx
-- src/app/(landing)/landing/page.tsx
-- src/components/landing/ 디렉토리 내 파일 (있으면)
+3. 진행 바
+   - 현재 상태 확인, dotori-400 색상으로 진행 표시
 
-$DARK_RULES
-$MOTION_RULES
-
-## 작업
-1. 다크모드 dark: 클래스 추가
-2. login/page.tsx: 기존 인라인 motion 프리셋을 유지하되, dark: 클래스 추가
-3. landing/page.tsx: 다크모드 + 섹션별 fadeUp
+4. 다음/완료 버튼
+   - 항상 하단 고정, w-full min-h-12 bg-dotori-900
 
 ## 검증
 npx tsc --noEmit 에러 0개."
       ;;
-    ux-core-comp)
-      echo "핵심 공통 컴포넌트 UX 플러그인 적용
+    polish-comp)
+      echo "핵심 공유 컴포넌트 폴리싱
 
-담당 파일 (이 파일들만 수정):
-- src/components/dotori/BottomTabBar.tsx  ← glass-header 적용!
-- src/components/dotori/FacilityCard.tsx  ← tap.card 프리셋으로 교체
-- src/components/dotori/Toast.tsx
-- src/components/dotori/ToastProvider.tsx
+담당 파일:
+- src/components/dotori/FacilityCard.tsx
 - src/components/dotori/Skeleton.tsx
-- src/components/dotori/EmptyState.tsx
-- src/components/dotori/ErrorState.tsx
-- src/components/dotori/Surface.tsx (있으면)
-- src/components/dotori/Wallpaper.tsx (있으면)
-- src/components/dotori/PremiumGate.tsx
-- src/components/dotori/UsageCounter.tsx
-- src/components/dotori/AiBriefingCard.tsx
-- src/components/dotori/MapEmbed.tsx
 - src/components/dotori/SourceChip.tsx
-- src/components/dotori/StreamingIndicator.tsx
-- src/components/dotori/ActionConfirmSheet.tsx
-- src/components/dotori/CompareTable.tsx
-- src/components/dotori/MarkdownText.tsx
-
-$DARK_RULES
-$MOTION_RULES
-
-## 작업
-1. 다크모드 dark: 클래스 추가 (모든 컴포넌트)
-2. BottomTabBar: glass-header 유틸리티 적용 (하단 고정 바에 글래스 효과)
-3. FacilityCard: 기존 인라인 motionCardProps → import { tap } from '@/lib/motion' 의 tap.card로 교체
-4. SourceChip: 기존 인라인 spring 값 → import { spring } from '@/lib/motion' 으로 교체
-5. Toast: 다크모드 배경 색상
-
-## 검증
-npx tsc --noEmit 에러 0개."
-      ;;
-    ux-blocks)
-      echo "채팅 블록 컴포넌트 UX 플러그인 적용
-
-담당 파일 (이 파일들만 수정):
 - src/components/dotori/blocks/ChecklistBlock.tsx
-- src/components/dotori/blocks/TextBlock.tsx (있으면)
-- src/components/dotori/blocks/ActionBlock.tsx (있으면)
-- src/components/dotori/blocks/AlertsBlock.tsx (있으면)
-- src/components/dotori/blocks/CompareBlock.tsx (있으면)
-- src/components/dotori/blocks/FacilityBlock.tsx (있으면)
-- src/components/dotori/blocks/RecommendBlock.tsx (있으면)
-- src/components/dotori/blocks/SummaryBlock.tsx (있으면)
-- src/components/dotori/blocks/WaitlistBlock.tsx (있으면)
+- src/components/dotori/blocks/ 내 모든 파일
 
-$DARK_RULES
-$MOTION_RULES
+$R19_PRINCIPLE
 
-## 작업
-1. 다크모드 dark: 클래스 추가 (모든 블록 컴포넌트)
-2. 카드/블록에 glass-card 적용 (어울리는 곳)
-3. 리스트형 블록에 stagger 적용
+## 구체적 개선
+1. FacilityCard
+   - compact 모드: 정보 계층 더 명확히 (시설명 font-semibold, 주소 text-sm text-dotori-500)
+   - status pill 크기: 더 명확하게 px-3 py-1
+   - '자리 N석' 텍스트: text-forest-700 font-semibold
+
+2. Skeleton
+   - 스켈레톤 색상: bg-dotori-100/80 dark:bg-dotori-800/60 통일
+   - motion-safe:animate-pulse 확인
+
+3. SourceChip
+   - 소스 배지 크기 적절한지 확인 (text-xs)
+   - 신선도 표시: 초록/노랑 dot 확인
+
+4. blocks/ 컴포넌트
+   - ChecklistBlock: 체크박스 최소 h-5 w-5, 클릭 영역 min-h-11
+   - FacilityBlock (있으면): FacilityCard compact 사용 확인
+   - 나머지 블록: 배경 bg-dotori-50/80 dark:bg-dotori-900/60, rounded-2xl, p-4
 
 ## 검증
 npx tsc --noEmit 에러 0개."
@@ -350,7 +479,7 @@ npx tsc --noEmit 에러 0개."
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ㄱ 파이프라인 v4 — ROUND: ${ROUND}               ║${NC}"
-echo -e "${BLUE}║  R18: 다크모드 + 글래스 + 모션 프리셋       ║${NC}"
+echo -e "${BLUE}║  R19: UX 풀가동 — 레이아웃 + 인터랙션 완성  ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
@@ -474,7 +603,7 @@ for AGENT in "${AGENTS[@]}"; do
   CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l)
   if [[ $CHANGES -gt 0 ]]; then
     git -C "$WT_DIR" add -A 2>/dev/null
-    git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 다크모드 + 글래스 + 모션" 2>/dev/null \
+    git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): UX 폴리싱" 2>/dev/null \
       && echo "✅ ($CHANGES files changed)" \
       || echo "❌ commit 실패"
   else
@@ -530,7 +659,7 @@ for AGENT in "${MERGE_ORDER[@]}"; do
     SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
   fi
   if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
-    git commit -m "feat($ROUND-$AGENT): 다크모드 + 글래스 + 모션 적용
+    git commit -m "feat($ROUND-$AGENT): UX 폴리싱
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
     MERGED+=("$AGENT"); echo "✅"
@@ -562,7 +691,7 @@ ELAPSED_MIN=$(( ELAPSED / 60 ))
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║  ${ROUND} 완료 — ${ELAPSED_MIN}분                           ║${NC}"
-echo -e "${BLUE}║  다크모드 + 글래스 + 모션 프리셋 적용        ║${NC}"
+echo -e "${BLUE}║  UX 풀가동 폴리싱 완료                        ║${NC}"
 printf "${BLUE}║  Merged %-3d  Failed %-3d  Skipped %-3d           ║${NC}\n" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
