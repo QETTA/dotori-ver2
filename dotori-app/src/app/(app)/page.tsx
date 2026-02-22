@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,6 +20,7 @@ import { Surface } from "@/components/dotori/Surface";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { generateNBAs } from "@/lib/engine/nba-engine";
+import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
@@ -168,19 +170,19 @@ export default function HomePage() {
 
 	return (
 		<div className="px-4 pb-12 pt-5">
-			<header>
+			<header className="glass-header sticky top-0 z-10">
 				<div className="mb-3 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
-					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm">
+					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
 					</div>
 				</div>
-				<Heading level={1} className="text-xl font-bold text-dotori-900">
+				<Heading level={1} className="text-xl font-bold text-dotori-900 dark:text-dotori-50">
 					{greeting}
 				</Heading>
-				<Text className="mt-1 text-sm text-dotori-600">
+				<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
 					어린이집 이동, 도토리가 함께해요
 				</Text>
 				<div className="mt-4 grid grid-cols-3 gap-2">
@@ -190,11 +192,15 @@ export default function HomePage() {
 							className="px-3 py-2.5"
 							aria-label={card.label}
 						>
-							<Text className="text-xs font-medium text-dotori-600">{card.label}</Text>
+							<Text className="text-xs font-medium text-dotori-600 dark:text-dotori-300">
+								{card.label}
+							</Text>
 							<Text
 								className={cn(
 									"mt-0.5 text-sm font-semibold",
-									card.tone === "forest" ? "text-forest-700" : "text-dotori-800",
+									card.tone === "forest"
+										? "text-forest-700 dark:text-forest-400"
+										: "text-dotori-800 dark:text-dotori-100",
 								)}
 							>
 								{card.value}
@@ -204,7 +210,7 @@ export default function HomePage() {
 				</div>
 			</header>
 
-			<section className="mt-5">
+			<motion.section {...fadeUp} className="mt-5">
 				<div
 					role="button"
 					tabIndex={0}
@@ -265,11 +271,11 @@ export default function HomePage() {
 						</div>
 					</Surface>
 				</div>
-			</section>
+			</motion.section>
 
-			<section className="mt-6 space-y-3">
+			<motion.section {...fadeUp} className="mt-6 space-y-3">
 				<div className="flex items-center justify-between gap-2">
-					<Heading level={2} className="text-lg font-semibold text-dotori-900">
+					<Heading level={2} className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
 						내 주변 빈자리
 					</Heading>
 					<Button href="/explore" color="dotori">
@@ -284,7 +290,9 @@ export default function HomePage() {
 					<div className="space-y-3">
 						<div className="flex items-center gap-2">
 							<Badge color="forest">NBA 기반</Badge>
-							<Text className="text-sm text-dotori-700">{vacancyGuide}</Text>
+							<Text className="text-sm text-dotori-700 dark:text-dotori-200">
+								{vacancyGuide}
+							</Text>
 						</div>
 						<Fieldset>
 							<Field>
@@ -320,10 +328,13 @@ export default function HomePage() {
 							aria-hidden="true"
 							className="mx-auto h-14 w-14"
 						/>
-						<Heading level={3} className="mt-2 text-base font-semibold text-dotori-900">
+						<Heading
+							level={3}
+							className="mt-2 text-base font-semibold text-dotori-900 dark:text-dotori-50"
+						>
 							현재 보이는 빈자리가 없어요
 						</Heading>
-						<Text className="mt-1 text-sm text-dotori-600">
+						<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
 							조건을 조정하거나 잠시 후 다시 확인해보세요
 						</Text>
 						<div className="mt-3">
@@ -333,11 +344,61 @@ export default function HomePage() {
 						</div>
 					</Surface>
 				)}
-			</section>
+			</motion.section>
 
-			<div className="mt-6 border-t border-dotori-100 pt-4">
+			{nbaItems.length > 0 ? (
+				<motion.section {...fadeUp} className="mt-6 space-y-3">
+					<div className="flex items-center justify-between gap-2">
+						<Heading level={2} className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
+							지금 추천
+						</Heading>
+						<Button href="/chat" plain={true}>
+							토리에게 물어보기
+						</Button>
+					</div>
+
+					<motion.ul {...stagger.container} className="space-y-2">
+						{nbaItems.slice(0, 4).map((item) => (
+							<motion.li key={item.id} {...stagger.item}>
+								<motion.div {...tap.card}>
+									<Surface className="px-4 py-3">
+										<div className="flex items-start justify-between gap-3">
+											<div className="min-w-0 flex-1">
+												<Text className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+													{item.title}
+												</Text>
+												<Text className="mt-1 text-sm text-dotori-700 dark:text-dotori-200">
+													{item.description}
+												</Text>
+											</div>
+											{item.priority >= 80 ? (
+												<Badge color="forest">추천</Badge>
+											) : (
+												<Badge color="dotori">안내</Badge>
+											)}
+										</div>
+										{item.action ? (
+											<div className="mt-3">
+												<Button
+													href={item.action.href}
+													color="dotori"
+													className="min-h-11 w-full justify-center"
+												>
+													{item.action.label}
+												</Button>
+											</div>
+										) : null}
+									</Surface>
+								</motion.div>
+							</motion.li>
+						))}
+					</motion.ul>
+				</motion.section>
+			) : null}
+
+			<div className="mt-6 border-t border-dotori-100 pt-4 dark:border-dotori-800">
 				<Link href="/community" className="flex items-center gap-2">
-					<Text className="min-w-0 flex-1 truncate text-sm text-dotori-700">
+					<Text className="min-w-0 flex-1 truncate text-sm text-dotori-700 dark:text-dotori-200">
 						커뮤니티: {communityLine}
 					</Text>
 					<ChevronRightIcon className="h-4 w-4 text-dotori-400" />
