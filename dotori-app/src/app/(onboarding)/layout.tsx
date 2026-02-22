@@ -13,7 +13,7 @@ export default function OnboardingLayout({
 }) {
 	return (
 		<AppProvider>
-			<main className="mx-auto min-h-dvh max-w-md bg-white">
+			<main className="mx-auto min-h-dvh max-w-md bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
 				{children}
 			</main>
 		</AppProvider>
