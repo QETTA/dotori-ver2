@@ -83,7 +83,7 @@ export function useFacilityDetailActions({
 
 	const loadChecklist = useCallback(async () => {
 		if (checklist) {
-			setShowChecklist(!showChecklist);
+			setShowChecklist((prev) => !prev);
 			return;
 		}
 
@@ -97,7 +97,7 @@ export function useFacilityDetailActions({
 			addToast({ type: "error", message: "체크리스트를 불러올 수 없습니다" });
 			setShowChecklist(false);
 		}
-	}, [addToast, checklist, facilityId, showChecklist]);
+	}, [addToast, checklist, facilityId]);
 
 	const handleApplyClick = useCallback(async () => {
 		setActionStatus("executing");

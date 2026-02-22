@@ -3,41 +3,38 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-	ArrowLeftIcon,
-	ShareIcon,
-	HeartIcon,
-	ArrowTopRightOnSquareIcon,
-	ArrowPathIcon,
-	CheckCircleIcon,
-} from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, ShareIcon } from "@heroicons/react/24/outline";
 
-import { Button } from "@/components/catalyst/button";
-import { Badge } from "@/components/catalyst/badge";
 import { ErrorState } from "@/components/dotori/ErrorState";
-import { IsalangCard } from "@/components/dotori/facility/IsalangCard";
+import {
+	FacilityAdmissionGuideSection,
+	FacilityCapacitySection,
+	FacilityFeatureSection,
+	FacilityInsightSection,
+} from "@/components/dotori/facility/FacilityCapacitySection";
 import { FacilityChecklistCard } from "@/components/dotori/facility/FacilityChecklistCard";
+import {
+	FacilityActionBar,
+	FacilityContactSection,
+	FacilityLocationMapSection,
+} from "@/components/dotori/facility/FacilityContactSection";
 import { FacilityInsights } from "@/components/dotori/facility/FacilityInsights";
-import { FacilityReviewsCard } from "@/components/dotori/facility/FacilityReviewsCard";
 import { FacilityPremiumSection } from "@/components/dotori/facility/FacilityPremiumSection";
-import { FacilityCapacitySection } from "@/components/dotori/facility/FacilityCapacitySection";
-import { FacilityContactSection } from "@/components/dotori/facility/FacilityContactSection";
+import { FacilityReviewsCard } from "@/components/dotori/facility/FacilityReviewsCard";
 import { FacilityStatusBadges } from "@/components/dotori/facility/FacilityStatusBadges";
-import { useFacilityDetailActions } from "@/components/dotori/facility/useFacilityDetailActions";
-import { MapEmbed } from "@/components/dotori/MapEmbed";
-import { useToast } from "@/components/dotori/ToastProvider";
-import { apiFetch } from "@/lib/api";
-import { BRAND } from "@/lib/brand-assets";
-import { getFacilityImage } from "@/lib/facility-images";
+import { IsalangCard } from "@/components/dotori/facility/IsalangCard";
 import {
 	getCapacityProgressColor,
 	getFormattedVerifiedAt,
 	getSafeNumber,
 	getWaitingHintText,
 } from "@/components/dotori/facility/facility-detail-helpers";
-import type { ActionStatus, CommunityPost, Facility } from "@/types/dotori";
+import { useFacilityDetailActions } from "@/components/dotori/facility/useFacilityDetailActions";
+import { useToast } from "@/components/dotori/ToastProvider";
+import { apiFetch } from "@/lib/api";
+import { BRAND } from "@/lib/brand-assets";
+import { getFacilityImage } from "@/lib/facility-images";
+import type { CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
 	() =>
@@ -46,16 +43,6 @@ const ActionConfirmSheet = dynamic(
 		})),
 	{ loading: () => null },
 );
-
-const FEATURE_OPTIONS = [
-	{ key: "CCTV", label: "CCTV", color: "forest" },
-	{ key: "소규모", label: "소규모", color: "forest" },
-	{ key: "통학버스", label: "통학버스", color: "forest" },
-	{ key: "놀이터", label: "놀이터", color: "forest" },
-	{ key: "대규모", label: "대규모", color: "forest" },
-] as const;
-
-type FeatureOption = (typeof FEATURE_OPTIONS)[number];
 
 type FacilityDetailClientFacility = Facility & {
 	roomCount?: number;
@@ -132,158 +119,6 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 	);
 }
 
-function FacilityFeatureSection({ features }: { features: FeatureOption[] }) {
-	return (
-		<section className="rounded-3xl bg-white p-5 shadow-sm">
-			<h2 className="text-sm font-semibold text-dotori-900">특징</h2>
-			{features.length > 0 ? (
-				<div className="mt-3 flex flex-wrap gap-2">
-					{features.map((feature) => (
-						<Badge key={feature.key} color={feature.color} className="text-[14px]">
-							{feature.label} ✓
-						</Badge>
-					))}
-				</div>
-			) : (
-				<p className="mt-3 text-sm text-dotori-500">표시 가능한 특징이 없어요.</p>
-			)}
-		</section>
-	);
-}
-
-function FacilityAdmissionGuideSection() {
-	return (
-		<div className="rounded-3xl border border-dotori-100 bg-dotori-50 p-5">
-			<h2 className="text-sm font-semibold text-dotori-900">입소 설명회 안내</h2>
-			<p className="mt-2 text-[14px] leading-6 text-dotori-600">
-				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
-				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
-			</p>
-			<a
-				href="https://www.childcare.go.kr"
-				target="_blank"
-				rel="noopener noreferrer"
-				className="mt-3 inline-flex items-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-2.5 text-[14px] font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200"
-			>
-				아이사랑포털에서 확인
-				<ArrowTopRightOnSquareIcon className="h-4 w-4" />
-			</a>
-		</div>
-	);
-}
-
-type FacilityActionBarProps = {
-	liked: boolean;
-	isTogglingLike: boolean;
-	actionStatus: ActionStatus;
-	error: string | null;
-	waitingHintText: string;
-	applyActionLabel: string;
-	onToggleLike: () => Promise<void>;
-	onApplyClick: () => Promise<void>;
-	onResetActionStatus: () => void;
-};
-
-function FacilityActionBar({
-	liked,
-	isTogglingLike,
-	actionStatus,
-	error,
-	waitingHintText,
-	applyActionLabel,
-	onToggleLike,
-	onApplyClick,
-	onResetActionStatus,
-}: FacilityActionBarProps) {
-	return (
-		<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
-			<div className="space-y-2">
-				<div className="flex gap-3">
-					<Button
-						plain={true}
-						disabled={isTogglingLike}
-						onClick={onToggleLike}
-						aria-label="관심 시설 추가/제거"
-						className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-dotori-200 bg-white px-3 text-base font-semibold text-dotori-700 transition-all active:scale-[0.97]"
-					>
-						{liked ? (
-							<HeartSolid className="h-5 w-5 text-red-500" />
-						) : (
-							<HeartIcon className="h-5 w-5" />
-						)}
-						{liked ? "관심 추가됨" : "관심 추가"}
-					</Button>
-					<div className="flex-1">
-						{actionStatus === "executing" ? (
-							<div className="min-h-12 rounded-3xl border border-dotori-100 bg-dotori-50 px-4">
-								<div className="flex h-full items-center justify-center gap-2">
-									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700" />
-									<span className="text-sm font-semibold text-dotori-700">
-										신청 처리 중...
-									</span>
-								</div>
-							</div>
-						) : actionStatus === "success" ? (
-							<div className="rounded-3xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center">
-								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300" />
-								<p className="mt-2 text-sm font-semibold text-dotori-900">
-									대기 신청 완료!
-								</p>
-								<Link
-									href="/my/waitlist"
-									className="mt-1 inline-flex text-sm font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900"
-								>
-									MY &gt; 대기 현황에서 확인하세요
-								</Link>
-								<Button
-									plain={true}
-									onClick={onResetActionStatus}
-									className="mt-2 min-h-10 w-full rounded-2xl"
-								>
-									확인
-								</Button>
-							</div>
-						) : actionStatus === "error" ? (
-							<div className="rounded-3xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left">
-								<p className="text-sm font-semibold text-danger">
-									{error ?? "대기 신청 중 오류가 발생했어요."}
-								</p>
-								<div className="mt-2 flex gap-2">
-									<Button
-										plain={true}
-										onClick={onResetActionStatus}
-										className="min-h-10 flex-1 rounded-2xl"
-									>
-										닫기
-									</Button>
-									<Button
-										color="dotori"
-										onClick={onApplyClick}
-										className="min-h-10 flex-1 rounded-2xl"
-									>
-										다시 신청
-									</Button>
-								</div>
-							</div>
-						) : (
-							<>
-								<Button
-									color="dotori"
-									onClick={onApplyClick}
-									className="min-h-12 w-full py-3 text-base font-semibold"
-								>
-									{applyActionLabel}
-								</Button>
-								<p className="mt-1 text-xs text-dotori-500">{waitingHintText}</p>
-							</>
-						)}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-}
-
 export default function FacilityDetailClient({
 	facility,
 	loadError,
@@ -323,10 +158,6 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		facilityName: facility.name,
 		facilityStatus: facility.status,
 	});
-
-	const activeFeatures = useMemo(() => {
-		return FEATURE_OPTIONS.filter((feature) => facility.features.includes(feature.key));
-	}, [facility.features]);
 
 	const copyableAddress = facility.address?.trim();
 
@@ -522,31 +353,14 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</div>
 
 			<div className="mt-4 space-y-4 px-5">
-				<section className="rounded-3xl border border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)]">
-					<div className="flex items-center justify-between gap-2">
-						<Badge color={facility.status === "available" ? "forest" : "dotori"}>
-							AI 이동 인사이트
-						</Badge>
-						<span className="text-xs font-semibold text-dotori-500">
-							데이터 품질 {qualityScore ?? "-"}점
-						</span>
-					</div>
-					<p className="mt-3 text-sm leading-relaxed text-dotori-700">{aiInsightSummary}</p>
-					<div className="mt-3 grid grid-cols-3 gap-2">
-						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
-							<p className="text-[11px] text-dotori-500">정원</p>
-							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{totalCapacity}명</p>
-						</div>
-						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
-							<p className="text-[11px] text-dotori-500">현원</p>
-							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{currentCapacity}명</p>
-						</div>
-						<div className="rounded-2xl border border-dotori-100 bg-white px-3 py-2.5">
-							<p className="text-[11px] text-dotori-500">대기</p>
-							<p className="mt-0.5 text-sm font-semibold text-dotori-800">{waitingCapacity}명</p>
-						</div>
-					</div>
-				</section>
+				<FacilityInsightSection
+					status={facility.status}
+					qualityScore={qualityScore}
+					aiInsightSummary={aiInsightSummary}
+					totalCapacity={totalCapacity}
+					currentCapacity={currentCapacity}
+					waitingCapacity={waitingCapacity}
+				/>
 
 				<FacilityCapacitySection
 					occupancyRate={occupancyRate}
@@ -557,7 +371,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					keyStats={keyStats}
 				/>
 
-				<FacilityFeatureSection features={activeFeatures} />
+				<FacilityFeatureSection features={facility.features} />
 
 				<FacilityPremiumSection
 					showPremiumSection={showPremiumSection}
@@ -579,34 +393,15 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					onCopyAddress={handleCopyAddress}
 				/>
 
-				{hasMapLocation && (
-					<section className="rounded-3xl bg-white p-5 shadow-sm">
-						<h2 className="text-sm font-semibold text-dotori-900">지도</h2>
-						<div className="mt-3 overflow-hidden rounded-2xl border border-dotori-100">
-							<MapEmbed
-								facilities={[
-									{
-										id: facility.id,
-										name: facility.name,
-										lat: facility.lat,
-										lng: facility.lng,
-										status: facility.status,
-									},
-								]}
-								center={{ lat: facility.lat, lng: facility.lng }}
-								height="h-56"
-							/>
-						</div>
-						<a
-							href={kakaoMapUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="mt-3 inline-flex items-center gap-1 text-sm text-dotori-600 transition-colors hover:text-dotori-700"
-						>
-							카카오맵에서 자세히 보기
-						</a>
-					</section>
-				)}
+				<FacilityLocationMapSection
+					hasMapLocation={hasMapLocation}
+					facilityId={facility.id}
+					facilityName={facility.name}
+					lat={facility.lat}
+					lng={facility.lng}
+					status={facility.status}
+					kakaoMapUrl={kakaoMapUrl}
+				/>
 
 				<IsalangCard />
 				<FacilityChecklistCard
