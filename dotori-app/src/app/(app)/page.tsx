@@ -20,7 +20,7 @@ import { Surface } from "@/components/dotori/Surface";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { generateNBAs } from "@/lib/engine/nba-engine";
-import { fadeUp, stagger, tap } from "@/lib/motion";
+import { fadeUp, spring, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
@@ -149,6 +149,13 @@ export default function HomePage() {
 		router.push("/chat");
 	}, [router]);
 
+	const handleChipClick = useCallback(
+		(chip: (typeof AI_CHIPS)[number]) => {
+			router.push(`/chat?prompt=${encodeURIComponent(chip)}`);
+		},
+		[router],
+	);
+
 	if (isLoading) {
 		return (
 			<div className="px-4 py-5">
@@ -169,9 +176,9 @@ export default function HomePage() {
 	}
 
 	return (
-		<div className="px-4 pb-12 pt-5">
+		<div className="px-4 pb-12 pt-4">
 			<header className="glass-header sticky top-0 z-10">
-				<div className="mb-3 flex items-center justify-between">
+				<div className="mb-2 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
 					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
@@ -185,11 +192,11 @@ export default function HomePage() {
 				<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
 					어린이집 이동, 도토리가 함께해요
 				</Text>
-				<div className="mt-4 grid grid-cols-3 gap-2">
+				<div className="mt-3 grid grid-cols-3 gap-2">
 					{statusCards.map((card) => (
 						<Surface
 							key={card.label}
-							className="px-3 py-2.5"
+							className="px-3 py-2"
 							aria-label={card.label}
 						>
 							<Text className="text-xs font-medium text-dotori-600 dark:text-dotori-300">
@@ -210,7 +217,7 @@ export default function HomePage() {
 				</div>
 			</header>
 
-			<motion.section {...fadeUp} className="mt-5">
+			<motion.section {...fadeUp} className="mt-4">
 				<div
 					role="button"
 					tabIndex={0}
@@ -258,27 +265,35 @@ export default function HomePage() {
 								/>
 							</Field>
 						</Fieldset>
-						<div className="mt-3 flex flex-wrap gap-2">
+						<div className="mt-3 grid grid-cols-3 gap-2">
 							{AI_CHIPS.map((chip) => (
-								<Link
+								<motion.button
 									key={chip}
-									href={`/chat?prompt=${encodeURIComponent(chip)}`}
-									onClick={(event) => event.stopPropagation()}
+									type="button"
+									onClick={(event) => {
+										event.stopPropagation();
+										handleChipClick(chip);
+									}}
+									whileHover={{ scale: 1.02 }}
+									whileTap={{ scale: 0.97 }}
+									transition={spring.chip}
+									className="min-h-11 rounded-xl bg-white/10 px-2 py-2 text-xs font-semibold text-white/95 ring-1 ring-inset ring-white/15 transition-colors transition-transform duration-150 hover:bg-white/15 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
+									aria-label={`${chip} 고민으로 토리에게 질문하기`}
 								>
-									<Badge color="dotori">{chip}</Badge>
-								</Link>
+									{chip}
+								</motion.button>
 							))}
 						</div>
 					</Surface>
 				</div>
 			</motion.section>
 
-			<motion.section {...fadeUp} className="mt-6 space-y-3">
+			<motion.section {...fadeUp} className="mt-6 space-y-4">
 				<div className="flex items-center justify-between gap-2">
 					<Heading level={2} className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
 						내 주변 빈자리
 					</Heading>
-					<Button href="/explore" color="dotori">
+					<Button href="/explore" color="dotori" className="min-h-11">
 						전체 보기
 					</Button>
 				</div>
@@ -302,6 +317,7 @@ export default function HomePage() {
 										setVacancyScope(event.target.value === "all" ? "all" : "nearby");
 									}}
 									aria-label="빈자리 보기 범위"
+									className="[&>select]:min-h-11"
 								>
 									<option value="nearby">내 주변만 보기</option>
 									<option value="all">관심 시설 포함</option>
@@ -335,10 +351,21 @@ export default function HomePage() {
 							현재 보이는 빈자리가 없어요
 						</Heading>
 						<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">
-							조건을 조정하거나 잠시 후 다시 확인해보세요
+							아직은 빈자리가 안 보이지만 괜찮아요. 조건을 넓히거나 알림을 켜두면 새 소식을 빠르게 확인할 수 있어요.
 						</Text>
-						<div className="mt-3">
-							<Button color="dotori" href="/explore" className="min-h-11">
+						<div className="mt-4 space-y-2">
+							<Button
+								color="dotori"
+								href="/my/notifications"
+								className="min-h-11 w-full justify-center"
+							>
+								빈자리 알림 확인하기
+							</Button>
+							<Button
+								plain={true}
+								href="/explore"
+								className="min-h-11 w-full justify-center"
+							>
 								탐색 조건 조정하기
 							</Button>
 						</div>
@@ -347,12 +374,12 @@ export default function HomePage() {
 			</motion.section>
 
 			{nbaItems.length > 0 ? (
-				<motion.section {...fadeUp} className="mt-6 space-y-3">
+				<motion.section {...fadeUp} className="mt-6 space-y-4">
 					<div className="flex items-center justify-between gap-2">
 						<Heading level={2} className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">
 							지금 추천
 						</Heading>
-						<Button href="/chat" plain={true}>
+						<Button href="/chat" plain={true} className="min-h-11">
 							토리에게 물어보기
 						</Button>
 					</div>
@@ -396,14 +423,18 @@ export default function HomePage() {
 				</motion.section>
 			) : null}
 
-			<div className="mt-6 border-t border-dotori-100 pt-4 dark:border-dotori-800">
-				<Link href="/community" className="flex items-center gap-2">
-					<Text className="min-w-0 flex-1 truncate text-sm text-dotori-700 dark:text-dotori-200">
+			<motion.div {...tap.card} className="mt-6">
+				<Link
+					href="/community"
+					className="group flex min-h-11 items-center gap-2 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3 shadow-sm transition-colors hover:bg-dotori-100/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400 dark:border-dotori-800 dark:bg-dotori-950/40 dark:hover:bg-dotori-900/50"
+					aria-label="커뮤니티로 이동"
+				>
+					<Text className="min-w-0 flex-1 truncate text-sm font-medium text-dotori-700 dark:text-dotori-100">
 						커뮤니티: {communityLine}
 					</Text>
-					<ChevronRightIcon className="h-4 w-4 text-dotori-400" />
+					<ChevronRightIcon className="h-4 w-4 text-dotori-400 transition-transform duration-150 group-hover:translate-x-0.5" />
 				</Link>
-			</div>
+			</motion.div>
 		</div>
 	);
 }
