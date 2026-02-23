@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type {
@@ -27,8 +27,20 @@ interface ExploreResultListProps {
 
 const actionRowClassName = cn(
 	DS_GLASS.CARD,
-	"flex items-center justify-end gap-2 rounded-2xl border border-dotori-200/70 px-2 py-2 shadow-[0_10px_24px_-22px_rgba(122,78,48,0.9)] dark:border-dotori-800/70 dark:shadow-none",
+	"flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-dotori-100/70 p-2 shadow-sm",
 );
+
+const getStatusPillClass = (status: string) => {
+	if (status === "available") return DS_STATUS.available.pill;
+	if (status === "waiting") return DS_STATUS.waiting.pill;
+	return DS_STATUS.full.pill;
+};
+
+const getStatusLabel = (status: string) => {
+	if (status === "available") return DS_STATUS.available.label;
+	if (status === "waiting") return DS_STATUS.waiting.label;
+	return DS_STATUS.full.label;
+};
 
 export const ExploreResultList = memo(function ExploreResultList({
 	state,
@@ -105,13 +117,29 @@ export const ExploreResultList = memo(function ExploreResultList({
 							<motion.li
 								key={facility.id}
 								{...stagger.fast.item}
-								className="space-y-2"
+								className={cn(
+									DS_GLASS.CARD,
+									"space-y-3 rounded-2xl border border-dotori-100/70 p-3 shadow-sm",
+								)}
 							>
 								<Link href={`/facility/${facility.id}`} className="block min-h-11">
 									<FacilityCard facility={facility} compact />
 								</Link>
 
 								<div className={actionRowClassName}>
+									<motion.div {...tap.chip}>
+										<span
+											className={cn(
+												getStatusPillClass(facility.status),
+												DS_TYPOGRAPHY.bodySm,
+												"rounded-full border border-white/30 px-2.5 py-1",
+												"inline-flex min-h-11 items-center justify-center"
+											)}
+											aria-label={`시설 상태 ${getStatusLabel(facility.status)}`}
+										>
+											{getStatusLabel(facility.status)}
+										</span>
+									</motion.div>
 									<motion.div {...tap.chip}>
 										<Button
 											plain={true}
@@ -120,7 +148,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 											onClick={() => onRegisterInterest(facility.id)}
 											className={cn(
 												DS_TYPOGRAPHY.bodySm,
-												"min-h-11 text-dotori-700 transition-transform duration-150 active:scale-[0.97] dark:text-dotori-100",
+												"min-h-11 inline-flex items-center gap-1 rounded-full bg-dotori-100 px-3 text-dotori-700 transition-colors duration-150 dark:bg-dotori-900/35 dark:text-dotori-100",
 											)}
 										>
 											<HeartIcon className="h-3.5 w-3.5" />

@@ -217,7 +217,7 @@ export default function HomePage() {
 					{...fadeUp}
 					className={cn(
 						DS_GLASS.HEADER,
-						"sticky top-0 z-20 -mx-4 border-b border-dotori-100/70 px-4 pb-3 pt-[max(0.4rem,env(safe-area-inset-top))]",
+						"sticky top-0 z-20 -mx-4 border-b border-dotori-100/70 bg-dotori-50/75 px-4 pb-3 pt-[max(0.4rem,env(safe-area-inset-top))]",
 					)}
 				>
 					<div className="mb-3 flex items-center justify-between gap-3">
@@ -228,7 +228,13 @@ export default function HomePage() {
 							<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
 						</div>
 					</div>
-					<Heading level={1} className={cn(DS_TYPOGRAPHY.h2, "text-dotori-900 dark:text-dotori-50")}>
+					<Text className={cn(DS_TYPOGRAPHY.label, "font-semibold uppercase tracking-[0.14em] text-dotori-600")}>
+						Dotori Home
+					</Text>
+					<Heading
+						level={1}
+						className={cn(DS_TYPOGRAPHY.h1, "mt-1 text-dotori-950 dark:text-dotori-50")}
+					>
 						{greeting}
 					</Heading>
 					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-600 dark:text-dotori-300")}>
@@ -236,15 +242,15 @@ export default function HomePage() {
 					</Text>
 					<div className="mt-3 grid grid-cols-3 gap-2">
 						{statusCards.map((card) => (
-							<Surface
-								key={card.label}
-								className={cn(
-									DS_GLASS.CARD,
-									"rounded-3xl px-2.5 py-2 ring-1 ring-dotori-100/70 shadow-sm",
-								)}
-								aria-label={card.label}
-							>
-								<Text
+								<Surface
+									key={card.label}
+									className={cn(
+										DS_GLASS.CARD,
+										"rounded-3xl bg-dotori-50/75 px-2.5 py-2 ring-1 ring-dotori-100/70 shadow-sm",
+									)}
+									aria-label={card.label}
+								>
+									<Text
 									className={cn(DS_TYPOGRAPHY.caption, "font-semibold text-dotori-600 dark:text-dotori-300")}
 								>
 									{card.label}
@@ -281,12 +287,12 @@ export default function HomePage() {
 					{...fadeUp}
 					className="rounded-3xl border-b border-dotori-100/70 pb-4"
 				>
-					<Surface
-						className={cn(
-							DS_GLASS.CARD,
-							"relative overflow-hidden border border-dotori-100/80 p-4 ring-1 ring-dotori-100/70 shadow-sm",
-						)}
-					>
+						<Surface
+							className={cn(
+								DS_GLASS.CARD,
+								"relative overflow-hidden border border-dotori-100/80 bg-dotori-50/80 p-4 ring-1 ring-dotori-100/70 shadow-sm",
+							)}
+						>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.socialGradient}

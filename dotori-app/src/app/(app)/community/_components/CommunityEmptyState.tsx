@@ -1,15 +1,16 @@
-import Link from "next/link";
+import { Button } from "@/components/catalyst/button";
 import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { fadeIn, fadeScale, fadeUp, tap } from "@/lib/motion";
+import { fadeIn, fadeScale, fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 
 export function CommunityEmptyState({ message }: { message: string }) {
 	return (
-		<motion.div
+		<motion.section
 			{...fadeUp}
+			{...stagger.container}
 			className={cn(
-				"relative overflow-hidden rounded-3xl border border-dotori-100 bg-gradient-to-b from-dotori-50 via-amber-50/35 to-white px-4 py-6 text-center shadow-sm shadow-dotori-200/40 dark:border-dotori-800 dark:from-dotori-900 dark:via-dotori-900 dark:to-dotori-950 dark:shadow-none",
+				"relative overflow-hidden rounded-3xl border border-dotori-100/70 bg-dotori-50/85 p-4 text-center shadow-sm ring-1 ring-dotori-100/70",
 				DS_GLASS.CARD,
 			)}
 		>
@@ -19,13 +20,13 @@ export function CommunityEmptyState({ message }: { message: string }) {
 				className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-amber-200/30 blur-2xl dark:bg-amber-300/10"
 			/>
 			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ duration: 0.25, delay: 0.1 }}
+				{...fadeIn}
 				aria-hidden
+				transition={{ duration: 0.25, delay: 0.07 }}
 				className="pointer-events-none absolute -bottom-10 -left-8 h-28 w-28 rounded-full bg-forest-100/40 blur-2xl dark:bg-forest-300/10"
 			/>
 			<motion.div
+				{...stagger.item}
 				{...fadeScale}
 				className="relative mx-auto mb-5 h-44 w-44 rounded-[2rem] bg-[radial-gradient(circle_at_30%_20%,_rgba(255,255,255,0.95),_rgba(252,238,224,0.82)_58%,_rgba(247,228,204,0.72))] p-4 ring-1 ring-dotori-200/70 shadow-sm shadow-dotori-200/45 dark:bg-dotori-900 dark:ring-dotori-700 dark:shadow-none"
 			>
@@ -64,23 +65,30 @@ export function CommunityEmptyState({ message }: { message: string }) {
 					<circle cx="147" cy="126" r="8" fill="#F5D5A7" />
 				</svg>
 			</motion.div>
-			<h3 className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}>
-				이웃 글이 아직 없어요
-			</h3>
-			<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 text-dotori-600 dark:text-dotori-300")}>
-				{message}
-			</p>
-			<motion.div className="mt-4" {...tap.button}>
-				<Link
-					href="/community/write"
-					className={cn(
-						"inline-flex min-h-[56px] w-full items-center justify-center rounded-full bg-gradient-to-r from-dotori-900 via-dotori-800 to-dotori-700 px-5 py-3 font-semibold text-white ring-1 ring-white/70 shadow-sm shadow-dotori-900/20 transition-all duration-200 ease-out hover:brightness-105 dark:from-dotori-500 dark:via-dotori-500 dark:to-dotori-400 dark:ring-dotori-700 dark:shadow-none",
-						DS_TYPOGRAPHY.body,
-					)}
-				>
-					첫 번째 이웃 이야기를 올려보세요
-				</Link>
+
+			<motion.div {...stagger.item} className="border-b border-dotori-100/70 pb-4">
+				<h3 className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}>
+					이웃 글이 아직 없어요
+				</h3>
+				<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 text-dotori-600 dark:text-dotori-300")}>
+					{message}
+				</p>
 			</motion.div>
-		</motion.div>
+
+			<motion.div className="pt-4" {...stagger.item}>
+				<motion.div {...tap.button}>
+					<Button
+						href="/community/write"
+						color="dotori"
+						className={cn(
+							"min-h-11 w-full justify-center rounded-full font-semibold shadow-sm shadow-dotori-900/20",
+							DS_TYPOGRAPHY.body,
+						)}
+					>
+						첫 번째 이웃 이야기를 올려보세요
+					</Button>
+				</motion.div>
+			</motion.div>
+		</motion.section>
 	);
 }

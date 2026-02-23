@@ -19,7 +19,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DS_GLASS, DS_LAYOUT, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { fadeIn, tap } from "@/lib/motion";
+import { fadeIn, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -63,7 +63,7 @@ const tabs = [
 const navShellClass = cn(
 	DS_GLASS.FLOAT,
 	DS_LAYOUT.CARD_SOFT,
-	"fixed bottom-2 left-3 right-3 z-50 mx-auto max-w-md rounded-[1.5rem] bg-gradient-to-b from-white/92 via-dotori-50/88 to-white/88 pb-[env(safe-area-inset-bottom)] ring-1 ring-dotori-200/70 shadow-[0_20px_36px_-30px_rgba(122,78,48,0.75)] backdrop-blur-xl dark:from-dotori-950/92 dark:via-dotori-900/88 dark:to-dotori-950/92 dark:ring-dotori-800/80 dark:shadow-none",
+	"fixed bottom-2 left-3 right-3 z-50 mx-auto max-w-md rounded-[1.5rem] bg-dotori-50/85 pb-[env(safe-area-inset-bottom)] ring-1 ring-dotori-100/70 shadow-sm dark:ring-dotori-800/80",
 );
 
 export const BottomTabBar = memo(function BottomTabBar() {
@@ -81,68 +81,91 @@ export const BottomTabBar = memo(function BottomTabBar() {
 			aria-label="메인 내비게이션"
 			{...fadeIn}
 		>
-			<div className="relative flex items-center justify-around px-1.5 py-1.5">
+			<motion.div
+				className="relative flex items-center justify-around px-1.5 py-1.5"
+				variants={stagger.container.variants}
+				initial={stagger.container.initial}
+				animate={stagger.container.animate}
+			>
 				{tabs.map((tab) => {
 					const active = isActive(tab.href);
 					const Icon = active ? tab.activeIcon : tab.icon;
 					const isChat = tab.id === "chat";
 
 					return (
-						<Link
+						<motion.div
 							key={tab.id}
-							href={tab.href}
-							aria-current={active ? "page" : undefined}
-							aria-label={tab.label}
-							className={cn(
-								"relative flex flex-1 min-h-10 flex-col items-center justify-center gap-0.5 rounded-[0.95rem] py-1.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-300/70 dark:focus-visible:ring-dotori-700/80",
-							)}
+							className="flex-1"
+							variants={stagger.item.variants}
+							whileTap={tap.button.whileTap}
+							transition={tap.button.transition}
 						>
-							<motion.span
+							<Link
+								href={tab.href}
+								aria-current={active ? "page" : undefined}
+								aria-label={tab.label}
 								className={cn(
-									DS_GLASS.CARD,
-									"pointer-events-none absolute inset-0.5 rounded-[0.8rem] bg-gradient-to-b from-dotori-50/75 to-white/65 ring-1 ring-dotori-200/70 dark:from-dotori-900/80 dark:to-dotori-950/75 dark:ring-dotori-700/70",
+									"relative flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-[0.95rem] py-1.5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-300/70 dark:focus-visible:ring-dotori-700/80",
 								)}
-								animate={active ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
-								initial={false}
-								transition={{ type: "spring", stiffness: 400, damping: 30 }}
-							/>
-							<motion.div
-								className={cn(
-									"relative z-10 grid h-8 w-8 place-items-center rounded-[0.8rem] transition-colors duration-200",
-									isChat && "bg-dotori-100/70 dark:bg-dotori-900/65",
-									active &&
-										"bg-gradient-to-br from-dotori-100 via-dotori-50 to-forest-100 ring-1 ring-dotori-200/80 dark:from-dotori-800 dark:via-dotori-900 dark:to-dotori-900 dark:ring-dotori-700/70",
-								)}
-								whileTap={tap.button.whileTap}
-								transition={{ type: "spring", stiffness: 500, damping: 25 }}
 							>
-								<Icon
+								<motion.span
 									className={cn(
-										"h-5 w-5 transition-colors duration-200",
-										active ? "text-dotori-600 dark:text-dotori-200" : "text-dotori-500/80 dark:text-dotori-400/80",
+										DS_GLASS.CARD,
+										"pointer-events-none absolute inset-0.5 rounded-[0.8rem] ring-1 ring-dotori-200/70",
+										isChat && "bg-dotori-50/85 dark:bg-dotori-900/65",
+										active
+											? "bg-gradient-to-b from-dotori-100/90 to-white/85 ring-dotori-300/70"
+											: "opacity-0",
 									)}
+									animate={active ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
+									initial={false}
+									transition={{ type: "spring", stiffness: 400, damping: 30 }}
 								/>
-							</motion.div>
-							<span
-								className={cn(
-									"relative z-10 tracking-tight transition-colors duration-200",
-									DS_TYPOGRAPHY.label,
-									active ? "font-semibold text-dotori-600 dark:text-dotori-100" : "font-medium text-dotori-500/80 dark:text-dotori-400/80",
-								)}
-							>
-								{tab.label}
-							</span>
-							<motion.span
-								aria-hidden="true"
-								className="pointer-events-none absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-dotori-500/70 dark:bg-dotori-300/80"
-								animate={active ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }}
-								initial={false}
-								transition={{ type: "spring", stiffness: 320, damping: 26 }}
-							/>
-						</Link>
+								<motion.div
+									className={cn(
+										"relative z-10 grid h-8 w-8 place-items-center rounded-[0.8rem] transition-colors duration-200",
+										isChat && "bg-dotori-100/70 dark:bg-dotori-900/65",
+										active &&
+											"bg-gradient-to-br from-dotori-100 via-dotori-50 to-forest-100 ring-1 ring-dotori-200/80 dark:from-dotori-800 dark:via-dotori-900 dark:to-dotori-900 dark:ring-dotori-700/70",
+									)}
+								>
+									<Icon
+										className={cn(
+											"h-5 w-5 transition-colors duration-200",
+											active
+												? "text-dotori-600 dark:text-dotori-200"
+												: "text-dotori-500/80 dark:text-dotori-400/80",
+										)}
+									/>
+								</motion.div>
+								<span
+									className={cn(
+										"relative z-10 tracking-tight transition-colors duration-200",
+										DS_TYPOGRAPHY.label,
+										active
+											? "font-semibold text-dotori-600 dark:text-dotori-100"
+											: "font-medium text-dotori-500/80 dark:text-dotori-400/80",
+									)}
+								>
+									{tab.label}
+								</span>
+								<motion.span
+									aria-hidden="true"
+									className={cn(
+										"pointer-events-none absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full",
+										active
+											? "bg-dotori-500/70 dark:bg-dotori-300/80"
+											: "bg-dotori-300/30 dark:bg-dotori-700/40",
+									)}
+									animate={active ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }}
+									initial={false}
+									transition={{ type: "spring", stiffness: 320, damping: 26 }}
+								/>
+							</Link>
+						</motion.div>
 					);
 				})}
-			</div>
+			</motion.div>
 		</motion.nav>
 	);
 })

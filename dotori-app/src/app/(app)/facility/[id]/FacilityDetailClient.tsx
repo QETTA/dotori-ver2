@@ -31,8 +31,9 @@ import { useFacilityDetailActions } from "@/components/dotori/facility/useFacili
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
 import { getFacilityImage } from "@/lib/facility-images";
-import { fadeUp } from "@/lib/motion";
+import { stagger, tap } from "@/lib/motion";
 import type { CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
@@ -92,26 +93,33 @@ function FacilityDetailErrorState({ message }: { message: string }) {
 
 	return (
 		<div className="pb-4">
-			<header className="glass-header sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 text-dotori-800 dark:text-dotori-100">
-				<button
+			<header
+				className={`${DS_GLASS.HEADER} sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 text-dotori-800 dark:text-dotori-100`}
+			>
+				<motion.button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					whileTap={tap.button.whileTap}
+					transition={tap.button.transition}
+					className="min-h-11 min-w-11 rounded-full p-2 transition-all hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
-				</button>
-				<h1 className="min-w-0 flex-1 truncate text-base font-semibold text-dotori-900 dark:text-dotori-50">
+				</motion.button>
+				<h1 className="min-w-0 flex-1 truncate text-h2 font-semibold text-dotori-900 dark:text-dotori-50">
 					시설 상세정보
 				</h1>
 				<span className="w-10" aria-hidden="true" />
 			</header>
-			<div className="px-4">
+			<div className="mt-4 px-4">
 				<ErrorState
 					message={message}
 					detail="네트워크 상태를 확인하고 다시 시도해 주세요"
 					variant="notfound"
-					action={{ label: "다시 시도", onClick: handleRetry }}
+					action={{
+						label: "다시 시도",
+						onClick: handleRetry,
+					}}
 				/>
 			</div>
 		</div>
@@ -216,6 +224,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		() => getCapacityProgressColor(occupancyRate),
 		[occupancyRate],
 	);
+	const statusTone = DS_STATUS[facility.status];
 	const aiInsightSummary = useMemo(() => {
 		if (facility.status === "available") {
 			return `현재 입소 가능 상태예요. 정원 대비 충원율 ${occupancyRate}%로, 바로 신청을 검토할 수 있어요.`;
@@ -225,6 +234,17 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		}
 		return `현재 충원율 ${occupancyRate}% 상태예요. 관심 등록 후 공석 알림으로 변화를 빠르게 확인해보세요.`;
 	}, [facility.status, occupancyRate, waitingCapacity]);
+	const interactionMessage = useMemo(() => {
+		switch (facility.status) {
+			case "available":
+				return "입소 신청은 현재 바로 진행 가능해요. 신청 버튼을 눌러 다음 단계로 이동해보세요.";
+			case "waiting":
+				return "현재 대기 중이에요. 연락처와 대기 안내 메시지를 먼저 확인하고 신청을 진행해보세요.";
+			default:
+				return "현재 마감 상태예요. 최신 대기/빈자리 알림이 오면 즉시 확인할 수 있어요.";
+		}
+	}, [facility.status]);
+	const sectionCardClass = `${DS_GLASS.CARD} overflow-hidden rounded-2xl border-none shadow-sm ring-1 ring-dotori-100/70 dark:ring-dotori-800`;
 
 	const websiteUrl = useMemo(() => {
 		const raw = facility.website || facility.homepage;
@@ -325,43 +345,53 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	}, [facility.id]);
 
 	return (
-		<div className="pb-32">
-			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-800 dark:text-dotori-100">
-				<button
+		<motion.main {...stagger.container} className="pb-32 bg-dotori-50">
+			<motion.header
+				{...stagger.item}
+				className={`${DS_GLASS.HEADER} sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-800 dark:text-dotori-100`}
+			>
+				<motion.button
 					type="button"
 					onClick={handleBack}
 					aria-label="뒤로 가기"
-					className="rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					whileTap={tap.button.whileTap}
+					transition={tap.button.transition}
+					className="min-h-11 min-w-11 rounded-full p-2 transition-all hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
-				</button>
+				</motion.button>
 				<div className="min-w-0">
-					<h1 className="truncate text-h1 font-bold leading-6 text-dotori-900 dark:text-dotori-50">
+					<h1 className="truncate text-h1 font-bold leading-7 text-dotori-900 dark:text-dotori-50">
 						{facility.name}
 					</h1>
-					<p className="mt-1 text-body-sm leading-5 text-dotori-600 dark:text-dotori-200">
+					<p className="mt-1 text-body-sm text-dotori-600 dark:text-dotori-200">
 						{facility.address}
 					</p>
 				</div>
-				<button
+				<motion.button
 					type="button"
 					onClick={handleShare}
 					aria-label="공유"
-					className="ml-auto rounded-full p-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:hover:bg-dotori-900"
+					whileTap={tap.button.whileTap}
+					transition={tap.button.transition}
+					className="ml-auto min-h-11 min-w-11 rounded-full p-2 transition-all hover:bg-dotori-50 dark:hover:bg-dotori-900"
 				>
 					<ShareIcon className="h-6 w-6" />
-				</button>
-			</header>
-			<FacilityStatusBadges
-				facilityType={facility.type}
-				status={facility.status}
-				qualityScore={qualityScore}
-				isPremiumFacility={isPremiumFacility}
-			/>
+				</motion.button>
+			</motion.header>
+
+			<motion.section {...stagger.item} className="mx-4 mt-3">
+				<FacilityStatusBadges
+					facilityType={facility.type}
+					status={facility.status}
+					qualityScore={qualityScore}
+					isPremiumFacility={isPremiumFacility}
+				/>
+			</motion.section>
 
 			<motion.div
-				{...fadeUp}
-				className="relative mx-4 mt-3 h-52 overflow-hidden rounded-3xl border border-dotori-100 bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950"
+				{...stagger.item}
+				className={`${DS_GLASS.CARD} relative mx-4 mt-3 h-52 overflow-hidden rounded-3xl shadow-sm ring-1 ring-dotori-100/70 dark:ring-dotori-800`}
 			>
 				{hasFacilityImage ? (
 					// eslint-disable-next-line @next/next/no-img-element
@@ -394,8 +424,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</div>
 			</motion.div>
 
+			<motion.section
+				{...stagger.item}
+				className={`${DS_GLASS.CARD} mx-4 mt-3 rounded-2xl border border-dotori-100/70 bg-dotori-50/80 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 ${statusTone.border}`}
+			>
+				<div className="flex items-center gap-2.5">
+					<span className={`mt-0.5 h-2.5 w-2.5 flex-shrink-0 rounded-full ${statusTone.dot}`} />
+					<div className="min-w-0">
+						<p className="text-label font-semibold text-dotori-900 dark:text-dotori-100">
+							{statusTone.label}
+						</p>
+						<p className="text-body-sm mt-1 text-dotori-700 dark:text-dotori-200">
+							{interactionMessage}
+						</p>
+					</div>
+				</div>
+			</motion.section>
+
 			<div className="mt-3 px-4">
-				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
+				<motion.section {...stagger.item} className={sectionCardClass}>
 					<FacilityCoreInfoSections
 						status={facility.status}
 						qualityScore={qualityScore}
@@ -408,9 +455,9 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						keyStats={keyStats}
 						features={facility.features}
 					/>
-				</div>
+				</motion.section>
 
-				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityPremiumSection
 						showPremiumSection={showPremiumSection}
 						premiumVerifiedAt={premiumVerifiedAt}
@@ -420,9 +467,9 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						premiumPhotos={premiumPhotos}
 						facilityName={facility.name}
 					/>
-				</div>
+				</motion.section>
 
-				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityContactMapSections
 						phone={facility.phone}
 						address={facility.address}
@@ -441,57 +488,50 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						lng={facility.lng}
 						status={facility.status}
 					/>
-				</div>
+				</motion.section>
 
-				<motion.div
-					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
-				>
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<IsalangCard />
-				</motion.div>
-				<motion.div
-					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
-				>
+				</motion.section>
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityChecklistCard
 						facilityType={facility.type}
 						checklist={checklist}
 						showChecklist={showChecklist}
 						onToggle={loadChecklist}
 					/>
-				</motion.div>
-				<motion.div
-					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
-				>
+				</motion.section>
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityReviewsCard
 						posts={relatedPosts}
 						facilityId={facility.id}
 						facilityName={facility.name}
 					/>
-				</motion.div>
-				<motion.div
-					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
-				>
+				</motion.section>
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityInsights facility={facility} />
-				</motion.div>
-				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
+				</motion.section>
+				<motion.section {...stagger.item} className={`${sectionCardClass} mt-4`}>
 					<FacilityAdmissionGuideSection />
-				</div>
+				</motion.section>
 			</div>
 
-			<FacilityActionBar
-				liked={liked}
-				isTogglingLike={isTogglingLike}
-				actionStatus={actionStatus}
-				error={error}
-				waitingHintText={waitingHintText}
-				applyActionLabel={applyActionLabel}
-				onToggleLike={toggleLike}
-				onApplyClick={handleApplyClick}
-				onResetActionStatus={resetActionStatus}
-			/>
+			<motion.section
+				{...stagger.item}
+				className="mt-5 [&_button]:min-h-11 [&_button]:rounded-xl [&_a]:min-h-11 [&_.glass-float]:rounded-3xl [&_.glass-float]:ring-1 [&_.glass-float]:ring-dotori-100/70 [&_.glass-float]:shadow-sm [&_.glass-float]:shadow-dotori-900/15"
+			>
+				<FacilityActionBar
+					liked={liked}
+					isTogglingLike={isTogglingLike}
+					actionStatus={actionStatus}
+					error={error}
+					waitingHintText={waitingHintText}
+					applyActionLabel={applyActionLabel}
+					onToggleLike={toggleLike}
+					onApplyClick={handleApplyClick}
+					onResetActionStatus={resetActionStatus}
+				/>
+			</motion.section>
 
 			<ActionConfirmSheet
 				open={sheetOpen}
@@ -503,6 +543,6 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				status={actionStatus}
 				{...(actionStatus === "error" && error ? { error } : {})}
 			/>
-		</div>
+		</motion.main>
 	);
 }

@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Badge } from '@/components/catalyst/badge'
 import { Button } from '@/components/catalyst/button'
+import { Heading } from '@/components/catalyst/heading'
+import { Text } from '@/components/catalyst/text'
 import { PageTransition } from '@/components/dotori/PageTransition'
 import { BRAND } from '@/lib/brand-assets'
 import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
@@ -103,7 +105,7 @@ export default function LandingPage() {
         initial="hidden"
         animate="show"
         variants={splashStagger}
-        className="relative min-h-dvh overflow-hidden bg-gradient-to-b from-dotori-100 via-dotori-50/90 to-white px-4 pb-7 pt-3"
+        className="relative min-h-dvh overflow-hidden bg-dotori-50/80 px-4 pb-7 pt-3"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-dotori-300/25 blur-3xl dark:bg-dotori-700/20" />
@@ -115,9 +117,10 @@ export default function LandingPage() {
         <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-3.5">
           <motion.header
             variants={splashItem}
-            className={`rounded-3xl border border-dotori-100/80 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 ${DS_GLASS.HEADER}`}
+            className={`rounded-3xl border border-dotori-100/80 bg-dotori-50/75 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 ${DS_GLASS.HEADER}`}
           >
-            <div className="flex items-center justify-between gap-3">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
               <Link href="/landing" className="inline-flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -130,12 +133,14 @@ export default function LandingPage() {
               </Link>
               <Badge color="forest">PRE-HOME SPLASH</Badge>
             </div>
+              <Text className={cn(DS_TYPOGRAPHY.label, 'font-semibold text-dotori-600')}>첫 방문에서 시작되는 이동 전략</Text>
+            </div>
           </motion.header>
 
           <motion.section variants={splashItem} className="grid gap-4">
             <motion.article
               variants={splashItem}
-              className={`relative overflow-hidden rounded-3xl border border-dotori-100/80 p-5 shadow-sm ring-1 ring-dotori-100/70 ${DS_GLASS.CARD}`}
+              className={`relative overflow-hidden rounded-3xl border border-dotori-100/80 bg-dotori-50/80 p-5 shadow-sm ring-1 ring-dotori-100/70 ${DS_GLASS.CARD}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -152,17 +157,19 @@ export default function LandingPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-7 -top-8 h-20 w-20 rotate-[-9deg] opacity-85"
                 />
-              <p className="text-label font-semibold tracking-[0.16em] text-dotori-600">HOME READY FRAME</p>
-              <h1 className={cn(DS_TYPOGRAPHY.h1, 'mt-2 leading-tight text-dotori-950')}>
+              <Text className={cn(DS_TYPOGRAPHY.label, 'font-semibold tracking-[0.14em] text-dotori-600')}>
+                HOME READY FRAME
+              </Text>
+              <Heading level={1} className={cn(DS_TYPOGRAPHY.h1, 'mt-2 leading-tight text-dotori-950')}>
                 홈 진입 전에
                 <br />
                 이동 전략부터 맞춥니다
-              </h1>
-              <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2.5 text-dotori-700')}>
+              </Heading>
+              <Text className={cn(DS_TYPOGRAPHY.body, 'mt-2.5 text-dotori-700')}>
                 반편성, 교체 이슈, 국공립 변화를 한 번에 묶어
                 <br />
                 빠르게 판단하고 탐색을 시작하세요.
-              </p>
+              </Text>
 
               <motion.p
                 key={currentSignal}
@@ -179,10 +186,12 @@ export default function LandingPage() {
                   <motion.div
                     variants={splashItem}
                     key={item.label}
-                    className="rounded-2xl border border-dotori-100/80 bg-white/80 p-2.5 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-950/40"
+                    className="rounded-2xl border border-dotori-100/80 bg-dotori-50/80 p-2.5 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-950/40"
                   >
-                    <p className="text-h3 text-dotori-900">{item.value}</p>
-                    <p className="mt-1 text-caption text-dotori-600">{item.label}</p>
+                    <Text className={cn(DS_TYPOGRAPHY.h3, 'text-dotori-900')}>{item.value}</Text>
+                    <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-dotori-600')}>
+                      {item.label}
+                    </Text>
                   </motion.div>
                 ))}
               </div>
@@ -198,12 +207,16 @@ export default function LandingPage() {
                   </Button>
                 </motion.div>
                 <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                  <Button href="/onboarding" outline className="min-h-11 w-full justify-center rounded-full">
+                  <Button color="dotori" href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
                     온보딩 시작
                   </Button>
                 </motion.div>
                 <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                  <Button href="/chat" plain className="min-h-11 w-full justify-center rounded-full">
+                  <Button
+                    color="dotori"
+                    href="/chat"
+                    className="min-h-11 w-full justify-center rounded-full border border-dotori-100/80 bg-white/90"
+                  >
                     AI 상담 미리보기
                   </Button>
                 </motion.div>
@@ -213,7 +226,7 @@ export default function LandingPage() {
 
             <motion.section
               variants={splashItem}
-              className="rounded-2xl border-b border-dotori-200/70 p-4 pb-6 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70"
+              className="rounded-3xl border-b border-dotori-200/70 bg-dotori-50/80 p-4 pb-6 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70"
             >
               <p className="text-label font-semibold text-dotori-600">작동 순서</p>
               <h2 className="mt-1 text-h2 text-dotori-900">3단계로 바로 시작</h2>
