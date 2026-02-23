@@ -43,8 +43,10 @@ export default function MyPage() {
 	const pathname = usePathname();
 	const [interestPreview, setInterestPreview] = useState<Facility[]>([]);
 	const [isInterestLoading, setIsInterestLoading] = useState(false);
-	const menuItemClass =
-		"flex min-h-12 items-center justify-between gap-3 px-4 py-3.5";
+	const menuItemClass = cn(
+		DS_TYPOGRAPHY.bodySm,
+		"flex min-h-12 items-center justify-between gap-3 px-4 py-3.5",
+	);
 	const sectionTitleClass = cn(
 		DS_TYPOGRAPHY.label,
 		"mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold uppercase tracking-[0.2em] text-dotori-400 dark:border-dotori-800/80 dark:text-dotori-500",

@@ -16,8 +16,8 @@ import { useState } from "react";
 import { Button } from "@/components/catalyst/button";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { fadeUp } from "@/lib/motion";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { ActionStatus, Facility } from "@/types/dotori";
 
@@ -56,8 +56,7 @@ type FacilityActionBarProps = {
 	onResetActionStatus: () => void;
 };
 
-type FacilityContactMapSectionsProps = FacilityContactSectionProps &
-	FacilityLocationMapSectionProps;
+type FacilityContactMapSectionsProps = FacilityContactSectionProps & FacilityLocationMapSectionProps;
 
 export function FacilityContactSection({
 	phone,
@@ -78,7 +77,7 @@ export function FacilityContactSection({
 			{...fadeUp}
 			className={cn(
 				DS_GLASS.CARD,
-				"relative mb-5 overflow-hidden rounded-2xl border-b border-dotori-100 bg-white px-4 py-4 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+				"relative mb-4 overflow-hidden rounded-3xl border-b border-dotori-100/80 bg-dotori-50/45 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950/70",
 			)}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -88,95 +87,110 @@ export function FacilityContactSection({
 				aria-hidden="true"
 				className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 opacity-[0.07]"
 			/>
-			<button
+			<motion.button
 				type="button"
-				onClick={() => setIsExpanded((prev) => !prev)}
-				aria-expanded={isExpanded}
-				aria-controls="facility-contact-details"
-				className="flex w-full min-h-10 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
-			>
-				<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
-					연락처
-				</h2>
+			onClick={() => setIsExpanded((prev) => !prev)}
+			aria-expanded={isExpanded}
+			aria-controls="facility-contact-details"
+			whileTap={tap.button.whileTap}
+			transition={tap.button.transition}
+			className="flex w-full min-h-10 items-center justify-between gap-3 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
+		>
+				<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>연락처</h2>
 				<ChevronDownIcon
 					className={`h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200 ${
 						isExpanded ? "rotate-180" : ""
 					}`}
 				/>
-			</button>
+			</motion.button>
 			{isExpanded ? (
-				<div
+				<motion.div
 					id="facility-contact-details"
-					className={cn(DS_TYPOGRAPHY.bodySm, "mt-3 space-y-2 text-dotori-700 dark:text-dotori-200")}
+					{...stagger.container}
+					className={cn(DS_TYPOGRAPHY.bodySm, "mt-3 space-y-3 text-dotori-700 dark:text-dotori-200")}
 				>
 					{phone ? (
-						<div className="flex flex-col gap-2 sm:flex-row">
-							<a
+						<motion.div {...stagger.container} className="flex flex-col gap-2 sm:flex-row">
+							<motion.a
 								href={`tel:${phone}`}
+								whileTap={tap.button.whileTap}
+								transition={tap.button.transition}
 								className={cn(
 									DS_GLASS.CARD,
-									"flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
+									"flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
 								)}
 							>
 								<PhoneIcon className="h-5 w-5 text-dotori-500" />
 								<span>{phone}</span>
-							</a>
-							<Button
-								plain={true}
-								type="button"
-								onClick={onCopyPhone}
-								disabled={!copyablePhone || copyingPhone}
-								className={cn(DS_TYPOGRAPHY.bodySm, "min-h-10 min-w-28 px-3 active:scale-[0.97]")}
-							>
-								<ClipboardDocumentIcon className="h-5 w-5" />
-								전화 복사
-							</Button>
-						</div>
+							</motion.a>
+							<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
+								<Button
+									plain={true}
+									type="button"
+									onClick={onCopyPhone}
+									disabled={!copyablePhone || copyingPhone}
+									className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 min-w-28 px-3")}
+								>
+									<ClipboardDocumentIcon className="h-5 w-5" />
+									전화 복사
+								</Button>
+							</motion.div>
+						</motion.div>
 					) : (
-						<div className={cn(DS_TYPOGRAPHY.bodySm, "flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500 dark:border-dotori-800 dark:text-dotori-300")}>
+						<motion.div
+							{...stagger.item}
+							className={cn(DS_TYPOGRAPHY.bodySm, "flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500 dark:border-dotori-800 dark:text-dotori-300")}
+						>
 							<PhoneIcon className="h-5 w-5" />
 							<span>전화번호 미제공</span>
-						</div>
+						</motion.div>
 					)}
-					<div className="flex flex-col gap-2 sm:flex-row">
-						<a
+					<motion.div {...stagger.container} className="flex flex-col gap-2 sm:flex-row">
+						<motion.a
 							href={kakaoMapUrl}
 							target="_blank"
 							rel="noopener noreferrer"
+							whileTap={tap.button.whileTap}
+							transition={tap.button.transition}
 							className={cn(
 								DS_GLASS.CARD,
-								"flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
+								"flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
 							)}
 						>
 							<MapPinIcon className="h-5 w-5 text-dotori-500" />
 							<span className="line-clamp-2">{address}</span>
-						</a>
-						<Button
-							plain={true}
-							type="button"
-							onClick={onCopyAddress}
-							disabled={!copyableAddress || copyingAddress}
-							className={cn(DS_TYPOGRAPHY.bodySm, "min-h-10 min-w-28 px-3 active:scale-[0.97]")}
-						>
-							<ClipboardDocumentIcon className="h-5 w-5" />
-							주소 복사
-						</Button>
-					</div>
+						</motion.a>
+						<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
+							<Button
+								plain={true}
+								type="button"
+								onClick={onCopyAddress}
+								disabled={!copyableAddress || copyingAddress}
+								className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 min-w-28 px-3")}
+							>
+								<ClipboardDocumentIcon className="h-5 w-5" />
+								주소 복사
+							</Button>
+						</motion.div>
+					</motion.div>
 					{websiteUrl && (
-						<a
+						<motion.a
 							href={websiteUrl}
 							target="_blank"
 							rel="noopener noreferrer"
+							whileTap={tap.button.whileTap}
+							transition={tap.button.transition}
+							{...stagger.item}
 							className={cn(
 								DS_GLASS.CARD,
-								"flex min-h-10 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
+								"flex min-h-11 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900",
 							)}
 						>
 							<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
 							<span>홈페이지 열기</span>
-						</a>
+						</motion.a>
 					)}
-				</div>
+				</motion.div>
 			) : null}
 		</motion.section>
 	);
@@ -196,13 +210,14 @@ export function FacilityLocationMapSection({
 	}
 	const safeLat = Number(lat);
 	const safeLng = Number(lng);
+	const statusTone = DS_STATUS[status];
 
 	return (
 		<motion.section
 			{...fadeUp}
 			className={cn(
 				DS_GLASS.CARD,
-				"relative mb-5 overflow-hidden rounded-2xl border-b border-dotori-100 bg-white p-4 pb-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+				"relative mb-4 overflow-hidden rounded-3xl border-b border-dotori-100/80 bg-dotori-50/45 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950/70",
 			)}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -212,8 +227,14 @@ export function FacilityLocationMapSection({
 				aria-hidden="true"
 				className="pointer-events-none absolute right-2 top-2 h-10 w-10 opacity-[0.16]"
 			/>
-			<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>지도</h2>
-			<div className="mt-3 overflow-hidden rounded-2xl border border-dotori-100 dark:border-dotori-800">
+			<div className="flex flex-wrap items-center gap-2">
+				<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>지도</h2>
+				<div className={cn("inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-label font-semibold", statusTone.pill)}>
+					<span className={cn("size-2 rounded-full", statusTone.dot)} />
+					<span>{statusTone.label}</span>
+				</div>
+			</div>
+			<div className="mt-3 overflow-hidden rounded-3xl border border-dotori-100 dark:border-dotori-800">
 				<MapEmbed
 					facilities={[
 						{
@@ -228,17 +249,22 @@ export function FacilityLocationMapSection({
 					height="h-56"
 				/>
 			</div>
-			<a
+			<motion.a
 				href={kakaoMapUrl}
 				target="_blank"
 				rel="noopener noreferrer"
+				whileTap={tap.button.whileTap}
+				transition={tap.button.transition}
+				variants={stagger.item.variants}
+				initial="hidden"
+				animate="show"
 				className={cn(
 					DS_TYPOGRAPHY.bodySm,
-					"mt-3 inline-flex min-h-10 items-center gap-1 rounded-xl px-3 py-2.5 font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-50 hover:text-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-900 dark:hover:text-dotori-50",
+					"mt-3 inline-flex min-h-11 items-center gap-1 rounded-xl px-3 py-2.5 font-semibold text-dotori-700 transition-all hover:bg-dotori-50 hover:text-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-900 dark:hover:text-dotori-50",
 				)}
 			>
 				카카오맵에서 자세히 보기
-			</a>
+			</motion.a>
 		</motion.section>
 	);
 }
@@ -255,96 +281,116 @@ export function FacilityActionBar({
 	onResetActionStatus,
 }: FacilityActionBarProps) {
 	return (
-		<div className={cn(DS_GLASS.FLOAT, "sticky bottom-0 left-0 right-0 z-30 border-t border-dotori-100 bg-white/80 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/90")}>
-			<div className="mx-auto max-w-md space-y-2">
-				<div className="flex gap-3">
-					<Button
-						plain={true}
-						disabled={isTogglingLike}
-						onClick={onToggleLike}
-						aria-label="관심 시설 추가/제거"
-						className={cn(
-							DS_TYPOGRAPHY.bodySm,
-							"flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-dotori-200 bg-white px-3 font-semibold text-dotori-700 transition-all active:scale-[0.97] dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100",
-						)}
-					>
-						{liked ? (
-							<HeartSolid className="h-5 w-5 text-dotori-500" />
-						) : (
-							<HeartIcon className="h-5 w-5" />
-						)}
-						{liked ? "관심 추가됨" : "관심 추가"}
-					</Button>
+		<motion.section
+			{...stagger.container}
+			className={cn(
+				DS_GLASS.FLOAT,
+				"fixed inset-x-3 bottom-2 z-40 mx-auto w-[calc(100%-1.5rem)] max-w-md rounded-[1.4rem] border border-dotori-100 bg-dotori-50/90 px-3 py-2.5 shadow-lg ring-1 ring-dotori-100/70 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-dotori-800 dark:bg-dotori-950/90 md:static md:w-full",
+			)}
+		>
+			<div className="mx-auto flex w-full max-w-md flex-col space-y-2 px-0.5">
+				<motion.div {...stagger.container} className="flex gap-3">
+					<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
+						<Button
+							plain={true}
+							disabled={isTogglingLike}
+							onClick={onToggleLike}
+							aria-label="관심 시설 추가/제거"
+							className={cn(
+								DS_TYPOGRAPHY.bodySm,
+								"flex min-h-11 items-center justify-center gap-2 rounded-xl border border-dotori-200 bg-white px-3 font-semibold text-dotori-700 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100",
+							)}
+						>
+							{liked ? (
+								<HeartSolid className="h-5 w-5 text-dotori-500" />
+							) : (
+								<HeartIcon className="h-5 w-5" />
+							)}
+							{liked ? "관심 추가됨" : "관심 추가"}
+						</Button>
+					</motion.div>
 					<div className="flex-1">
 						{actionStatus === "executing" ? (
-							<div className="min-h-10 rounded-xl border border-dotori-100 bg-dotori-50 px-4 py-2.5 dark:border-dotori-800 dark:bg-dotori-900">
+							<motion.div
+								{...stagger.item}
+								className="min-h-11 rounded-xl border border-dotori-100 bg-dotori-50 px-4 py-2.5 dark:border-dotori-800 dark:bg-dotori-900"
+							>
 								<div className="flex h-full items-center justify-center gap-2">
 									<ArrowPathIcon className="h-5 w-5 animate-spin text-dotori-700 dark:text-dotori-100" />
 									<span className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-700 dark:text-dotori-100")}>
 										신청 처리 중...
 									</span>
 								</div>
-							</div>
+							</motion.div>
 						) : actionStatus === "success" ? (
-							<div className="rounded-xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center dark:border-forest-800 dark:bg-forest-950/30">
+							<motion.div {...stagger.item} className="rounded-xl border border-forest-200 bg-forest-50 px-4 py-2.5 text-center dark:border-forest-800 dark:bg-forest-950/30">
 								<CheckCircleIcon className="mx-auto h-6 w-6 animate-in zoom-in text-forest-600 duration-300 dark:text-forest-200" />
 								<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 font-semibold text-dotori-900 dark:text-dotori-50")}>
 									대기 신청 완료!
 								</p>
 								<Link
 									href="/my/waitlist"
-									className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 inline-flex font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900 dark:text-dotori-200 dark:hover:text-dotori-50")}
+									className={cn(
+										DS_TYPOGRAPHY.bodySm,
+										"mt-1 inline-flex min-h-11 items-center font-semibold text-dotori-700 underline underline-offset-4 transition-colors hover:text-dotori-900 dark:text-dotori-200 dark:hover:text-dotori-50",
+									)}
 								>
 									MY &gt; 대기 현황에서 확인하세요
 								</Link>
-								<Button
-									plain={true}
-									onClick={onResetActionStatus}
-									className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 min-h-10 w-full rounded-xl")}
-								>
-									확인
-								</Button>
-							</div>
-						) : actionStatus === "error" ? (
-							<div className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left dark:bg-danger/10">
-								<p className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-danger")}>
-									{error ?? "대기 신청 중 오류가 발생했어요."}
-								</p>
-								<div className="mt-2 flex gap-2">
+								<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="mt-2">
 									<Button
 										plain={true}
 										onClick={onResetActionStatus}
-										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-10 flex-1 rounded-xl")}
+										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
 									>
-										닫기
+										확인
 									</Button>
+								</motion.div>
+							</motion.div>
+						) : actionStatus === "error" ? (
+							<motion.div {...stagger.item} className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-2.5 text-left dark:bg-danger/10">
+								<p className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-danger")}>{error ?? "대기 신청 중 오류가 발생했어요."}</p>
+								<div className="mt-2 flex gap-2">
+									<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
+										<Button
+											plain={true}
+											onClick={onResetActionStatus}
+											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
+										>
+											닫기
+										</Button>
+									</motion.div>
+									<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
+										<Button
+											color="dotori"
+											onClick={onApplyClick}
+											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
+										>
+											다시 신청
+										</Button>
+									</motion.div>
+								</div>
+							</motion.div>
+						) : (
+							<>
+								<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
 									<Button
 										color="dotori"
 										onClick={onApplyClick}
-										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-10 flex-1 rounded-xl")}
+										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl py-2.5 font-semibold shadow-sm shadow-dotori-900/5")}
 									>
-										다시 신청
+										{applyActionLabel}
 									</Button>
-								</div>
-							</div>
-						) : (
-							<>
-								<Button
-									color="dotori"
-									onClick={onApplyClick}
-									className={cn(DS_TYPOGRAPHY.bodySm, "min-h-10 w-full rounded-xl py-2.5 font-semibold shadow-sm shadow-dotori-900/5 active:scale-[0.97]")}
-								>
-									{applyActionLabel}
-								</Button>
+								</motion.div>
 								<p className={cn(DS_TYPOGRAPHY.caption, "mt-1 text-dotori-500 dark:text-dotori-300")}>
 									{waitingHintText}
 								</p>
 							</>
 						)}
 					</div>
-				</div>
+				</motion.div>
 			</div>
-		</div>
+		</motion.section>
 	);
 }
 
@@ -367,7 +413,7 @@ export function FacilityContactMapSections({
 	status,
 }: FacilityContactMapSectionsProps) {
 	return (
-		<>
+		<div className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
 			<FacilityContactSection
 				phone={phone}
 				address={address}
@@ -389,6 +435,6 @@ export function FacilityContactMapSections({
 				status={status}
 				kakaoMapUrl={kakaoMapUrl}
 			/>
-		</>
+		</div>
 	);
 }

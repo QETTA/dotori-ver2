@@ -30,6 +30,10 @@ type UserLean = {
 	onboardingCompleted?: boolean;
 };
 
+const DEFAULT_METRO_REGION_FILTER = {
+	"region.sido": { $in: ["서울특별시", "경기도", "인천광역시"] },
+};
+
 export const GET = withApiHandler(
 	async (_req, { userId }) => {
 		const INTEREST_FACILITY_LIMIT = 3;
@@ -102,6 +106,8 @@ export const GET = withApiHandler(
 						};
 					} else if (user.region.sido) {
 						regionFilter = { "region.sido": user.region.sido };
+					} else {
+						regionFilter = { ...DEFAULT_METRO_REGION_FILTER };
 					}
 
 					const userInterestSlice = userInterests.slice(0, INTEREST_FACILITY_LIMIT);
@@ -147,6 +153,8 @@ export const GET = withApiHandler(
 						toFacilityDTO(facility as FacilityLean),
 					);
 				}
+			} else {
+				regionFilter = { ...DEFAULT_METRO_REGION_FILTER };
 			}
 
 			const [nearbyDocsResult] = await Promise.allSettled([

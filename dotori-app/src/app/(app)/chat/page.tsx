@@ -12,10 +12,11 @@ import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
-import { stagger, tap } from "@/lib/motion";
+import { fadeIn, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
 import { ChatBubble } from "@/components/dotori/ChatBubble";
+import EmptyStateFallback from "@/components/dotori/EmptyState";
 import type { ChatMessage } from "@/types/dotori";
 import { useSession } from "next-auth/react";
 import { Text } from "@/components/catalyst/text";
@@ -43,7 +44,7 @@ export default function ChatPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 dark:bg-dotori-900">
+				<div className="relative flex min-h-0 flex-1 flex-col bg-dotori-50 dark:bg-dotori-900">
 					<div className="px-5 pt-6">
 						<Skeleton variant="card" count={2} />
 					</div>
@@ -170,39 +171,35 @@ function ChatHeader({
 	);
 }
 
-function ChatMessageArea({
+function ChatBubbleArea({
 	isHistoryLoading,
 	messages,
 	messagesEndRef,
-	selectedPromptLabel,
-	onSelectPrompt,
-	onSuggestPrompt,
 	onBlockAction,
 	onQuickReply,
 }: {
 	isHistoryLoading: boolean;
 	messages: ChatMessage[];
 	messagesEndRef: React.RefObject<HTMLDivElement | null>;
-	selectedPromptLabel: string;
-	onSelectPrompt: (prompt: ChatPromptPanelItem) => void;
-	onSuggestPrompt: (prompt: ChatPromptPanelItem) => void;
 	onBlockAction: (actionId: string) => void;
 	onQuickReply: (value: string) => void;
 }) {
+	if (!isHistoryLoading && messages.length === 0) {
+		return (
+			<div className="flex-1 px-5 py-4">
+				<EmptyStateFallback
+					title="아직 대화가 없어요"
+					message="토리에게 이동 고민이나 시설 추천이 필요하면 첫 질문을 남겨보세요."
+				/>
+			</div>
+		);
+	}
+
 	return (
 		<div className="flex-1 overflow-y-auto">
 			{isHistoryLoading ? (
 				<div className="px-5 py-4">
 					<Skeleton variant="chat" count={3} />
-				</div>
-			) : messages.length === 0 ? (
-				<div className="px-5 py-4">
-					<ChatPromptPanel
-						onSelectPrompt={onSelectPrompt}
-						onSuggestPrompt={onSuggestPrompt}
-						selectedPromptLabel={selectedPromptLabel}
-						toriIcon={BRAND.symbol}
-					/>
 				</div>
 			) : (
 				<motion.ul
@@ -222,6 +219,41 @@ function ChatMessageArea({
 				</motion.ul>
 			)}
 		</div>
+	);
+}
+
+function ChatPromptSection({
+	isHistoryLoading,
+	messages,
+	selectedPromptLabel,
+	onSelectPrompt,
+	onSuggestPrompt,
+}: {
+	isHistoryLoading: boolean;
+	messages: ChatMessage[];
+	selectedPromptLabel: string;
+	onSelectPrompt: (prompt: ChatPromptPanelItem) => void;
+	onSuggestPrompt: (prompt: ChatPromptPanelItem) => void;
+}) {
+	if (isHistoryLoading || messages.length > 0) {
+		return null;
+	}
+
+	return (
+		<motion.section
+			{...fadeIn}
+			className={cn(
+				DS_GLASS.CARD,
+				"px-4 pb-3 pt-4 rounded-3xl shadow-sm ring-1 ring-dotori-100/70",
+			)}
+		>
+			<ChatPromptPanel
+				onSelectPrompt={onSelectPrompt}
+				onSuggestPrompt={onSuggestPrompt}
+				selectedPromptLabel={selectedPromptLabel}
+				toriIcon={BRAND.symbol}
+			/>
+		</motion.section>
 	);
 }
 
@@ -249,11 +281,12 @@ function ChatComposer({
 	const isSendDisabled = !input.trim() || isLoading || isUsageLoading || isUsageLimitReached;
 
 	return (
-		<div
+		<motion.footer
+			{...fadeIn}
 			className={cn(
 				DS_GLASS.SHEET,
-				"rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-sm shadow-[0_-10px_24px_rgba(200,149,106,0.1)] dark:border-dotori-800/40 dark:shadow-none",
-				"ring-1 ring-dotori-100/70",
+				"rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-sm ring-1 ring-dotori-100/70",
+				"dark:border-dotori-800/40",
 			)}
 		>
 			{isTrackingUsage && isUsageLimitReached ? (
@@ -313,7 +346,7 @@ function ChatComposer({
 					</Button>
 				</motion.div>
 			</div>
-		</div>
+		</motion.footer>
 	);
 }
 
@@ -514,7 +547,7 @@ function ChatContent() {
 	};
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
+		<div className="relative flex min-h-0 flex-1 flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
 			<ChatHeader
 				isTrackingUsage={isTrackingUsage}
 				isResetting={isResetting}
@@ -524,15 +557,19 @@ function ChatContent() {
 				usageLimit={usageLimit}
 				onClearHistory={handleClearHistory}
 			/>
-			<ChatMessageArea
+			<ChatBubbleArea
 				isHistoryLoading={isHistoryLoading}
 				messages={messages}
 				messagesEndRef={messagesEndRef}
+				onBlockAction={handleBlockAction}
+				onQuickReply={sendMessage}
+			/>
+			<ChatPromptSection
+				isHistoryLoading={isHistoryLoading}
+				messages={messages}
 				selectedPromptLabel={selectedPromptLabel}
 				onSelectPrompt={handleSelectPrompt}
 				onSuggestPrompt={handleSuggestPrompt}
-				onBlockAction={handleBlockAction}
-				onQuickReply={sendMessage}
 			/>
 			<ChatComposer
 				input={input}

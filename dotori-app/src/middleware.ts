@@ -87,6 +87,7 @@ const publicPaths = [
   "/explore",
   "/community",
   "/facility",
+  "/my",
   "/onboarding",
   "/manifest.json",
 ];

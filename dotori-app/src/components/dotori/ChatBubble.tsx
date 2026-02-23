@@ -12,6 +12,15 @@ import type { ReactNode } from 'react'
 import { BlockRenderer } from './blocks/BlockRenderer'
 import { SourceChip } from './SourceChip'
 
+const USER_BUBBLE_CLASS =
+	'max-w-[85%] rounded-2xl rounded-br-sm border border-dotori-300/45 bg-gradient-to-br from-dotori-400 via-dotori-500 to-dotori-600 px-4 py-3 text-white shadow-[0_14px_28px_rgba(122,78,48,0.26)] dark:border-dotori-500/35 dark:from-dotori-500 dark:via-dotori-600 dark:to-dotori-700 dark:shadow-[0_12px_24px_rgba(20,14,10,0.45)]'
+const ASSISTANT_BUBBLE_CLASS =
+	'rounded-2xl rounded-bl-sm border border-dotori-200/85 bg-gradient-to-br from-white/95 via-dotori-50/90 to-dotori-100/70 px-4 py-3 text-dotori-900 shadow-[0_12px_28px_rgba(200,149,106,0.16)] dark:border-dotori-700/70 dark:bg-dotori-900/90 dark:via-dotori-900/88 dark:to-dotori-800/86 dark:text-dotori-50 dark:shadow-none'
+const ACTION_BUTTON_CLASS =
+	'min-h-10 rounded-2xl border border-dotori-200/90 bg-white/85 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.10)] transition-colors hover:bg-white dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+const QUICK_REPLY_CLASS =
+	'min-h-10 rounded-2xl border border-dotori-200/90 bg-dotori-100/80 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.08)] transition-colors hover:bg-dotori-100 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+
 export const ChatBubble = memo(function ChatBubble({
 	role,
 	children,
@@ -58,7 +67,7 @@ export const ChatBubble = memo(function ChatBubble({
 				<div
 					className={cn(
 						DS_TYPOGRAPHY.body,
-						'max-w-[85%] rounded-2xl rounded-br-sm border border-dotori-300/45 bg-gradient-to-br from-dotori-400 via-dotori-500 to-dotori-600 px-4 py-3 text-white shadow-[0_14px_28px_rgba(122,78,48,0.26)] dark:border-dotori-500/35 dark:from-dotori-500 dark:via-dotori-600 dark:to-dotori-700 dark:shadow-[0_12px_24px_rgba(20,14,10,0.45)]'
+						USER_BUBBLE_CLASS
 					)}
 				>
 					<div className="space-y-1">
@@ -119,7 +128,7 @@ export const ChatBubble = memo(function ChatBubble({
 					className={cn(
 						DS_GLASS.CARD,
 						DS_TYPOGRAPHY.body,
-						'rounded-2xl rounded-bl-sm border border-dotori-200/85 bg-gradient-to-br from-white/95 via-dotori-50/90 to-dotori-100/70 px-4 py-3 text-dotori-900 shadow-[0_12px_28px_rgba(200,149,106,0.16)] dark:border-dotori-700/70 dark:from-dotori-900/90 dark:via-dotori-900/88 dark:to-dotori-800/86 dark:text-dotori-50 dark:shadow-none'
+						ASSISTANT_BUBBLE_CLASS
 					)}
 				>
 					{isStreaming && !hasStreamingContent ? (
@@ -162,7 +171,7 @@ export const ChatBubble = memo(function ChatBubble({
 										onClick={() => onBlockAction?.(a.id)}
 										className={cn(
 											DS_TYPOGRAPHY.bodySm,
-											'min-h-10 rounded-2xl border border-dotori-200/90 bg-white/85 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.10)] transition-colors hover:bg-white dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+											ACTION_BUTTON_CLASS
 										)}
 									>
 										{a.label}
@@ -186,14 +195,14 @@ export const ChatBubble = memo(function ChatBubble({
 					<div className="flex flex-wrap gap-2 px-1">
 						{normalizedQuickReplies?.map((text) => (
 							<motion.div key={text} {...tap.chip}>
-								<Button
-									plain={true}
-									onClick={() => onQuickReply?.(text)}
-									className={cn(
-										DS_TYPOGRAPHY.bodySm,
-										'min-h-10 rounded-2xl border border-dotori-200/90 bg-dotori-100/80 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.08)] transition-colors hover:bg-dotori-100 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
-									)}
-								>
+									<Button
+										plain={true}
+										onClick={() => onQuickReply?.(text)}
+										className={cn(
+											DS_TYPOGRAPHY.bodySm,
+											QUICK_REPLY_CLASS
+										)}
+									>
 									{text}
 								</Button>
 							</motion.div>

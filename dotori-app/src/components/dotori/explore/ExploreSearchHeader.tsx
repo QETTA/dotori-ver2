@@ -25,7 +25,7 @@ import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
 import { stagger, spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreSuggestionPanel } from "./ExploreSuggestionPanel";
@@ -88,16 +88,17 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
 	const activeFilterPillClass = cn(
-		DS_TYPOGRAPHY.bodySm,
+		"text-body-sm",
 		DS_STATUS.available.pill,
 		"font-semibold ring-1 ring-dotori-300/70 shadow-sm",
 	);
 	const inactiveFilterPillClass = cn(
-		DS_TYPOGRAPHY.bodySm,
+		"text-body-sm",
 		DS_STATUS.full.pill,
 		"ring-1 ring-dotori-100/70 dark:ring-dotori-700/45",
 	);
-	const sectionSurfaceClass = "rounded-3xl border border-dotori-100/70 shadow-sm ring-1 ring-dotori-100/70 bg-dotori-50/80 dark:bg-dotori-900/70";
+	const sectionSurfaceClass =
+		"rounded-3xl border border-dotori-100/80 bg-dotori-50/80 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 dark:bg-dotori-900/60";
 
 	useEffect(() => {
 		if (!isSearchFocused) return;
@@ -137,17 +138,20 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]",
+				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+0.875rem)]",
 				DS_GLASS.HEADER,
 			)}
 		>
 			<motion.div {...stagger.container} className="space-y-3">
-				<motion.div {...stagger.item} className="mb-0.5 flex items-center justify-between">
+				<motion.div
+					{...stagger.item}
+					className="mb-1 flex items-center justify-between gap-3"
+				>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={BRAND.lockupHorizontalKr}
 						alt="도토리"
-						className="h-5 opacity-90"
+						className="h-5 w-auto opacity-95 md:h-6"
 					/>
 					<div className="rounded-full border border-dotori-100 bg-white px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -158,12 +162,18 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 				<motion.div {...stagger.item}>
 					<Heading
 						level={2}
-						className={cn(DS_TYPOGRAPHY.h2, "font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}
+						className={cn(
+							"text-h2",
+							"font-semibold tracking-tight text-dotori-900 dark:text-dotori-50",
+						)}
 					>
 						이동 고민이라면, 빈자리 먼저 확인해요
 					</Heading>
 					<Text
-						className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-500 dark:text-dotori-300")}
+						className={cn(
+							"text-body-sm",
+							"mt-1 leading-relaxed text-dotori-500 dark:text-dotori-300",
+						)}
 					>
 						지역·시나리오·필터를 조합해 지금 이동 가능한 시설을 빠르게 확인하세요
 					</Text>
@@ -176,10 +186,10 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					className={cn(
 						DS_GLASS.CARD,
 						sectionSurfaceClass,
-						"relative p-4",
+						"relative space-y-3 border-b p-4",
 					)}
 				>
-					<form onSubmit={handleFormSubmit}>
+					<form onSubmit={handleFormSubmit} className="relative">
 						<MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dotori-500" />
 						<Input
 							type="search"
@@ -188,7 +198,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							onFocus={() => setIsSearchFocused(true)}
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
 							className={cn(
-								DS_TYPOGRAPHY.body,
+								"text-body",
 								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-400 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
 							)}
 							aria-label="시설 검색"
@@ -201,7 +211,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								onClick={onClearSearch}
 								aria-label="검색어 지우기"
 								className={cn(
-									DS_TYPOGRAPHY.bodySm,
+									"text-body-sm",
 									"absolute right-3 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center text-dotori-500",
 								)}
 							>
@@ -210,7 +220,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						) : null}
 					</form>
 
-					<div className="mt-2.5 flex flex-wrap gap-2 border-b border-dotori-100/60 pb-3">
+					<div className="mt-1 flex flex-wrap gap-2 border-b border-dotori-100/60 pb-3">
 						<motion.div {...tap.button} className="inline-flex">
 							<Button
 								type="button"
@@ -218,8 +228,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								disabled={isGpsLoading}
 								color="dotori"
 								className={cn(
-									DS_TYPOGRAPHY.bodySm,
-									"inline-flex min-h-11 items-center gap-1.5 rounded-full border border-transparent px-3 py-2 font-semibold shadow-sm transition-colors duration-150",
+									"text-body-sm",
+									"inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-2 font-semibold shadow-sm transition-colors duration-150",
 									isGpsLoading && "opacity-70",
 								)}
 							>
@@ -236,7 +246,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					<div className="mt-3.5">
 						<Text
 							className={cn(
-								DS_TYPOGRAPHY.label,
+								"text-label",
 								"text-dotori-500 dark:text-dotori-300",
 							)}
 						>
@@ -250,7 +260,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										plain={true}
 										onClick={() => handleSelectTerm(chip)}
 										className={cn(
-											DS_TYPOGRAPHY.bodySm,
+											"text-body-sm",
 											"min-h-11 rounded-full border border-dotori-100 bg-dotori-50 px-3 py-2 font-semibold text-dotori-700 transition-colors duration-150 hover:bg-dotori-100 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-100 dark:hover:bg-dotori-800",
 										)}
 									>
@@ -276,7 +286,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					{...tap.chip}
 					className="mt-2 flex flex-col gap-2 rounded-3xl border border-dotori-100/60 bg-dotori-50/80 p-3 sm:flex-row sm:items-center sm:justify-between"
 				>
-					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mr-auto shrink-0 whitespace-nowrap text-dotori-500 dark:text-dotori-300")}>
+					<Text className={cn("text-body-sm", "mr-auto shrink-0 whitespace-nowrap text-dotori-500 dark:text-dotori-300")}>
 						{resultLabel}
 					</Text>
 					<motion.div {...tap.chip} className="inline-flex">
@@ -301,7 +311,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										exit={{ scale: 0.7, opacity: 0 }}
 										transition={spring.chip}
 									>
-										<Badge color="forest" className={cn(DS_TYPOGRAPHY.caption, "px-1.5 py-0.5")}>
+										<Badge color="forest" className={cn("text-caption", "px-1.5 py-0.5")}>
 											{activeFilterCount}
 										</Badge>
 									</motion.span>
@@ -315,7 +325,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							plain={true}
 							onClick={onToggleMap}
 							className={cn(
-								DS_TYPOGRAPHY.bodySm,
+								"text-body-sm",
 								"inline-flex min-h-11 items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-dotori-700 shadow-sm transition-colors duration-150 hover:bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900",
 							)}
 						>
@@ -373,7 +383,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						<Fieldset className="space-y-3">
 							<Field>
 								<Text
-									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+									className={cn("text-label", "mb-2 block text-dotori-600 dark:text-dotori-300")}
 								>
 									시설 유형
 								</Text>
@@ -404,7 +414,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 							<Field>
 								<Text
-									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+									className={cn("text-label", "mb-2 block text-dotori-600 dark:text-dotori-300")}
 								>
 									지역 필터
 								</Text>
@@ -413,7 +423,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										<Select
 											value={selectedSido}
 											onChange={(event) => onSidoChange(event.target.value)}
-											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11")}
+											className={cn("text-body-sm", "min-h-11")}
 										>
 											<option value="">{isLoadingSido ? "시도 불러오는 중" : "시도 선택"}</option>
 											{sidoOptions.map((sido) => (
@@ -428,7 +438,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 											value={selectedSigungu}
 											disabled={!selectedSido || isLoadingSigungu}
 											onChange={(event) => onSigunguChange(event.target.value)}
-											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11")}
+											className={cn("text-body-sm", "min-h-11")}
 										>
 											<option value="">
 												{isLoadingSigungu ? "구군 불러오는 중" : "구/군 선택"}
@@ -445,7 +455,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 							<Field>
 								<Text
-									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+									className={cn("text-label", "mb-2 block text-dotori-600 dark:text-dotori-300")}
 								>
 									정렬
 								</Text>
@@ -476,7 +486,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										plain={true}
 										onClick={onResetFilters}
 										className={cn(
-											DS_TYPOGRAPHY.bodySm,
+											"text-body-sm",
 											"min-h-11 font-semibold text-dotori-700 transition-colors duration-150 hover:text-dotori-900 dark:text-dotori-100 dark:hover:text-dotori-50",
 										)}
 									>

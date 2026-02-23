@@ -21,7 +21,7 @@ import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { generateNBAs } from "@/lib/engine/nba-engine";
-import { fadeUp, spring, stagger, tap } from "@/lib/motion";
+import { spring, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { CommunityPost, Facility, UserProfile } from "@/types/dotori";
 
@@ -212,129 +212,118 @@ export default function HomePage() {
 
 	return (
 		<div className="app-content-shell app-page-shell relative mx-auto min-h-screen w-full max-w-md px-4 pb-12 pt-4">
-			<motion.div {...stagger.container} className="space-y-4">
+			<motion.main {...stagger.container} className="space-y-4">
 				<motion.header
-					{...fadeUp}
+					{...stagger.item}
 					className={cn(
-						DS_GLASS.HEADER,
-						"sticky top-0 z-20 -mx-4 border-b border-dotori-100/70 bg-dotori-50/75 px-4 pb-3 pt-[max(0.4rem,env(safe-area-inset-top))]",
+						DS_GLASS.CARD,
+						"relative overflow-hidden rounded-3xl border-b border-dotori-100/70 bg-dotori-50/80 px-4 py-3.5 shadow-sm ring-1 ring-dotori-100/70",
 					)}
 				>
-					<div className="mb-3 flex items-center justify-between gap-3">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
-						<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={BRAND.socialGradient}
+						alt=""
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-x-0 top-0 h-40 w-full object-cover opacity-90"
+					/>
+					<div className="relative">
+						<div className="mb-2.5 flex items-center justify-between gap-3">
 							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
+							<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-5" />
+							<div className="rounded-full border border-dotori-100 bg-dotori-50/90 px-2 py-1">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
+							</div>
 						</div>
-					</div>
-					<Text className={cn(DS_TYPOGRAPHY.label, "font-semibold uppercase tracking-[0.14em] text-dotori-600")}>
-						Dotori Home
-					</Text>
-					<Heading
-						level={1}
-						className={cn(DS_TYPOGRAPHY.h1, "mt-1 text-dotori-950 dark:text-dotori-50")}
-					>
-						{greeting}
-					</Heading>
-					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-600 dark:text-dotori-300")}>
-						어린이집 이동, 도토리가 함께해요
-					</Text>
-					<div className="mt-3 grid grid-cols-3 gap-2">
-						{statusCards.map((card) => (
+						<Text className={cn(DS_TYPOGRAPHY.caption, "text-dotori-600")}>Dotori Home</Text>
+						<Heading level={1} className={cn(DS_TYPOGRAPHY.h1, "mt-1 text-dotori-950 dark:text-dotori-50")}>
+							{greeting}
+						</Heading>
+						<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-600 dark:text-dotori-300")}>
+							이사할 때보다 여유롭게, 오늘의 이동 고민은 오늘 정리해요
+						</Text>
+						<div className="mt-3 grid grid-cols-3 gap-2">
+							{statusCards.map((card) => (
 								<Surface
 									key={card.label}
 									className={cn(
 										DS_GLASS.CARD,
-										"rounded-3xl bg-dotori-50/75 px-2.5 py-2 ring-1 ring-dotori-100/70 shadow-sm",
+										"rounded-3xl bg-dotori-50/85 px-2.5 py-2 ring-1 ring-dotori-100/70 shadow-sm",
 									)}
 									aria-label={card.label}
 								>
-									<Text
-									className={cn(DS_TYPOGRAPHY.caption, "font-semibold text-dotori-600 dark:text-dotori-300")}
-								>
-									{card.label}
-								</Text>
-								{card.count > 0 ? (
-									<Text
-										className={cn(
-											DS_TYPOGRAPHY.body,
-											"mt-0.5 font-semibold",
-											card.tone === "forest"
-												? "text-forest-700 dark:text-forest-400"
-												: "text-dotori-800 dark:text-dotori-100",
-										)}
-									>
-										{`${card.count}${card.unit}`}
+									<Text className={cn(DS_TYPOGRAPHY.caption, "font-semibold text-dotori-600 dark:text-dotori-300")}>
+										{card.label}
 									</Text>
-								) : (
-									<Link
-										href={card.emptyCta.href}
-										className={cn(
-											DS_TYPOGRAPHY.caption,
-											"mt-0.5 inline-flex min-h-11 items-center justify-center font-semibold text-dotori-500 transition-colors hover:text-dotori-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400",
-										)}
-									>
-										{card.emptyCta.label}
-									</Link>
-								)}
-							</Surface>
-						))}
+									{card.count > 0 ? (
+										<Text
+											className={cn(
+												DS_TYPOGRAPHY.body,
+												"mt-0.5 font-semibold",
+												card.tone === "forest"
+													? "text-forest-700 dark:text-forest-400"
+													: "text-dotori-800 dark:text-dotori-100",
+											)}
+										>
+											{`${card.count}${card.unit}`}
+										</Text>
+									) : (
+										<Link
+											href={card.emptyCta.href}
+											className={cn(
+												DS_TYPOGRAPHY.caption,
+												"mt-0.5 inline-flex min-h-11 items-center justify-center font-semibold text-dotori-500 transition-colors hover:text-dotori-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400",
+											)}
+										>
+											{card.emptyCta.label}
+										</Link>
+									)}
+								</Surface>
+							))}
+						</div>
 					</div>
 				</motion.header>
 
 				<motion.section
-					{...fadeUp}
-					className="rounded-3xl border-b border-dotori-100/70 pb-4"
+					{...stagger.item}
+					className="space-y-2 rounded-3xl border-b border-dotori-100/70 pb-4"
 				>
-						<Surface
-							className={cn(
-								DS_GLASS.CARD,
-								"relative overflow-hidden border border-dotori-100/80 bg-dotori-50/80 p-4 ring-1 ring-dotori-100/70 shadow-sm",
-							)}
-						>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={BRAND.socialGradient}
-							alt=""
-							aria-hidden="true"
-							className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.09] dark:opacity-[0.14]"
-						/>
+					<Surface
+						className={cn(
+							DS_GLASS.CARD,
+							"relative overflow-hidden border border-dotori-100/80 bg-dotori-50/80 p-4 shadow-sm",
+						)}
+					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.appIconWarm}
 							alt=""
 							aria-hidden="true"
-							className="pointer-events-none absolute -right-6 -top-5 h-20 w-20 rotate-[-8deg] opacity-90"
+							className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rotate-[-8deg] opacity-95"
 						/>
 						<div className="relative">
 							<Badge color="forest" className={cn(DS_TYPOGRAPHY.label, "font-semibold")}>
 								TODAY BRIEFING
 							</Badge>
-							<Heading
-								level={2}
-								className={cn(
-									DS_TYPOGRAPHY.h2,
-									"mt-2 text-dotori-900 dark:text-dotori-50",
-								)}
-							>
-								오늘 이동 판단, 30초로 끝내기
+							<Heading level={2} className={cn(DS_TYPOGRAPHY.h2, "mt-1 text-dotori-900 dark:text-dotori-50")}>
+								오늘 이동 판단, 30초로 정리
 							</Heading>
 							<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-700 dark:text-dotori-200")}>
 								{vacancyStatusLabel}
 							</Text>
 							<Text
-								className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-700 dark:text-dotori-200")}
+								className={cn(DS_TYPOGRAPHY.bodySm, "mt-0.5 text-dotori-700 dark:text-dotori-200")}
 							>
-								브랜드 에셋 기반 요약 카드에서 빈자리, 관심 시설, 알림 상태를 한 번에 확인하세요.
+								브랜드 톤에서 정리한 핵심 신호를 기준으로 이동할지 말지 빠르게 판단해요.
 							</Text>
 							<div className="mt-3 grid grid-cols-3 gap-1.5">
 								{heroMetrics.map((metric) => (
 									<div
 										key={metric.label}
-										className="rounded-xl border border-dotori-200/70 bg-white/80 px-2 py-1.5 text-center dark:border-dotori-800/70 dark:bg-dotori-950/70"
+										className="rounded-xl border border-dotori-200/70 bg-dotori-50/70 px-2 py-1.5 text-center shadow-sm"
 									>
-										<Text className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500 dark:text-dotori-300")}>
+										<Text className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>
 											{metric.label}
 										</Text>
 										<Text
@@ -360,8 +349,13 @@ export default function HomePage() {
 					</Surface>
 				</motion.section>
 
-				<motion.section {...fadeUp}>
-					<motion.article {...tap.card} className="rounded-3xl">
+				<motion.section {...stagger.item}>
+					<motion.article
+						{...tap.card}
+						whileTap={{ scale: 0.985 }}
+						transition={spring.card}
+						className="rounded-3xl"
+					>
 						<div
 							role="button"
 							tabIndex={0}
@@ -376,14 +370,17 @@ export default function HomePage() {
 						>
 							<Surface
 								tone="brand"
-								className={cn(DS_GLASS.CARD, "relative overflow-hidden border border-dotori-100/60")}
+								className={cn(
+									DS_GLASS.CARD,
+									"relative overflow-hidden border border-dotori-100/60 bg-dotori-800/70 shadow-sm",
+								)}
 							>
 								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
 									src={BRAND.watermark}
 									alt=""
 									aria-hidden="true"
-									className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 opacity-10"
+									className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 opacity-25"
 								/>
 								<Text className={cn(DS_TYPOGRAPHY.body, "font-semibold text-white")}>AI 토리</Text>
 								<div className="mt-1 flex items-center gap-2">
@@ -394,14 +391,7 @@ export default function HomePage() {
 										aria-hidden="true"
 										className="h-4 w-4 opacity-90"
 									/>
-									<Text
-										className={cn(
-											DS_TYPOGRAPHY.label,
-											"tracking-wide text-dotori-100",
-										)}
-									>
-										이동 고민 상담 · 빈자리 우선 탐색
-									</Text>
+									<Text className={cn(DS_TYPOGRAPHY.label, "text-dotori-100")}>이동 고민 상담 · 빈자리 우선 탐색</Text>
 								</div>
 								<Fieldset className="mt-3">
 									<Field>
@@ -444,14 +434,11 @@ export default function HomePage() {
 				</motion.section>
 
 				<motion.section
-					{...fadeUp}
+					{...stagger.item}
 					className="space-y-3 rounded-3xl border-b border-dotori-100/70 pb-4"
 				>
 					<div className="flex items-center justify-between gap-2">
-						<Heading
-							level={2}
-							className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}
-						>
+						<Heading level={2} className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 							내 주변 빈자리
 						</Heading>
 						<DsButton href="/explore" color="dotori" className="min-h-11">
@@ -463,15 +450,10 @@ export default function HomePage() {
 						source="AI분석"
 						updatedAt={homeData?.sources?.isalang?.updatedAt}
 					>
-						<div className="space-y-2.5 rounded-2xl bg-gradient-to-br from-dotori-50/80 to-transparent p-2.5 dark:from-dotori-900/40">
+						<div className="space-y-2.5 rounded-2xl bg-gradient-to-br from-dotori-50/90 to-transparent p-3 dark:from-dotori-900/40">
 							<div className="flex items-center gap-2">
 								<Badge color="forest">NBA 기반</Badge>
-								<Text
-									className={cn(
-										DS_TYPOGRAPHY.bodySm,
-										"text-dotori-700 dark:text-dotori-200",
-									)}
-								>
+								<Text className={cn(DS_TYPOGRAPHY.bodySm, "text-dotori-700 dark:text-dotori-200")}>
 									{vacancyGuide}
 								</Text>
 							</div>
@@ -502,19 +484,9 @@ export default function HomePage() {
 							))}
 						</div>
 					) : (
-						<Surface
-							className={cn(
-								DS_GLASS.CARD,
-								"px-3.5 py-3.5 text-center",
-							)}
-						>
+						<Surface className={cn(DS_GLASS.CARD, "px-3.5 py-3.5 text-center")}>
 							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img
-								src={BRAND.emptyState}
-								alt=""
-								aria-hidden="true"
-								className="mx-auto h-14 w-14"
-							/>
+							<img src={BRAND.emptyState} alt="" aria-hidden="true" className="mx-auto h-14 w-14" />
 							<Heading
 								level={3}
 								className={cn(DS_TYPOGRAPHY.h3, "mt-2 font-semibold text-dotori-900 dark:text-dotori-50")}
@@ -537,7 +509,7 @@ export default function HomePage() {
 				</motion.section>
 
 				{nbaItems.length > 0 ? (
-					<motion.section {...fadeUp} className="space-y-3 rounded-3xl border-b border-dotori-100/70 pb-4">
+					<motion.section {...stagger.item} className="space-y-3 rounded-3xl border-b border-dotori-100/70 pb-4">
 						<div className="flex items-center justify-between gap-2">
 							<Heading
 								level={2}
@@ -553,20 +525,25 @@ export default function HomePage() {
 						<motion.ul {...stagger.container} className="space-y-2">
 							{nbaItems.slice(0, 4).map((item) => (
 								<motion.li key={item.id} {...stagger.item}>
-									<motion.div {...tap.card}>
+									<motion.div
+										{...tap.card}
+										whileTap={{ scale: 0.985 }}
+										transition={spring.card}
+										className="rounded-2xl"
+									>
 										<Surface className={cn(DS_GLASS.CARD, "px-3.5 py-2.5")}>
 											<div className="flex items-start justify-between gap-3">
 												<div className="min-w-0 flex-1">
 													<Text
-														className={cn(DS_TYPOGRAPHY.body, "font-semibold text-dotori-900 dark:text-dotori-50")}
+														className={cn(
+															DS_TYPOGRAPHY.body,
+															"font-semibold text-dotori-900 dark:text-dotori-50",
+														)}
 													>
 														{item.title}
 													</Text>
 													<Text
-														className={cn(
-															DS_TYPOGRAPHY.bodySm,
-															"mt-1 text-dotori-700 dark:text-dotori-200",
-														)}
+														className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-700 dark:text-dotori-200")}
 													>
 														{item.description}
 													</Text>
@@ -588,7 +565,7 @@ export default function HomePage() {
 					</motion.section>
 				) : null}
 
-				<motion.div {...tap.card}>
+				<motion.div {...tap.card} className="rounded-3xl">
 					<Link
 						href="/community"
 						className={cn(
@@ -608,7 +585,7 @@ export default function HomePage() {
 						<ChevronRightIcon className="h-4 w-4 text-dotori-400 transition-transform duration-150 group-hover:translate-x-0.5" />
 					</Link>
 				</motion.div>
-			</motion.div>
+			</motion.main>
 		</div>
 	);
 }

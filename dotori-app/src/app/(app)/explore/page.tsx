@@ -24,7 +24,7 @@ export default function ExplorePage() {
 			fallback={
 				<div
 					className={cn(
-						"flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50",
+						"flex flex-1 flex-col bg-dotori-50 pb-[calc(5.5rem+env(safe-area-inset-bottom))] text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50",
 						DS_GLASS.CARD,
 					)}
 				>
@@ -71,7 +71,7 @@ function ExploreContent() {
 	const resultInteraction = useExploreResultInteraction();
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/60 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
+		<div className="flex min-h-0 flex-1 flex-col bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/60 pb-3 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
 			<ExploreSearchHeader state={headerState} actions={headerActions} />
 
 			<ExploreMapSection mapState={mapState} />

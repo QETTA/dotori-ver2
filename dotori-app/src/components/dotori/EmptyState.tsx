@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
 import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { Surface } from "@/components/dotori/Surface";
@@ -36,17 +36,63 @@ export const DOTORI_STATE_ITEM_MOTION = {
 	},
 } as const;
 
-export const DOTORI_EMPTY_VARIANT_STATUS = {
-	default: "available",
-	search: "waiting",
-	transfer: "full",
-} as const satisfies Record<DotoriEmptyStateVariant, keyof typeof DS_STATUS>;
+type DotoriEmptyVisualMeta = {
+	tone: keyof typeof DS_STATUS;
+	eyebrow: string;
+	description: string;
+	media: string;
+};
 
-export const DOTORI_ERROR_VARIANT_STATUS = {
-	default: "available",
-	network: "waiting",
-	notfound: "full",
-} as const satisfies Record<DotoriErrorStateVariant, keyof typeof DS_STATUS>;
+type DotoriErrorVisualMeta = {
+	tone: keyof typeof DS_STATUS;
+	eyebrow: string;
+	detail: string;
+	media: string;
+};
+
+export const DOTORI_STATE_META = {
+	empty: {
+		default: {
+			tone: "available",
+			eyebrow: "도토리 안내",
+			description: "표시할 정보가 아직 없어요. 잠시 후 다시 확인해 주세요.",
+			media: BRAND.emptyState,
+		},
+		search: {
+			tone: "waiting",
+			eyebrow: "검색 결과 없음",
+			description: "검색어 또는 조건을 조금 바꾸면 원하는 결과를 더 쉽게 찾을 수 있어요.",
+			media: BRAND.emptyState,
+		},
+		transfer: {
+			tone: "full",
+			eyebrow: "이동 조건 안내",
+			description:
+				"요청하신 이동 조건에 맞는 시설을 찾지 못했어요. 지역·정렬·필터를 조정해 다시 찾아볼까요?",
+			media: BRAND.symbol,
+		},
+	} satisfies Record<DotoriEmptyStateVariant, DotoriEmptyVisualMeta>,
+	error: {
+		default: {
+			tone: "available",
+			eyebrow: "일시적 오류",
+			detail: "잠시 후 다시 시도해 주세요.",
+			media: BRAND.errorState,
+		},
+		network: {
+			tone: "waiting",
+			eyebrow: "네트워크 확인 필요",
+			detail: "인터넷 연결 상태를 확인한 뒤 다시 시도해 주세요.",
+			media: BRAND.errorState,
+		},
+		notfound: {
+			tone: "full",
+			eyebrow: "페이지를 찾을 수 없음",
+			detail: "요청하신 페이지를 찾지 못했어요. 경로를 다시 확인해 주세요.",
+			media: BRAND.emptyState,
+		},
+	} satisfies Record<DotoriErrorStateVariant, DotoriErrorVisualMeta>,
+} as const;
 
 export const DOTORI_STATE_TOKENS = {
 	container: "px-4 py-7 text-center sm:px-5",
@@ -74,54 +120,14 @@ export const DOTORI_STATE_TOKENS = {
 	image: "h-14 w-14 object-contain opacity-90",
 	copyWrap: "w-full border-b border-dotori-100/70 pb-4",
 	badge: cn(
-		DS_TYPOGRAPHY.bodySm,
+		"text-label",
 		"inline-flex items-center gap-2 rounded-full border border-dotori-100/70 bg-dotori-100/75 px-2.5 py-1 font-semibold text-dotori-700 dark:border-dotori-800/70 dark:bg-dotori-900/70 dark:text-dotori-200",
 	),
-	title: cn(DS_TYPOGRAPHY.h3, "font-semibold leading-snug text-dotori-900 dark:text-dotori-50"),
-	description: cn(DS_TYPOGRAPHY.bodySm, "leading-relaxed text-dotori-700 dark:text-dotori-200"),
+	title: cn("text-h3", "font-semibold leading-snug text-dotori-900 dark:text-dotori-50"),
+	description: cn("text-body-sm", "leading-relaxed text-dotori-700 dark:text-dotori-200"),
 	actions: "mt-2 flex w-full flex-col gap-2.5",
-	action: cn("min-h-11 w-full", DS_TYPOGRAPHY.bodySm),
-	secondaryAction: cn("min-h-11 w-full rounded-xl", DS_TYPOGRAPHY.bodySm),
-} as const;
-
-export const DOTORI_EMPTY_VARIANT_META: Record<
-	DotoriEmptyStateVariant,
-	{ eyebrow: string; fallbackDescription: string }
-> = {
-	default: {
-		eyebrow: "도토리 안내",
-		fallbackDescription: "표시할 정보가 아직 없어요. 잠시 후 다시 확인해 주세요.",
-	},
-	search: {
-		eyebrow: "검색 결과 없음",
-		fallbackDescription: "검색어 또는 조건을 조금 바꾸면 원하는 결과를 더 쉽게 찾을 수 있어요.",
-	},
-	transfer: {
-		eyebrow: "이동 조건 안내",
-		fallbackDescription:
-			"요청하신 이동 조건에 맞는 시설을 찾지 못했어요. 지역·정렬·필터를 조정해 다시 찾아볼까요?",
-	},
-} as const;
-
-export const DOTORI_ERROR_VARIANT_META: Record<
-	DotoriErrorStateVariant,
-	{ eyebrow: string; fallbackDetail: string; illustration: string }
-> = {
-	default: {
-		eyebrow: "일시적 오류",
-		fallbackDetail: "잠시 후 다시 시도해 주세요.",
-		illustration: BRAND.errorState,
-	},
-	network: {
-		eyebrow: "네트워크 확인 필요",
-		fallbackDetail: "인터넷 연결 상태를 확인한 뒤 다시 시도해 주세요.",
-		illustration: BRAND.errorState,
-	},
-	notfound: {
-		eyebrow: "페이지를 찾을 수 없음",
-		fallbackDetail: "요청하신 페이지를 찾지 못했어요. 경로를 다시 확인해 주세요.",
-		illustration: BRAND.emptyState,
-	},
+	action: cn("min-h-11 w-full", "text-body-sm"),
+	secondaryAction: cn("min-h-11 w-full rounded-xl", "text-body-sm"),
 } as const;
 
 interface EmptyStateSimpleProps {
@@ -137,9 +143,9 @@ export default function EmptyStateFallback({
 	actionLabel,
 	onAction,
 }: EmptyStateSimpleProps) {
-	const baseMeta = DOTORI_EMPTY_VARIANT_META.default;
-	const resolvedMessage = message ?? baseMeta.fallbackDescription;
-	const statusTone = DOTORI_EMPTY_VARIANT_STATUS.default;
+	const baseMeta = DOTORI_STATE_META.empty.default;
+	const resolvedMessage = message ?? baseMeta.description;
+	const statusTone = DOTORI_STATE_META.empty.default.tone;
 
 	return (
 		<motion.section className={DOTORI_STATE_TOKENS.container} {...DOTORI_STATE_MOTION}>
@@ -158,7 +164,7 @@ export default function EmptyStateFallback({
 						<div className={DOTORI_STATE_TOKENS.mediaFrame}>
 							{/* eslint-disable-next-line @next/next/no-img-element */}
 							<img
-								src={BRAND.emptyState}
+								src={baseMeta.media}
 								alt=""
 								aria-hidden="true"
 								className={DOTORI_STATE_TOKENS.image}
@@ -218,15 +224,15 @@ export function EmptyState({
 	secondaryLabel?: string;
 	secondaryHref?: string;
 }) {
-	const variantMeta = DOTORI_EMPTY_VARIANT_META[variant];
-	const resolvedDescription = description ?? variantMeta.fallbackDescription;
-	const statusTone = DOTORI_EMPTY_VARIANT_STATUS[variant];
+	const variantMeta = DOTORI_STATE_META.empty[variant];
+	const resolvedDescription = description ?? variantMeta.description;
+	const statusTone = DOTORI_STATE_META.empty[variant].tone;
 
 	const transferIcon = (
 		<span className="inline-flex items-center gap-1.5 text-dotori-700 dark:text-dotori-100" aria-hidden="true">
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-4 w-4 opacity-80" />
-			<span className={cn(DS_TYPOGRAPHY.caption, "font-semibold")}>↔</span>
+			<span className={cn("text-caption", "font-semibold")}>↔</span>
 		</span>
 	);
 
@@ -257,7 +263,7 @@ export function EmptyState({
 							) : (
 								/* eslint-disable-next-line @next/next/no-img-element */
 								<img
-									src={BRAND.emptyState}
+									src={variantMeta.media}
 									alt=""
 									aria-hidden="true"
 									className={DOTORI_STATE_TOKENS.image}

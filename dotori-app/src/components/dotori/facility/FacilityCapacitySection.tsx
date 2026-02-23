@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { fadeUp } from "@/lib/motion";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 
@@ -16,6 +16,32 @@ const FEATURE_OPTIONS = [
 	{ key: "놀이터", label: "놀이터", color: "forest" },
 	{ key: "대규모", label: "대규모", color: "forest" },
 ] as const;
+
+const capacityReveal = {
+	hidden: { opacity: 0, y: 10 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: { ...spring.card, staggerChildren: 0.05 },
+	},
+} as const;
+
+const capacityRevealItem = {
+	hidden: { opacity: 0, y: 6 },
+	show: { opacity: 1, y: 0, transition: spring.card },
+} as const;
+
+const getCapacityTone = (
+	occupancyRate: number,
+	waitingCapacity: number,
+): keyof typeof DS_STATUS => {
+	if (occupancyRate >= 100) return "full";
+	if (waitingCapacity > 0) return "waiting";
+	return "available";
+};
+
+const getMetricValueClass = (tone: keyof typeof DS_STATUS) =>
+	tone === "full" ? "text-danger" : tone === "waiting" ? "text-warning" : "text-forest-700";
 
 export type FacilityKeyStat = {
 	label: string;
@@ -35,6 +61,7 @@ type FacilityInsightSectionProps = {
 	status: Facility["status"];
 	qualityScore?: number;
 	aiInsightSummary: string;
+	occupancyRate: number;
 	totalCapacity: number;
 	currentCapacity: number;
 	waitingCapacity: number;
@@ -61,16 +88,37 @@ export function FacilityInsightSection({
 	status,
 	qualityScore,
 	aiInsightSummary,
+	occupancyRate,
 	totalCapacity,
 	currentCapacity,
 	waitingCapacity,
 }: FacilityInsightSectionProps) {
+	const statusMeta = DS_STATUS[status];
+	const occupancyTone = getCapacityTone(occupancyRate, waitingCapacity);
+	const occupancyMeta = DS_STATUS[occupancyTone];
+
+	const summaryMetrics: Array<{
+		label: string;
+		value: number;
+		tone: keyof typeof DS_STATUS;
+	}> = [
+		{ label: "정원", value: totalCapacity, tone: "available" as const },
+		{
+			label: "현원",
+			value: currentCapacity,
+			tone: occupancyRate >= 100 ? "full" : "available",
+		},
+		{ label: "대기", value: waitingCapacity, tone: waitingCapacity > 0 ? "waiting" : "available" },
+	];
+
 	return (
 		<motion.section
-			{...fadeUp}
+			variants={capacityReveal}
+			initial="hidden"
+			animate="show"
 			className={cn(
 				DS_GLASS.CARD,
-				"relative mb-5 overflow-hidden rounded-2xl border border-b border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-4 pb-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:from-dotori-950 dark:via-dotori-900/60 dark:to-dotori-950 dark:shadow-none",
+				"relative mb-4 overflow-hidden rounded-3xl border-b border-dotori-100 bg-dotori-50/80 p-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70",
 			)}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,44 +129,56 @@ export function FacilityInsightSection({
 				className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 opacity-[0.07]"
 			/>
 			<div className="flex items-center justify-between gap-2">
-				<Badge color={status === "available" ? "forest" : "dotori"} className={cn(DS_TYPOGRAPHY.label, "font-semibold")}>
+				<div className="flex min-w-0 items-center gap-2">
+					<Badge
+						color={status === "available" ? "forest" : "dotori"}
+						className="text-label font-semibold"
+					>
 					AI 이동 인사이트
-				</Badge>
-				<span className={cn(DS_TYPOGRAPHY.caption, "font-semibold text-dotori-500")}>
+					</Badge>
+					<span
+						className={cn(
+							"inline-flex min-h-6 items-center rounded-full px-2.5 py-1 text-label font-semibold",
+							statusMeta.pill,
+						)}
+					>
+						{statusMeta.label}
+					</span>
+				</div>
+				<span className="text-label font-semibold text-dotori-500">
 					데이터 품질 {qualityScore ?? "-"}점
 				</span>
 			</div>
-			<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2.5 leading-relaxed text-dotori-700 dark:text-dotori-200")}>
+			<p className="mt-2.5 text-body-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
 				{aiInsightSummary}
 			</p>
-			<div className="mt-2.5 grid grid-cols-3 gap-1.5 rounded-xl bg-dotori-50/60 p-1.5 dark:bg-dotori-900/50">
-				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>정원</p>
-					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
-						{totalCapacity}
-						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
-							명
-						</span>
+			<div className="mt-3 rounded-xl border border-dotori-100/80 bg-white/80 p-2">
+				<div className="flex items-center justify-between rounded-lg bg-dotori-50/70 px-2.5 py-2 dark:bg-dotori-900/60">
+					<p className={cn(DS_TYPOGRAPHY.label, "text-dotori-600 dark:text-dotori-300")}>정원 현황</p>
+					<p className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-700 dark:text-dotori-100")}>
+						점유 {occupancyRate}% · {occupancyMeta.label}
 					</p>
 				</div>
-				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>현원</p>
-					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
-						{currentCapacity}
-						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
-							명
-						</span>
-					</p>
-				</div>
-				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>대기</p>
-					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
-						{waitingCapacity}
-						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
-							명
-						</span>
-					</p>
-				</div>
+				<motion.div
+					variants={capacityReveal}
+					initial="hidden"
+					animate="show"
+					className="mt-1.5 grid grid-cols-3 gap-1.5"
+				>
+					{summaryMetrics.map((metric) => (
+						<motion.div
+							key={metric.label}
+							variants={capacityRevealItem}
+							className="rounded-xl border border-dotori-100/80 bg-white px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950"
+						>
+							<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>{metric.label}</p>
+							<p className={cn("mt-0.5 leading-none", DS_TYPOGRAPHY.h3, getMetricValueClass(metric.tone))}>
+								{metric.value}
+								<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-medium text-dotori-500")}>명</span>
+							</p>
+						</motion.div>
+					))}
+				</motion.div>
 			</div>
 		</motion.section>
 	);
@@ -133,76 +193,133 @@ export function FacilityCapacitySection({
 	keyStats,
 }: FacilityCapacitySectionProps) {
 	const [isExpanded, setIsExpanded] = useState(true);
+	const occupancyTone = getCapacityTone(occupancyRate, waitingCapacity);
+	const occupancyMeta = DS_STATUS[occupancyTone];
+	const currentRateTone = getMetricValueClass(occupancyTone);
+	const waitingTone = getMetricValueClass(waitingCapacity > 0 ? "waiting" : "available");
+	const availableTone = getMetricValueClass(
+		occupancyRate >= 100 || currentCapacity >= totalCapacity ? "full" : "available",
+	);
+	const occupancyToneLabel = occupancyMeta.label;
 
 	return (
 		<>
 			<motion.section
-				{...fadeUp}
+				variants={capacityReveal}
+				initial="hidden"
+				animate="show"
 				className={cn(
 					DS_GLASS.CARD,
-					"mb-5 rounded-2xl border-b border-dotori-100 bg-white px-4 py-4 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
-				)}
-			>
-				<button
+				"mb-4 rounded-3xl border-b border-dotori-100 bg-dotori-50/80 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70",
+			)}
+		>
+				<motion.button
 					type="button"
+					{...tap.button}
 					onClick={() => setIsExpanded((prev) => !prev)}
 					aria-expanded={isExpanded}
 					aria-controls="facility-capacity-details"
-					className="flex w-full min-h-10 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
+					whileTap={tap.button.whileTap}
+					transition={tap.button.transition}
+					className={cn(
+						"flex w-full items-center justify-between gap-2 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200",
+						"min-h-10",
+					)}
 				>
 					<div className="flex min-w-0 items-baseline gap-2">
 						<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 							정원 현황
 						</h2>
-						<span className={cn(DS_TYPOGRAPHY.h1, "font-bold leading-none text-dotori-700 dark:text-dotori-200")}>
+						<span
+							className={cn(
+								"text-h2 font-bold leading-none text-dotori-700 dark:text-dotori-200",
+								occupancyTone === "available" ? "text-forest-700" : "text-dotori-700",
+							)}
+						>
 							{occupancyRate}%
 						</span>
 					</div>
-					<ChevronDownIcon
-						className={`h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200 ${
+						<ChevronDownIcon
+							className={`h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200 ${
 							isExpanded ? "rotate-180" : ""
 						}`}
 					/>
-				</button>
+					<span className={cn("text-caption min-h-6 items-center rounded-full px-2.5 py-1", occupancyMeta.pill)}>
+						{occupancyToneLabel}
+					</span>
+				</motion.button>
 				{isExpanded ? (
-					<div id="facility-capacity-details" className="mt-3">
+					<motion.div id="facility-capacity-details" className="mt-3" variants={capacityRevealItem}>
 						<p className={cn(DS_TYPOGRAPHY.bodySm, "text-dotori-700 dark:text-dotori-200")}>
 							현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
 						</p>
-						<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
+						<div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
 							<div
-								className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
+								className={cn(
+									"h-full rounded-full transition-all duration-500",
+									occupancyProgressColor,
+								)}
 								style={{ width: `${occupancyRate}%` }}
 							/>
 						</div>
-					</div>
+						<div className="mt-3 grid grid-cols-3 gap-2">
+							<div className="rounded-xl border border-dotori-100 bg-white/80 px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950">
+								<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>정원</p>
+								<p className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50", availableTone)}>
+									{totalCapacity}
+								</p>
+							</div>
+							<div className="rounded-xl border border-dotori-100 bg-white/80 px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950">
+								<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>현원</p>
+								<p className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50", currentRateTone)}>
+									{currentCapacity}
+								</p>
+							</div>
+							<div className="rounded-xl border border-dotori-100 bg-white/80 px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950">
+								<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>대기</p>
+								<p className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50", waitingTone)}>
+									{waitingCapacity}
+								</p>
+							</div>
+						</div>
+					</motion.div>
 				) : null}
 			</motion.section>
 
 			{isExpanded && keyStats.length > 0 ? (
 				<motion.section
-					{...fadeUp}
+					variants={capacityReveal}
+					initial="hidden"
+					animate="show"
 					className={cn(
 						DS_GLASS.CARD,
-						"mb-5 rounded-2xl border-b border-dotori-100 bg-white px-4 py-4 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+						"mb-4 rounded-3xl border-b border-dotori-100 bg-dotori-50/80 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70",
 					)}
 				>
 					<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 						주요 지표
 					</h2>
-					<div className="mt-3 grid grid-cols-2 gap-3">
+					<motion.div
+						variants={capacityReveal}
+						initial="hidden"
+						animate="show"
+						className="mt-3 grid grid-cols-2 gap-3"
+					>
 						{keyStats.map((stat) => (
-							<div
+							<motion.div
 								key={stat.label}
+								variants={capacityRevealItem}
+								whileTap={tap.button.whileTap}
+								transition={tap.button.transition}
 								className="rounded-2xl border border-dotori-100 bg-dotori-50/80 px-3 py-3 dark:border-dotori-800 dark:bg-dotori-900/60"
 							>
-								<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>{stat.label}</p>
-								<p className={cn(DS_TYPOGRAPHY.body, "mt-1 font-semibold text-dotori-800 dark:text-dotori-100")}>
+								<p className="text-caption text-dotori-500">{stat.label}</p>
+								<p className="mt-1 text-body font-semibold text-dotori-800 dark:text-dotori-100">
 									{stat.value}
 								</p>
-							</div>
+							</motion.div>
 						))}
-					</div>
+					</motion.div>
 				</motion.section>
 			) : null}
 		</>
@@ -216,23 +333,25 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 
 	return (
 		<motion.section
-			{...fadeUp}
+			variants={capacityReveal}
+			initial="hidden"
+			animate="show"
 			className={cn(
 				DS_GLASS.CARD,
-				"mb-5 rounded-2xl border border-b border-dotori-100 bg-white p-4 pb-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+				"mb-5 rounded-3xl border-b border-dotori-100 bg-dotori-50/80 p-4 pb-5 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70",
 			)}
 		>
-			<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>특징</h2>
+			<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">특징</h2>
 			{activeFeatures.length > 0 ? (
 				<div className="mt-3 flex flex-wrap gap-2">
 					{activeFeatures.map((feature) => (
-						<Badge key={feature.key} color={feature.color} className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold")}>
+						<Badge key={feature.key} color={feature.color} className="text-body-sm font-semibold">
 							{feature.label} ✓
 						</Badge>
 					))}
 				</div>
 			) : (
-				<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-3 leading-relaxed text-dotori-500 dark:text-dotori-300")}>
+				<p className="mt-3 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 					아직 등록된 특징이 없어요. 시설에 직접 문의하거나 아이사랑포털 정보를 함께 확인해
 					보세요.
 				</p>
@@ -244,16 +363,18 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 export function FacilityAdmissionGuideSection() {
 	return (
 		<motion.div
-			{...fadeUp}
+			variants={capacityReveal}
+			initial="hidden"
+			animate="show"
 			className={cn(
 				DS_GLASS.CARD,
-				"mb-5 rounded-2xl border border-b border-dotori-100 bg-dotori-50 p-4 pb-5 dark:border-dotori-800 dark:bg-dotori-900",
+				"mb-5 rounded-3xl border-b border-dotori-100 bg-dotori-50/80 p-4 pb-5 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70",
 			)}
 		>
-			<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
+			<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
 				입소 설명회 안내
 			</h2>
-			<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 leading-6 text-dotori-600 dark:text-dotori-300")}>
+			<p className="mt-2 text-body-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
 				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
 				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
 			</p>
@@ -261,9 +382,9 @@ export function FacilityAdmissionGuideSection() {
 				href="https://www.childcare.go.kr"
 				target="_blank"
 				rel="noopener noreferrer"
+				{...tap.button}
 				className={cn(
-					DS_TYPOGRAPHY.bodySm,
-					"mt-3 inline-flex w-full min-h-10 items-center justify-center gap-1.5 rounded-xl bg-dotori-100 px-4 py-2.5 font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200 dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700",
+					"mt-3 inline-flex w-full min-h-11 items-center justify-center gap-1.5 rounded-xl bg-dotori-100 px-4 py-2.5 text-body-sm font-semibold text-dotori-700 transition-all hover:bg-dotori-200 active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700",
 				)}
 			>
 				아이사랑포털에서 확인
@@ -291,6 +412,7 @@ export function FacilityCoreInfoSections({
 				status={status}
 				qualityScore={qualityScore}
 				aiInsightSummary={aiInsightSummary}
+				occupancyRate={occupancyRate}
 				totalCapacity={totalCapacity}
 				currentCapacity={currentCapacity}
 				waitingCapacity={waitingCapacity}
