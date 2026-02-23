@@ -31,6 +31,7 @@
     "test:engine": "vitest run src/lib/engine/__tests__",
     "test:integration": "vitest run src/__tests__/api",
     "test:engine:coverage": "vitest run src/lib/engine/__tests__ --coverage.enabled --coverage.provider=v8 --coverage.reportsDirectory=coverage/engine --coverage.reporter=text --coverage.reporter=json-summary --coverage.thresholds.lines=60 --coverage.thresholds.functions=70 --coverage.thresholds.statements=60 --coverage.thresholds.branches=45",
+    "test:engine:cov": "npm run test:engine:coverage",
     "test:engine:flaky": "node scripts/flaky-engine-tests.mjs",
     "test:e2e": "playwright test"
   },

@@ -33,15 +33,10 @@
 
 ### 1.2 필드 정의
 
-- `error.code` (string, 필수)
-- `SCREAMING_SNAKE_CASE`
-- 아래 표준 에러 코드 목록 중 하나
-- `error.message` (string, 필수)
-- 사용자 친화적 메시지(민감정보 포함 금지)
-- `error.details` (object | null, 선택)
-- 에러별 추가 정보(코드별 details 규칙 준수)
-- `error.requestId` (string, 필수)
-- 요청 상관관계 ID(correlation). 서버가 매 요청 생성/전파
+- `error.code` (string, 필수): `SCREAMING_SNAKE_CASE`, 아래 표준 에러 코드 목록 중 하나
+- `error.message` (string, 필수): 사용자 친화적 메시지(민감정보 포함 금지)
+- `error.details` (object | null, 선택): 에러별 추가 정보(코드별 details 규칙 준수)
+- `error.requestId` (string, 필수): 요청 상관관계 ID(correlation), 서버가 매 요청 생성/전파
 
 금지: 응답 body에 stack trace, 내부 파일 경로, SQL, 토큰/비번, 개인정보(필요 시 마스킹)
 
@@ -56,21 +51,21 @@
 
 ### 2.2 표준 매핑 테이블 (기본)
 
-| HTTP Status | error.code | 의미 | retryable | 기본 message 가이드 |
-|---:|---|---|:---:|---|
-| 400 | VALIDATION_ERROR | 요청 형식/값 오류 | N | Invalid request |
-| 401 | UNAUTHENTICATED | 인증 실패/토큰 누락/만료 | N | Authentication required |
-| 403 | FORBIDDEN | 권한 없음/접근 불가 | N | Access denied |
-| 404 | NOT_FOUND | 리소스 없음 | N | Resource not found |
-| 409 | CONFLICT | 상태 충돌/중복/버전 충돌 | 상황 | Conflict |
-| 413 | PAYLOAD_TOO_LARGE | 요청 본문 과대 | N | Payload too large |
-| 415 | UNSUPPORTED_MEDIA_TYPE | 미지원 Content-Type 등 | N | Unsupported media type |
-| 422 | UNPROCESSABLE_ENTITY | 형식은 맞지만 처리 불가 | N | Cannot process request |
-| 429 | RATE_LIMITED | 요청 과다 | Y | Too many requests |
-| 500 | INTERNAL_ERROR | 내부 예외/알 수 없는 오류 | 상황 | Internal server error |
-| 502 | UPSTREAM_BAD_GATEWAY | 업스트림 비정상 응답 | Y | Upstream error |
-| 503 | SERVICE_UNAVAILABLE | 일시적 장애/점검 | Y | Service unavailable |
-| 504 | UPSTREAM_TIMEOUT | 업스트림 타임아웃 | Y | Upstream timeout |
+| HTTP Status | error.code             | 의미                      | retryable | 기본 message 가이드     |
+| ----------: | ---------------------- | ------------------------- | :-------: | ----------------------- |
+|         400 | VALIDATION_ERROR       | 요청 형식/값 오류         |     N     | Invalid request         |
+|         401 | UNAUTHENTICATED        | 인증 실패/토큰 누락/만료  |     N     | Authentication required |
+|         403 | FORBIDDEN              | 권한 없음/접근 불가       |     N     | Access denied           |
+|         404 | NOT_FOUND              | 리소스 없음               |     N     | Resource not found      |
+|         409 | CONFLICT               | 상태 충돌/중복/버전 충돌  |   상황    | Conflict                |
+|         413 | PAYLOAD_TOO_LARGE      | 요청 본문 과대            |     N     | Payload too large       |
+|         415 | UNSUPPORTED_MEDIA_TYPE | 미지원 Content-Type 등    |     N     | Unsupported media type  |
+|         422 | UNPROCESSABLE_ENTITY   | 형식은 맞지만 처리 불가   |     N     | Cannot process request  |
+|         429 | RATE_LIMITED           | 요청 과다                 |     Y     | Too many requests       |
+|         500 | INTERNAL_ERROR         | 내부 예외/알 수 없는 오류 |   상황    | Internal server error   |
+|         502 | UPSTREAM_BAD_GATEWAY   | 업스트림 비정상 응답      |     Y     | Upstream error          |
+|         503 | SERVICE_UNAVAILABLE    | 일시적 장애/점검          |     Y     | Service unavailable     |
+|         504 | UPSTREAM_TIMEOUT       | 업스트림 타임아웃         |     Y     | Upstream timeout        |
 
 `retryable`은 클라이언트 자동 재시도 고려 여부 가이드다.
 
@@ -108,9 +103,9 @@
 
 - 의미가 바뀌는 변경 금지
 - 새 코드 추가 시 반드시:
-- 매핑 HTTP status 결정
-- `details` 스키마 정의
-- 에러 계약 테스트(Contract test) 추가
+  - 매핑 HTTP status 결정
+  - `details` 스키마 정의
+  - 에러 계약 테스트(Contract test) 추가
 
 ---
 
@@ -158,7 +153,7 @@
 }
 ```
 
-### 4.5 UPSTREAM_* / SERVICE_UNAVAILABLE
+### 4.5 UPSTREAM\_\* / SERVICE_UNAVAILABLE
 
 ```json
 {
