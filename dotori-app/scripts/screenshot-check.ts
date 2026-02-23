@@ -44,7 +44,6 @@ function isKnownRuntimeNoise(type: string, message: string): boolean {
   }
 
   if (
-    type === 'console' &&
     normalized.includes(
       'failed to load resource: the server responded with a status of 500'
     )
