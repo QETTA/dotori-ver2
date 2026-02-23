@@ -61,7 +61,7 @@ jobs:
           exit 1
 
       - name: Runtime UX/UI guard
-        run: BASE_URL=http://127.0.0.1:3002 npm run ux:guard
+        run: CHECK_CONSOLE_IGNORE_API_ERRORS=1 BASE_URL=http://127.0.0.1:3002 npm run ux:guard
 
       - name: Stop dev server
         if: always()

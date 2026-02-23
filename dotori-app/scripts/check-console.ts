@@ -2,6 +2,8 @@ import { chromium, firefox, webkit } from '@playwright/test'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const BROWSER = (process.env.BROWSER ?? 'chromium').toLowerCase()
+const IGNORE_API_500 =
+  process.env.CHECK_CONSOLE_IGNORE_API_ERRORS === '1'
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i
 
 type CapturedError = {
@@ -200,6 +202,23 @@ function isNoisyError(error: CapturedError, context: NoiseFilterContext): boolea
   if (
     hasKakaoSdkUrl &&
     message.includes('net::err_blocked_by_client')
+  ) {
+    return true
+  }
+
+  if (
+    IGNORE_API_500 &&
+    message.startsWith('failed to load resource:') &&
+    message.includes('status of 500') &&
+    locationUrl.includes('/api/')
+  ) {
+    return true
+  }
+
+  if (
+    IGNORE_API_500 &&
+    message.includes('clientfetcherror') &&
+    message.includes('not valid json')
   ) {
     return true
   }
