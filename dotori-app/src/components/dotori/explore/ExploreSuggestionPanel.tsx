@@ -31,7 +31,7 @@ const panelVariants = {
 
 const sectionVariants = {
 	hidden: { opacity: 1 },
-	show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.02 } },
+	show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
 };
 
 const chipVariants = {
@@ -44,6 +44,9 @@ const chipVariants = {
 };
 
 const getStatusTone = (index: number) => STATUS_SERIES[index % STATUS_SERIES.length];
+
+const sectionPanelClass =
+	"relative rounded-2xl border border-dotori-100/70 bg-dotori-50/40 p-4 shadow-sm ring-1 ring-dotori-100/70 backdrop-blur-md";
 
 export function ExploreSuggestionPanel({
 	recentSearches,
@@ -58,7 +61,7 @@ export function ExploreSuggestionPanel({
 			variants={panelVariants}
 			className={cn(
 				DS_GLASS.CARD,
-				"absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-dotori-100/70 bg-gradient-to-br from-dotori-50/90 via-white/85 to-amber-50/70 p-4 shadow-sm ring-1 ring-dotori-100/70",
+				"absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-3xl border border-dotori-100/70 bg-dotori-50/30 p-4 shadow-sm ring-1 ring-dotori-100/70",
 			)}
 		>
 			<span
@@ -74,11 +77,21 @@ export function ExploreSuggestionPanel({
 			/>
 
 			{recentSearches.length > 0 ? (
-				<motion.section initial="hidden" animate="show" variants={sectionVariants} className="relative mb-4 border-b border-dotori-100/70 pb-4">
-					<div className="mb-3 flex items-center justify-between gap-2">
+				<motion.section
+					initial="hidden"
+					animate="show"
+					variants={sectionVariants}
+					className={cn(sectionPanelClass, "mb-4 border-b border-dotori-100/70 pb-5")}
+				>
+					<div className="mb-3 flex items-center justify-between gap-3">
 						<div className="flex min-w-0 items-center gap-2">
-							<span className={cn("inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full", DS_STATUS.available.pill)}>
-								<ClockIcon className={cn("h-4 w-4", DS_STATUS.available.dot)} />
+							<span
+								className={cn(
+									"inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-sm ring-1 ring-white/70",
+									DS_STATUS.available.pill,
+								)}
+							>
+								<ClockIcon className="h-4 w-4 text-current" />
 							</span>
 							<div className="min-w-0">
 								<div className="flex items-center gap-2">
@@ -111,13 +124,14 @@ export function ExploreSuggestionPanel({
 										onClick={() => onSelectTerm(term)}
 										plain={true}
 										className={cn(
-											"inline-flex min-h-11 w-full items-center gap-1.5 rounded-2xl border border-dotori-100/70 bg-white/85 px-3 py-2 text-body-sm transition-colors duration-150",
-											"hover:bg-dotori-50 hover:text-dotori-800 dark:border-dotori-800 dark:bg-dotori-950/80 dark:hover:bg-dotori-900/80",
+											"inline-flex min-h-11 w-full items-center gap-2 rounded-2xl border bg-white/90 px-3 py-2 text-body-sm shadow-sm ring-1 ring-dotori-100/70 transition-colors duration-150",
+											"hover:bg-dotori-50 hover:text-dotori-800 dark:border-dotori-800 dark:bg-dotori-950/80 dark:hover:bg-dotori-900/80 dark:hover:text-dotori-50",
 											tone.pill,
+											tone.border,
 										)}
 									>
 										<span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone.dot)} />
-										<ClockIcon className={cn("h-3.5 w-3.5 text-dotori-400")} />
+										<ClockIcon className={cn("h-3.5 w-3.5 text-current")} />
 										{term}
 									</Button>
 								</motion.div>
@@ -127,10 +141,15 @@ export function ExploreSuggestionPanel({
 				</motion.section>
 			) : null}
 
-			<motion.section initial="hidden" animate="show" variants={sectionVariants} className="relative">
+			<motion.section initial="hidden" animate="show" variants={sectionVariants} className={sectionPanelClass}>
 				<div className="mb-3 flex items-center gap-2">
-					<span className={cn("inline-flex h-9 w-9 items-center justify-center rounded-full", DS_STATUS.waiting.pill)}>
-						<MagnifyingGlassIcon className={cn("h-4 w-4", DS_STATUS.waiting.dot)} />
+					<span
+						className={cn(
+							"inline-flex h-9 w-9 items-center justify-center rounded-full shadow-sm ring-1 ring-white/70",
+							DS_STATUS.waiting.pill,
+						)}
+					>
+						<MagnifyingGlassIcon className="h-4 w-4 text-current" />
 					</span>
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
@@ -152,12 +171,14 @@ export function ExploreSuggestionPanel({
 									plain={true}
 									onClick={() => onSelectTerm(term)}
 									className={cn(
-										"inline-flex min-h-11 w-full items-center gap-1.5 rounded-2xl bg-white px-3 py-2 text-body-sm shadow-sm ring-1 ring-dotori-100/70 transition-colors duration-150",
-										"hover:bg-dotori-50 hover:text-dotori-800 dark:bg-dotori-950/80 dark:text-dotori-200 dark:ring-dotori-800 dark:hover:bg-dotori-900 dark:hover:text-dotori-50",
+										"inline-flex min-h-11 w-full items-center gap-2 rounded-2xl border border-dotori-100/70 bg-white/90 px-3 py-2 text-body-sm shadow-sm ring-1 ring-dotori-100/70 transition-colors duration-150",
+										"hover:bg-dotori-50 hover:text-dotori-800 dark:border-dotori-800 dark:bg-dotori-950/80 dark:hover:bg-dotori-900 dark:hover:text-dotori-50",
 										tone.pill,
+										tone.border,
 									)}
 								>
 									<span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone.dot)} />
+									<MagnifyingGlassIcon className={cn("h-3.5 w-3.5 text-current")} />
 									{term}
 								</Button>
 							</motion.div>

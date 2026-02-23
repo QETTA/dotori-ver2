@@ -12,8 +12,7 @@ import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { PageTransition } from '@/components/dotori/PageTransition'
 import { BRAND } from '@/lib/brand-assets'
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
-import { cn } from '@/lib/utils'
+import { DS_GLASS, DS_STATUS } from '@/lib/design-system/tokens'
 
 const SPLASH_COOKIE = 'dotori_prehome_splash'
 const SPLASH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
@@ -33,7 +32,7 @@ const SPLASH_FACTS = [
 const SPLASH_FLOW = [
   {
     title: '상황 입력',
-    description: '반편성, 교사 교체, 국공립 당첨 상황을 바로 입력',
+    description: '반편성, 교체 이슈, 국공립 당첨 상황을 바로 입력',
     Icon: SparklesIcon,
   },
   {
@@ -105,35 +104,36 @@ export default function LandingPage() {
         initial="hidden"
         animate="show"
         variants={splashStagger}
-        className="relative min-h-dvh overflow-hidden bg-dotori-50/80 px-4 pb-7 pt-3"
+        className="relative min-h-dvh overflow-hidden bg-dotori-50/85 px-4 pb-7 pt-4"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-dotori-300/25 blur-3xl dark:bg-dotori-700/20" />
-          <div className="absolute bottom-20 -right-24 h-80 w-80 rounded-full bg-forest-300/20 blur-3xl dark:bg-forest-800/20" />
+          <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-dotori-200/45 blur-3xl" />
+          <div className="absolute bottom-16 -right-20 h-72 w-72 rounded-full bg-forest-200/20 blur-3xl" />
+          <div className="absolute -left-20 bottom-28 h-44 w-44 rounded-full bg-dotori-100/50 blur-3xl" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BRAND.watermark} alt="" className="absolute -right-14 top-28 h-52 w-52 opacity-10" />
+          <img src={BRAND.watermark} alt="" className="absolute -right-14 top-32 h-52 w-52 opacity-10" />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-3.5">
+        <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-4">
           <motion.header
             variants={splashItem}
             className={`rounded-3xl border border-dotori-100/80 bg-dotori-50/75 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 ${DS_GLASS.HEADER}`}
           >
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-3">
-              <Link href="/landing" className="inline-flex items-center gap-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={BRAND.lockupHorizontalKr}
-                  alt="도토리"
-                  width={208}
-                  height={56}
-                  className="h-6 w-auto"
-                />
-              </Link>
-              <Badge color="forest">PRE-HOME SPLASH</Badge>
-            </div>
-              <Text className={cn(DS_TYPOGRAPHY.label, 'font-semibold text-dotori-600')}>첫 방문에서 시작되는 이동 전략</Text>
+                <Link href="/landing" className="inline-flex items-center gap-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={BRAND.lockupHorizontalKr}
+                    alt="도토리"
+                    width={208}
+                    height={56}
+                    className="h-6 w-auto"
+                  />
+                </Link>
+                <Badge color="forest">PRE-HOME SPLASH</Badge>
+              </div>
+              <Text className="text-label text-dotori-600">첫 방문에서 시작되는 이동 전략</Text>
             </div>
           </motion.header>
 
@@ -157,70 +157,57 @@ export default function LandingPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-7 -top-8 h-20 w-20 rotate-[-9deg] opacity-85"
                 />
-              <Text className={cn(DS_TYPOGRAPHY.label, 'font-semibold tracking-[0.14em] text-dotori-600')}>
-                HOME READY FRAME
-              </Text>
-              <Heading level={1} className={cn(DS_TYPOGRAPHY.h1, 'mt-2 leading-tight text-dotori-950')}>
-                홈 진입 전에
-                <br />
-                이동 전략부터 맞춥니다
-              </Heading>
-              <Text className={cn(DS_TYPOGRAPHY.body, 'mt-2.5 text-dotori-700')}>
-                반편성, 교체 이슈, 국공립 변화를 한 번에 묶어
-                <br />
-                빠르게 판단하고 탐색을 시작하세요.
-              </Text>
+                <Text className="text-label font-semibold tracking-[0.14em] text-dotori-600">HOME READY FRAME</Text>
+                <Heading level={1} className="text-display mt-2 leading-tight text-dotori-950">
+                  홈 진입 전에
+                  <br />
+                  이동 전략부터 맞춥니다
+                </Heading>
+                <Text className="text-body mt-2.5 text-dotori-700">
+                  반편성, 교체 이슈, 국공립 변화를 한 번에 묶어
+                  <br />
+                  빠르게 판단하고 탐색을 시작하세요.
+                </Text>
 
-              <motion.p
-                key={currentSignal}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', stiffness: 180, damping: 18 }}
-                className="mt-4 inline-flex min-h-11 w-fit items-center rounded-full border border-forest-200/80 bg-forest-50 px-3.5 py-2.5 text-label font-medium text-forest-700"
-              >
-                {currentSignal}
-              </motion.p>
+                <motion.p
+                  key={currentSignal}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+                  className="text-label mt-4 inline-flex min-h-11 w-fit items-center rounded-full border border-forest-200/80 bg-forest-50 px-3.5 py-2.5 font-medium text-forest-700"
+                >
+                  {currentSignal}
+                </motion.p>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {SPLASH_FACTS.map((item) => (
-                  <motion.div
-                    variants={splashItem}
-                    key={item.label}
-                    className="rounded-2xl border border-dotori-100/80 bg-dotori-50/80 p-2.5 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-950/40"
-                  >
-                    <Text className={cn(DS_TYPOGRAPHY.h3, 'text-dotori-900')}>{item.value}</Text>
-                    <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-dotori-600')}>
-                      {item.label}
-                    </Text>
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {SPLASH_FACTS.map((item) => (
+                    <motion.div
+                      variants={splashItem}
+                      key={item.label}
+                      className="rounded-2xl border border-dotori-100/80 bg-dotori-50/80 p-2.5 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-950/40"
+                    >
+                      <Text className="text-h3 text-dotori-900">{item.value}</Text>
+                      <Text className="text-caption mt-1 text-dotori-600">{item.label}</Text>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="mt-5 space-y-2.5">
+                  <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
+                    <Button
+                      color="dotori"
+                      onClick={handleEnterHome}
+                      className="min-h-12 w-full justify-center rounded-full border border-transparent text-h3"
+                    >
+                      홈으로 이동
+                    </Button>
                   </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-4 space-y-2.5">
-                <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                  <Button
-                    color="dotori"
-                    onClick={handleEnterHome}
-                    className="min-h-11 w-full justify-center rounded-full border border-transparent"
-                  >
-                    홈으로 이동
-                  </Button>
-                </motion.div>
-                <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                  <Button color="dotori" href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
-                    온보딩 시작
-                  </Button>
-                </motion.div>
-                <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                  <Button
-                    color="dotori"
-                    href="/chat"
-                    className="min-h-11 w-full justify-center rounded-full border border-dotori-100/80 bg-white/90"
-                  >
-                    AI 상담 미리보기
-                  </Button>
-                </motion.div>
-              </div>
+                  <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
+                    <Button color="dotori" href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
+                      온보딩 시작
+                    </Button>
+                  </motion.div>
+                </div>
               </div>
             </motion.article>
 
@@ -228,8 +215,8 @@ export default function LandingPage() {
               variants={splashItem}
               className="rounded-3xl border-b border-dotori-200/70 bg-dotori-50/80 p-4 pb-6 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70"
             >
-              <p className="text-label font-semibold text-dotori-600">작동 순서</p>
-              <h2 className="mt-1 text-h2 text-dotori-900">3단계로 바로 시작</h2>
+              <p className="text-label text-dotori-600">작동 순서</p>
+              <Heading level={2} className="text-h2 mt-1 text-dotori-900">3단계로 바로 시작</Heading>
               <div className="mt-4 space-y-2">
                 {SPLASH_FLOW.map((item, index) => (
                   <motion.article
@@ -257,7 +244,7 @@ export default function LandingPage() {
               variants={splashItem}
               className="rounded-2xl border border-dotori-100/80 p-4 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70"
             >
-              <p className="text-label font-semibold text-dotori-600">현재 운영 상태</p>
+              <p className="text-label text-dotori-600">현재 운영 상태</p>
               <div className="mt-2.5 grid grid-cols-3 gap-2">
                 {SPLASH_STATUSES.map((statusKey) => {
                   const status = DS_STATUS[statusKey]
