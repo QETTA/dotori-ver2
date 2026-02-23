@@ -25,6 +25,23 @@ npm run build
 BASE_URL=http://127.0.0.1:3002 npm run ux:guard
 ```
 
+## DigitalOcean Auto Deploy (GitHub)
+
+- PR 생성/업데이트 시: `PR Preview` 워크플로우가 자동으로 Preview URL을 배포하고, PR 코멘트에 URL/헬스체크를 남깁니다.
+- `main` 푸시 시: `CI/CD` 워크플로우가 `npm run ci` + `build` 성공 후 DigitalOcean 프로덕션 배포를 실행합니다.
+- 배포 후 워크플로우는 `/api/health`까지 확인하고 실패 시 즉시 실패 처리합니다.
+
+```bash
+# repo root에서 최근 실행 확인
+gh run list -R QETTA/dotori-ver2 --limit 10
+
+# 특정 워크플로우 실행 추적
+gh run watch <run-id> -R QETTA/dotori-ver2
+
+# PR 체크 상태 요약
+gh pr checks <pr-number> -R QETTA/dotori-ver2
+```
+
 ## Development
 
 ```bash
