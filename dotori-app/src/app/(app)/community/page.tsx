@@ -6,7 +6,7 @@ import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
-import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { BRAND } from "@/lib/brand-assets";
 import { fadeIn, fadeUp, stagger, tap } from "@/lib/motion";
@@ -352,7 +352,7 @@ export default function CommunityPage() {
 					<div className="flex min-w-0 items-center gap-2">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-5 opacity-90" />
-						<Badge color="forest" className="text-label font-semibold">
+						<Badge color="forest" className={cn(DS_TYPOGRAPHY.label, "font-semibold")}>
 							이웃
 						</Badge>
 					</div>
@@ -377,7 +377,8 @@ export default function CommunityPage() {
 										aria-pressed={isActive}
 										onClick={() => setActiveTab(tab)}
 										className={cn(
-											"min-h-11 min-w-max rounded-full px-4 text-label active:scale-100 transition-transform",
+											"min-h-11 min-w-max rounded-full px-4 font-medium active:scale-100 transition-transform",
+											DS_TYPOGRAPHY.label,
 											isActive
 												? "bg-dotori-900 text-white shadow-sm shadow-dotori-200 dark:bg-dotori-500 dark:shadow-none"
 												: "border border-dotori-200 bg-white/80 text-dotori-600 hover:bg-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-200 dark:hover:bg-dotori-900",
@@ -403,13 +404,18 @@ export default function CommunityPage() {
 							className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.08] dark:opacity-[0.14]"
 						/>
 						<div className="relative">
-							<Badge color="forest" className="text-label font-semibold">
+							<Badge color="forest" className={cn(DS_TYPOGRAPHY.label, "font-semibold")}>
 								NEIGHBOR SIGNAL
 							</Badge>
-							<h2 className={cn("text-h2 mt-2 font-semibold text-dotori-900 dark:text-dotori-50")}>
+							<h2
+								className={cn(
+									DS_TYPOGRAPHY.h2,
+									"mt-2 font-semibold text-dotori-900 dark:text-dotori-50",
+								)}
+							>
 								내 동네 이동 인사이트 피드
 							</h2>
-							<p className={cn("text-body-sm mt-1 text-dotori-700 dark:text-dotori-200")}>
+							<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-700 dark:text-dotori-200")}>
 								브랜드 소셜 에셋 기반으로 이웃 후기와 실시간 반응을 빠르게 확인하세요.
 							</p>
 							<div className="mt-3 grid grid-cols-3 gap-2 border-t border-dotori-100/80 pt-3">
@@ -418,10 +424,15 @@ export default function CommunityPage() {
 										key={stat.label}
 										className="rounded-xl border border-dotori-100/70 bg-white/90 px-2 py-2 text-center dark:border-dotori-800/70 dark:bg-dotori-950/80"
 									>
-										<p className={cn("text-caption text-dotori-500 dark:text-dotori-300")}>
+										<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500 dark:text-dotori-300")}>
 											{stat.label}
 										</p>
-										<p className={cn("text-body mt-0.5 font-semibold text-dotori-900 dark:text-dotori-50")}>
+										<p
+											className={cn(
+												DS_TYPOGRAPHY.body,
+												"mt-0.5 font-semibold text-dotori-900 dark:text-dotori-50",
+											)}
+										>
 											{stat.value}
 										</p>
 									</div>
@@ -438,7 +449,7 @@ export default function CommunityPage() {
 								"mb-4 rounded-3xl p-4 text-forest-700 ring-1 ring-dotori-100/70 shadow-sm shadow-dotori-100/60 dark:text-forest-200 dark:ring-dotori-700/50 dark:shadow-none",
 								WARM_SURFACE,
 								DS_GLASS.CARD,
-								"text-body-sm",
+								DS_TYPOGRAPHY.bodySm,
 							)}
 						>
 							<span className="font-semibold">반편성 시즌</span>이에요. 이동 고민을 이웃과
@@ -472,10 +483,15 @@ export default function CommunityPage() {
 										)}
 									</div>
 									<div className="min-w-0 flex-1">
-										<p className={cn("text-body font-semibold text-forest-800 dark:text-forest-200")}>
+										<p
+											className={cn(
+												DS_TYPOGRAPHY.body,
+												"font-semibold text-forest-800 dark:text-forest-200",
+											)}
+										>
 											{isVerifying ? "위치 확인 중..." : "동네 인증하기"}
 										</p>
-										<p className={cn("text-body-sm text-forest-600 dark:text-forest-200/80")}>
+										<p className={cn(DS_TYPOGRAPHY.bodySm, "text-forest-600 dark:text-forest-200/80")}>
 											{isVerifying
 												? "GPS로 현재 위치를 확인하고 있어요"
 												: "GPS로 내 동네를 인증하고 이웃과 소통해보세요"}
@@ -484,7 +500,7 @@ export default function CommunityPage() {
 									{!isVerifying && (
 										<Badge
 											color="forest"
-											className={cn("shrink-0 text-label", DS_STATUS.available.pill)}
+											className={cn("shrink-0", DS_TYPOGRAPHY.label, DS_STATUS.available.pill)}
 										>
 											인증
 										</Badge>
@@ -548,7 +564,7 @@ export default function CommunityPage() {
 										{post.category && categoryLabel[post.category] ? (
 											<Badge
 												color={postCategoryBadgeColor}
-												className={cn("text-label font-semibold", postBadgeToneClass)}
+												className={cn(DS_TYPOGRAPHY.label, "font-semibold", postBadgeToneClass)}
 											>
 												{categoryLabel[post.category]}
 											</Badge>
@@ -556,7 +572,11 @@ export default function CommunityPage() {
 										{post.author.verified ? (
 											<Badge
 												color="forest"
-												className={cn("text-label font-medium", DS_STATUS.available.pill)}
+												className={cn(
+													DS_TYPOGRAPHY.label,
+													"font-medium",
+													DS_STATUS.available.pill,
+												)}
 											>
 												인증
 											</Badge>
@@ -565,7 +585,9 @@ export default function CommunityPage() {
 											<Badge
 												color="forest"
 												className={cn(
-													"inline-flex items-center gap-1 text-label font-semibold",
+													"inline-flex items-center gap-1",
+													DS_TYPOGRAPHY.label,
+													"font-semibold",
 													postBadgeToneClass,
 												)}
 											>
@@ -576,10 +598,15 @@ export default function CommunityPage() {
 									</div>
 
 									<Link href={`/community/${post.id}`} className="mt-3 block border-b border-dotori-100/70 pb-3">
-										<h3 className={cn("text-h3 font-semibold text-dotori-900 dark:text-dotori-50")}>
+										<h3 className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 											{postTitle}
 										</h3>
-										<p className={cn("text-body-sm mt-1 line-clamp-2 text-dotori-600 dark:text-dotori-300")}>
+										<p
+											className={cn(
+												DS_TYPOGRAPHY.bodySm,
+												"mt-1 line-clamp-2 text-dotori-600 dark:text-dotori-300",
+											)}
+										>
 											{post.content}
 										</p>
 									</Link>
@@ -587,14 +614,16 @@ export default function CommunityPage() {
 									{post.facilityTags && post.facilityTags.length > 0 ? (
 										<div className="mt-3 flex flex-wrap gap-2">
 											{post.facilityTags.map((tag) => (
-												<Link
-													key={tag}
-													href={`/explore?q=${encodeURIComponent(tag)}`}
-													className={cn(
-														"inline-flex min-h-11 items-center rounded-full px-3 py-2 text-label font-medium",
-														tagStyle(tag),
-													)}
-												>
+													<Link
+														key={tag}
+														href={`/explore?q=${encodeURIComponent(tag)}`}
+														className={cn(
+															"inline-flex min-h-11 items-center rounded-full px-3 py-2",
+															DS_TYPOGRAPHY.label,
+															"font-medium",
+															tagStyle(tag),
+														)}
+													>
 													{tag}
 												</Link>
 											))}
@@ -614,7 +643,8 @@ export default function CommunityPage() {
 														}))
 													}
 													className={cn(
-														"inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 py-2 text-label",
+														"inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 py-2",
+														DS_TYPOGRAPHY.label,
 														MOTION_SMOOTH,
 														showAiSummary[post.id]
 															? "text-dotori-700 hover:bg-dotori-50 dark:text-dotori-100 dark:hover:bg-dotori-950"
@@ -630,7 +660,12 @@ export default function CommunityPage() {
 													{...fadeIn}
 													className="mt-1.5 rounded-xl bg-gradient-to-br from-dotori-50 via-amber-50/35 to-white p-3 ring-1 ring-dotori-100/70 dark:from-dotori-950 dark:via-dotori-950 dark:to-dotori-900 dark:ring-dotori-700/50"
 												>
-													<p className={cn("text-body-sm leading-relaxed text-dotori-600 dark:text-dotori-200")}>
+													<p
+														className={cn(
+															DS_TYPOGRAPHY.bodySm,
+															"leading-relaxed text-dotori-600 dark:text-dotori-200",
+														)}
+													>
 														{post.aiSummary}
 													</p>
 												</motion.div>
@@ -638,7 +673,12 @@ export default function CommunityPage() {
 										</div>
 									) : null}
 
-									<div className="mt-3 flex items-center justify-between gap-2 text-caption text-dotori-500 dark:text-dotori-400">
+									<div
+										className={cn(
+											DS_TYPOGRAPHY.caption,
+											"mt-3 flex items-center justify-between gap-2 text-dotori-500 dark:text-dotori-400",
+										)}
+									>
 										<p className="min-w-0 truncate" suppressHydrationWarning>
 											익명 부모 · {formatRelativeTime(post.createdAt)}
 										</p>
@@ -651,7 +691,8 @@ export default function CommunityPage() {
 													disabled={likingPosts.has(post.id)}
 													aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
 													className={cn(
-														"inline-flex min-h-11 shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-label transition-colors",
+														"inline-flex min-h-11 shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 transition-colors",
+														DS_TYPOGRAPHY.label,
 														likedPosts.has(post.id)
 															? "text-forest-700 hover:bg-forest-50 dark:text-forest-200 dark:hover:bg-dotori-950"
 															: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-950",
@@ -665,7 +706,12 @@ export default function CommunityPage() {
 													좋아요 {post.likes}
 												</Button>
 											</motion.div>
-											<span className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 py-1.5 text-caption text-dotori-500 dark:text-dotori-300">
+											<span
+												className={cn(
+													DS_TYPOGRAPHY.caption,
+													"inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 py-1.5 text-dotori-500 dark:text-dotori-300",
+												)}
+											>
 												<ChatBubbleLeftRightIcon className="h-4 w-4" />
 												댓글 {post.commentCount}
 											</span>
@@ -679,7 +725,7 @@ export default function CommunityPage() {
 						{isLoadingMore ? (
 							<div className="mt-4 flex flex-col items-center py-4">
 								<div className="h-6 w-6 animate-spin rounded-full border-2 border-dotori-200 border-t-dotori-700" />
-								<p className="mt-2 text-body-sm text-dotori-600 dark:text-dotori-300">
+								<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 text-dotori-600 dark:text-dotori-300")}>
 									다음 글을 불러오는 중...
 								</p>
 							</div>

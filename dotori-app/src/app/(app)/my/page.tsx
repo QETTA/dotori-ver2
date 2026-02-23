@@ -8,10 +8,15 @@ import { Surface } from "@/components/dotori/Surface";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_LAYOUT, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import {
+	DS_GLASS,
+	DS_LAYOUT,
+	DS_STATUS,
+	DS_TYPOGRAPHY,
+} from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
-import { stagger } from "@/lib/motion";
+import { stagger, tap } from "@/lib/motion";
 import {
 	CameraIcon,
 	ChevronRightIcon,
@@ -42,16 +47,17 @@ export default function MyPage() {
 		"flex min-h-12 items-center justify-between gap-3 px-4 py-3.5";
 	const sectionTitleClass = cn(
 		DS_TYPOGRAPHY.label,
-		"mb-2.5 font-semibold uppercase tracking-[0.2em] text-dotori-400 dark:text-dotori-500",
+		"mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold uppercase tracking-[0.2em] text-dotori-400 dark:border-dotori-800/80 dark:text-dotori-500",
 	);
 	const menuPanelClass = cn(
 		DS_LAYOUT.CARD_SOFT,
 		DS_GLASS.CARD,
-		"overflow-hidden rounded-3xl bg-gradient-to-b from-white/85 via-dotori-50/40 to-white/70 ring-1 ring-dotori-100/70 dark:from-dotori-950/90 dark:via-dotori-900/80 dark:to-dotori-900/88 dark:ring-dotori-800/80",
+		"overflow-hidden rounded-3xl ring-1 ring-dotori-100/70 shadow-sm dark:ring-dotori-800/80",
 	);
 	const cardSurfaceClass = cn(
 		DS_LAYOUT.CARD_SOFT,
-		"rounded-3xl ring-1 ring-dotori-100/70 shadow-[0_16px_28px_-24px_rgba(122,78,48,0.45)] dark:ring-dotori-800/80 dark:shadow-none",
+		DS_GLASS.CARD,
+		"rounded-3xl ring-1 ring-dotori-100/70 shadow-sm dark:ring-dotori-800/80",
 	);
 	const menuItemTitleClass = cn(
 		DS_TYPOGRAPHY.h3,
@@ -99,20 +105,29 @@ export default function MyPage() {
 	const isActiveMenuItem = (href: string) =>
 		pathname === href || pathname.startsWith(`${href}/`);
 
-	const quickStats = [
+	const quickStats: Array<{
+		status: keyof typeof DS_STATUS;
+		label: string;
+		ariaLabel: string;
+		value: number;
+		href: string;
+	}> = [
 		{
+			status: "available",
 			label: "관심",
 			ariaLabel: "관심 시설",
 			value: interestsCount,
 			href: "/my/interests",
 		},
 		{
+			status: "waiting",
 			label: "대기",
 			ariaLabel: "대기 시설",
 			value: waitlistCount,
 			href: "/my/waitlist",
 		},
 		{
+			status: "full",
 			label: "알림",
 			ariaLabel: "알림",
 			value: alertCount,
@@ -258,8 +273,8 @@ export default function MyPage() {
 				<div className="mt-5 px-5">
 					<Button
 						href="/login"
-						color="amber"
-						className="w-full min-h-11 py-4 text-base font-semibold tracking-tight active:scale-[0.97]"
+						color="dotori"
+						className="w-full min-h-11 py-3 font-semibold tracking-tight active:scale-[0.97]"
 					>
 						카카오 로그인
 					</Button>
@@ -282,7 +297,12 @@ export default function MyPage() {
 									{section.items.map((item) => {
 										const Icon = item.icon;
 										return (
-											<motion.li key={item.label} {...stagger.item}>
+											<motion.li
+												key={item.label}
+												{...stagger.item}
+												whileTap={tap.button.whileTap}
+												transition={tap.button.transition}
+											>
 												<Link
 													href={item.href}
 													className={cn(
@@ -389,24 +409,46 @@ export default function MyPage() {
 			<section className="mt-5 px-5">
 				<div className="grid grid-cols-3 gap-2.5">
 					{quickStats.map((stat) => (
-						<Link
+						<motion.div
 							key={stat.label}
-							href={stat.href}
-							aria-label={`${stat.ariaLabel} ${stat.value}개`}
-							className={cn(
-								DS_LAYOUT.CARD_SOFT,
-								"rounded-2xl bg-gradient-to-b from-white/90 to-dotori-50/70 px-3 py-2.5 ring-1 ring-dotori-100/80 dark:from-dotori-950/90 dark:to-dotori-900/75 dark:ring-dotori-800/80",
-								"flex flex-col items-center justify-center gap-0.5 text-center",
-								"transition-colors transition-transform hover:bg-dotori-50/70 dark:hover:bg-dotori-900/65 active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
-							)}
+							whileTap={tap.card.whileTap}
+							transition={tap.card.transition}
 						>
-							<span className={cn(DS_TYPOGRAPHY.h2, "font-bold leading-none tabular-nums text-dotori-900 dark:text-dotori-50")}>
-								{stat.value}
-							</span>
-							<span className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500 dark:text-dotori-300")}>
-								{stat.label}
-							</span>
-						</Link>
+							<Link
+								href={stat.href}
+								aria-label={`${stat.ariaLabel} ${stat.value}개`}
+								className={cn(
+									DS_LAYOUT.CARD_SOFT,
+									DS_GLASS.CARD,
+									"rounded-2xl bg-dotori-50/30 px-3 py-2.5 ring-1 ring-dotori-100/80 shadow-sm dark:from-dotori-950/90 dark:to-dotori-900/75 dark:ring-dotori-800/80",
+									"flex min-h-11 flex-col items-center justify-center gap-0.5 text-center",
+									"transition-colors transition-transform hover:bg-dotori-50/70 dark:hover:bg-dotori-900/65 active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
+								)}
+							>
+									<span
+										className={cn(
+											"inline-flex h-2.5 w-2.5 rounded-full",
+											DS_STATUS[stat.status].dot,
+										)}
+									/>
+								<span
+									className={cn(
+										DS_TYPOGRAPHY.h2,
+										"font-bold leading-none tabular-nums text-dotori-900 dark:text-dotori-50",
+									)}
+								>
+									{stat.value}
+								</span>
+								<span
+									className={cn(
+										DS_TYPOGRAPHY.caption,
+										"text-dotori-500 dark:text-dotori-300",
+									)}
+								>
+									{stat.label}
+								</span>
+							</Link>
+						</motion.div>
 					))}
 				</div>
 			</section>
@@ -446,7 +488,7 @@ export default function MyPage() {
 				<div className="mb-2.5">
 					<Link
 						href="/my/interests"
-						className="flex items-center justify-between"
+						className="inline-flex min-h-11 w-full items-center justify-between"
 					>
 						<h2 className={cn(DS_TYPOGRAPHY.h3, "font-bold tracking-tight")}>관심 시설 {interestsCount}곳</h2>
 						<span className={cn(DS_TYPOGRAPHY.bodySm, "inline-flex items-center text-dotori-500 dark:text-dotori-300")}>
@@ -455,38 +497,58 @@ export default function MyPage() {
 						</span>
 					</Link>
 				</div>
-				{isInterestLoading ? (
-					<Skeleton variant="card" count={2} />
-				) : interestPreview.length > 0 ? (
+						{isInterestLoading ? (
+						<Skeleton variant="card" count={2} />
+					) : interestPreview.length > 0 ? (
 					<div className="space-y-2.5">
 						{interestPreview.map((facility) => (
-							<Link
+							<motion.div
 								key={facility.id}
-								href={`/facility/${facility.id}`}
-								className={cn(
-									cardSurfaceClass,
-									"block p-4 transition-all active:scale-[0.99]",
-								)}
+								whileTap={tap.card.whileTap}
+								transition={tap.card.transition}
 							>
-								<div className="flex items-start gap-3">
-									<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-dotori-50 dark:bg-dotori-900 text-dotori-500">
-										<HeartIcon className="h-5 w-5" />
-									</div>
-									<div className="min-w-0 flex-1">
-										<div className="flex items-center justify-between gap-2">
-											<p className={cn(DS_TYPOGRAPHY.body, "font-semibold text-dotori-900 dark:text-dotori-50 leading-snug line-clamp-1")}>
-												{facility.name}
-											</p>
-											<span className={cn(DS_TYPOGRAPHY.caption, "rounded-full bg-dotori-100 dark:bg-dotori-800 px-2 py-0.5 text-dotori-500")}>
-												{facility.type}
-											</span>
+								<Link
+									href={`/facility/${facility.id}`}
+									className={cn(
+										cardSurfaceClass,
+										"min-h-11 block p-4 transition-all active:scale-[0.99]",
+									)}
+								>
+									<div className="flex items-start gap-3">
+										<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-dotori-50 dark:bg-dotori-900 text-dotori-500">
+											<HeartIcon className="h-5 w-5" />
 										</div>
-										<p className={cn(DS_TYPOGRAPHY.caption, "mt-1 text-dotori-500 dark:text-dotori-300 line-clamp-1")}>
-											{facility.address}
-										</p>
+										<div className="min-w-0 flex-1">
+											<div className="flex items-center justify-between gap-2">
+												<p
+													className={cn(
+														DS_TYPOGRAPHY.body,
+														"font-semibold text-dotori-900 dark:text-dotori-50 leading-snug line-clamp-1",
+													)}
+												>
+													{facility.name}
+												</p>
+												<span
+													className={cn(
+														DS_TYPOGRAPHY.caption,
+														"rounded-full bg-dotori-100 dark:bg-dotori-800 px-2 py-0.5 text-dotori-500",
+													)}
+												>
+													{facility.type}
+												</span>
+											</div>
+											<p
+												className={cn(
+													DS_TYPOGRAPHY.caption,
+													"mt-1 text-dotori-500 dark:text-dotori-300 line-clamp-1",
+												)}
+											>
+												{facility.address}
+											</p>
+										</div>
 									</div>
-								</div>
-							</Link>
+								</Link>
+							</motion.div>
 						))}
 					</div>
 				) : (
@@ -543,7 +605,10 @@ export default function MyPage() {
 								</div>
 								<Link
 									href="/my/settings"
-									className={cn(DS_TYPOGRAPHY.bodySm, "py-1 text-dotori-500 dark:text-dotori-300 transition-colors hover:text-dotori-600 dark:hover:text-dotori-200")}
+									className={cn(
+										DS_TYPOGRAPHY.bodySm,
+										"min-h-11 inline-flex items-center text-dotori-500 dark:text-dotori-300 transition-colors hover:text-dotori-600 dark:hover:text-dotori-200",
+									)}
 								>
 									수정
 								</Link>
@@ -577,7 +642,7 @@ export default function MyPage() {
 					href="/my/import"
 					className={cn(
 						DS_LAYOUT.CARD_SOFT,
-						"flex items-center gap-3.5 rounded-3xl bg-gradient-to-r from-dotori-50 to-white dark:from-dotori-900 dark:to-dotori-950 p-5 ring-1 ring-dotori-100/80 dark:ring-dotori-800/80 transition-all",
+						"flex min-h-11 items-center gap-3.5 rounded-3xl bg-gradient-to-r from-dotori-50 to-white dark:from-dotori-900 dark:to-dotori-950 p-5 ring-1 ring-dotori-100/80 dark:ring-dotori-800/80 transition-all",
 						"active:scale-[0.98] hover:bg-dotori-50/70 dark:hover:bg-dotori-900/65",
 					)}
 				>
@@ -611,7 +676,12 @@ export default function MyPage() {
 								{section.items.map((item) => {
 									const Icon = item.icon;
 									return (
-										<motion.li key={item.label} {...stagger.item}>
+										<motion.li
+											key={item.label}
+											{...stagger.item}
+											whileTap={tap.button.whileTap}
+											transition={tap.button.transition}
+										>
 											<Link
 												href={item.href}
 												className={cn(

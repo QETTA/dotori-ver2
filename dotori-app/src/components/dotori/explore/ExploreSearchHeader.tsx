@@ -97,6 +97,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 		DS_STATUS.full.pill,
 		"ring-1 ring-dotori-100/70 dark:ring-dotori-700/45",
 	);
+	const sectionSurfaceClass = "rounded-3xl border border-dotori-100/70 shadow-sm ring-1 ring-dotori-100/70 bg-dotori-50/80 dark:bg-dotori-900/70";
 
 	useEffect(() => {
 		if (!isSearchFocused) return;
@@ -136,7 +137,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-20 border-b border-dotori-100/60 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]",
+				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]",
 				DS_GLASS.HEADER,
 			)}
 		>
@@ -168,13 +169,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					</Text>
 				</motion.div>
 
-				<Fieldset className="mt-2 space-y-3">
+				<Fieldset className="mt-2.5 space-y-4">
 					<motion.div {...stagger.item}>
 				<div
 					ref={searchContainerRef}
 					className={cn(
 						DS_GLASS.CARD,
-						"relative rounded-3xl border border-dotori-100/70 bg-dotori-50/85 p-4 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-900/70",
+						sectionSurfaceClass,
+						"relative p-4",
 					)}
 				>
 					<form onSubmit={handleFormSubmit}>
@@ -208,7 +210,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						) : null}
 					</form>
 
-					<div className="mt-2.5 flex flex-wrap gap-2">
+					<div className="mt-2.5 flex flex-wrap gap-2 border-b border-dotori-100/60 pb-3">
 						<motion.div {...tap.button} className="inline-flex">
 							<Button
 								type="button"
@@ -232,7 +234,12 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					</div>
 
 					<div className="mt-3.5">
-						<Text className={cn(DS_TYPOGRAPHY.label, "text-dotori-500 dark:text-dotori-300")}>
+						<Text
+							className={cn(
+								DS_TYPOGRAPHY.label,
+								"text-dotori-500 dark:text-dotori-300",
+							)}
+						>
 							이동 수요 시나리오
 						</Text>
 						<div className="mt-2 flex flex-wrap gap-2">
@@ -265,7 +272,10 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 				</div>
 					</motion.div>
 
-				<motion.div {...tap.chip} className="mt-1 flex flex-col gap-2 border-b border-dotori-100/60 pb-1 sm:flex-row sm:items-center">
+				<motion.div
+					{...tap.chip}
+					className="mt-2 flex flex-col gap-2 rounded-3xl border border-dotori-100/60 bg-dotori-50/80 p-3 sm:flex-row sm:items-center sm:justify-between"
+				>
 					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mr-auto shrink-0 whitespace-nowrap text-dotori-500 dark:text-dotori-300")}>
 						{resultLabel}
 					</Text>
@@ -315,7 +325,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					</motion.div>
 				</motion.div>
 
-				<motion.div {...tap.chip} className="mt-1">
+				<motion.div {...tap.chip} className="mt-2">
 					<Button
 						type="button"
 						onClick={onToggleToOnly}

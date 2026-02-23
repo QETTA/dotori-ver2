@@ -10,6 +10,8 @@ import {
 	useExploreSearch,
 } from "@/components/dotori/explore/useExploreSearch";
 import { Skeleton } from "@/components/dotori/Skeleton";
+import { DS_GLASS } from "@/lib/design-system/tokens";
+import { cn } from "@/lib/utils";
 
 const MapEmbed = dynamic(
 	() => import("@/components/dotori/MapEmbed").then((mod) => mod.MapEmbed),
@@ -20,7 +22,12 @@ export default function ExplorePage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
+				<div
+					className={cn(
+						"flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50",
+						DS_GLASS.CARD,
+					)}
+				>
 					<div className="px-4 pt-3">
 						<Skeleton variant="facility-card" count={6} />
 					</div>
@@ -42,7 +49,12 @@ const ExploreMapSection = memo(function ExploreMapSection({
 	if (!mapState.showMap || !mapState.hasMapContent) return null;
 
 	return (
-		<div className="px-4 pt-2 duration-200 motion-safe:animate-in motion-safe:fade-in">
+		<div
+			className={cn(
+				"px-4 pt-2 duration-200 motion-safe:animate-in motion-safe:fade-in",
+				DS_GLASS.CARD,
+			)}
+		>
 			<MapEmbed
 				facilities={mapState.facilities}
 				{...(mapState.center ? { center: mapState.center } : {})}
@@ -59,7 +71,7 @@ function ExploreContent() {
 	const resultInteraction = useExploreResultInteraction();
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
+		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/60 text-dotori-900 dark:bg-dotori-950 dark:text-dotori-50">
 			<ExploreSearchHeader state={headerState} actions={headerActions} />
 
 			<ExploreMapSection mapState={mapState} />

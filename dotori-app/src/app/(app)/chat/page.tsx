@@ -11,7 +11,7 @@ import { Input } from "@/components/catalyst/input";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
 import { stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
@@ -77,7 +77,7 @@ function MessageBubble({
 			quickReplies={msg.quick_replies}
 		>
 			{msg.role === "user" ? (
-				<Text className={cn(DS_TYPOGRAPHY.body, "text-white/95")}>{msg.content}</Text>
+				<Text className="text-body text-white/95">{msg.content}</Text>
 			) : (
 				<MarkdownText content={msg.content} />
 			)}
@@ -121,14 +121,14 @@ function ChatHeader({
 				<div className="min-w-0">
 					<Heading
 						level={3}
-						className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}
+						className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50"
 					>
 						토리
 					</Heading>
 					<div className="mt-1 flex items-center gap-1.5">
 						<Badge
 							color="forest"
-							className={cn(DS_TYPOGRAPHY.label, "rounded-full px-2 py-0.5")}
+							className="text-label rounded-full px-2 py-0.5"
 						>
 							<span className={cn("size-1.5 rounded-full", DS_STATUS.available.dot)} />
 							온라인
@@ -153,15 +153,15 @@ function ChatHeader({
 					</div>
 				) : null}
 				<motion.div {...tap.chip}>
-					<Button
-						plain={true}
-						onClick={onClearHistory}
-						disabled={isResetting || isLoading}
-						className={cn(
-							DS_TYPOGRAPHY.bodySm,
-							"min-h-11 min-w-24 rounded-2xl border border-dotori-100/70 bg-white/80 px-3 text-dotori-700 shadow-sm transition-all hover:bg-white/90 dark:border-dotori-800/50 dark:bg-dotori-950/60 dark:text-dotori-100 dark:hover:bg-dotori-950/80",
-						)}
-					>
+						<Button
+							plain={true}
+							onClick={onClearHistory}
+							disabled={isResetting || isLoading}
+							className={cn(
+								"text-body-sm",
+								"min-h-11 min-w-24 rounded-2xl border border-dotori-100/70 bg-white/80 px-3 text-dotori-700 shadow-sm transition-all hover:bg-white/90 dark:border-dotori-800/50 dark:bg-dotori-950/60 dark:text-dotori-100 dark:hover:bg-dotori-950/80",
+							)}
+						>
 						대화 초기화
 					</Button>
 				</motion.div>
@@ -252,7 +252,7 @@ function ChatComposer({
 		<div
 			className={cn(
 				DS_GLASS.SHEET,
-				"border-t border-dotori-100/30 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_24px_rgba(200,149,106,0.1)] dark:border-dotori-800/40 dark:shadow-none",
+				"rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-sm shadow-[0_-10px_24px_rgba(200,149,106,0.1)] dark:border-dotori-800/40 dark:shadow-none",
 				"ring-1 ring-dotori-100/70",
 			)}
 		>
@@ -270,7 +270,7 @@ function ChatComposer({
 							onChange={(event) => onInputChange(event.target.value)}
 							placeholder="토리에게 물어보세요..."
 							className={cn(
-								DS_TYPOGRAPHY.bodySm,
+								"text-body-sm",
 								DS_GLASS.CARD,
 								"min-h-11 rounded-2xl border-0 bg-dotori-100/65 px-4 text-dotori-900 placeholder:text-dotori-400 shadow-sm dark:bg-dotori-800/60 dark:text-dotori-50 dark:placeholder:text-dotori-600",
 							)}
@@ -291,7 +291,7 @@ function ChatComposer({
 						disabled={isSendDisabled}
 						aria-label="메시지 전송"
 						className={cn(
-							"inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm",
+							"inline-flex min-h-11 min-w-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm",
 						)}
 					>
 						{isLoading ? (
