@@ -10,7 +10,8 @@ import { Badge } from '@/components/catalyst/badge'
 import { Button } from '@/components/catalyst/button'
 import { PageTransition } from '@/components/dotori/PageTransition'
 import { BRAND } from '@/lib/brand-assets'
-import { DS_GLASS, DS_STATUS } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 const SPLASH_COOKIE = 'dotori_prehome_splash'
 const SPLASH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
@@ -102,7 +103,7 @@ export default function LandingPage() {
         initial="hidden"
         animate="show"
         variants={splashStagger}
-        className="relative min-h-dvh overflow-hidden bg-gradient-to-b from-dotori-100 via-dotori-50/90 to-white px-4 pb-8 pt-4"
+        className="relative min-h-dvh overflow-hidden bg-gradient-to-b from-dotori-100 via-dotori-50/90 to-white px-4 pb-7 pt-3"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-dotori-300/25 blur-3xl dark:bg-dotori-700/20" />
@@ -111,10 +112,10 @@ export default function LandingPage() {
           <img src={BRAND.watermark} alt="" className="absolute -right-14 top-28 h-52 w-52 opacity-10" />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-4">
+        <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-3.5">
           <motion.header
             variants={splashItem}
-            className={`rounded-2xl border border-dotori-100/80 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 ${DS_GLASS.HEADER}`}
+            className={`rounded-3xl border border-dotori-100/80 px-4 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 ${DS_GLASS.HEADER}`}
           >
             <div className="flex items-center justify-between gap-3">
               <Link href="/landing" className="inline-flex items-center gap-2">
@@ -134,15 +135,30 @@ export default function LandingPage() {
           <motion.section variants={splashItem} className="grid gap-4">
             <motion.article
               variants={splashItem}
-              className={`rounded-3xl border border-dotori-100/80 p-5 shadow-sm ring-1 ring-dotori-100/70 ${DS_GLASS.CARD}`}
+              className={`relative overflow-hidden rounded-3xl border border-dotori-100/80 p-5 shadow-sm ring-1 ring-dotori-100/70 ${DS_GLASS.CARD}`}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={BRAND.socialCream}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.09] dark:opacity-[0.15]"
+              />
+              <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={BRAND.appIconWarm}
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-7 -top-8 h-20 w-20 rotate-[-9deg] opacity-85"
+                />
               <p className="text-label font-semibold tracking-[0.16em] text-dotori-600">HOME READY FRAME</p>
-              <h1 className="text-display mt-2 leading-tight text-dotori-950">
+              <h1 className={cn(DS_TYPOGRAPHY.h1, 'mt-2 leading-tight text-dotori-950')}>
                 홈 진입 전에
                 <br />
                 이동 전략부터 맞춥니다
               </h1>
-              <p className="mt-3 text-body text-dotori-700">
+              <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2.5 text-dotori-700')}>
                 반편성, 교체 이슈, 국공립 변화를 한 번에 묶어
                 <br />
                 빠르게 판단하고 탐색을 시작하세요.
@@ -158,7 +174,7 @@ export default function LandingPage() {
                 {currentSignal}
               </motion.p>
 
-              <div className="mt-4 grid gap-2 grid-cols-3">
+              <div className="mt-4 grid grid-cols-3 gap-2">
                 {SPLASH_FACTS.map((item) => (
                   <motion.div
                     variants={splashItem}
@@ -171,7 +187,7 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div className="mt-5 space-y-2.5">
+              <div className="mt-4 space-y-2.5">
                 <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
                   <Button
                     color="dotori"
@@ -191,6 +207,7 @@ export default function LandingPage() {
                     AI 상담 미리보기
                   </Button>
                 </motion.div>
+              </div>
               </div>
             </motion.article>
 

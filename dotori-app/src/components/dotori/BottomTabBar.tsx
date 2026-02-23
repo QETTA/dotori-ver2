@@ -63,7 +63,7 @@ const tabs = [
 const navShellClass = cn(
 	DS_GLASS.FLOAT,
 	DS_LAYOUT.CARD_SOFT,
-	"fixed bottom-2 left-3 right-3 z-50 mx-auto max-w-md rounded-[1.5rem] bg-gradient-to-b from-white/92 via-dotori-50/88 to-white/88 pb-[env(safe-area-inset-bottom)] ring-1 ring-dotori-200/70 shadow-[0_18px_36px_-28px_rgba(122,78,48,0.7)] dark:from-dotori-950/92 dark:via-dotori-900/88 dark:to-dotori-950/92 dark:ring-dotori-800/80 dark:shadow-none",
+	"fixed bottom-2 left-3 right-3 z-50 mx-auto max-w-md rounded-[1.5rem] bg-gradient-to-b from-white/92 via-dotori-50/88 to-white/88 pb-[env(safe-area-inset-bottom)] ring-1 ring-dotori-200/70 shadow-[0_20px_36px_-30px_rgba(122,78,48,0.75)] backdrop-blur-xl dark:from-dotori-950/92 dark:via-dotori-900/88 dark:to-dotori-950/92 dark:ring-dotori-800/80 dark:shadow-none",
 );
 
 export const BottomTabBar = memo(function BottomTabBar() {
@@ -81,7 +81,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 			aria-label="메인 내비게이션"
 			{...fadeIn}
 		>
-			<div className="flex items-center justify-around px-1.5 py-1.5">
+			<div className="relative flex items-center justify-around px-1.5 py-1.5">
 				{tabs.map((tab) => {
 					const active = isActive(tab.href);
 					const Icon = active ? tab.activeIcon : tab.icon;
@@ -132,6 +132,13 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							>
 								{tab.label}
 							</span>
+							<motion.span
+								aria-hidden="true"
+								className="pointer-events-none absolute bottom-0.5 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-dotori-500/70 dark:bg-dotori-300/80"
+								animate={active ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0.4 }}
+								initial={false}
+								transition={{ type: "spring", stiffness: 320, damping: 26 }}
+							/>
 						</Link>
 					);
 				})}

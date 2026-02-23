@@ -45,7 +45,7 @@ export const FacilityCard = memo(function FacilityCard({
 			<motion.div {...tap.card} className={cn("rounded-2xl", status.border)}>
 				<Surface
 					className={cn(
-						"overflow-hidden p-3.5 ring-1 ring-dotori-200/60 dark:ring-dotori-800/70",
+						"overflow-hidden border border-dotori-100/70 bg-gradient-to-b from-white/95 via-dotori-50/65 to-white/90 p-3.5 ring-1 ring-dotori-200/60 dark:border-dotori-800/70 dark:bg-dotori-950/65 dark:ring-dotori-800/70",
 						DS_GLASS.CARD,
 					)}
 					aria-label={facility.name}
@@ -102,7 +102,7 @@ export const FacilityCard = memo(function FacilityCard({
 		<motion.div {...tap.card} className={cn("rounded-2xl", status.border)}>
 			<Surface
 				className={cn(
-					"overflow-hidden p-0 ring-1 ring-dotori-200/60 dark:ring-dotori-800/70",
+					"overflow-hidden border border-dotori-100/70 bg-gradient-to-b from-white/95 via-dotori-50/60 to-white/90 p-0 ring-1 ring-dotori-200/60 dark:border-dotori-800/70 dark:bg-dotori-950/70 dark:ring-dotori-800/70",
 					DS_GLASS.CARD,
 				)}
 				aria-label={facility.name}
@@ -114,7 +114,7 @@ export const FacilityCard = memo(function FacilityCard({
 					</div>
 				) : null}
 
-				<div className="flex items-start justify-between gap-3 bg-gradient-to-br from-dotori-100/80 via-white/60 to-forest-100/40 px-4 pb-2.5 pt-4 dark:from-dotori-900/70 dark:via-dotori-950/60 dark:to-forest-900/30">
+				<div className="flex items-start justify-between gap-3 bg-gradient-to-br from-dotori-100/80 via-white/60 to-forest-100/40 px-4 pb-3 pt-4 dark:from-dotori-900/70 dark:via-dotori-950/60 dark:to-forest-900/30">
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
 							<span className={cn("h-2 w-2 rounded-full", status.dot)} aria-hidden="true" />
@@ -146,6 +146,11 @@ export const FacilityCard = memo(function FacilityCard({
 									? `${status.label} ${facility.capacity.waiting}`
 									: status.label}
 						</span>
+						{facility.status === "available" ? (
+							<p className="mt-1 text-sm font-semibold text-forest-700 dark:text-forest-200">
+								TO {availableSeats}석
+							</p>
+						) : null}
 						<p className="mt-2 text-xs text-dotori-500 dark:text-dotori-300" suppressHydrationWarning>
 							{formatRelativeTime(facility.lastSyncedAt)}
 						</p>
@@ -172,35 +177,35 @@ export const FacilityCard = memo(function FacilityCard({
 					</div>
 
 					<div className="grid grid-cols-3 gap-2 rounded-xl bg-dotori-50/70 p-3 text-center ring-1 ring-dotori-100/70 dark:bg-dotori-900/60 dark:ring-dotori-800/60">
-					<div>
-						<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{facility.capacity.total}</p>
-						<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">정원</p>
+						<div>
+							<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{facility.capacity.total}</p>
+							<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">정원</p>
+						</div>
+						<div>
+							<p
+								className={cn(
+									"text-base font-semibold",
+									facility.capacity.current >= facility.capacity.total
+										? "text-danger"
+										: "text-dotori-900 dark:text-dotori-50",
+								)}
+							>
+								{facility.capacity.current}
+							</p>
+							<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">현원</p>
+						</div>
+						<div>
+							<p
+								className={cn(
+									"text-base font-semibold",
+									facility.capacity.waiting > 0 ? "text-warning" : "text-dotori-900 dark:text-dotori-50",
+								)}
+							>
+								{facility.capacity.waiting}
+							</p>
+							<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">대기</p>
+						</div>
 					</div>
-					<div>
-						<p
-							className={cn(
-								"text-base font-semibold",
-								facility.capacity.current >= facility.capacity.total
-									? "text-danger"
-									: "text-dotori-900 dark:text-dotori-50",
-							)}
-						>
-							{facility.capacity.current}
-						</p>
-						<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">현원</p>
-					</div>
-					<div>
-						<p
-							className={cn(
-								"text-base font-semibold",
-								facility.capacity.waiting > 0 ? "text-warning" : "text-dotori-900 dark:text-dotori-50",
-							)}
-						>
-							{facility.capacity.waiting}
-						</p>
-						<p className="text-[11px] font-medium text-dotori-600 dark:text-dotori-300">대기</p>
-					</div>
-				</div>
 
 					<div className="mt-3 flex flex-wrap items-center justify-between gap-2.5">
 						<div className="flex flex-wrap gap-1">
