@@ -29,6 +29,11 @@ npm run dev
 npm run dev:3002
 ```
 
+## Docs
+
+- Engine test catalog: `../docs/ENGINE_TEST_CATALOG.md`
+- Backend error contract: `../docs/ERROR_CONTRACT.md`
+
 ## Engine Test Reliability
 
 ```bash
