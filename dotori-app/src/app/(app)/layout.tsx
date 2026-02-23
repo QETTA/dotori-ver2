@@ -38,6 +38,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 									alt=""
 									width={192}
 									height={192}
+									loading="eager"
+									priority
 									aria-hidden="true"
 									className="absolute -right-16 top-8 h-48 w-48 opacity-10"
 								/>

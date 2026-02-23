@@ -84,7 +84,10 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							href={tab.href}
 							aria-current={active ? "page" : undefined}
 							aria-label={tab.label}
-							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"
+							className={cn(
+								"relative flex flex-1 min-h-11 flex-col items-center justify-center gap-1 rounded-2xl border-b-2 border-transparent py-2 transition-colors duration-150",
+								active && "border-dotori-400",
+							)}
 						>
 							<motion.span
 								className="pointer-events-none absolute inset-1 rounded-2xl bg-dotori-100/80 dark:bg-dotori-800/70"
@@ -98,7 +101,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 									isChat && "bg-dotori-100/80 dark:bg-dotori-900/70",
 									active && "bg-dotori-100 dark:bg-dotori-800/70",
 								)}
-								whileTap={{ scale: 0.85 }}
+								whileTap={{ scale: 0.9 }}
 								transition={{ type: "spring", stiffness: 500, damping: 25 }}
 							>
 								<Icon

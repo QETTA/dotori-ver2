@@ -7,6 +7,7 @@ import {
 	XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { MapPinIcon } from "@heroicons/react/24/solid";
+import { AnimatePresence, motion } from "motion/react";
 import {
 	memo,
 	type FormEvent,
@@ -83,6 +84,10 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
+	const activeFilterPillClass =
+		"bg-dotori-400 text-white font-semibold ring-1 ring-dotori-500 shadow-sm";
+	const inactiveFilterPillClass =
+		"bg-dotori-50 text-dotori-700 ring-1 ring-dotori-200";
 
 	useEffect(() => {
 		if (!isSearchFocused) return;
@@ -229,14 +234,28 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							type="button"
 							plain={true}
 							onClick={onToggleFilters}
-							className="relative inline-flex min-h-11 items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm text-dotori-700 shadow-sm transition-transform duration-150 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
+							className={cn(
+								"relative inline-flex min-h-11 items-center gap-1 rounded-full px-3 py-2 text-sm transition-transform duration-150 active:scale-[0.97]",
+								showFilters ? activeFilterPillClass : inactiveFilterPillClass,
+							)}
 						>
 							<AdjustmentsHorizontalIcon className="h-4 w-4" />
 							필터 설정
 							{activeFilterCount > 0 ? (
-								<Badge color="dotori" className="px-1 py-0 text-xs">
-									{activeFilterCount}
-								</Badge>
+								<AnimatePresence initial={false}>
+									<motion.span
+										key="filter-count-badge"
+										className="inline-flex"
+										initial={{ scale: 0.7, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.7, opacity: 0 }}
+										transition={{ type: "spring", stiffness: 420, damping: 26 }}
+									>
+										<Badge color="forest" className="px-1 py-0 text-xs">
+											{activeFilterCount}
+										</Badge>
+									</motion.span>
+								</AnimatePresence>
 							) : null}
 						</Button>
 					</div>
@@ -247,41 +266,53 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							onClick={onToggleMap}
 							className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dotori-100 bg-white px-3 py-2 text-sm text-dotori-700 shadow-sm transition-transform duration-150 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
 						>
-							{showMap ? (
-								<ListBulletIcon className="h-4 w-4" />
-							) : (
-								<MapIcon className="h-4 w-4" />
-							)}
+							{showMap ? <ListBulletIcon className="h-4 w-4" /> : <MapIcon className="h-4 w-4" />}
 							{showMap ? "리스트 보기" : "지도 보기"}
 						</Button>
 					</div>
 				</div>
 
 				<div className="mt-1">
-					<Button
-						type="button"
-						onClick={onToggleToOnly}
-						aria-pressed={toOnly}
-						className={cn(
-							"inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm transition-colors transition-transform duration-150 active:scale-[0.97]",
-							toOnly
-								? "bg-dotori-500 font-semibold text-white shadow-sm ring-1 ring-dotori-400/60"
-								: "bg-dotori-50 text-dotori-700 ring-1 ring-dotori-200 hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-200 dark:ring-dotori-700/40 dark:hover:bg-dotori-800",
-						)}
-					>
-						<span
-							className={cn(
-								"h-1.5 w-1.5 rounded-full",
-								toOnly ? "bg-white" : "bg-dotori-500",
-							)}
-						/>
-						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
-					</Button>
-				</div>
+							<Button
+								type="button"
+								onClick={onToggleToOnly}
+								aria-pressed={toOnly}
+								className={cn(
+									"inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm transition-colors transition-transform duration-150 active:scale-[0.97]",
+									toOnly ? activeFilterPillClass : inactiveFilterPillClass,
+									toOnly
+										? "dark:bg-dotori-500 dark:ring-dotori-300"
+										: "hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-200 dark:ring-dotori-700/40 dark:hover:bg-dotori-800",
+								)}
+							>
+								<AnimatePresence mode="wait" initial={false}>
+									<motion.span
+										key={`toOnly-dot-${toOnly ? "on" : "off"}`}
+										className={cn(
+											"h-1.5 w-1.5 rounded-full",
+											toOnly ? "bg-white" : "bg-dotori-500",
+										)}
+										initial={{ scale: 0.6, opacity: 0.5 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.6, opacity: 0.5 }}
+										transition={{ type: "spring", stiffness: 420, damping: 26 }}
+									/>
+								</AnimatePresence>
+							이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
+						</Button>
+					</div>
 			</Fieldset>
 
-			{showFilters ? (
-				<div className="mt-3 rounded-2xl bg-dotori-50 p-4 duration-200 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 dark:bg-dotori-900">
+			<AnimatePresence>
+				{showFilters ? (
+					<motion.div
+						key="explore-filter-panel"
+						initial={{ opacity: 0, scale: 0.96 }}
+						animate={{ opacity: 1, scale: 1 }}
+						exit={{ opacity: 0, scale: 0.96 }}
+						transition={{ type: "spring", stiffness: 420, damping: 28 }}
+						className="mt-3 rounded-2xl bg-dotori-50 p-4 dark:bg-dotori-900"
+					>
 					<Fieldset className="space-y-3">
 						<Field>
 							<Text className="mb-2 block text-sm font-medium text-dotori-500">시설 유형</Text>
@@ -298,14 +329,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 												className={cn(
 													"min-h-11 rounded-full px-4 py-2 text-sm transition-colors transition-transform duration-150 active:scale-[0.97]",
 													isSelectedType
-														? "bg-dotori-900 text-white shadow-sm dark:bg-dotori-50 dark:text-dotori-900"
-														: "bg-white text-dotori-700 ring-1 ring-dotori-100 hover:bg-dotori-50 dark:bg-dotori-950 dark:text-dotori-200 dark:ring-dotori-800 dark:hover:bg-dotori-900",
+														? activeFilterPillClass
+														: inactiveFilterPillClass,
 												)}
 											>
-												{type}
-											</Button>
-										</div>
-									);
+											{type}
+										</Button>
+									</div>
+								);
 								})}
 							</div>
 						</Field>
@@ -359,8 +390,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 											className={cn(
 												"min-h-11 rounded-full px-4 py-2 text-sm transition-colors transition-transform duration-150 active:scale-[0.97]",
 												sortBy === option.key
-													? "bg-dotori-900 text-white shadow-sm dark:bg-dotori-50 dark:text-dotori-900"
-													: "bg-white text-dotori-700 ring-1 ring-dotori-100 hover:bg-dotori-50 dark:bg-dotori-950 dark:text-dotori-200 dark:ring-dotori-800 dark:hover:bg-dotori-900",
+													? activeFilterPillClass
+													: inactiveFilterPillClass,
 											)}
 										>
 											{option.label}
@@ -382,8 +413,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							</div>
 						) : null}
 					</Fieldset>
-				</div>
-			) : null}
+				</motion.div>
+				) : null}
+			</AnimatePresence>
 		</header>
 	);
 });

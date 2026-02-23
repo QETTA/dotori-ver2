@@ -75,12 +75,12 @@ export function ChatPromptPanel({
 								plain={true}
 								type="button"
 								onClick={() => onSuggestPrompt(prompt)}
-								className={cn(
-									"flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-dotori-100 bg-dotori-50/70 p-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
-									"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm dark:hover:bg-dotori-800 dark:hover:shadow-none active:scale-[0.97]",
-									"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
-								)}
-							>
+						className={cn(
+							"flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-dotori-100 bg-dotori-50/70 p-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
+							"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm hover:ring-2 hover:ring-dotori-200 active:scale-[0.97] dark:hover:bg-dotori-800 dark:hover:shadow-none",
+							"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
+						)}
+					>
 								<span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
 									{prompt.icon}
 								</span>

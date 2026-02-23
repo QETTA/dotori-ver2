@@ -13,6 +13,7 @@ import {
 	HeartIcon,
 	MapPinIcon,
 	PlusIcon,
+	ChatBubbleLeftRightIcon,
 	SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon, FireIcon } from "@heroicons/react/24/solid";
@@ -33,7 +34,17 @@ import type {
 	ReverseGeocodeResponse,
 	UserMeResponse,
 } from "./_lib/community-types";
-import { isHotPost, tagStyle } from "./_lib/community-utils";
+import { tagStyle } from "./_lib/community-utils";
+
+const CATEGORY_BADGE_COLOR: Record<
+	CommunityPostWithViews["category"],
+	"dotori" | "forest" | "amber" | undefined
+> = {
+	feedback: "dotori",
+	review: "forest",
+	question: "amber",
+	info: undefined,
+};
 
 export default function CommunityPage() {
 	const { data: session } = useSession();
@@ -428,9 +439,11 @@ export default function CommunityPage() {
 					/>
 				) : posts.length > 0 ? (
 					<div>
-						<motion.ul {...stagger.container} className="space-y-3">
+							<motion.ul {...stagger.container} className="space-y-3">
 						{posts.map((post) => {
-							const postHot = isHotPost(post);
+							const isPopularPost = post.likes >= 3;
+							const postCategoryBadgeColor =
+								CATEGORY_BADGE_COLOR[post.category];
 							const postTitle =
 								post.title?.trim() ||
 								(post.content.length > 30
@@ -443,12 +456,18 @@ export default function CommunityPage() {
 									{...stagger.item}
 									{...tap.card}
 									className={cn(
-										"rounded-2xl bg-white p-4 ring-1 ring-dotori-100/70 shadow-sm dark:bg-dotori-900 dark:ring-dotori-800",
+										"rounded-2xl bg-white p-4 shadow-sm transition-all hover:ring-1 hover:ring-dotori-200 dark:bg-dotori-900",
+										isPopularPost
+											? "ring-2 ring-dotori-200 bg-dotori-50/30"
+											: "ring-1 ring-dotori-100/70 dark:ring-dotori-800",
 									)}
 								>
 									<div className="flex flex-wrap items-center gap-2">
 										{post.category && categoryLabel[post.category] ? (
-											<Badge color="dotori" className="text-xs font-semibold">
+											<Badge
+												color={postCategoryBadgeColor}
+												className="text-xs font-semibold"
+											>
 												{categoryLabel[post.category]}
 											</Badge>
 										) : null}
@@ -457,7 +476,7 @@ export default function CommunityPage() {
 												인증
 											</Badge>
 										) : null}
-										{postHot ? (
+										{isPopularPost ? (
 											<Badge color="forest" className="inline-flex items-center gap-1 text-xs font-semibold">
 												<FireIcon className="h-3.5 w-3.5" />
 												인기
@@ -529,26 +548,32 @@ export default function CommunityPage() {
 										<p className="min-w-0 truncate" suppressHydrationWarning>
 											익명 부모 · {formatRelativeTime(post.createdAt)}
 										</p>
-										<Button
-											plain={true}
-											type="button"
-											onClick={() => toggleLike(post.id)}
-											disabled={likingPosts.has(post.id)}
-											aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
-											className={cn(
-												"inline-flex min-h-10 shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-caption font-medium transition-colors active:scale-[0.97]",
-												likedPosts.has(post.id)
-													? "text-forest-700 hover:bg-forest-50 dark:text-forest-200 dark:hover:bg-dotori-950"
-													: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-950",
-											)}
-										>
-											{likedPosts.has(post.id) ? (
-												<HeartSolidIcon className="h-4 w-4" />
-											) : (
-												<HeartIcon className="h-4 w-4" />
-											)}
-											좋아요 {post.likes}
-										</Button>
+										<div className="ml-auto flex items-center gap-2">
+											<Button
+												plain={true}
+												type="button"
+												onClick={() => toggleLike(post.id)}
+												disabled={likingPosts.has(post.id)}
+												aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
+												className={cn(
+													"inline-flex min-h-11 shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-caption font-medium transition-colors active:scale-[0.97]",
+													likedPosts.has(post.id)
+														? "text-forest-700 hover:bg-forest-50 dark:text-forest-200 dark:hover:bg-dotori-950"
+														: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-950",
+												)}
+											>
+												{likedPosts.has(post.id) ? (
+													<HeartSolidIcon className="h-4 w-4" />
+												) : (
+													<HeartIcon className="h-4 w-4" />
+												)}
+												좋아요 {post.likes}
+											</Button>
+											<span className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 py-1.5 text-caption font-medium text-dotori-500 dark:text-dotori-300">
+												<ChatBubbleLeftRightIcon className="h-4 w-4" />
+												댓글 {post.commentCount}
+											</span>
+										</div>
 									</div>
 								</motion.li>
 							);

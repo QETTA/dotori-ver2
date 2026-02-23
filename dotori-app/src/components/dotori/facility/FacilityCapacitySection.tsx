@@ -1,5 +1,6 @@
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { ArrowTopRightOnSquareIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
+import { useState } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
 import { fadeUp } from "@/lib/motion";
@@ -116,35 +117,54 @@ export function FacilityCapacitySection({
 	occupancyProgressColor,
 	keyStats,
 }: FacilityCapacitySectionProps) {
+	const [isExpanded, setIsExpanded] = useState(true);
+
 	return (
 		<>
 			<motion.section
 				{...fadeUp}
-				className="mb-6 rounded-3xl border border-b border-dotori-100 bg-white p-5 pb-6 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+				className="mb-6 rounded-3xl border-b border-dotori-100 bg-white px-5 py-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
 			>
-				<div className="flex items-center justify-between gap-2">
-					<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
-						정원 현황
-					</h2>
-					<span className="text-h1 font-bold leading-none text-dotori-700 dark:text-dotori-200">
-						{occupancyRate}%
-					</span>
-				</div>
-				<p className="mt-2 text-body-sm text-dotori-700 dark:text-dotori-200">
-					현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
-				</p>
-				<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
-					<div
-						className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
-						style={{ width: `${occupancyRate}%` }}
+				<button
+					type="button"
+					onClick={() => setIsExpanded((prev) => !prev)}
+					aria-expanded={isExpanded}
+					aria-controls="facility-capacity-details"
+					className="flex w-full min-h-11 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
+				>
+					<div className="flex min-w-0 items-baseline gap-2">
+						<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
+							정원 현황
+						</h2>
+						<span className="text-h1 font-bold leading-none text-dotori-700 dark:text-dotori-200">
+							{occupancyRate}%
+						</span>
+					</div>
+					<ChevronDownIcon
+						className={`h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200 ${
+							isExpanded ? "rotate-180" : ""
+						}`}
 					/>
-				</div>
+				</button>
+				{isExpanded ? (
+					<div id="facility-capacity-details" className="mt-3">
+						<p className="text-body-sm text-dotori-700 dark:text-dotori-200">
+							현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
+						</p>
+						<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
+							<div
+								className={`h-full rounded-full transition-all duration-700 ${occupancyProgressColor}`}
+								style={{ width: `${occupancyRate}%` }}
+							/>
+						</div>
+					</div>
+				) : null}
 			</motion.section>
 
-			{keyStats.length > 0 ? (
+			{isExpanded && keyStats.length > 0 ? (
 				<motion.section
 					{...fadeUp}
-					className="mb-6 rounded-3xl border border-b border-dotori-100 bg-white p-5 pb-6 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+					className="mb-6 rounded-3xl border-b border-dotori-100 bg-white px-5 py-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
 				>
 					<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
 						주요 지표

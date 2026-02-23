@@ -326,7 +326,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 	return (
 		<div className="pb-32">
-			<header className="glass-header sticky top-0 z-20 flex items-center gap-2.5 px-4 py-3 text-dotori-800 dark:text-dotori-100">
+			<header className="glass-header sticky top-0 z-20 flex items-center gap-3 px-4 py-3 text-dotori-800 dark:text-dotori-100">
 				<button
 					type="button"
 					onClick={handleBack}
@@ -335,10 +335,13 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				>
 					<ArrowLeftIcon className="h-6 w-6" />
 				</button>
-				<div className="min-w-0 max-w-[21rem]">
-					<h1 className="truncate text-lg font-bold leading-6 text-dotori-900 dark:text-dotori-50">
+				<div className="min-w-0">
+					<h1 className="truncate text-h1 font-bold leading-6 text-dotori-900 dark:text-dotori-50">
 						{facility.name}
 					</h1>
+					<p className="mt-1 text-body-sm leading-5 text-dotori-600 dark:text-dotori-200">
+						{facility.address}
+					</p>
 				</div>
 				<button
 					type="button"
@@ -392,7 +395,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 			</motion.div>
 
 			<div className="mt-3 px-4">
-				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
 					<FacilityCoreInfoSections
 						status={facility.status}
 						qualityScore={qualityScore}
@@ -407,7 +410,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					/>
 				</div>
 
-				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
 					<FacilityPremiumSection
 						showPremiumSection={showPremiumSection}
 						premiumVerifiedAt={premiumVerifiedAt}
@@ -419,7 +422,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 					/>
 				</div>
 
-				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
 					<FacilityContactMapSections
 						phone={facility.phone}
 						address={facility.address}
@@ -442,13 +445,13 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 
 				<motion.div
 					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
 				>
 					<IsalangCard />
 				</motion.div>
 				<motion.div
 					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
 				>
 					<FacilityChecklistCard
 						facilityType={facility.type}
@@ -459,7 +462,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</motion.div>
 				<motion.div
 					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
 				>
 					<FacilityReviewsCard
 						posts={relatedPosts}
@@ -469,11 +472,11 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</motion.div>
 				<motion.div
 					{...fadeUp}
-					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+					className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800"
 				>
 					<FacilityInsights facility={facility} />
 				</motion.div>
-				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+				<div className="mb-6 border-b border-dotori-100 py-5 dark:border-dotori-800">
 					<FacilityAdmissionGuideSection />
 				</div>
 			</div>

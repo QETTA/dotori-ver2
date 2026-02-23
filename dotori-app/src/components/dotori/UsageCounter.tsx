@@ -52,7 +52,7 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 		>
 			<div className="flex items-end justify-between gap-3">
 				<Text className={cn("text-label font-semibold", labelColor)}>{label}</Text>
-				<div className={cn("rounded-full px-3 py-1 text-caption font-semibold tabular-nums", counterPillColor)}>
+				<div className={cn("rounded-full px-3 py-1 text-body-sm font-semibold text-dotori-600 tabular-nums", counterPillColor)}>
 					{isUnlimited ? "무제한" : `${current}/${limit}`}
 				</div>
 			</div>

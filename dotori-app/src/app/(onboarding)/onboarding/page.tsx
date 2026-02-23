@@ -4,7 +4,10 @@ import { BRAND } from "@/lib/brand-assets";
 import { apiFetch } from "@/lib/api";
 import { fadeUp, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import {
+	ChevronDownIcon,
+	ArrowLeftIcon,
+} from "@heroicons/react/24/outline";
 import { Button } from "@/components/catalyst/button";
 import { Badge } from "@/components/catalyst/badge";
 import { motion } from "motion/react";
@@ -271,9 +274,9 @@ export default function OnboardingPage() {
 	}
 
 	const inputCls =
-		"w-full rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
+		"w-full min-h-11 rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none ring-1 ring-dotori-200 transition-all placeholder:text-dotori-500 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:ring-dotori-800 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
 	const sliderCls =
-		"h-2 w-full cursor-pointer appearance-none rounded-full bg-dotori-200 accent-dotori-500 dark:bg-dotori-700";
+		"h-2 w-full cursor-pointer appearance-none rounded-lg bg-dotori-100 accent-dotori-500 dark:bg-dotori-700 [&::-webkit-slider-thumb]:h-8 [&::-webkit-slider-thumb]:w-8 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dotori-400 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-lg [&::-webkit-slider-runnable-track]:bg-dotori-100 [&::-moz-range-thumb]:h-8 [&::-moz-range-thumb]:w-8 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dotori-400 [&::-moz-range-thumb]:shadow-md [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-lg [&::-moz-range-track]:bg-dotori-100";
 	const choicePillBase =
 		"inline-flex min-h-12 items-center justify-center rounded-full px-5 text-body-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dotori-950";
 	const segmentedChoiceBase =
@@ -424,14 +427,19 @@ export default function OnboardingPage() {
 							</div>
 						</div>
 						<div>
-							<label htmlFor="onboarding-birth-month" className="mb-2 block text-body-sm font-medium text-dotori-500">
-								생월
-							</label>
+						<label htmlFor="onboarding-birth-month" className="mb-2 block text-body-sm font-medium text-dotori-500">
+							생월
+						</label>
+						<div className="relative">
 							<select
 								id="onboarding-birth-month"
 								value={birthMonth}
 								onChange={(e) => setBirthMonth(e.target.value)}
-								className={cn(inputCls, !birthMonth && "text-dotori-500")}
+								className={cn(
+									inputCls,
+									"appearance-none pr-11 text-right",
+									!birthMonth && "text-dotori-500",
+								)}
 							>
 								<option value="">월 선택</option>
 								{Array.from({ length: 12 }, (_, i) => {
@@ -443,7 +451,9 @@ export default function OnboardingPage() {
 									);
 								})}
 							</select>
+							<ChevronDownIcon className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-dotori-500" />
 						</div>
+					</div>
 						<div>
 							<label className="mb-2 block text-body-sm font-medium text-dotori-500">
 								성별

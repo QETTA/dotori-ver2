@@ -2,6 +2,7 @@ import {
 	ArrowPathIcon,
 	CheckCircleIcon,
 	ClipboardDocumentIcon,
+	ChevronDownIcon,
 	GlobeAltIcon,
 	HeartIcon,
 	MapPinIcon,
@@ -10,6 +11,7 @@ import {
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useState } from "react";
 
 import { Button } from "@/components/catalyst/button";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
@@ -66,72 +68,92 @@ export function FacilityContactSection({
 	copyingAddress,
 	onCopyAddress,
 }: FacilityContactSectionProps) {
+	const [isExpanded, setIsExpanded] = useState(true);
+
 	return (
 		<motion.section
 			{...fadeUp}
-			className="mb-6 rounded-3xl border-b border-dotori-100 bg-white p-5 pb-6 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+			className="mb-6 rounded-3xl border-b border-dotori-100 bg-white px-5 py-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
 		>
-			<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">연락처</h2>
-			<div className="mt-3 space-y-2 text-body-sm text-dotori-700 dark:text-dotori-200">
-				{phone ? (
+			<button
+				type="button"
+				onClick={() => setIsExpanded((prev) => !prev)}
+				aria-expanded={isExpanded}
+				aria-controls="facility-contact-details"
+				className="flex w-full min-h-11 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
+			>
+				<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">연락처</h2>
+				<ChevronDownIcon
+					className={`h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200 ${
+						isExpanded ? "rotate-180" : ""
+					}`}
+				/>
+			</button>
+			{isExpanded ? (
+				<div
+					id="facility-contact-details"
+					className="mt-3 space-y-2 text-body-sm text-dotori-700 dark:text-dotori-200"
+				>
+					{phone ? (
+						<div className="flex flex-col gap-2 sm:flex-row">
+							<a
+								href={`tel:${phone}`}
+								className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
+							>
+								<PhoneIcon className="h-5 w-5 text-dotori-500" />
+								<span>{phone}</span>
+							</a>
+							<Button
+								plain={true}
+								type="button"
+								onClick={onCopyPhone}
+								disabled={!copyablePhone || copyingPhone}
+								className="min-h-11 min-w-28 px-3 active:scale-[0.97]"
+							>
+								<ClipboardDocumentIcon className="h-5 w-5" />
+								전화 복사
+							</Button>
+						</div>
+					) : (
+						<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500 dark:border-dotori-800 dark:text-dotori-300">
+							<PhoneIcon className="h-5 w-5" />
+							<span>전화번호 미제공</span>
+						</div>
+					)}
 					<div className="flex flex-col gap-2 sm:flex-row">
 						<a
-							href={`tel:${phone}`}
+							href={kakaoMapUrl}
+							target="_blank"
+							rel="noopener noreferrer"
 							className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
 						>
-							<PhoneIcon className="h-5 w-5 text-dotori-500" />
-							<span>{phone}</span>
+							<MapPinIcon className="h-5 w-5 text-dotori-500" />
+							<span className="line-clamp-2">{address}</span>
 						</a>
 						<Button
 							plain={true}
 							type="button"
-							onClick={onCopyPhone}
-							disabled={!copyablePhone || copyingPhone}
+							onClick={onCopyAddress}
+							disabled={!copyableAddress || copyingAddress}
 							className="min-h-11 min-w-28 px-3 active:scale-[0.97]"
 						>
 							<ClipboardDocumentIcon className="h-5 w-5" />
-							전화 복사
+							주소 복사
 						</Button>
 					</div>
-				) : (
-					<div className="flex items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 text-dotori-500 dark:border-dotori-800 dark:text-dotori-300">
-						<PhoneIcon className="h-5 w-5" />
-						<span>전화번호 미제공</span>
-					</div>
-				)}
-				<div className="flex flex-col gap-2 sm:flex-row">
-					<a
-						href={kakaoMapUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
-					>
-						<MapPinIcon className="h-5 w-5 text-dotori-500" />
-						<span className="line-clamp-2">{address}</span>
-					</a>
-					<Button
-						plain={true}
-						type="button"
-						onClick={onCopyAddress}
-						disabled={!copyableAddress || copyingAddress}
-						className="min-h-11 min-w-28 px-3 active:scale-[0.97]"
-					>
-						<ClipboardDocumentIcon className="h-5 w-5" />
-						주소 복사
-					</Button>
+					{websiteUrl && (
+						<a
+							href={websiteUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="flex min-h-12 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
+						>
+							<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
+							<span>홈페이지 열기</span>
+						</a>
+					)}
 				</div>
-				{websiteUrl && (
-					<a
-						href={websiteUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex min-h-12 items-center gap-2 rounded-xl border border-dotori-100 px-3 py-2 transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900"
-					>
-						<GlobeAltIcon className="h-5 w-5 text-dotori-500" />
-						<span>홈페이지 열기</span>
-					</a>
-				)}
-			</div>
+			) : null}
 		</motion.section>
 	);
 }
@@ -196,8 +218,8 @@ export function FacilityActionBar({
 	onResetActionStatus,
 }: FacilityActionBarProps) {
 	return (
-		<div className="fixed bottom-20 left-4 right-4 z-30 mx-auto max-w-md rounded-2xl border border-dotori-100 bg-white/95 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_24px_rgba(200,149,106,0.10)] backdrop-blur-xl dark:border-dotori-800 dark:bg-dotori-950/90 dark:shadow-none">
-			<div className="space-y-2">
+		<div className="sticky bottom-0 left-0 right-0 z-30 border-t border-dotori-100 bg-white/80 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/90">
+			<div className="mx-auto max-w-md space-y-2">
 				<div className="flex gap-3">
 					<Button
 						plain={true}

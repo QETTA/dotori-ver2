@@ -184,7 +184,7 @@ export default function HomePage() {
 	return (
 		<div className="px-4 pb-12 pt-4">
 			<header className="glass-header sticky top-0 z-10 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
-				<div className="mb-3 flex items-center justify-between">
+				<div className="mb-3 flex items-center justify-between gap-3">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-6" />
 					<div className="rounded-full border border-dotori-100 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
