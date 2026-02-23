@@ -90,10 +90,13 @@ src/
 └── types/                   # dotori.ts, next-auth.d.ts
 public/brand/                # 21 SVG brand assets
 scripts/
-├── launch.sh                # Codex worktree parallel pipeline
+├── launch.sh                # v7 wave 빌드 파이프라인 (워크트리 격리)
+├── codex-wave.sh            # CLI 병렬 배치 (MCP 직렬 우회, wave 단위) ★
+├── screenshot-check.ts      # 스크린샷 + 콘솔에러 통합 QA
+├── check-console.ts         # 콘솔 에러 전용 검사
 ├── do-env-update.sh         # DO env var safe update
 ├── seed.ts                  # Facility seeder
-└── screenshot-check.ts      # Mobile screenshot capture (375x812 @2x)
+└── dev/                     # 개발 유틸리티
 ```
 
 ## Brand Design System (v2.2)
@@ -120,10 +123,11 @@ scripts/
 ## Commands
 
 ```bash
-npm run dev              # Dev server
-npm run build            # Production build (47 pages)
-npm test                 # Tests (106, vitest)
-npm run screenshot       # Mobile screenshots
+npm run dev                          # Dev server
+env -u NODE_ENV npm run build        # Production build (47 pages) — NODE_ENV unset 필수
+npm test                             # Tests (111, vitest)
+npx tsx scripts/screenshot-check.ts  # 스크린샷 + 콘솔에러 통합 QA
+./scripts/codex-wave.sh tasks.txt    # Codex CLI 병렬 wave 실행
 ```
 
 ## Environment Variables (.env.local)
@@ -152,11 +156,11 @@ npm run screenshot       # Mobile screenshots
 doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
-## Current State (2026-02-22, R17 완료)
+## Current State (2026-02-24, R22 완료)
 
-- **47 pages**, 0 TypeScript errors, **106 tests** (vitest, 15 test files)
+- **47 pages**, 0 TypeScript errors, **111 tests** (vitest, 16 test files)
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
-- **102 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11, R17: 11)
-- **text-[Npx] 0건** (R17에서 286건 전체 제거)
-- **P0~P1 보안 이슈 0건** (R13에서 전체 수정)
+- **113 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11, R17: 11, R22: 11)
+- **파이프라인 v7**: wave 빌드, codex-wave.sh, haiku QA 위임
+- **text-[Npx] 0건**, **P0~P1 보안 이슈 0건**
