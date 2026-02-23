@@ -133,10 +133,10 @@ export default function SettingsPage() {
 				<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
-					<Heading level={1} className="text-xl">
+					<Heading level={1} className="text-h2">
 						설정
 					</Heading>
-					<Text className="mt-1 text-sm text-dotori-700 dark:text-dotori-200">
+					<Text className="mt-1 text-body-sm text-dotori-700 dark:text-dotori-200">
 						{error}
 					</Text>
 					<div className="mt-4 space-y-2">
@@ -158,16 +158,16 @@ export default function SettingsPage() {
 				<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
-					<Heading level={1} className="text-xl">
+					<Heading level={1} className="text-h2">
 						설정
 					</Heading>
-					<Text className="mt-1 text-sm text-dotori-700 dark:text-dotori-200">
+					<Text className="mt-1 text-body-sm text-dotori-700 dark:text-dotori-200">
 						로그인하면 플랜 관리와 테마 설정을 바로 할 수 있어요.
 					</Text>
 					<Button href="/login" color="dotori" className="mt-4 w-full min-h-11">
 						로그인하기
 					</Button>
-					<Text className="mt-2 text-center text-xs text-dotori-500 dark:text-dotori-300">
+					<Text className="mt-2 text-center text-caption text-dotori-500 dark:text-dotori-300">
 						로그인 후 마이페이지에서 관심·대기·알림도 함께 확인할 수 있어요.
 					</Text>
 				</div>
@@ -187,10 +187,10 @@ export default function SettingsPage() {
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<div className="flex items-center justify-between gap-3">
-						<Heading level={2} className="text-base">
+						<Heading level={2} className="text-h3">
 							화면 테마
 						</Heading>
-						<Text className="text-xs text-dotori-500">현재: {themeLabel}</Text>
+						<Text className="text-caption text-dotori-500">현재: {themeLabel}</Text>
 					</div>
 
 					<div
@@ -212,9 +212,9 @@ export default function SettingsPage() {
 									aria-checked={isSelected}
 									onClick={() => setMode(option.value)}
 									className={[
-										"flex-1 min-h-11 rounded-xl px-3 text-sm font-semibold transition-colors transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 active:scale-[0.98]",
+										"flex-1 min-h-11 rounded-xl px-3 text-body-sm font-semibold transition-colors transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 active:scale-[0.98]",
 										isSelected
-											? "bg-dotori-900 text-white shadow-sm"
+											? "bg-dotori-900 text-white shadow-sm ring-2 ring-dotori-400"
 											: "text-dotori-600 dark:text-dotori-300 hover:bg-white/70 dark:hover:bg-dotori-950/40",
 									].join(" ")}
 								>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
 						})}
 					</div>
 
-					<Text className="mt-2 text-xs text-dotori-500">
+					<Text className="mt-2 text-caption text-dotori-500">
 						시스템은 기기 설정을 따라가요.
 					</Text>
 				</div>
@@ -233,16 +233,16 @@ export default function SettingsPage() {
 			<section className="mt-5 px-5">
 				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<div className="flex items-center justify-between gap-3">
-						<Heading level={2} className="text-base">
+						<Heading level={2} className="text-h3">
 							현재 플랜
 						</Heading>
-						<Badge color={isPremium ? "forest" : "dotori"} className="text-xs">
+						<Badge color={isPremium ? "forest" : "dotori"} className="text-caption">
 							{isPremium ? "프리미엄" : "무료"}
 						</Badge>
 					</div>
 					<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">{planLabel}</p>
 					{isPremium && (
-						<p className="mt-1 text-sm text-forest-600">
+						<p className="mt-1 text-body-sm text-forest-600">
 							다음 갱신일: {nextRenewalDate || "확인 중"}
 						</p>
 					)}
@@ -251,14 +251,14 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl bg-dotori-50 dark:bg-dotori-900 px-4 py-4">
-					<Heading level={2} className="text-base">
+					<Heading level={2} className="text-h3">
 						프리미엄 혜택
 					</Heading>
 					<ul className="mt-2 space-y-2">
 						{PREMIUM_BENEFITS.map((benefit) => (
 							<li key={benefit} className="flex items-start gap-2">
 								<CheckCircleIcon className="mt-0.5 h-4 w-4 text-forest-500" />
-								<span className="text-sm text-dotori-700 dark:text-dotori-200">{benefit}</span>
+								<span className="text-body-sm text-dotori-700 dark:text-dotori-200">{benefit}</span>
 							</li>
 						))}
 					</ul>
@@ -271,11 +271,11 @@ export default function SettingsPage() {
 						<div className="flex items-center justify-between gap-3 rounded-2xl bg-forest-50 dark:bg-dotori-900 px-3 py-2.5">
 							<div className="flex items-center gap-2">
 								<SparklesIcon className="h-5 w-5 text-forest-600" />
-								<Badge color="forest" className="text-xs">
+								<Badge color="forest" className="text-caption">
 									이용 중
 								</Badge>
 							</div>
-							<p className="text-xs text-forest-600">
+							<p className="text-caption text-forest-600">
 								{nextRenewalDate
 									? `다음 갱신일은 ${nextRenewalDate}이에요`
 									: "다음 갱신일 정보를 불러오는 중이에요"}
@@ -293,14 +293,14 @@ export default function SettingsPage() {
 					)}
 
 					{isPremium && (
-						<div className="mt-2 rounded-2xl bg-dotori-50 dark:bg-dotori-900 px-3 py-2.5 text-xs text-dotori-600 dark:text-dotori-300">
+						<div className="mt-2 rounded-2xl bg-dotori-50 dark:bg-dotori-900 px-3 py-2.5 text-caption text-dotori-600 dark:text-dotori-300">
 							<CreditCardIcon className="h-4 w-4 inline-block translate-y-[-1px]" />
 							<span className="ml-1">월 1,900원</span>
 						</div>
 					)}
 
 					{successMessage && (
-						<p className="mt-3 rounded-2xl bg-forest-50 dark:bg-dotori-900 px-3 py-2.5 text-xs text-forest-700">
+						<p className="mt-3 rounded-2xl bg-forest-50 dark:bg-dotori-900 px-3 py-2.5 text-caption text-forest-700">
 							{successMessage}
 						</p>
 					)}
@@ -309,7 +309,7 @@ export default function SettingsPage() {
 
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
-					<Heading level={2} className="text-base">
+					<Heading level={2} className="text-h3">
 						고객센터
 					</Heading>
 					<Text className="mt-1 text-dotori-500">
@@ -319,7 +319,7 @@ export default function SettingsPage() {
 						href={supportChannelUrl}
 						target="_blank"
 						rel="noreferrer noopener"
-						className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 dark:border-dotori-700 px-4 text-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
+						className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 dark:border-dotori-700 px-4 text-body-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
 					>
 						카카오톡 채널로 문의하기
 					</a>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
 			<div className="mt-6 px-5">
 				<Link
 					href="/my"
-					className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-100 dark:border-dotori-800 px-4 text-center text-sm font-semibold text-dotori-600 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
+					className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-100 dark:border-dotori-800 px-4 text-center text-body-sm font-semibold text-dotori-600 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
 				>
 					MY로 돌아가기
 				</Link>

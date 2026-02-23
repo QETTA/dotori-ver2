@@ -99,7 +99,12 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="ko" className={plusJakarta.variable} suppressHydrationWarning>
+		<html
+			lang="ko"
+			className={plusJakarta.variable}
+			data-scroll-behavior="smooth"
+			suppressHydrationWarning
+		>
 			<head>
 				<script
 					dangerouslySetInnerHTML={{

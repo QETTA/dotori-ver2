@@ -14,34 +14,21 @@ import {
 	useMemo,
 } from "react";
 import { BRAND } from "@/lib/brand-assets";
+import { DS_SENTIMENT } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import type { DataSource } from "@/types/dotori";
 import { Skeleton } from "./Skeleton";
 import { SourceChip } from "./SourceChip";
 import { Surface } from "./Surface";
 
-const SENTIMENT_STYLES = {
-	positive: {
-		label: "긍정",
-		icon: CheckCircleIcon,
-		wrap: "bg-forest-50 ring-forest-200 dark:bg-forest-900/20 dark:ring-forest-700/40",
-		iconClass: "text-forest-700 dark:text-forest-200",
-	},
-	neutral: {
-		label: "중립",
-		icon: MinusCircleIcon,
-		wrap: "bg-dotori-50 ring-dotori-200 dark:bg-dotori-900/40 dark:ring-dotori-700/40",
-		iconClass: "text-dotori-700 dark:text-dotori-100",
-	},
-	caution: {
-		label: "주의",
-		icon: ExclamationTriangleIcon,
-		wrap: "bg-dotori-100/60 ring-warning/35 dark:bg-dotori-900/40",
-		iconClass: "text-warning",
-	},
+/** 감성 → 아이콘 컴포넌트 매핑 (CSS 스타일은 DS_SENTIMENT에서 관리) */
+const SENTIMENT_ICONS = {
+	positive: CheckCircleIcon,
+	neutral:  MinusCircleIcon,
+	caution:  ExclamationTriangleIcon,
 } as const;
 
-type Sentiment = keyof typeof SENTIMENT_STYLES;
+type Sentiment = keyof typeof DS_SENTIMENT;
 
 interface InsightItem {
 	label: string;
@@ -137,8 +124,8 @@ export function AiBriefingCard({
 					) : hasInsightItems ? (
 						<ul aria-label="insight 항목 리스트" className="space-y-2 text-sm text-dotori-800 dark:text-dotori-100">
 							{insightItems.map((insight, index) => {
-								const style = SENTIMENT_STYLES[insight.sentiment];
-								const Icon = style.icon;
+								const style = DS_SENTIMENT[insight.sentiment];
+								const Icon = SENTIMENT_ICONS[insight.sentiment];
 								return (
 									<li
 										key={`${insight.label}-${index}`}

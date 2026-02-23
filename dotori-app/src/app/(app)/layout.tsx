@@ -9,6 +9,8 @@ import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppProvider } from "@/hooks/use-app-state";
 import { BRAND } from "@/lib/brand-assets";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
 	title: "홈",
 	description:

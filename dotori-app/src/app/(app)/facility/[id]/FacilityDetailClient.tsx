@@ -132,6 +132,7 @@ export default function FacilityDetailClient({
 }
 
 function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
+	const [copyingPhone, setCopyingPhone] = useState(false);
 	const [copyingAddress, setCopyingAddress] = useState(false);
 	const [relatedPosts, setRelatedPosts] = useState<CommunityPost[]>([]);
 	const { addToast } = useToast();
@@ -158,6 +159,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		facilityStatus: facility.status,
 	});
 
+	const copyablePhone = facility.phone?.trim();
 	const copyableAddress = facility.address?.trim();
 
 	const keyStats = useMemo(() => {
@@ -271,6 +273,20 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		}
 	}, [addToast, copyableAddress]);
 
+	const handleCopyPhone = useCallback(async () => {
+		if (!copyablePhone) return;
+
+		try {
+			setCopyingPhone(true);
+			await navigator.clipboard.writeText(copyablePhone);
+			addToast({ type: "success", message: "전화번호가 복사되었어요" });
+		} catch {
+			addToast({ type: "error", message: "전화번호 복사에 실패했어요" });
+		} finally {
+			setCopyingPhone(false);
+		}
+	}, [addToast, copyablePhone]);
+
 	const handleBack = useCallback(() => {
 		if (window.history.length > 1) {
 			router.back();
@@ -360,10 +376,10 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 							className="pointer-events-none absolute left-1/2 top-1/2 w-80 -translate-x-1/2 -translate-y-1/2 opacity-25 dark:opacity-20 sm:w-96"
 						/>
 						<div className="absolute inset-0 flex flex-col justify-end gap-1 p-4">
-							<p className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+							<p className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
 								사진 준비 중이에요
 							</p>
-							<p className="text-xs text-dotori-600 dark:text-dotori-200">
+							<p className="text-caption text-dotori-600 dark:text-dotori-200">
 								대신 정원/연락처 등 핵심 정보를 먼저 확인해보세요.
 							</p>
 						</div>
@@ -375,50 +391,65 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				</div>
 			</motion.div>
 
-			<div className="mt-3 space-y-4 px-4">
-				<FacilityCoreInfoSections
-					status={facility.status}
-					qualityScore={qualityScore}
-					aiInsightSummary={aiInsightSummary}
-					occupancyRate={occupancyRate}
-					totalCapacity={totalCapacity}
-					currentCapacity={currentCapacity}
-					waitingCapacity={waitingCapacity}
-					occupancyProgressColor={occupancyProgressColor}
-					keyStats={keyStats}
-					features={facility.features}
-				/>
+			<div className="mt-3 px-4">
+				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+					<FacilityCoreInfoSections
+						status={facility.status}
+						qualityScore={qualityScore}
+						aiInsightSummary={aiInsightSummary}
+						occupancyRate={occupancyRate}
+						totalCapacity={totalCapacity}
+						currentCapacity={currentCapacity}
+						waitingCapacity={waitingCapacity}
+						occupancyProgressColor={occupancyProgressColor}
+						keyStats={keyStats}
+						features={facility.features}
+					/>
+				</div>
 
-				<FacilityPremiumSection
-					showPremiumSection={showPremiumSection}
-					premiumVerifiedAt={premiumVerifiedAt}
-					premiumDirectorMessage={premiumDirectorMessage}
-					premiumPrograms={premiumPrograms}
-					premiumHighlights={premiumHighlights}
-					premiumPhotos={premiumPhotos}
-					facilityName={facility.name}
-				/>
+				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+					<FacilityPremiumSection
+						showPremiumSection={showPremiumSection}
+						premiumVerifiedAt={premiumVerifiedAt}
+						premiumDirectorMessage={premiumDirectorMessage}
+						premiumPrograms={premiumPrograms}
+						premiumHighlights={premiumHighlights}
+						premiumPhotos={premiumPhotos}
+						facilityName={facility.name}
+					/>
+				</div>
 
-				<FacilityContactMapSections
-					phone={facility.phone}
-					address={facility.address}
-					kakaoMapUrl={kakaoMapUrl}
-					websiteUrl={websiteUrl}
-					copyableAddress={copyableAddress}
-					copyingAddress={copyingAddress}
-					onCopyAddress={handleCopyAddress}
-					hasMapLocation={hasMapLocation}
-					facilityId={facility.id}
-					facilityName={facility.name}
-					lat={facility.lat}
-					lng={facility.lng}
-					status={facility.status}
-				/>
+				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+					<FacilityContactMapSections
+						phone={facility.phone}
+						address={facility.address}
+						kakaoMapUrl={kakaoMapUrl}
+						websiteUrl={websiteUrl}
+						copyablePhone={copyablePhone}
+						copyingPhone={copyingPhone}
+						onCopyPhone={handleCopyPhone}
+						copyableAddress={copyableAddress}
+						copyingAddress={copyingAddress}
+						onCopyAddress={handleCopyAddress}
+						hasMapLocation={hasMapLocation}
+						facilityId={facility.id}
+						facilityName={facility.name}
+						lat={facility.lat}
+						lng={facility.lng}
+						status={facility.status}
+					/>
+				</div>
 
-				<motion.div {...fadeUp}>
+				<motion.div
+					{...fadeUp}
+					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+				>
 					<IsalangCard />
 				</motion.div>
-				<motion.div {...fadeUp}>
+				<motion.div
+					{...fadeUp}
+					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+				>
 					<FacilityChecklistCard
 						facilityType={facility.type}
 						checklist={checklist}
@@ -426,17 +457,25 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 						onToggle={loadChecklist}
 					/>
 				</motion.div>
-				<motion.div {...fadeUp}>
+				<motion.div
+					{...fadeUp}
+					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+				>
 					<FacilityReviewsCard
 						posts={relatedPosts}
 						facilityId={facility.id}
 						facilityName={facility.name}
 					/>
 				</motion.div>
-				<motion.div {...fadeUp}>
+				<motion.div
+					{...fadeUp}
+					className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800"
+				>
 					<FacilityInsights facility={facility} />
 				</motion.div>
-				<FacilityAdmissionGuideSection />
+				<div className="mb-6 border-b border-dotori-100 pb-6 dark:border-dotori-800">
+					<FacilityAdmissionGuideSection />
+				</div>
 			</div>
 
 			<FacilityActionBar

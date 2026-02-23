@@ -45,6 +45,12 @@ function getAuthErrorMessage(error: string | null) {
 	return AUTH_ERROR_MESSAGES[error] ?? AUTH_ERROR_MESSAGES.Default;
 }
 
+function getSafeCallbackPath(callbackUrl: string | null) {
+	if (!callbackUrl) return "/";
+	if (!callbackUrl.startsWith("/") || callbackUrl.startsWith("//")) return "/";
+	return callbackUrl;
+}
+
 function LoginPageErrorFallback() {
 	return (
 		<div className="mt-10 w-full rounded-3xl border border-dotori-100 bg-white/85 p-6 text-center shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
@@ -185,12 +191,12 @@ const LoginCard = memo(function LoginCard({
 	onKakaoLogin,
 	shouldReduceMotion,
 }: LoginCardProps) {
-	return (
-		<motion.div
-			initial={shouldReduceMotion ? false : LOGIN_CARD_INITIAL}
-			animate={LOGIN_CARD_ANIMATE}
-			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
-			className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
+		return (
+			<motion.div
+				initial={shouldReduceMotion ? false : LOGIN_CARD_INITIAL}
+				animate={LOGIN_CARD_ANIMATE}
+				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
+				className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
 			>
 				<p className="text-xs leading-relaxed text-dotori-500">
 					1초면 시작돼요. 카카오로 바로 이용하세요.
@@ -258,12 +264,12 @@ const LoginFooter = memo(function LoginFooter({
 	shouldReduceMotion,
 }: MotionPreferenceProps) {
 	return (
-			<motion.p
-				initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
-				animate={FADE_IN_ANIMATE}
-				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-				className="mt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
-			>
+		<motion.p
+			initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
+			animate={FADE_IN_ANIMATE}
+			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
+			className="mt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
+		>
 				로그인 시{" "}
 				<Link
 					href="/my/terms"
@@ -299,6 +305,10 @@ function LoginPageClient() {
 	const shouldReduceMotion = useReducedMotion() === true;
 	const searchParams = useSearchParams();
 	const errorCode = searchParams.get("error");
+	const callbackPath = useMemo(
+		() => getSafeCallbackPath(searchParams.get("callbackUrl")),
+		[searchParams],
+	);
 	const queryError = useMemo(() => getAuthErrorMessage(errorCode), [errorCode]);
 	const visibleError = queryError ?? error;
 
@@ -306,21 +316,15 @@ function LoginPageClient() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const result = await signIn("kakao", {
-				callbackUrl: "/",
-				redirect: false,
-			});
-			if (result?.error) {
-				setError("로그인에 실패했어요. 다시 시도해주세요");
-			} else if (result?.url) {
-				window.location.href = result.url;
-			}
+			// OAuth redirect flow is more reliable when NextAuth handles navigation directly.
+			await signIn("kakao", { redirectTo: callbackPath });
 		} catch {
 			setError("로그인에 실패했어요. 다시 시도해주세요");
-		} finally {
 			setIsLoading(false);
+		} finally {
+			// Successful OAuth redirect leaves this page, so keep loading state only on failure.
 		}
-	}, []);
+	}, [callbackPath]);
 
 	return (
 		<div className="relative min-h-dvh overflow-x-hidden bg-dotori-50 pb-[env(safe-area-inset-bottom)] dark:bg-dotori-900">

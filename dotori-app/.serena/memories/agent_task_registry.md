@@ -54,9 +54,45 @@
 | r20-c | ChatPromptPanel.tsx, ExploreSearchHeader.tsx | 채팅 헤딩 text-xl 1줄, 탐색 헤딩 text-xl, ⚡ 제거 |
 | r20-d | community/page.tsx, FacilityDetailClient.tsx | 카드 space-y-3, 탭 min-h-11, 시설 레이아웃 |
 
-## 다음 라운드 가이드 (R21+)
-R20까지: 나노단위 UI 폴리싱 완성
-R21 후보: 기능 확장
-- 후보 A: 시설 상세 이미지 갤러리 (슬라이드)
-- 후보 B: 커뮤니티 실시간 업데이트 (SSE/polling)
-- 후보 C: 온보딩 A/B 테스트 변형
+## R21 에이전트 (진행 중 🔄) — 로고·아이콘·폰트 재정립
+
+### 배경
+- 디자인 시스템 재정립 완료 (2026-02-24): tokens.ts 확장, brand-assets.ts BRAND_GUIDE 추가
+- globals.css @theme에 타이포 스케일 8단계 추가 (text-display ~ text-label)
+- 기존 컴포넌트 대부분 text-xs/sm/base/lg/xl 사용 → 시맨틱 토큰으로 점진적 마이그레이션
+
+### 신규 타이포 스케일 (globals.css @theme 등록 완료)
+| 토큰 | 픽셀 | 대체 대상 |
+|------|------|---------|
+| text-h1 | 24px | text-2xl (헤딩) |
+| text-h2 | 20px | text-xl (섹션 헤딩) |
+| text-h3 | 16px | text-base (서브헤딩) |
+| text-body | 15px | text-sm (주요 본문) |
+| text-body-sm | 13px | text-sm (보조 본문) |
+| text-caption | 11px | text-xs (캡션·타임스탬프) |
+| text-label | 10px | text-xs (배지·탭레이블) |
+
+### 브랜드 에셋 수정 사항
+- BRAND.symbolCorporate → B2B 전용, 앱 내부 금지
+- 앱 내 소형 아이콘 = BRAND.symbol
+- 헤더 로고 크기 통일 = lockupHorizontalKr h-7
+
+### R21 파일 소유권
+| 에이전트 | 담당 파일 |
+|---------|---------|
+| r21-a | src/app/(app)/page.tsx |
+| r21-b | src/app/(auth)/login/page.tsx, src/app/(landing)/landing/page.tsx |
+| r21-c | src/app/(app)/chat/page.tsx, src/components/dotori/chat/ChatPromptPanel.tsx |
+| r21-d | src/app/(app)/explore/page.tsx, explore/ExploreSearchHeader.tsx, ExploreSuggestionPanel.tsx |
+| r21-e | src/app/(app)/community/*.tsx (3 files) |
+| r21-f | src/app/(app)/my/page.tsx, my/settings/page.tsx, my/app-info/page.tsx, my/support/page.tsx |
+| r21-g | src/app/(app)/my/waitlist/*.tsx, my/notifications/page.tsx, my/interests/page.tsx |
+| r21-h | facility/FacilityDetailClient.tsx, facility/FacilityDetailHeader.tsx, FacilityInfoCard.tsx, FacilityCapacityCard.tsx |
+| r21-i | src/app/(onboarding)/onboarding/page.tsx |
+| r21-j | EmptyState.tsx, ErrorState.tsx, PremiumGate.tsx, StreamingIndicator.tsx, UsageCounter.tsx |
+| r21-k | BottomTabBar.tsx, blocks/TextBlock.tsx, ChecklistBlock.tsx, ActionsBlock.tsx |
+
+### 공통 금지 파일 (추가)
+- src/lib/design-system/tokens.ts — Claude Code만 수정
+- src/lib/brand-assets.ts — Claude Code만 수정
+- src/lib/analytics.ts — Claude Code만 수정

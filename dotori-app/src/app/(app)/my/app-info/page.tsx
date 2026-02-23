@@ -37,12 +37,12 @@ export default function AppInfoPage() {
 						<h2 className="mt-4 text-lg font-bold text-dotori-900 dark:text-dotori-50">
 							도토리
 						</h2>
-						<p className="mt-1 text-sm text-dotori-500 dark:text-dotori-300">
+						<p className="mt-1 text-body-sm text-dotori-500 dark:text-dotori-300">
 							AI 어린이집 입소 전략 서비스
 						</p>
 						<div className="mt-4 flex gap-4">
 							<div className="text-center">
-								<span className="block text-sm text-dotori-500 dark:text-dotori-300">
+								<span className="block text-body-sm text-dotori-500 dark:text-dotori-300">
 									버전
 								</span>
 								<span className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
@@ -51,7 +51,7 @@ export default function AppInfoPage() {
 							</div>
 							<div className="h-8 w-px bg-dotori-100 dark:bg-dotori-800" />
 							<div className="text-center">
-								<span className="block text-sm text-dotori-500 dark:text-dotori-300">
+								<span className="block text-body-sm text-dotori-500 dark:text-dotori-300">
 									빌드
 								</span>
 								<span className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
@@ -67,10 +67,10 @@ export default function AppInfoPage() {
 					{...stagger.item}
 					className="mt-3 rounded-3xl bg-white dark:bg-dotori-950 p-5 shadow-sm dark:shadow-none"
 				>
-					<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+					<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
 						오픈소스 라이선스
 					</h3>
-					<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+					<p className="mt-2 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 						이 앱은 다양한 오픈소스 소프트웨어를 사용하고 있습니다.
 						각 라이브러리의 라이선스 정보는 추후 업데이트될
 						예정입니다.
@@ -80,7 +80,7 @@ export default function AppInfoPage() {
 				{/* 푸터 */}
 				<motion.p
 					{...stagger.item}
-					className="mt-6 text-center text-xs text-dotori-300 dark:text-dotori-600"
+					className="mt-6 text-center text-caption text-dotori-300 dark:text-dotori-600"
 				>
 					&copy; 2026 도토리. All rights reserved.
 				</motion.p>

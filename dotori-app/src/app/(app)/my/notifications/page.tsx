@@ -204,7 +204,7 @@ export default function NotificationsPage() {
 				</Link>
 				<h1 className="text-base font-bold">알림</h1>
 				{unreadCount > 0 ? (
-					<span className="ml-auto text-sm font-medium text-dotori-500 dark:text-dotori-300">
+					<span className="ml-auto text-body-sm font-medium text-dotori-500 dark:text-dotori-300">
 						안 읽음 {unreadCount}
 					</span>
 				) : null}
@@ -231,7 +231,7 @@ export default function NotificationsPage() {
 							<p className="mt-5 text-lg font-bold text-dotori-900 dark:text-dotori-50">
 								아직 도착한 알림이 없어요
 							</p>
-							<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+							<p className="mt-2 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 								시설을 저장하거나 대기 신청을 하면, 빈자리/대기열 변동 소식을 알림으로 받아볼 수 있어요.
 							</p>
 							<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
@@ -265,8 +265,8 @@ export default function NotificationsPage() {
 												"rounded-3xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:bg-dotori-950 dark:shadow-none",
 												tone.border,
 												unread
-													? "border-l-4 border-l-dotori-400"
-													: "border-l-4 border-l-transparent",
+													? "border-l-2 border-l-dotori-400"
+													: "border-l-2 border-l-transparent",
 											)}
 										>
 											<div className="flex items-start gap-3.5">
@@ -281,18 +281,18 @@ export default function NotificationsPage() {
 												</div>
 												<div className="min-w-0 flex-1">
 													<div className="flex items-center gap-2">
-														<span className={cn("text-sm font-semibold", tone.titleColor)}>
+														<span className={cn("text-body-sm font-semibold", tone.titleColor)}>
 															{typeMeta.label}
 														</span>
 														{unread ? (
-															<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-xs font-semibold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
+															<span className="rounded-full bg-dotori-100 px-2 py-0.5 text-caption font-semibold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 																새 알림
 															</span>
 														) : null}
 														{status && (
 															<span
 																className={cn(
-																	"rounded-full px-2 py-0.5 text-xs font-medium",
+																	"rounded-full px-2 py-0.5 text-caption font-medium",
 																	tone.badge,
 																	status.color,
 																)}
@@ -306,7 +306,7 @@ export default function NotificationsPage() {
 															<h3 className="mt-1 text-base font-semibold text-dotori-900 dark:text-dotori-50">
 																{facility.name}
 															</h3>
-															<p className="mt-0.5 text-sm text-dotori-500 dark:text-dotori-300">
+															<p className="mt-0.5 text-body-sm text-dotori-500 dark:text-dotori-300">
 																{facility.status === "available"
 																	? `TO ${toCount}석 (정원 ${facility.capacity.total}명)`
 																	: `대기 ${facility.capacity.waiting}명 · ${facility.type}`}
@@ -318,7 +318,7 @@ export default function NotificationsPage() {
 														</h3>
 													)}
 													<span
-														className="mt-1.5 block text-xs text-dotori-500 dark:text-dotori-300"
+														className="mt-1.5 block text-caption text-dotori-500 dark:text-dotori-300"
 														suppressHydrationWarning
 													>
 														{formatRelativeTime(notification.triggeredAt)}

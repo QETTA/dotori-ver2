@@ -130,18 +130,24 @@ export default function HomePage() {
 	const statusCards = [
 		{
 			label: "주변 빈자리",
-			value: `${nearbyAvailableFacilities.length}곳`,
+			count: nearbyAvailableFacilities.length,
+			unit: "곳",
 			tone: "forest",
+			emptyCta: { label: "탐색 시작", href: "/explore" },
 		},
 		{
 			label: "관심 시설",
-			value: `${homeData?.interestFacilities.length ?? 0}곳`,
+			count: homeData?.interestFacilities.length ?? 0,
+			unit: "곳",
 			tone: "dotori",
+			emptyCta: { label: "시설 찾기", href: "/explore" },
 		},
 		{
 			label: "알림",
-			value: `${homeData?.alertCount ?? 0}건`,
+			count: homeData?.alertCount ?? 0,
+			unit: "건",
 			tone: "dotori",
+			emptyCta: { label: "알림 설정", href: "/my/notifications" },
 		},
 	] as const;
 
@@ -199,19 +205,28 @@ export default function HomePage() {
 							className="px-3 py-2"
 							aria-label={card.label}
 						>
-							<Text className="text-xs font-medium text-dotori-600 dark:text-dotori-300">
+							<Text className="text-caption font-medium text-dotori-600 dark:text-dotori-300">
 								{card.label}
 							</Text>
-							<Text
-								className={cn(
-									"mt-0.5 text-sm font-semibold",
-									card.tone === "forest"
-										? "text-forest-700 dark:text-forest-400"
-										: "text-dotori-800 dark:text-dotori-100",
-								)}
-							>
-								{card.value}
-							</Text>
+							{card.count > 0 ? (
+								<Text
+									className={cn(
+										"mt-0.5 text-sm font-semibold",
+										card.tone === "forest"
+											? "text-forest-700 dark:text-forest-400"
+											: "text-dotori-800 dark:text-dotori-100",
+									)}
+								>
+									{`${card.count}${card.unit}`}
+								</Text>
+							) : (
+								<Link
+									href={card.emptyCta.href}
+									className="mt-0.5 inline-flex min-h-8 items-center text-caption font-medium text-dotori-500 transition-colors hover:text-dotori-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400"
+								>
+									{card.emptyCta.label}
+								</Link>
+							)}
 						</Surface>
 					))}
 				</div>
@@ -250,7 +265,7 @@ export default function HomePage() {
 								aria-hidden="true"
 								className="h-4 w-4 opacity-90"
 							/>
-							<Text className="text-xs text-dotori-100">
+							<Text className="text-caption text-dotori-100">
 								이동 고민 상담 · 빈자리 우선 탐색
 							</Text>
 						</div>
@@ -277,7 +292,7 @@ export default function HomePage() {
 									whileHover={{ scale: 1.02 }}
 									whileTap={{ scale: 0.97 }}
 									transition={spring.chip}
-									className="min-h-11 rounded-xl bg-white/10 px-2 py-2 text-xs font-semibold text-white/95 ring-1 ring-inset ring-white/15 transition-colors transition-transform duration-150 hover:bg-white/15 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
+									className="min-h-11 rounded-xl bg-white/10 px-2 py-2 text-caption font-semibold text-white/95 ring-1 ring-inset ring-white/15 transition-colors transition-transform duration-150 hover:bg-white/15 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70"
 									aria-label={`${chip} 고민으로 토리에게 질문하기`}
 								>
 									{chip}
@@ -302,7 +317,7 @@ export default function HomePage() {
 					source="AI분석"
 					updatedAt={homeData?.sources?.isalang?.updatedAt}
 				>
-					<div className="space-y-3">
+					<div className="space-y-3 rounded-2xl bg-gradient-to-br from-dotori-50/80 to-transparent p-3 dark:from-dotori-900/40">
 						<div className="flex items-center gap-2">
 							<Badge color="forest">NBA 기반</Badge>
 							<Text className="text-sm text-dotori-700 dark:text-dotori-200">

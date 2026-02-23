@@ -87,7 +87,7 @@ export default function InterestsPage() {
 				</Link>
 				<h1 className="text-base font-bold">관심 시설</h1>
 				{facilities.length > 0 && (
-					<span className="ml-auto text-sm text-dotori-500 dark:text-dotori-300">
+					<span className="ml-auto text-body-sm text-dotori-500 dark:text-dotori-300">
 						{facilities.length}곳
 					</span>
 				)}
@@ -111,7 +111,7 @@ export default function InterestsPage() {
 						<p className="mt-5 text-lg font-bold text-dotori-900 dark:text-dotori-50">
 							아직 관심 등록한 시설이 없어요
 						</p>
-						<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+						<p className="mt-2 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 							탐색에서 마음에 드는 어린이집에 하트를 눌러 저장해 보세요. 나중에 한 번에 비교하기 쉬워요.
 						</p>
 						<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
@@ -121,7 +121,7 @@ export default function InterestsPage() {
 				</div>
 			) : (
 				/* 관심 시설 목록 */
-				<div className="mt-3 space-y-3 px-4">
+				<div className="mt-3 flex flex-col gap-3 px-4">
 					{facilities.map((facility) => (
 						<div key={facility.id} className="relative">
 							<Link
@@ -140,7 +140,7 @@ export default function InterestsPage() {
 								disabled={removingIds.has(facility.id)}
 								aria-label="관심 시설 추가/제거"
 								className={cn(
-									"absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full",
+									"absolute right-3 top-3 grid min-h-11 min-w-11 h-11 w-11 place-items-center rounded-full",
 									"bg-white/90 shadow-sm transition-all dark:bg-dotori-950/80 dark:shadow-none",
 									"active:scale-[0.95] hover:bg-dotori-50 dark:hover:bg-dotori-900",
 									removingIds.has(facility.id) && "opacity-50",

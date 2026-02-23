@@ -42,8 +42,8 @@ RESULTS=/tmp/results/$ROUND
 LOGS=/tmp/logs/$ROUND
 
 ### ── 에이전트 목록 ──────────────────────────────────────────────────────
-ALL_AGENTS=(polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-shared polish-waitlist polish-onboarding polish-comp)
-MERGE_ORDER=(polish-comp polish-shared polish-login polish-home polish-chat polish-explore polish-community polish-my polish-facility polish-waitlist polish-onboarding)
+ALL_AGENTS=(r22-j r22-k r22-a r22-b r22-c r22-d r22-e r22-f r22-g r22-h r22-i)
+MERGE_ORDER=(r22-j r22-k r22-a r22-b r22-c r22-d r22-e r22-f r22-g r22-h r22-i)
 
 if [ -n "$CUSTOM_AGENTS" ]; then
   IFS=',' read -ra AGENTS <<< "$CUSTOM_AGENTS"
@@ -65,67 +65,129 @@ fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
 step() { echo -e "\n${BLUE}═══ $1 ═══${NC}"; }
 info() { echo "     $1"; }
 
-### ── 공통 컨텍스트 (경량화 — 이미 완성된 규칙 제거) ─────────────────────
+### ── 공통 컨텍스트 (R21 — DS 토큰 + 브랜드 에셋 강화) ──────────────────
 SHARED_RULES='## 공통 규칙 (필수)
-- Tailwind 스케일 토큰만 사용: text-[Npx] 금지 → text-xs/sm/base/lg/xl
+- text-[Npx] 절대 금지. 신규 시맨틱 토큰 우선 사용:
+    헤딩: text-display(32px) text-h1(24px) text-h2(20px) text-h3(16px)
+    본문: text-body(15px) text-body-sm(13px)
+    소형: text-caption(11px) text-label(10px)
+    위 없으면 기존 text-xs/sm/base/lg/xl 유지 (임의 px 금지)
+- 폰트 굵기 기준: 헤딩 font-bold/semibold, 본문 font-medium/normal
+- 브랜드 에셋: import { BRAND, BRAND_GUIDE } from "@/lib/brand-assets"
+    앱 내부 소형 아이콘 → BRAND.symbol (symbolCorporate는 B2B 전용, 앱 내 금지)
+    헤더 로고 → BRAND.lockupHorizontalKr h-7 (크기 통일)
+    스플래시/온보딩 아이콘 → BRAND.appIconWarm
+- DS 토큰: import { DS_STATUS, DS_GLASS, DS_LAYOUT } from "@/lib/design-system/tokens"
 - motion/react만 사용: framer-motion import 금지
-- color="dotori" → CTA, color="forest" → 성공 Badge만
+- color="dotori" → CTA 버튼, color="forest" → Badge 성공 표시만
 - dark: 클래스 = dotori 팔레트 (bg-gray-* 금지)
 - touch target: min-h-11 이상
-- globals.css / layout.tsx / motion.ts 수정 금지
+- globals.css / layout.tsx / motion.ts / tokens.ts / brand-assets.ts 수정 금지
 - Catalyst 컴포넌트(src/components/catalyst/*) 내부 수정 금지
 - 담당 파일 외 수정 금지
 - npx tsc --noEmit → TypeScript 에러 0개 필수'
 
-### ── 에이전트별 태스크 (라운드 독립적으로 분리) ──────────────────────────
+### ── 에이전트별 태스크 R22 (스크린샷 기반 UX/UI 개선) ────────────────────
 get_task() {
   local agent=$1
   case $agent in
-    polish-login)
-      echo "src/app/(auth)/login/page.tsx, src/app/(auth)/error.tsx 폴리싱
-로그인 페이지: 타이틀 1줄(text-base leading-snug), 카피 간결화, 카카오 버튼 아이콘, footer safe-area.
-error.tsx: 에러 메시지 친근하게, CTA full-width."
+    r22-a)
+      echo "담당: src/app/(app)/page.tsx
+[UX] 첫 방문 빈 상태 개선:
+  - 상태카드(0건/0곳/0건) → 데이터 없을 때 행동 유도 메시지 (예: '온보딩 완료하면 주변 빈자리를 알려드려요')
+  - 빈자리 0건일 때 EmptyState 대신 온보딩/탐색 CTA 버튼 표시
+  - AI 브리핑 카드를 첫 화면 상단에 더 prominence 있게 배치 (그라데이션 배경 강화)
+[타이포] text-xl → text-h2, text-2xl → text-h1, text-xs → text-caption (시맨틱 토큰 마이그레이션)"
       ;;
-    polish-home)
-      echo "src/app/(app)/page.tsx 폴리싱
-헤더 safe-area 처리(pt-[max(0.5rem,env(safe-area-inset-top))]), 상태카드 레이블 간결화,
-섹션 헤딩 text-base, 빈 상태 CTA full-width."
+    r22-b)
+      echo "담당: src/app/(auth)/login/page.tsx, src/app/(landing)/landing/page.tsx
+[UX-login] 로그인 페이지: 로고 아래 여백 줄이고 CTA 영역을 뷰포트 중앙에 배치
+[UX-landing] 랜딩 모바일 375px 최적화:
+  - Hero 섹션: 텍스트 text-2xl→text-h1, 여백 py-16→py-10 (모바일에서 첫 CTA 빨리 보이게)
+  - 통계 카드: grid-cols-2 유지하되 gap-3→gap-2, padding p-4→p-3 (컴팩트)
+  - FAQ: 텍스트 크기 text-sm→text-body-sm
+[타이포] 시맨틱 토큰 적용 (text-h1/h2/h3/body-sm/caption)"
       ;;
-    polish-chat)
-      echo "src/app/(app)/chat/page.tsx, src/components/dotori/chat/ChatPromptPanel.tsx 폴리싱
-ChatPromptPanel 헤딩 text-xl 1줄, 아바타 h-16 w-16, 칩 min-h-12, 칩 active:scale-[0.97]."
+    r22-c)
+      echo "담당: src/app/(app)/chat/page.tsx, src/components/dotori/chat/ChatPromptPanel.tsx
+[UX] 제안 카드(이동 고민/반편성 불만/빈자리 탐색) → 카드 간 gap-3→gap-2.5, 아이콘+텍스트 정렬 fine-tune
+[UX] 채팅 헤더: 토리 아바타+이름+온라인 상태 → 정보 밀도 최적화 (gap 축소)
+[UX] 입력 필드: 전송 버튼 active:scale-[0.97] 확인, placeholder 텍스트 가독성
+[타이포] 시맨틱 토큰 적용 (text-h2/h3/body-sm/caption/label)"
       ;;
-    polish-explore)
-      echo "src/app/(app)/explore/page.tsx, src/components/dotori/explore/ExploreSearchHeader.tsx 폴리싱
-헤딩 text-xl, 시나리오 칩 active:scale-[0.97], 필터 버튼 레이블 명확화, emoji 제거."
+    r22-d)
+      echo "담당: src/app/(app)/explore/page.tsx, src/components/dotori/explore/ExploreSearchHeader.tsx,
+       src/components/dotori/explore/ExploreSuggestionPanel.tsx
+[UX 핵심] '이동 가능 시설만 보기' 버튼: bg-forest-500 → bg-dotori-400 text-white (Button에 forest 금지, Badge만)
+  - 활성: bg-dotori-500 font-semibold text-white shadow-sm ring-1 ring-dotori-400/60
+  - 비활성: bg-dotori-50 text-dotori-700 ring-1 ring-dotori-200
+  - 활성 도트: bg-white, 비활성 도트: bg-dotori-500
+[UX] 시나리오 칩(반편성 불만/교사 교체 등) → 간격 gap-2 유지, min-h-11 터치 타겟 확인
+[타이포] 시맨틱 토큰 (text-h2/label/caption)"
       ;;
-    polish-community)
-      echo "src/app/(app)/community/page.tsx, src/app/(app)/community/[id]/page.tsx 폴리싱
-카드 space-y-3, 탭 min-h-11, 댓글 입력창 하단 고정 glass-sheet, FAB h-14 w-14."
+    r22-e)
+      echo "담당: src/app/(app)/community/page.tsx, src/app/(app)/community/[id]/page.tsx,
+       src/app/(app)/community/write/page.tsx
+[UX 핵심] 커뮤니티 카드 리디자인 — 스크린샷에서 텍스트 벽으로 보임:
+  - 카드 간 gap: space-y-2 → space-y-3 (호흡 확보)
+  - 카드 내부: 카테고리 뱃지 + 제목 한 줄 → 본문 미리보기 2줄(line-clamp-2) → 메타(작성자·시간·좋아요)
+  - 카드 배경: bg-white rounded-2xl ring-1 ring-dotori-100/70 shadow-sm (카드 느낌 강화)
+  - 카테고리 뱃지: 각 카테고리별 일관된 color (dotori, forest) — Badge 컴포넌트 사용 권장
+[UX] 상세 페이지: 댓글 카드 간 구분선 추가 (border-b border-dotori-100)
+[타이포] 시맨틱 토큰 (text-h2/h3/body-sm/caption)"
       ;;
-    polish-my)
-      echo "src/app/(app)/my/page.tsx, src/app/(app)/my/settings/page.tsx 폴리싱
-프로필 헤더 Surface 사용, 메뉴 항목 min-h-12, 설정 다크모드 세그먼트 컨트롤."
+    r22-f)
+      echo "담당: src/app/(app)/my/page.tsx, src/app/(app)/my/settings/page.tsx,
+       src/app/(app)/my/app-info/page.tsx, src/app/(app)/my/support/page.tsx
+[UX] 마이 페이지: 메뉴 항목을 Surface 카드로 그룹화 (계정·앱설정·지원 3그룹)
+  - 그룹 간 gap: space-y-4, 그룹 내 항목: divide-y divide-dotori-100
+[UX] 설정: 테마 토글 영역 → 현재 선택 상태 시각적으로 명확하게 (ring-2 ring-dotori-400)
+[타이포] 시맨틱 토큰 (text-h2/h3/body-sm/caption)"
       ;;
-    polish-facility)
-      echo "src/app/(app)/facility/[id]/FacilityDetailClient.tsx, src/components/dotori/facility/*.tsx 폴리싱
-정원 숫자 text-2xl font-bold, CTA min-h-12 w-full, 플레이스홀더 bg-dotori-100."
+    r22-g)
+      echo "담당: src/app/(app)/my/waitlist/page.tsx, src/app/(app)/my/waitlist/[id]/page.tsx,
+       src/app/(app)/my/notifications/page.tsx, src/app/(app)/my/interests/page.tsx
+[UX] 대기 신청 카드: 순위 숫자 → Surface 카드 내부에 배치, 상태 뱃지 우측 정렬
+[UX] 알림 카드: 읽음/안읽음 구분 → 안읽음은 border-l-2 border-l-dotori-400, 읽음은 border-l-transparent
+[UX] 관심 시설: 카드 간 gap 확보, 삭제 버튼 터치 영역 min-h-11
+[타이포] 시맨틱 토큰 (text-h2/h3/body-sm/caption)"
       ;;
-    polish-shared)
-      echo "src/components/dotori/AiBriefingCard.tsx, UsageCounter.tsx, EmptyState.tsx, ErrorState.tsx, Toast.tsx, ActionConfirmSheet.tsx 폴리싱
-glass-sheet 효과 확인, Toast 성공/에러 컬러, EmptyState CTA full-width."
+    r22-h)
+      echo "담당: src/components/dotori/facility/FacilityDetailClient.tsx,
+       src/components/dotori/facility/FacilityCapacitySection.tsx,
+       src/components/dotori/facility/FacilityContactSection.tsx,
+       src/components/dotori/facility/FacilityOperatingSection.tsx
+[UX] 섹션 간 구분 강화: 각 섹션 사이 border-b border-dotori-100 dark:border-dotori-800 + py-6
+[UX] 정원 현황 섹션: 숫자 prominence 향상 (text-h1 font-bold for capacity numbers)
+[UX] 연락처 섹션: 전화·주소 복사 버튼 min-h-11 터치 타겟
+[타이포] 시맨틱 토큰 (text-h1/h2/h3/body-sm/caption)"
       ;;
-    polish-waitlist)
-      echo "src/app/(app)/my/waitlist/page.tsx, waitlist/[id]/page.tsx, my/notifications/page.tsx, my/interests/page.tsx 폴리싱
-대기 순위 text-4xl font-bold, 읽지않은 알림 border-l-4 border-l-dotori-400, 빈 상태 CTA."
+    r22-i)
+      echo "담당: src/app/(onboarding)/onboarding/page.tsx
+[UX] 진행 바: bg-dotori-200 → bg-dotori-100 (배경), 활성 바 bg-dotori-400 → bg-dotori-500 (contrast 강화)
+[UX] 성별 선택 버튼: 선택 시 ring-2 ring-dotori-400 bg-dotori-50 (현재 선택 명확히)
+[UX] 하단 '다음' 버튼: sticky bottom-0 py-4 (항상 보이게, safe-area 포함)
+[타이포] 시맨틱 토큰 (text-h1/h2/body-sm/caption)"
       ;;
-    polish-onboarding)
-      echo "src/app/(onboarding)/onboarding/page.tsx 폴리싱
-진행 바 dotori-400, 선택 버튼 ring-2 ring-dotori-400 선택 상태, CTA w-full min-h-12."
+    r22-j)
+      echo "담당: src/components/dotori/EmptyState.tsx, src/components/dotori/ErrorState.tsx,
+       src/components/dotori/PremiumGate.tsx, src/components/dotori/UsageCounter.tsx
+[UX] EmptyState: 아이콘 크기 h-12 → h-14, 제목+설명 간격 조정 (gap-1→gap-2)
+[UX] ErrorState: 재시도 버튼 color='dotori' 확인, 에러 메시지 가독성
+[UX] PremiumGate: 잠금 아이콘 + 업그레이드 CTA prominence 강화
+[UX] UsageCounter: 프로그레스 바 높이 h-1→h-1.5 (가시성), 텍스트 contrast
+[타이포] 시맨틱 토큰 (text-h3/body-sm/caption/label)"
       ;;
-    polish-comp)
-      echo "src/components/dotori/FacilityCard.tsx, Skeleton.tsx, blocks/*.tsx 폴리싱
-FacilityCard compact: 시설명 font-semibold, 빈자리 text-forest-700, 스켈레톤 dark:bg-dotori-800/60."
+    r22-k)
+      echo "담당: src/components/dotori/BottomTabBar.tsx,
+       src/components/dotori/blocks/TextBlock.tsx,
+       src/components/dotori/blocks/ChecklistBlock.tsx,
+       src/components/dotori/blocks/ActionsBlock.tsx
+[UX] BottomTabBar: 활성 탭 → 아이콘 color dotori-500 + 레이블 font-semibold (현재 구분 약함)
+[UX] TextBlock: 문단 간 spacing → space-y-2.5
+[UX] ChecklistBlock: 체크 아이콘 → forest-500 (완료), dotori-300 (미완료)
+[UX] ActionsBlock: 버튼 min-h-11 터치 타겟, gap-2 간격
+[타이포] BottomTabBar 탭 레이블 text-xs → text-label"
       ;;
     *)
       echo "agent_task_registry.md 에서 $agent 담당 작업을 확인해라."
@@ -151,7 +213,8 @@ if [ "$SKIP_BUILD" -eq 1 ]; then
 else
   echo "  [0a] npm run build..."
   BUILD_LOG=$(mktemp)
-  if npm run build > "$BUILD_LOG" 2>&1; then
+  # NODE_ENV=development 가 쉘에 남아있으면 Next.js prerender 크래시 → unset
+  if env -u NODE_ENV npm run build > "$BUILD_LOG" 2>&1; then
     ok "Build OK"
   else
     tail -20 "$BUILD_LOG"; rm -f "$BUILD_LOG"

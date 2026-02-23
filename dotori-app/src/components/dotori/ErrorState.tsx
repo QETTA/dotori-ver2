@@ -40,12 +40,14 @@ export function ErrorState({
 					aria-hidden="true"
 					className="h-24 w-24 opacity-80"
 				/>
-				<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{message}</p>
-				{(detail || defaultDetails[variant]) ? (
-					<p className="max-w-xs text-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
-						{detail || defaultDetails[variant]}
-					</p>
-				) : null}
+				<div className="flex max-w-xs flex-col gap-2">
+					<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">{message}</h3>
+					{(detail || defaultDetails[variant]) ? (
+						<p className="text-body-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
+							{detail || defaultDetails[variant]}
+						</p>
+					) : null}
+				</div>
 				{action ? (
 					<Button color="dotori" onClick={action.onClick} className="min-h-11 w-full">
 						{action.label}

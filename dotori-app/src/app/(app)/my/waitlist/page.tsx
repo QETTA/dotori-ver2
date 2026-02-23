@@ -167,7 +167,7 @@ export default function WaitlistPage() {
 				</Link>
 				<h1 className="text-base font-bold">대기 신청 현황</h1>
 				{waitlists.length > 0 ? (
-					<span className="ml-auto text-sm font-medium text-dotori-500 dark:text-dotori-300">
+					<span className="ml-auto text-body-sm font-medium text-dotori-500 dark:text-dotori-300">
 						{waitlists.length}건
 					</span>
 				) : null}
@@ -180,10 +180,10 @@ export default function WaitlistPage() {
 				>
 					<div className="flex items-start justify-between gap-3">
 						<div className="min-w-0">
-							<p className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
+							<p className="text-body-sm font-semibold text-dotori-700 dark:text-dotori-100">
 								빈자리 즉시 알림은 프리미엄 전용입니다
 							</p>
-							<p className="mt-1.5 text-xs leading-5 text-dotori-500 dark:text-dotori-300">
+							<p className="mt-1.5 text-caption leading-5 text-dotori-500 dark:text-dotori-300">
 								{isPremiumUser
 									? "프리미엄: 빈자리 즉시 푸시 알림"
 									: "무료: 빈자리 생기면 앱 열었을 때 확인 가능"}
@@ -230,7 +230,7 @@ export default function WaitlistPage() {
 						<p className="mt-5 text-center text-lg font-bold text-dotori-900 dark:text-dotori-50">
 							아직 대기 신청이 없어요
 						</p>
-						<p className="mt-2 text-center text-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+						<p className="mt-2 text-center text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 							마음에 드는 시설을 찾고 대기 신청을 하면, 여기서 순번과 서류 진행 상황까지 한 번에 확인할 수 있어요.
 						</p>
 						<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
@@ -238,7 +238,7 @@ export default function WaitlistPage() {
 						</Button>
 						<Link
 							href="/my/import"
-							className="mt-3 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-full border border-dotori-200/60 bg-white px-5 text-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900"
+							className="mt-3 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-full border border-dotori-200/60 bg-white px-5 text-body-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900"
 						>
 							<CameraIcon className="h-5 w-5" />
 							스크린샷으로 가져오기
@@ -263,7 +263,7 @@ export default function WaitlistPage() {
 								<motion.li key={item._id} {...stagger.item} className="list-none">
 									<motion.div
 										{...tap.card}
-										className="rounded-2xl border border-dotori-100 bg-white p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+										className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-950 dark:ring-dotori-800/70 dark:shadow-none"
 									>
 										{/* 시설 정보 */}
 										<div className="flex items-start justify-between">
@@ -275,7 +275,7 @@ export default function WaitlistPage() {
 													{facility?.name || "시설 정보 없음"}
 												</h3>
 												{facility ? (
-													<p className="mt-1 line-clamp-2 text-sm text-dotori-500 dark:text-dotori-300">
+													<p className="mt-1 line-clamp-2 text-body-sm text-dotori-500 dark:text-dotori-300">
 														{facility.type} · {facility.address}
 													</p>
 												) : null}
@@ -286,18 +286,18 @@ export default function WaitlistPage() {
 										</div>
 
 										{/* 상세 정보 */}
-										<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-dotori-500 dark:text-dotori-300">
+										<div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-caption text-dotori-500 dark:text-dotori-300">
 											<span className="font-medium text-dotori-700 dark:text-dotori-100">
 												아이 {item.childName}
 											</span>
 											{item.ageClass ? <span>{item.ageClass}</span> : null}
 											{typeof item.position === "number" && (
-												<span className="rounded-full bg-dotori-100 px-3 py-1 text-xs font-semibold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
+												<span className="rounded-full bg-dotori-100 px-3 py-1 text-caption font-semibold text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 													대기 {item.position}번째
 												</span>
 											)}
 											<span
-												className="ml-auto tabular-nums text-xs text-dotori-400 dark:text-dotori-300"
+												className="ml-auto tabular-nums text-caption text-dotori-400 dark:text-dotori-300"
 												suppressHydrationWarning
 											>
 												신청 {formatRelativeTime(item.appliedAt)}
@@ -307,14 +307,14 @@ export default function WaitlistPage() {
 										{/* 대기 상태 요약 */}
 										<div className="mt-3 grid grid-cols-2 gap-2">
 											<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center dark:bg-dotori-900">
-												<span className="block text-xs text-dotori-500 dark:text-dotori-300">
+												<span className="block text-caption text-dotori-500 dark:text-dotori-300">
 													현재 대기 순번
 												</span>
 												<div className="mt-1 flex items-end justify-center gap-1">
 													<span className="text-2xl font-bold tabular-nums text-dotori-900 dark:text-dotori-50">
 														{typeof item.position === "number" ? item.position : "—"}
 													</span>
-													<span className="pb-0.5 text-xs font-semibold text-dotori-500 dark:text-dotori-300">
+													<span className="pb-0.5 text-caption font-semibold text-dotori-500 dark:text-dotori-300">
 														번째
 													</span>
 													{(() => {
@@ -328,7 +328,7 @@ export default function WaitlistPage() {
 														return (
 															<span
 																className={cn(
-																	"ml-1 inline-flex items-center gap-0.5 text-xs font-semibold tabular-nums",
+																	"ml-1 inline-flex items-center gap-0.5 text-caption font-semibold tabular-nums",
 																	isImproved
 																		? "text-forest-600 dark:text-forest-200"
 																		: "text-dotori-500 dark:text-dotori-300",
@@ -350,7 +350,7 @@ export default function WaitlistPage() {
 												</div>
 											</div>
 											<div className="rounded-xl bg-dotori-50 px-3 py-2.5 text-center dark:bg-dotori-900">
-												<span className="block text-xs text-dotori-500 dark:text-dotori-300">
+												<span className="block text-caption text-dotori-500 dark:text-dotori-300">
 													예상 입소 시기
 												</span>
 												<span className="mt-1 block text-base font-bold text-dotori-900 dark:text-dotori-50">
@@ -358,7 +358,7 @@ export default function WaitlistPage() {
 												</span>
 											</div>
 										</div>
-										<p className="mt-2 text-xs text-dotori-500 dark:text-dotori-300">
+										<p className="mt-2 text-caption text-dotori-500 dark:text-dotori-300">
 											{getAdmissionGuide(item.position, item.estimatedDate)}
 										</p>
 
@@ -366,7 +366,7 @@ export default function WaitlistPage() {
 										{facility ? (
 											<div className="mt-3 flex gap-2">
 												<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center dark:bg-dotori-900">
-													<span className="block text-xs text-dotori-500 dark:text-dotori-300">
+													<span className="block text-caption text-dotori-500 dark:text-dotori-300">
 														정원
 													</span>
 													<span className="mt-0.5 block text-base font-bold tabular-nums text-dotori-900 dark:text-dotori-50">
@@ -374,7 +374,7 @@ export default function WaitlistPage() {
 													</span>
 												</div>
 												<div className="flex-1 rounded-xl bg-dotori-50 px-3 py-2.5 text-center dark:bg-dotori-900">
-													<span className="block text-xs text-dotori-500 dark:text-dotori-300">
+													<span className="block text-caption text-dotori-500 dark:text-dotori-300">
 														현원
 													</span>
 													<span className="mt-0.5 block text-base font-bold tabular-nums text-dotori-900 dark:text-dotori-50">
@@ -389,7 +389,7 @@ export default function WaitlistPage() {
 															: "bg-dotori-50 dark:bg-dotori-900",
 													)}
 												>
-													<span className="block text-xs text-dotori-500 dark:text-dotori-300">
+													<span className="block text-caption text-dotori-500 dark:text-dotori-300">
 														{facility.status === "available" ? "여석" : "대기"}
 													</span>
 													<span
@@ -427,10 +427,10 @@ export default function WaitlistPage() {
 														className="mt-3 block rounded-xl bg-dotori-50 p-4 transition-all hover:bg-dotori-100/60 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-dotori-400/70 active:scale-[0.99] dark:bg-dotori-900 dark:hover:bg-dotori-800"
 													>
 														<div className="flex items-center justify-between">
-															<span className="text-sm font-semibold text-dotori-700 dark:text-dotori-100">
+															<span className="text-body-sm font-semibold text-dotori-700 dark:text-dotori-100">
 																서류 제출 현황
 															</span>
-															<span className="text-xs font-semibold tabular-nums text-dotori-500 dark:text-dotori-300">
+															<span className="text-caption font-semibold tabular-nums text-dotori-500 dark:text-dotori-300">
 																{submitted}/{total}건 완료
 															</span>
 														</div>
@@ -443,7 +443,7 @@ export default function WaitlistPage() {
 																style={{ width: `${pct}%` }}
 															/>
 														</div>
-														<p className="mt-1.5 text-xs text-dotori-500 dark:text-dotori-300">
+														<p className="mt-1.5 text-caption text-dotori-500 dark:text-dotori-300">
 															{pct === 100
 																? "모든 서류가 준비되었어요"
 																: "탭하여 서류를 확인하세요"}
@@ -457,7 +457,7 @@ export default function WaitlistPage() {
 											<div className="mt-3 flex items-center justify-between gap-3">
 												<Link
 													href={`/my/waitlist/${item._id}`}
-													className="inline-flex min-h-11 items-center rounded-full border border-dotori-200/60 bg-white px-4 text-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900"
+													className="inline-flex min-h-11 items-center rounded-full border border-dotori-200/60 bg-white px-4 text-body-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900"
 												>
 													상세 보기
 												</Link>
@@ -466,7 +466,7 @@ export default function WaitlistPage() {
 													onClick={() => cancelWaitlist(item._id)}
 													disabled={cancellingIds.has(item._id)}
 													className={cn(
-														"min-h-11 px-5 text-sm",
+														"min-h-11 px-5 text-body-sm",
 														cancellingIds.has(item._id) && "opacity-60",
 													)}
 												>
@@ -491,26 +491,26 @@ export default function WaitlistPage() {
 						<CameraIcon className="h-5 w-5 text-dotori-600 dark:text-dotori-200" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<p className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">
+						<p className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
 							스크린샷으로 대기현황 가져오기
 						</p>
-						<p className="mt-0.5 text-xs text-dotori-500 dark:text-dotori-300">
+						<p className="mt-0.5 text-caption text-dotori-500 dark:text-dotori-300">
 							아이사랑 앱 스크린샷을 찍으면 AI가 자동으로 분석해요
 						</p>
 					</div>
-					<span className="text-sm text-dotori-500 dark:text-dotori-300">→</span>
+					<span className="text-body-sm text-dotori-500 dark:text-dotori-300">→</span>
 				</Link>
 			)}
 
 			{/* 아이사랑 앱 바로가기 */}
 			{!isLoading && (
 				<div className="mx-4 mt-6 rounded-2xl bg-gradient-to-br from-dotori-50 to-white p-4 shadow-sm dark:from-dotori-900 dark:to-dotori-950 dark:shadow-none">
-					<p className="text-sm font-medium text-dotori-600 dark:text-dotori-200">
+					<p className="text-body-sm font-medium text-dotori-600 dark:text-dotori-200">
 						아이사랑 앱에서 공식 대기현황을 확인하세요
 					</p>
 					<button
 						onClick={() => openIsalangApp(ISALANG_PORTAL.waitlistStatus)}
-						className="mt-2 flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.97] dark:bg-dotori-500 dark:shadow-none"
+						className="mt-2 flex w-full min-h-11 items-center justify-center gap-2 rounded-xl bg-dotori-900 px-3 text-body-sm font-semibold text-white shadow-md transition-all active:scale-[0.97] dark:bg-dotori-500 dark:shadow-none"
 					>
 						<DevicePhoneMobileIcon className="h-5 w-5" />
 						아이사랑 앱 열기
@@ -518,13 +518,13 @@ export default function WaitlistPage() {
 					<div className="mt-2 flex gap-2">
 						<button
 							onClick={() => openIsalangLink(ISALANG_PORTAL.waitlistStatus)}
-							className="flex-1 min-h-11 rounded-xl bg-white px-3 text-center text-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
+							className="flex-1 min-h-11 rounded-xl bg-white px-3 text-center text-body-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
 						>
 							대기현황
 						</button>
 						<button
 							onClick={() => openIsalangLink(ISALANG_PORTAL.documentSubmit)}
-							className="flex-1 min-h-11 rounded-xl bg-white px-3 text-center text-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
+							className="flex-1 min-h-11 rounded-xl bg-white px-3 text-center text-body-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none"
 						>
 							서류제출
 						</button>

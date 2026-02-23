@@ -87,6 +87,7 @@ const publicPaths = [
   "/community",
   "/facility",
   "/onboarding",
+  "/manifest.json",
 ];
 
 // Routes that authenticated users should be redirected away from
@@ -144,9 +145,9 @@ export const config = {
 	matcher: [
     /*
      * Match all paths except:
-     * - _next (Next.js internals)
-     * - static files (favicon, brand assets, etc.)
+     * - Next.js internals
+     * - public static assets (including manifest, icons, PWA files, brand assets)
 	 */
-	"/((?!_next/|favicon\\.ico|brand/).*)",
+	"/((?!_next/|favicon\\.ico|manifest\\.json|brand/|robots\\.txt|sitemap\\.xml).*)",
 	],
 };

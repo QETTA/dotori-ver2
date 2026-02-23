@@ -43,11 +43,11 @@ export function ChatPromptPanel({
 					/>
 					<Heading
 						level={3}
-						className="text-center text-xl leading-snug font-bold tracking-tight text-dotori-900 dark:text-dotori-50"
+						className="text-h2 text-center font-bold tracking-tight text-dotori-900 dark:text-dotori-50"
 					>
 						이동 고민이라면 뭐든 물어보세요
 					</Heading>
-					<Text className="mt-1.5 block text-center text-sm text-dotori-500 dark:text-dotori-300">
+					<Text className="text-body-sm mt-1.5 block text-center text-dotori-500 dark:text-dotori-300">
 						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 					</Text>
 				</div>
@@ -76,7 +76,7 @@ export function ChatPromptPanel({
 								type="button"
 								onClick={() => onSuggestPrompt(prompt)}
 								className={cn(
-									"flex min-h-12 w-full items-center gap-3 rounded-2xl border border-dotori-100 bg-dotori-50/70 px-4 py-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
+									"flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-dotori-100 bg-dotori-50/70 p-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
 									"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm dark:hover:bg-dotori-800 dark:hover:shadow-none active:scale-[0.97]",
 									"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
 								)}
@@ -85,10 +85,10 @@ export function ChatPromptPanel({
 									{prompt.icon}
 								</span>
 								<div className="min-w-0">
-									<Text className="block text-base font-semibold text-dotori-800 dark:text-dotori-100">
+									<Text className="text-label block text-dotori-800 dark:text-dotori-100">
 										{prompt.label}
 									</Text>
-									<Text className="mt-0.5 block line-clamp-1 text-sm text-dotori-500 dark:text-dotori-300">
+									<Text className="text-caption mt-0.5 block line-clamp-1 text-dotori-500 dark:text-dotori-300">
 										{prompt.prompt}
 									</Text>
 								</div>

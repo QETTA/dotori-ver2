@@ -393,7 +393,7 @@ function ChatContent() {
 		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
 			{/* ── Header ── */}
 			<header className="glass-header sticky top-0 z-10 flex items-center gap-3 px-5 py-3.5">
-				<div className="flex min-w-0 items-center gap-3">
+				<div className="flex min-w-0 items-center gap-2.5">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={TORI_ICON}
@@ -402,7 +402,10 @@ function ChatContent() {
 						className="h-10 w-10 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
 					/>
 					<div className="min-w-0">
-						<Heading level={3} className="font-semibold text-dotori-900 dark:text-dotori-50">
+						<Heading
+							level={3}
+							className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50"
+						>
 							토리
 						</Heading>
 						<div className="mt-0.5 flex items-center gap-1.5">

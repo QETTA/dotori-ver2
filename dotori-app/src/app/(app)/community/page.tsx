@@ -10,13 +10,10 @@ import { cn, formatRelativeTime } from "@/lib/utils";
 import { BRAND } from "@/lib/brand-assets";
 import { fadeIn, fadeUp, stagger, tap } from "@/lib/motion";
 import {
-	ChatBubbleLeftIcon,
 	HeartIcon,
-	EyeIcon,
 	MapPinIcon,
 	PlusIcon,
 	SparklesIcon,
-	UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon, FireIcon } from "@heroicons/react/24/solid";
 import { motion } from "motion/react";
@@ -26,7 +23,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CommunityEmptyState } from "./_components/CommunityEmptyState";
 import {
 	categoryLabel,
-	categoryStyle,
 	tabs,
 	tabToCategoryParam,
 	type TabLabel,
@@ -435,6 +431,11 @@ export default function CommunityPage() {
 						<motion.ul {...stagger.container} className="space-y-3">
 						{posts.map((post) => {
 							const postHot = isHotPost(post);
+							const postTitle =
+								post.title?.trim() ||
+								(post.content.length > 30
+									? `${post.content.slice(0, 30)}...`
+									: post.content);
 
 							return (
 								<motion.li
@@ -442,112 +443,92 @@ export default function CommunityPage() {
 									{...stagger.item}
 									{...tap.card}
 									className={cn(
-										"overflow-hidden rounded-3xl border border-dotori-100/80 bg-white p-0 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+										"rounded-2xl bg-white p-4 ring-1 ring-dotori-100/70 shadow-sm dark:bg-dotori-900 dark:ring-dotori-800",
 									)}
 								>
-									<div className="relative rounded-none bg-gradient-to-b from-dotori-50/40 to-white p-4 dark:from-dotori-900/40 dark:to-dotori-950">
-										<div className="mb-2 flex items-start justify-between gap-2">
-											<div className="flex min-w-0 items-start gap-2.5">
-												<div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-100 text-dotori-600 ring-2 ring-dotori-200/70 dark:bg-dotori-800 dark:text-dotori-100 dark:ring-dotori-700">
-													<UserCircleIcon className="h-5 w-5" />
-												</div>
-												<div className="min-w-0 flex-1">
-														<p className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
-															익명 부모
-														</p>
-														<div className="mt-1 flex flex-wrap items-center gap-1.5">
-															{post.author.verified ? (
-																<Badge color="forest" className="text-xs font-medium">
-																	인증
-																</Badge>
-															) : null}
-															{post.category && categoryLabel[post.category] ? (
-																<span
-																	className={cn(
-																		"rounded-full px-2 py-0.5 text-xs font-medium",
-																		categoryStyle[post.category],
-																	)}
-																>
-																	{categoryLabel[post.category]}
-																</span>
-														) : null}
-													</div>
-												</div>
-											</div>
-												<p
-													className="shrink-0 text-sm text-dotori-600 dark:text-dotori-300"
-													suppressHydrationWarning
-												>
-													{formatRelativeTime(post.createdAt)}
-												</p>
-											</div>
-
-											{postHot ? (
-												<div className="mb-2 inline-flex items-center gap-1 rounded-full bg-forest-600/10 px-2.5 py-1 text-xs font-semibold text-forest-700 dark:bg-dotori-900 dark:text-forest-200">
-													<FireIcon className="h-4 w-4" />
-													인기
-												</div>
-											) : null}
-
-											<Link href={`/community/${post.id}`} className="block">
-												<p className="min-h-[56px] text-base leading-relaxed text-dotori-800 dark:text-dotori-100">
-													{post.content}
-												</p>
-											</Link>
-
-										{post.facilityTags && post.facilityTags.length > 0 ? (
-											<div className="mt-2.5 flex flex-wrap gap-2">
-												{post.facilityTags.map((tag) => (
-													<Link
-														key={tag}
-															href={`/explore?q=${encodeURIComponent(tag)}`}
-															className={cn(
-																"rounded-full px-3 py-1.5 text-sm font-medium transition-colors active:scale-[0.97]",
-																tagStyle(tag),
-															)}
-														>
-															{tag}
-														</Link>
-												))}
-											</div>
+									<div className="flex flex-wrap items-center gap-2">
+										{post.category && categoryLabel[post.category] ? (
+											<Badge color="dotori" className="text-xs font-semibold">
+												{categoryLabel[post.category]}
+											</Badge>
 										) : null}
-
-										{post.aiSummary ? (
-											<div className="mt-2.5">
-												<Button
-													plain={true}
-													type="button"
-													onClick={() =>
-														setShowAiSummary((prev) => ({
-															...prev,
-															[post.id]: !prev[post.id],
-														}))
-														}
-													className={cn(
-														"flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors active:scale-[0.97]",
-														showAiSummary[post.id]
-															? "text-dotori-700 hover:bg-dotori-50 dark:text-dotori-100 dark:hover:bg-dotori-900"
-															: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-900",
-													)}
-													>
-													<SparklesIcon className="h-4 w-4" />
-													{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
-												</Button>
-													{showAiSummary[post.id] ? (
-														<motion.div
-															{...fadeIn}
-															className="mt-1.5 rounded-xl bg-dotori-50 p-3 dark:bg-dotori-900/60"
-														>
-															<p className="text-sm leading-relaxed text-dotori-600 dark:text-dotori-200">
-																{post.aiSummary}
-															</p>
-														</motion.div>
-													) : null}
-												</div>
+										{post.author.verified ? (
+											<Badge color="forest" className="text-xs font-medium">
+												인증
+											</Badge>
+										) : null}
+										{postHot ? (
+											<Badge color="forest" className="inline-flex items-center gap-1 text-xs font-semibold">
+												<FireIcon className="h-3.5 w-3.5" />
+												인기
+											</Badge>
 										) : null}
 									</div>
 
-									<div className="flex items-center gap-0 border-t border-dotori-50 bg-dotori-50/50 p-1 dark:border-dotori-900 dark:bg-dotori-900/30">
+									<Link href={`/community/${post.id}`} className="mt-3 block">
+										<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+											{postTitle}
+										</h3>
+										<p className="mt-1 line-clamp-2 text-sm text-dotori-600 dark:text-dotori-300">
+											{post.content}
+										</p>
+									</Link>
+
+									{post.facilityTags && post.facilityTags.length > 0 ? (
+										<div className="mt-3 flex flex-wrap gap-2">
+											{post.facilityTags.map((tag) => (
+												<Link
+													key={tag}
+													href={`/explore?q=${encodeURIComponent(tag)}`}
+													className={cn(
+														"rounded-full px-2.5 py-1 text-xs font-medium transition-colors active:scale-[0.97]",
+														tagStyle(tag),
+													)}
+												>
+													{tag}
+												</Link>
+											))}
+										</div>
+									) : null}
+
+									{post.aiSummary ? (
+										<div className="mt-2.5">
+											<Button
+												plain={true}
+												type="button"
+												onClick={() =>
+													setShowAiSummary((prev) => ({
+														...prev,
+														[post.id]: !prev[post.id],
+													}))
+												}
+												className={cn(
+													"flex min-h-11 items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors active:scale-[0.97]",
+													showAiSummary[post.id]
+														? "text-dotori-700 hover:bg-dotori-50 dark:text-dotori-100 dark:hover:bg-dotori-950"
+														: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-950",
+												)}
+											>
+												<SparklesIcon className="h-4 w-4" />
+												{showAiSummary[post.id] ? "AI 요약 접기" : "AI 요약"}
+											</Button>
+											{showAiSummary[post.id] ? (
+												<motion.div
+													{...fadeIn}
+													className="mt-1.5 rounded-xl bg-dotori-50 p-3 dark:bg-dotori-950"
+												>
+													<p className="text-sm leading-relaxed text-dotori-600 dark:text-dotori-200">
+														{post.aiSummary}
+													</p>
+												</motion.div>
+											) : null}
+										</div>
+									) : null}
+
+									<div className="mt-3 flex items-center justify-between gap-2 text-caption text-dotori-500 dark:text-dotori-400">
+										<p className="min-w-0 truncate" suppressHydrationWarning>
+											익명 부모 · {formatRelativeTime(post.createdAt)}
+										</p>
 										<Button
 											plain={true}
 											type="button"
@@ -555,31 +536,19 @@ export default function CommunityPage() {
 											disabled={likingPosts.has(post.id)}
 											aria-label={likedPosts.has(post.id) ? "좋아요 취소" : "좋아요"}
 											className={cn(
-												"flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition-colors active:scale-[0.97]",
+												"inline-flex min-h-10 shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-caption font-medium transition-colors active:scale-[0.97]",
 												likedPosts.has(post.id)
-													? "bg-forest-50 text-forest-700 hover:bg-forest-100/60 dark:bg-dotori-900 dark:text-forest-200 dark:hover:bg-dotori-800"
-													: "bg-white/70 text-dotori-600 hover:bg-dotori-100/80 dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800",
+													? "text-forest-700 hover:bg-forest-50 dark:text-forest-200 dark:hover:bg-dotori-950"
+													: "text-dotori-500 hover:bg-dotori-50 dark:text-dotori-300 dark:hover:bg-dotori-950",
 											)}
 										>
 											{likedPosts.has(post.id) ? (
-												<HeartSolidIcon className="h-5 w-5" />
+												<HeartSolidIcon className="h-4 w-4" />
 											) : (
-												<HeartIcon className="h-5 w-5" />
+												<HeartIcon className="h-4 w-4" />
 											)}
-											{post.likes}
+											좋아요 {post.likes}
 										</Button>
-										<Link
-											href={`/community/${post.id}`}
-											aria-label="댓글"
-											className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-semibold text-dotori-600 transition-colors hover:bg-dotori-100/80 active:scale-[0.97] dark:bg-dotori-900/60 dark:text-dotori-200 dark:hover:bg-dotori-800"
-										>
-											<ChatBubbleLeftIcon className="h-5 w-5" />
-											{post.commentCount}
-										</Link>
-										<div className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-white/70 px-3 text-xs font-medium text-dotori-600 dark:bg-dotori-900/60 dark:text-dotori-300">
-											<EyeIcon className="h-5 w-5" />
-											조회 {post.viewCount ?? 0}
-										</div>
 									</div>
 								</motion.li>
 							);
