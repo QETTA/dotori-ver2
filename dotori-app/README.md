@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dotori App
 
-## Getting Started
+## Standard Commands (Local = CI)
 
-First, run the development server:
+```bash
+# install
+npm ci
+
+# one-shot quality gate (format:check -> lint -> typecheck -> test -> build:ci)
+npm run ci
+
+# split commands
+npm run format
+npm run format:check
+npm run lint
+npm run typecheck
+npm test
+npm run test:integration
+npm run test:engine
+npm run test:e2e
+npm run build
+
+# UX/UI auto guard (console + screenshot + scroll audit)
+# dev server must be up (ex: npm run dev:3002)
+BASE_URL=http://127.0.0.1:3002 npm run ux:guard
+```
+
+## DigitalOcean Auto Deploy (GitHub)
+
+- PR 생성/업데이트 시: `PR Preview` 워크플로우가 자동으로 Preview URL을 배포하고, PR 코멘트에 URL/헬스체크를 남깁니다.
+- `main` 푸시 시: `CI/CD` 워크플로우가 `npm run ci` + `build` 성공 후 DigitalOcean 프로덕션 배포를 실행합니다.
+- 배포 후 워크플로우는 `/api/health`까지 확인하고 실패 시 즉시 실패 처리합니다.
+
+```bash
+# repo root에서 최근 실행 확인
+gh run list -R QETTA/dotori-ver2 --limit 10
+
+# 특정 워크플로우 실행 추적
+gh run watch <run-id> -R QETTA/dotori-ver2
+
+# PR 체크 상태 요약
+gh pr checks <pr-number> -R QETTA/dotori-ver2
+```
+
+## Development
 
 ```bash
 npm run dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev:3002
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Docs
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Engine test catalog: `../docs/ENGINE_TEST_CATALOG.md`
+- Backend error contract: `../docs/ERROR_CONTRACT.md`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Engine Test Reliability
 
-## Learn More
+```bash
+# engine tests only
+npm run test:engine
 
-To learn more about Next.js, take a look at the following resources:
+# engine coverage (thresholds: lines 60, functions 70, statements 60, branches 45)
+npm run test:engine:coverage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# flaky check (default 5 runs, override with REPEAT)
+npm run test:engine:flaky
+REPEAT=10 npm run test:engine:flaky
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Backend Error Contract
 
-## Deploy on Vercel
+- 기본 API 에러 응답은 `{ error, code }` 형식을 사용합니다.
+- 채팅 쿼터 초과는 `{ error: "quota_exceeded", code: "FORBIDDEN", message, details }`를 반환합니다.
+- `details.limitType`은 `guest | monthly`, `details.limit`은 적용된 제한 횟수입니다.
+- 모든 API 응답 헤더에 `X-Request-Id`가 포함됩니다.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- CI 빌드는 `npm run build:ci`를 사용하며 내부에서 `SKIP_ENV_VALIDATION=1`로 실행됩니다.
+- 운영 배포용 `npm run build`는 실제 환경 변수를 요구할 수 있습니다.

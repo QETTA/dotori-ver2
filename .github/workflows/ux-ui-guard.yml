@@ -1,0 +1,83 @@
+name: UX/UI Guard
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "dotori-app/**"
+      - ".github/workflows/ux-ui-guard.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dotori-ux-ui-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ux-guard:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dotori-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dotori-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Static design/mobile gate
+        run: |
+          DS_SCORE_ENFORCE=1 DS_SCORE_MIN=85 npm run audit:design:strict
+          MOBILE_SCORE_ENFORCE=1 MOBILE_SCORE_MIN=90 npm run audit:mobile:strict
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start dev server (3002)
+        run: |
+          nohup npm run dev:3002 > /tmp/ux-dev3002.log 2>&1 &
+          echo $! > /tmp/ux-dev3002.pid
+
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:3002/api/health >/dev/null 2>&1; then
+              echo "Server is ready in ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server startup timeout"
+          tail -n 120 /tmp/ux-dev3002.log || true
+          exit 1
+
+      - name: Runtime UX/UI guard
+        run: CHECK_CONSOLE_IGNORE_API_ERRORS=1 BASE_URL=http://127.0.0.1:3002 npm run ux:guard
+
+      - name: Stop dev server
+        if: always()
+        run: |
+          if [ -f /tmp/ux-dev3002.pid ]; then
+            kill -TERM "$(cat /tmp/ux-dev3002.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload UX artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ux-ui-guard-${{ github.run_id }}
+          path: |
+            /tmp/dotori-ux-guard
+            /tmp/dotori-screenshots
+            /tmp/dotori-audit-v3
+            /tmp/ux-dev3002.log
+          if-no-files-found: ignore

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createApiErrorResponse } from "@/lib/api-error";
 import { withApiHandler, NotFoundError, ApiError } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 import { actionExecuteSchema } from "@/lib/validations";
@@ -82,7 +83,10 @@ export const POST = withApiHandler(async (_req, { userId, body }) => {
 	if (!result.success) {
 		// Delete execution record on failure so user can retry
 		await ActionExecution.deleteOne({ idempotencyKey });
-		return NextResponse.json({ error: result.error }, { status: 422 });
+		return createApiErrorResponse({
+			status: 422,
+			message: result.error || "요청을 처리할 수 없습니다",
+		});
 	}
 
 	return NextResponse.json({ data: result }, { status: 201 });

@@ -19,6 +19,7 @@ APP=$(cd "$(dirname "$0")/.." && pwd)
 CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
 WAVE_SIZE=4
 TASKS_FILE=""
+TASK_TIMEOUT=${TASK_TIMEOUT:-900}
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
@@ -111,7 +112,10 @@ ${SHARED_RULES}
 2. 수정 실행
 3. npx tsc --noEmit → 0 에러 확인"
 
-    codex exec -m "$CODEX_MODEL" -s workspace-write \
+    timeout "$TASK_TIMEOUT" codex exec -m "$CODEX_MODEL" --disable apps \
+      -c 'model_reasoning_effort="low"' \
+      -c 'model_verbosity="low"' \
+      -s workspace-write \
       --cd "$APP" \
       -o "$RESULTS_DIR/${AID}.txt" \
       "$PROMPT" \
@@ -125,7 +129,8 @@ ${SHARED_RULES}
   WAVE_TS=$(date +%s)
   for j in "${!WAVE_PIDS[@]}"; do
     wait "${WAVE_PIDS[$j]}" 2>/dev/null
-    echo "  ✓ ${WAVE_AIDS[$j]}"
+    AID_DONE="${WAVE_AIDS[$j]:-unknown-${j}}"
+    echo "  ✓ ${AID_DONE}"
   done
   WAVE_ELAPSED=$(( $(date +%s) - WAVE_TS ))
   ok "Wave ${WAVE_NUM} 완료 (${WAVE_ELAPSED}s)"

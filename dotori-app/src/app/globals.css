@@ -58,20 +58,20 @@
   --shadow-2xl: 0 8px 16px rgba(45, 36, 24, 0.06), 0 24px 56px rgba(45, 36, 24, 0.12);
 
   /* ── Border Radius ── */
-  --radius-sm:   8px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --radius-xl:   20px;
-  --radius-2xl:  24px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  22px;
   --radius-full: 9999px;
 
   /* ── Typography Scale (Brand Kit v2.2) ── */
-  --text-display: 2rem;        /* 32px  lh:1.3  fw:900  ls:-0.5px */
-  --text-h1:      1.5rem;      /* 24px  lh:1.35 fw:800  ls:-0.3px */
-  --text-h2:      1.25rem;     /* 20px  lh:1.4  fw:700  */
-  --text-h3:      1rem;        /* 16px  lh:1.5  fw:700  */
-  --text-body:    0.9375rem;   /* 15px  lh:1.6  fw:400  */
-  --text-body-sm: 0.8125rem;   /* 13px  lh:1.6  fw:400  */
+  --text-display: 1.75rem;     /* 28px  lh:1.28 fw:900  ls:-0.4px */
+  --text-h1:      1.375rem;    /* 22px  lh:1.35 fw:800  ls:-0.3px */
+  --text-h2:      1.125rem;    /* 18px  lh:1.4  fw:700  */
+  --text-h3:      0.9375rem;   /* 15px  lh:1.45 fw:700  */
+  --text-body:    0.875rem;    /* 14px  lh:1.55 fw:400  */
+  --text-body-sm: 0.75rem;     /* 12px  lh:1.55 fw:400  */
   --text-caption: 0.6875rem;   /* 11px  lh:1.5  fw:400  ls:0.5px */
   --text-label:   0.625rem;    /* 10px  lh:1.4  fw:700  ls:1px   */
 

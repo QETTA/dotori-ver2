@@ -4,6 +4,8 @@ import path from 'path'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const OUT = '/tmp/dotori-screenshots'
+const IGNORE_RUNTIME_NOISE =
+  process.env.CHECK_CONSOLE_IGNORE_API_ERRORS === '1'
 type BrowserError = {
   route: string
   type: string
@@ -13,7 +15,51 @@ type BrowserError = {
 const consoleIssues: BrowserError[] = []
 
 const recordIssue = (route: string, type: string, message: string) => {
+  if (isKnownRuntimeNoise(type, message)) {
+    return
+  }
   consoleIssues.push({ route, type, message })
+}
+
+function isKnownRuntimeNoise(type: string, message: string): boolean {
+  const normalized = message.toLowerCase()
+
+  if (
+    normalized.includes(
+      'download the react devtools for a better development experience'
+    )
+  ) {
+    return true
+  }
+
+  if (!IGNORE_RUNTIME_NOISE) {
+    return false
+  }
+
+  if (
+    normalized.includes('clientfetcherror') &&
+    normalized.includes('not valid json')
+  ) {
+    return true
+  }
+
+  if (
+    normalized.includes(
+      'failed to load resource: the server responded with a status of 500'
+    )
+  ) {
+    return true
+  }
+
+  if (
+    type === 'pageerror' &&
+    normalized.includes('환경변수 오류:') &&
+    normalized.includes('invalid input: expected string')
+  ) {
+    return true
+  }
+
+  return false
 }
 
 async function getFacilityId(): Promise<string> {

@@ -1,5 +1,5 @@
 # ── Dotori CI/CD Pipeline ──
-# 순서: preflight(lint+type-check+test) → build → deploy
+# 순서: ci(local=CI 동일 커맨드) → build → deploy
 # GitHub Student Pack (Pro): 3000분/월, deployment environments 사용 가능
 
 name: CI/CD
@@ -28,7 +28,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ── Job 1: Preflight (Lint + Type Check + Test) ──
+  # ── Job 1: CI (Local = CI) ──
   test:
     runs-on: ubuntu-latest
     steps:
@@ -41,8 +41,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
         working-directory: dotori-app
-      - name: Preflight checks
-        run: npm run ci:preflight
+      - name: Run local CI command
+        run: npm run ci
         working-directory: dotori-app
 
   # ── Job 2: Build ──
@@ -110,3 +110,40 @@ jobs:
         run: |
           URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "")
           echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Fail if deployment URL is missing
+        if: success()
+        run: |
+          if [ -z "${{ steps.extract.outputs.url }}" ]; then
+            echo "DigitalOcean deployment URL is empty"
+            exit 1
+          fi
+
+      - name: Wait for production health
+        if: success()
+        run: |
+          BASE_URL="${{ steps.extract.outputs.url }}"
+          BASE_URL="${BASE_URL%/}"
+          HEALTH_URL="${BASE_URL}/api/health"
+          for i in $(seq 1 90); do
+            if curl -fsS --max-time 5 "$HEALTH_URL" >/dev/null 2>&1; then
+              echo "Production health ready in ${i}s: $HEALTH_URL"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Production health check timeout: $HEALTH_URL"
+          exit 1
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          BASE_URL="${{ steps.extract.outputs.url }}"
+          BASE_URL="${BASE_URL%/}"
+          {
+            echo "## DigitalOcean Deployment"
+            echo ""
+            echo "- URL: ${BASE_URL}"
+            echo "- Health: ${BASE_URL}/api/health"
+            echo "- Commit: \`${GITHUB_SHA::7}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
