@@ -1,9 +1,10 @@
 #!/bin/bash
-# ㄱ 파이프라인 v6 — Codex 병렬 + Serena Hub + 자동 라운드
-# Usage: ./scripts/launch.sh [ROUND] [--skip-build] [--agents=a,b,c]
+# ㄱ 파이프라인 v7 — Wave 빌드 + Codex 병렬 + Serena Hub + 자동 라운드
+# Usage: ./scripts/launch.sh [ROUND] [--skip-build] [--agents=a,b,c] [--wave=N]
 #   ROUND: 생략 시 git log에서 마지막 rN 자동 감지 + 1
 #   --skip-build: pre-flight 빌드 skip (이미 빌드된 경우)
 #   --agents=a,b: 특정 에이전트만 실행 (콤마 구분)
+#   --wave=N: wave 크기 (기본 4, 에이전트를 N개씩 나눠 중간 검증)
 
 set -uo pipefail
 
@@ -16,6 +17,7 @@ SERENA_HUB_PORT=8765
 SERENA_HUB_URL="http://localhost:$SERENA_HUB_PORT"
 SERENA_HUB_PID=""
 MAX_PARALLEL=${MAX_PARALLEL:-6}          # 빌드 검증 병렬 수 (v5: 4 → v6: 6)
+WAVE_SIZE=${WAVE_SIZE:-4}                # wave 빌드: N개씩 끊어서 중간 검증
 TIMEOUT=${CODEX_TIMEOUT:-5400}           # 90분 (환경변수로 override 가능)
 SKIP_BUILD=0
 
@@ -26,6 +28,7 @@ for arg in "$@"; do
   case $arg in
     --skip-build) SKIP_BUILD=1 ;;
     --agents=*)   CUSTOM_AGENTS="${arg#--agents=}" ;;
+    --wave=*)     WAVE_SIZE="${arg#--wave=}" ;;
     r[0-9]*)      ROUND="$arg" ;;
     *)            ;;
   esac
@@ -202,7 +205,7 @@ printf "${BLUE}║  ㄱ 파이프라인 v6 — ROUND: %-17s║${NC}\n" "$ROUND"
 printf "${BLUE}║  에이전트: %-32s║${NC}\n" "${#AGENTS[@]}개 / skip-build: $SKIP_BUILD"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
-info "모델: $CODEX_MODEL  |  타임아웃: ${TIMEOUT}s  |  빌드병렬: ${MAX_PARALLEL}"
+info "모델: $CODEX_MODEL  |  타임아웃: ${TIMEOUT}s  |  빌드병렬: ${MAX_PARALLEL}  |  wave: ${WAVE_SIZE}"
 
 ### ═══ PHASE 0: PRE-FLIGHT ════════════════════════════════════════════
 step "PHASE 0: PRE-FLIGHT"
@@ -278,44 +281,11 @@ for i in $(seq 1 20); do
 done
 [ $SERENA_READY -eq 0 ] && warn "Serena Hub 없음 — cat 폴백 모드로 진행"
 
-### ═══ PHASE 1: 워크트리 병렬 생성 (v6 개선: 순차→병렬) ════════════════
-step "PHASE 1: 워크트리 병렬 생성 (${#AGENTS[@]}개)"
+### ═══ WAVE 빌드 헬퍼 함수 (v7) ════════════════════════════════════════
+# 에이전트 배열을 WAVE_SIZE 단위로 분할하여 중간 검증 수행
+# Wave N 완료 → tsc 검증 → 실패 시 조기 중단
+
 mkdir -p "$WT_BASE"
-
-WT_PIDS=()
-WT_IDX=0
-for AGENT in "${AGENTS[@]}"; do
-  # 0.3초 스태거: git config.lock 동시 접근 충돌 방지
-  sleep "0.$(printf '%02d' $((WT_IDX * 3 % 100)))"
-  (
-    if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
-      WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
-      cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
-      cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
-      chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
-      echo "✅ $ROUND-$AGENT"
-    else
-      # 재시도 1회 (lock 해제 후)
-      sleep 1
-      if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
-        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
-        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
-        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
-        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
-        echo "✅ $ROUND-$AGENT (재시도)"
-      else
-        echo "❌ $ROUND-$AGENT 생성 실패"
-      fi
-    fi
-  ) &
-  WT_PIDS+=($!)
-  WT_IDX=$((WT_IDX + 1))
-done
-wait "${WT_PIDS[@]}"
-ok "모든 워크트리 생성 완료"
-
-### ═══ PHASE 2: Codex 병렬 발사 ══════════════════════════════════════
-step "PHASE 2: Codex ${#AGENTS[@]}개 병렬 발사"
 
 # Serena Hub fallback 지시 (Hub 미응답 시 cat 사용)
 if [ "$SERENA_READY" -eq 1 ]; then
@@ -330,11 +300,56 @@ else
   cat .serena/memories/agent_task_registry.md"
 fi
 
-for AGENT in "${AGENTS[@]}"; do
-  WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
-  TASK_TEXT=$(get_task "$AGENT")
+MERGED=(); SKIPPED=(); WAVE_ABORT=0
 
-  PROMPT="${MEMORY_HEADER}
+# wave 분할
+TOTAL_AGENTS=${#AGENTS[@]}
+WAVE_COUNT=$(( (TOTAL_AGENTS + WAVE_SIZE - 1) / WAVE_SIZE ))
+
+step "WAVE 빌드: ${TOTAL_AGENTS}개 에이전트 → ${WAVE_COUNT} wave (${WAVE_SIZE}개씩)"
+
+for WAVE_IDX in $(seq 0 $((WAVE_COUNT - 1))); do
+  WAVE_NUM=$((WAVE_IDX + 1))
+  WAVE_START=$((WAVE_IDX * WAVE_SIZE))
+  WAVE_AGENTS=("${AGENTS[@]:$WAVE_START:$WAVE_SIZE}")
+  WAVE_PIDS=()
+
+  echo ""
+  echo -e "${BLUE}──── Wave ${WAVE_NUM}/${WAVE_COUNT}: ${WAVE_AGENTS[*]} ────${NC}"
+
+  ### ── Wave 워크트리 생성 ────────────────────────────────────────────
+  info "워크트리 생성 (${#WAVE_AGENTS[@]}개)..."
+  WT_PIDS=()
+  WT_IDX=0
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    sleep "0.$(printf '%02d' $((WT_IDX * 3 % 100)))"
+    (
+      if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
+        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
+        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
+        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
+        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
+      else
+        sleep 1
+        git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null || true
+        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
+        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
+        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
+        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
+      fi
+    ) &
+    WT_PIDS+=($!)
+    WT_IDX=$((WT_IDX + 1))
+  done
+  wait "${WT_PIDS[@]}"
+
+  ### ── Wave Codex 발사 ───────────────────────────────────────────────
+  info "Codex 발사 (${#WAVE_AGENTS[@]}개)..."
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
+    TASK_TEXT=$(get_task "$AGENT")
+
+    PROMPT="${MEMORY_HEADER}
 
 ## 담당 작업 ($ROUND-$AGENT)
 ${TASK_TEXT}
@@ -348,141 +363,146 @@ ${SHARED_RULES}
 4. npx tsc --noEmit 에러 0개 확인
 5. 파일 저장 완료 (git add/commit은 launch.sh가 처리)"
 
-  codex exec -m "$CODEX_MODEL" -s workspace-write \
-    --cd "$WT_APP" \
-    -o "$RESULTS/$AGENT.txt" \
-    "$PROMPT" \
-    > "$LOGS/$AGENT.log" 2>&1 &
+    codex exec -m "$CODEX_MODEL" -s workspace-write \
+      --cd "$WT_APP" \
+      -o "$RESULTS/$AGENT.txt" \
+      "$PROMPT" \
+      > "$LOGS/$AGENT.log" 2>&1 &
 
-  PIDS+=($!)
-  echo -e "  🚀 ${GREEN}$ROUND-$AGENT${NC} (PID: ${PIDS[-1]})"
-done
-
-ok "${#AGENTS[@]}개 에이전트 발사 완료"
-
-### ═══ PHASE 3: 완료 대기 + 진행 모니터 ═════════════════════════════
-step "PHASE 3: 완료 대기 (타임아웃: ${TIMEOUT}s)"
-
-# 워치독: 타임아웃 초과 시 강제 종료
-( sleep $TIMEOUT && echo "⏰ 타임아웃 — 강제 종료" && kill "${PIDS[@]}" 2>/dev/null ) &
-WATCHDOG=$!
-
-# 진행 상황 폴링 (10초마다 완료 수 표시)
-(
-  START_TS=$(date +%s)
-  while true; do
-    sleep 10
-    DONE=0
-    for pid in "${PIDS[@]}"; do
-      kill -0 "$pid" 2>/dev/null || DONE=$((DONE + 1))
-    done
-    ELAPSED=$(( $(date +%s) - START_TS ))
-    printf "\r     진행: %d/%d 완료  (%ds 경과)   " "$DONE" "${#PIDS[@]}" "$ELAPSED"
+    WAVE_PIDS+=($!)
+    echo -e "  🚀 ${GREEN}$ROUND-$AGENT${NC} (PID: ${WAVE_PIDS[-1]})"
   done
-) &
-MONITOR_PID=$!
 
-for i in "${!PIDS[@]}"; do
-  wait "${PIDS[$i]}" 2>/dev/null
-  echo "  ✓ ${AGENTS[$i]}"
-done
+  ### ── Wave 완료 대기 ────────────────────────────────────────────────
+  info "Wave ${WAVE_NUM} 완료 대기..."
+  WAVE_START_TS=$(date +%s)
+  (
+    sleep $TIMEOUT && echo "⏰ Wave ${WAVE_NUM} 타임아웃" && kill "${WAVE_PIDS[@]}" 2>/dev/null
+  ) &
+  WAVE_WATCHDOG=$!
 
-kill "$WATCHDOG" "$MONITOR_PID" 2>/dev/null || true
-echo ""
-ok "모든 에이전트 완료"
+  for i in "${!WAVE_PIDS[@]}"; do
+    wait "${WAVE_PIDS[$i]}" 2>/dev/null
+    echo "  ✓ ${WAVE_AGENTS[$i]}"
+  done
+  kill "$WAVE_WATCHDOG" 2>/dev/null || true
+  WAVE_ELAPSED=$(( $(date +%s) - WAVE_START_TS ))
+  ok "Wave ${WAVE_NUM} 완료 (${WAVE_ELAPSED}s)"
 
-### ── 에이전트 변경사항 자동 커밋 ───
-info "에이전트 변경사항 커밋..."
-for AGENT in "${AGENTS[@]}"; do
-  WT_DIR="$WT_BASE/$ROUND-$AGENT"
-  printf "  %-28s" "$AGENT"
-  CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l || echo "0")
-  if [[ "$CHANGES" -gt 0 ]]; then
-    git -C "$WT_DIR" add -A 2>/dev/null
-    git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 폴리싱" 2>/dev/null \
-      && echo "✅ (${CHANGES}파일)" || echo "❌ commit 실패"
-  else
-    echo "⚠️  변경없음"
-  fi
-done
+  ### ── Wave 자동 커밋 ────────────────────────────────────────────────
+  info "변경사항 커밋..."
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    WT_DIR="$WT_BASE/$ROUND-$AGENT"
+    printf "  %-28s" "$AGENT"
+    CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l || echo "0")
+    if [[ "$CHANGES" -gt 0 ]]; then
+      git -C "$WT_DIR" add -A 2>/dev/null
+      git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 폴리싱" 2>/dev/null \
+        && echo "✅ (${CHANGES}파일)" || echo "❌ commit 실패"
+    else
+      echo "⚠️  변경없음"
+    fi
+  done
 
-### ── 빌드 검증 병렬 (v6 개선: exit code 캡처 버그 수정) ─────────────
-echo ""
-info "빌드 검증 (MAX_PARALLEL=${MAX_PARALLEL})..."
-RUNNING_COUNT=0
+  ### ── Wave 빌드 검증 (병렬) ─────────────────────────────────────────
+  info "빌드 검증 (Wave ${WAVE_NUM})..."
+  WAVE_PASS=(); WAVE_FAIL=()
+  declare -A W_BUILD_PIDS W_BUILD_LOGS
 
-for AGENT in "${AGENTS[@]}"; do
-  WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
-  WT_BUILD_LOG=$(mktemp)
-  BUILD_LOGS[$AGENT]="$WT_BUILD_LOG"
-  (cd "$WT_APP" && npm run build > "$WT_BUILD_LOG" 2>&1; echo $? > "${WT_BUILD_LOG}.exit") &
-  BUILD_PIDS[$AGENT]=$!
-  RUNNING_COUNT=$((RUNNING_COUNT + 1))
-  # MAX_PARALLEL 도달 시 가장 오래된 job 완료 대기
-  if [[ "$RUNNING_COUNT" -ge "$MAX_PARALLEL" ]]; then
-    wait -n 2>/dev/null || wait
-    RUNNING_COUNT=$((RUNNING_COUNT - 1))
-  fi
-done
-# 나머지 전부 완료 대기
-wait
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
+    WT_BUILD_LOG=$(mktemp)
+    W_BUILD_LOGS[$AGENT]="$WT_BUILD_LOG"
+    (cd "$WT_APP" && env -u NODE_ENV npm run build > "$WT_BUILD_LOG" 2>&1; echo $? > "${WT_BUILD_LOG}.exit") &
+    W_BUILD_PIDS[$AGENT]=$!
+  done
+  wait
 
-for AGENT in "${AGENTS[@]}"; do
-  WT_BUILD_LOG="${BUILD_LOGS[$AGENT]}"
-  EXIT_CODE=$(cat "${WT_BUILD_LOG}.exit" 2>/dev/null || echo "1")
-  printf "  %-28s" "$AGENT"
-  if [ "$EXIT_CODE" -eq 0 ]; then
-    PASS+=("$AGENT"); echo "✅"
-  else
-    FAIL+=("$AGENT"); echo "❌ → $LOGS/$AGENT.log"
-  fi
-  rm -f "$WT_BUILD_LOG" "${WT_BUILD_LOG}.exit"
-done
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    WT_BUILD_LOG="${W_BUILD_LOGS[$AGENT]}"
+    EXIT_CODE=$(cat "${WT_BUILD_LOG}.exit" 2>/dev/null || echo "1")
+    printf "  %-28s" "$AGENT"
+    if [ "$EXIT_CODE" -eq 0 ]; then
+      WAVE_PASS+=("$AGENT"); PASS+=("$AGENT"); echo "✅"
+    else
+      WAVE_FAIL+=("$AGENT"); FAIL+=("$AGENT"); echo "❌ → $LOGS/$AGENT.log"
+    fi
+    rm -f "$WT_BUILD_LOG" "${WT_BUILD_LOG}.exit"
+  done
+  unset W_BUILD_PIDS W_BUILD_LOGS
 
-ok  "Pass: ${#PASS[@]}  /  Fail: ${#FAIL[@]}"
-[ "${#FAIL[@]}" -gt 0 ] && warn "실패: ${FAIL[*]}"
+  ok "Wave ${WAVE_NUM} — Pass: ${#WAVE_PASS[@]} / Fail: ${#WAVE_FAIL[@]}"
 
-### ═══ PHASE 4: Squash Merge ═════════════════════════════════════════
-step "PHASE 4: Squash Merge"
-cd "$APP"
-MERGED=(); SKIPPED=()
+  ### ── Wave Squash Merge ─────────────────────────────────────────────
+  info "Squash merge (Wave ${WAVE_NUM})..."
+  cd "$APP"
 
-for AGENT in "${MERGE_ORDER[@]}"; do
-  # MERGE_ORDER에 없는 에이전트 건너뜀
-  [[ " ${AGENTS[*]} " != *" $AGENT "* ]] && continue
-  printf "  %-28s" "Merging $ROUND-$AGENT..."
+  for AGENT in "${MERGE_ORDER[@]}"; do
+    # 이 wave에 없는 에이전트 건너뜀
+    [[ " ${WAVE_AGENTS[*]} " != *" $AGENT "* ]] && continue
+    printf "  %-28s" "Merging $ROUND-$AGENT..."
 
-  if [[ " ${FAIL[*]} " == *" $AGENT "* ]]; then
-    SKIPPED+=("$AGENT"); echo "⏭️  skip (빌드 실패)"; continue
-  fi
+    if [[ " ${WAVE_FAIL[*]} " == *" $AGENT "* ]]; then
+      SKIPPED+=("$AGENT"); echo "⏭️  skip (빌드 실패)"; continue
+    fi
 
-  COMMIT_COUNT=$(git -C "$WT_BASE/$ROUND-$AGENT" log --oneline \
-    "HEAD...$(git -C "$REPO" rev-parse HEAD)" 2>/dev/null | wc -l || echo "0")
-  if [ "$COMMIT_COUNT" -eq 0 ]; then
-    SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
-  fi
+    COMMIT_COUNT=$(git -C "$WT_BASE/$ROUND-$AGENT" log --oneline \
+      "HEAD...$(git -C "$REPO" rev-parse HEAD)" 2>/dev/null | wc -l || echo "0")
+    if [ "$COMMIT_COUNT" -eq 0 ]; then
+      SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
+    fi
 
-  if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
-    git commit -m "feat($ROUND-$AGENT): 폴리싱
+    if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
+      git commit -m "feat($ROUND-$AGENT): 폴리싱
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
-    MERGED+=("$AGENT"); echo "✅"
-  else
-    # v6 개선: abort 후 restore로 unstaged 잔재 제거
-    git merge --abort 2>/dev/null || true
-    git restore . 2>/dev/null || true
-    SKIPPED+=("$AGENT"); warn "Conflict — 수동 처리 필요"
-  fi
-done
+      MERGED+=("$AGENT"); echo "✅"
+    else
+      git merge --abort 2>/dev/null || true
+      git restore . 2>/dev/null || true
+      SKIPPED+=("$AGENT"); warn "Conflict — 수동 처리 필요"
+    fi
+  done
 
-ok  "Merged: ${#MERGED[@]}  /  Skipped: ${#SKIPPED[@]}"
+  ### ── Wave 워크트리 즉시 정리 (메모리 절약) ─────────────────────────
+  for AGENT in "${WAVE_AGENTS[@]}"; do
+    git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
+    git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
+  done
+
+  ### ── Inter-wave 검증 (마지막 wave 제외) ────────────────────────────
+  if [ "$WAVE_NUM" -lt "$WAVE_COUNT" ] && [ "${#MERGED[@]}" -gt 0 ]; then
+    info "Inter-wave tsc 검증 (main 상태)..."
+    TSC_LOG=$(mktemp)
+    if (cd "$APP" && npx tsc --noEmit > "$TSC_LOG" 2>&1); then
+      ok "Inter-wave tsc ✅ — Wave $((WAVE_NUM + 1)) 진행"
+    else
+      TSC_ERRORS=$(grep -c "error TS" "$TSC_LOG" 2>/dev/null || echo "?")
+      fail "Inter-wave tsc ❌ (${TSC_ERRORS} errors) — Wave ${WAVE_NUM} 머지가 타입 깨뜨림. 파이프라인 중단."
+      warn "로그: $TSC_LOG"
+      WAVE_ABORT=1
+    fi
+    rm -f "$TSC_LOG"
+
+    if [ "$WAVE_ABORT" -eq 1 ]; then
+      warn "⛔ Wave ${WAVE_NUM} 이후 중단. Merged: ${MERGED[*]}"
+      break
+    fi
+  fi
+
+done  # end wave loop
+
+echo ""
+ok "전체 결과 — Merged: ${#MERGED[@]} / Failed: ${#FAIL[@]} / Skipped: ${#SKIPPED[@]}"
+[ "${#FAIL[@]}" -gt 0 ] && warn "실패: ${FAIL[*]}"
+[ "$WAVE_ABORT" -eq 1 ] && warn "조기 중단됨 (inter-wave tsc 실패)"
 
 ### ═══ PHASE 5: 최종 검증 + 정리 ════════════════════════════════════
 step "PHASE 5: 최종 검증 + 정리"
 cd "$APP"
 
 echo "  최종 빌드..."
-npm run build 2>&1 | tail -3
+env -u NODE_ENV npm run build 2>&1 | tail -3
 npm test -- --run 2>&1 | grep -E "Tests:|test files" | tail -2
 
 # ─── 에이전트 노트 집계 (Hub 종료 전에 실행) ───────────────────────
@@ -509,25 +529,15 @@ if [ -n "$SERENA_HUB_PID" ]; then
   ok "Serena Hub 종료"
 fi
 
-# ─── 워크트리 정리 (병렬) ──────────────────────────────────────────
-WT_CLEAN_PIDS=()
-for AGENT in "${AGENTS[@]}"; do
-  (
-    git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
-    git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
-  ) &
-  WT_CLEAN_PIDS+=($!)
-done
-wait "${WT_CLEAN_PIDS[@]}"
+# ─── 잔여 워크트리 정리 (wave에서 이미 정리, 안전망) ──────────────
 git -C "$REPO" worktree prune 2>/dev/null || true
 ok "워크트리 정리 완료"
 
 ### ═══ 최종 리포트 ═══════════════════════════════════════════════════
-ELAPSED_TOTAL=$(( $(date +%s) - $(date -d "now -${TIMEOUT}s" +%s 2>/dev/null || echo 0) ))
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-printf "${BLUE}║  %-44s║${NC}\n" "$ROUND 완료 — v6 파이프라인"
-printf "${BLUE}║  Merged %-3d  Failed %-3d  Skipped %-12s║${NC}\n" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
+printf "${BLUE}║  %-44s║${NC}\n" "$ROUND 완료 — v7 wave 파이프라인"
+printf "${BLUE}║  Waves %-2d  Merged %-3d  Failed %-3d  Skip %-5s║${NC}\n" "$WAVE_COUNT" "${#MERGED[@]}" "${#FAIL[@]}" "${#SKIPPED[@]}"
 echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
 echo ""
 echo "  다음 단계:"
