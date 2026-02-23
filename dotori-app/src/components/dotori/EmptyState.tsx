@@ -97,7 +97,7 @@ export const DOTORI_STATE_META = {
 export const DOTORI_STATE_TOKENS = {
   container: 'px-4 py-7 text-center sm:px-5',
   surface: cn(
-    'relative isolate mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden rounded-3xl border border-dotori-100/70 bg-dotori-50/90 p-6 shadow-sm ring-1 ring-dotori-100/70',
+    'relative isolate mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden rounded-3xl border border-dotori-100/70 bg-dotori-50/90 p-6 shadow-sm',
     DS_GLASS.CARD,
   ),
   accentTop: cn(
@@ -117,18 +117,22 @@ export const DOTORI_STATE_TOKENS = {
   mediaFrame: cn(
     'mx-auto flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.4rem]',
     'bg-gradient-to-br from-dotori-100 via-dotori-50 to-dotori-50',
-    'shadow-[0_14px_28px_-18px_rgba(122,78,48,0.7)] ring-1 ring-dotori-200/70 dark:from-dotori-800/80 dark:via-dotori-900/70 dark:to-dotori-900/90 dark:ring-dotori-700/70',
+    'shadow-[0_12px_24px_-16px_rgba(122,78,48,0.65)] ring-1 ring-dotori-200/70 dark:from-dotori-800/80 dark:via-dotori-900/70 dark:to-dotori-900/90 dark:ring-dotori-700/70',
   ),
   image: 'h-14 w-14 object-contain opacity-90',
   copyWrap: 'w-full border-b border-dotori-100/70 pb-4',
   badge: cn(
     'text-label',
-    'inline-flex items-center gap-2 rounded-full border border-dotori-100/70 bg-dotori-100/75 px-2.5 py-1 font-semibold text-dotori-700 dark:border-dotori-800/70 dark:bg-dotori-900/70 dark:text-dotori-200',
+    'inline-flex items-center gap-2 rounded-full border border-dotori-100/70 bg-dotori-100/75 px-2.5 py-1 font-semibold text-dotori-700 shadow-sm dark:border-dotori-800/70 dark:bg-dotori-900/70 dark:text-dotori-200',
   ),
   title: cn('text-h3', 'leading-snug font-semibold text-dotori-900 dark:text-dotori-50'),
   description: cn('text-body-sm', 'leading-relaxed text-dotori-700 dark:text-dotori-200'),
   actions: 'mt-2 flex w-full flex-col gap-2.5',
-  action: cn('min-h-11 w-full', 'text-body-sm'),
+  action: cn(
+    'min-h-11 w-full rounded-xl border-dotori-200/80 bg-dotori-50/90 text-dotori-700 shadow-sm ring-1 ring-dotori-100/70',
+    'transition-all duration-150 hover:bg-dotori-100/80 dark:bg-dotori-900/70 dark:text-dotori-100 dark:hover:bg-dotori-900',
+    'text-body-sm',
+  ),
   secondaryAction: cn('min-h-11 w-full rounded-xl', 'text-body-sm'),
 } as const
 

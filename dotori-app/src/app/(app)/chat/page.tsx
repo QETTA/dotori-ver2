@@ -39,6 +39,10 @@ import {
 
 const CHAT_WARM_ACCENT_CLASS =
   'pointer-events-none absolute right-3 top-3 h-11 w-11 rounded-full bg-forest-100/55 blur-xl dark:bg-forest-900/40'
+const CHAT_PAGE_WRAP_CLASS =
+  'relative flex min-h-0 flex-1 flex-col bg-dotori-50 dark:bg-dotori-900'
+const CHAT_COMPOSER_SURFACE_CLASS =
+  'rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)]'
 
 export default function ChatPage() {
   return (
@@ -191,7 +195,7 @@ function ChatBubbleArea({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto px-0.5">
       {isHistoryLoading ? (
         <div className="px-5 py-4">
           <Skeleton variant="chat" count={3} />
@@ -273,8 +277,10 @@ function ChatComposer({
       {...fadeIn}
       className={cn(
         DS_GLASS.SHEET,
-        'rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-sm ring-1 ring-dotori-100/70',
+        CHAT_COMPOSER_SURFACE_CLASS,
         'dark:border-dotori-800/40',
+        DS_GLASS.CARD,
+        'ring-1 ring-dotori-100/70',
       )}
     >
       {isTrackingUsage && isUsageLimitReached ? (
@@ -293,7 +299,7 @@ function ChatComposer({
               className={cn(
                 'text-body-sm',
                 DS_GLASS.CARD,
-                'min-h-11 rounded-2xl border-0 bg-dotori-100/65 px-4 text-dotori-900 shadow-sm placeholder:text-dotori-400 dark:bg-dotori-800/60 dark:text-dotori-50 dark:placeholder:text-dotori-600',
+                'min-h-11 rounded-2xl border-0 bg-dotori-100/65 px-4 text-dotori-900 shadow-sm placeholder:text-dotori-400 dark:bg-dotori-800/70 dark:text-dotori-50 dark:placeholder:text-dotori-600',
               )}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' && !isSendDisabled) {
@@ -312,7 +318,7 @@ function ChatComposer({
             disabled={isSendDisabled}
             aria-label="메시지 전송"
             className={cn(
-              'inline-flex min-h-11 w-11 min-w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm',
+              'inline-flex min-h-11 w-11 min-w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-dotori-200/70 transition-all hover:bg-dotori-100 dark:ring-dotori-700/70 dark:hover:bg-dotori-950',
             )}
           >
             {isLoading ? (
@@ -532,7 +538,7 @@ function ChatContent() {
   }
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col bg-gradient-to-b from-dotori-50 via-white to-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
+    <div className={cn(CHAT_PAGE_WRAP_CLASS, 'bg-gradient-to-b from-dotori-50 via-white to-dotori-50')}>
       <ChatHeader
         isTrackingUsage={isTrackingUsage}
         isResetting={isResetting}

@@ -59,6 +59,7 @@ export default function MyPage() {
     DS_TYPOGRAPHY.caption,
     'mt-0.5 text-dotori-400 dark:text-dotori-500',
   )
+  const myPageRootClass = 'pb-8 text-dotori-900 dark:text-dotori-50'
 
   const visibleMenuSections = useMemo(() => (user ? menuSections : publicMenuSections), [user])
   const groupedMenuSections = useMemo(() => {
@@ -192,7 +193,7 @@ export default function MyPage() {
 
   if (isLoading) {
     return (
-      <div className="pb-8 text-dotori-900 dark:text-dotori-50">
+      <div className={myPageRootClass}>
         <header className="px-5 pt-6 pb-2">
           <Skeleton variant="text" count={2} />
         </header>
@@ -205,7 +206,7 @@ export default function MyPage() {
 
   if (error && !user) {
     return (
-      <div className="pb-8 text-dotori-900 dark:text-dotori-50">
+      <div className={myPageRootClass}>
         <header className="px-5 pt-8 pb-2">
           <h1 className={cn(DS_TYPOGRAPHY.h2, 'font-bold tracking-tight')}>MY</h1>
         </header>
@@ -221,7 +222,7 @@ export default function MyPage() {
 
   if (!user) {
     return (
-      <div className="pb-8 text-dotori-900 dark:text-dotori-50">
+      <div className={myPageRootClass}>
         <header className="px-5 pt-6 pb-2">
           <div
             className={cn(
@@ -319,7 +320,7 @@ export default function MyPage() {
   }
 
   return (
-    <div className="pb-8 text-dotori-900 dark:text-dotori-50">
+    <div className={myPageRootClass}>
       {/* 프로필 헤더 */}
       <header className="px-5 pt-6 pb-2">
         <Surface

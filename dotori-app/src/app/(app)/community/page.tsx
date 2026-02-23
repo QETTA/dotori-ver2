@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/dotori/Skeleton'
 import { useToast } from '@/components/dotori/ToastProvider'
 import { apiFetch } from '@/lib/api'
 import { BRAND } from '@/lib/brand-assets'
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { fadeIn, fadeUp, stagger, tap } from '@/lib/motion'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import {
@@ -42,17 +42,22 @@ const CATEGORY_BADGE_COLOR: Record<CommunityPostWithViews['category'], 'forest'>
 const COMMUNITY_WATERMARK_CLASS =
   'pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.08] dark:opacity-[0.14]'
 const COMMUNITY_SECTION_CLASS = cn(
-  'rounded-3xl border border-dotori-100/70 bg-dotori-50/85 p-4',
+  DS_LAYOUT.CARD_SOFT,
+  DS_GLASS.CARD,
+  'rounded-3xl border border-dotori-100/70 p-4',
   'shadow-sm ring-1 ring-dotori-100/70',
 )
 
 const WARM_SURFACE =
   'bg-gradient-to-br from-dotori-50 via-amber-50/45 to-white dark:from-dotori-900 dark:via-dotori-900 dark:to-dotori-950'
 const MOTION_SMOOTH = 'transition-transform duration-200 ease-out'
+const COMMUNITY_PAGE_CLASS =
+  'relative flex min-h-0 flex-1 flex-col bg-dotori-50/20 pb-[calc(5.5rem+env(safe-area-inset-bottom))]'
 const COMMUNITY_LIST_ITEM_CLASS = cn(
+  DS_LAYOUT.CARD_SOFT,
+  DS_GLASS.CARD,
   'relative overflow-hidden rounded-3xl p-3.5 shadow-sm ring-1 ring-dotori-100/70',
   MOTION_SMOOTH,
-  DS_GLASS.CARD,
 )
 const COMMUNITY_LIST_ITEM_HOT_CLASS =
   'bg-gradient-to-b from-dotori-50 via-amber-50/45 to-white shadow-dotori-200/50'
@@ -341,7 +346,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col bg-dotori-50/20 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <div className={COMMUNITY_PAGE_CLASS}>
       <header
         className={cn(
           'sticky top-0 z-20 border-b border-dotori-100/70 bg-dotori-50/75 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2',

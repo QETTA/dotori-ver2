@@ -95,7 +95,7 @@ export function ErrorState({
                 <Button
                   color="dotori"
                   onClick={action.onClick}
-                  className={DOTORI_STATE_TOKENS.action}
+                  className={cn(DOTORI_STATE_TOKENS.action, 'min-h-11 w-full rounded-xl')}
                 >
                   {action.label}
                 </Button>

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/catalyst/button'
 import { BRAND } from '@/lib/brand-assets'
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { fadeUp, tap } from '@/lib/motion'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import type { ActionButton, ChatBlock, ChatRole, SourceInfo } from '@/types/dotori'
@@ -12,14 +12,24 @@ import { isValidElement, memo } from 'react'
 import { BlockRenderer } from './blocks/BlockRenderer'
 import { SourceChip } from './SourceChip'
 
-const USER_BUBBLE_CLASS =
-  'max-w-[85%] rounded-2xl rounded-br-sm border border-dotori-300/45 bg-gradient-to-br from-dotori-400 via-dotori-500 to-dotori-600 px-4 py-3 text-white shadow-[0_14px_28px_rgba(122,78,48,0.26)] transition-colors duration-150 dark:border-dotori-500/35 dark:from-dotori-500 dark:via-dotori-600 dark:to-dotori-700 dark:shadow-[0_12px_24px_rgba(20,14,10,0.45)]'
-const ASSISTANT_BUBBLE_CLASS =
-  'rounded-2xl rounded-bl-sm border border-dotori-200/85 bg-gradient-to-br from-white/95 via-dotori-50/90 to-dotori-100/70 px-4 py-3 text-dotori-900 shadow-[0_12px_28px_rgba(200,149,106,0.16)] transition-colors duration-150 dark:border-dotori-700/70 dark:bg-dotori-900/90 dark:via-dotori-900/88 dark:to-dotori-800/86 dark:text-dotori-50 dark:shadow-none'
+const BUBBLE_CONTENT_CLASS =
+  'rounded-2xl px-4 py-3 max-w-[85%] transition-colors duration-150 shadow-sm shadow-dotori-100/50 dark:shadow-dotori-950/40'
+const USER_BUBBLE_CLASS = cn(
+  DS_LAYOUT.CARD_SOFT,
+  DS_GLASS.CARD,
+  BUBBLE_CONTENT_CLASS,
+  'rounded-br-sm border border-dotori-300/45 bg-gradient-to-br from-dotori-500/95 via-dotori-500 to-dotori-600 text-white dark:border-dotori-500/35',
+)
+const ASSISTANT_BUBBLE_CLASS = cn(
+  DS_LAYOUT.CARD_SOFT,
+  DS_GLASS.CARD,
+  BUBBLE_CONTENT_CLASS,
+  'rounded-bl-sm border border-dotori-200/85 bg-gradient-to-br from-white/95 via-dotori-50/95 to-dotori-100/80 text-dotori-900 dark:border-dotori-700/70 dark:bg-dotori-900/88 dark:via-dotori-900/86 dark:to-dotori-800/86 dark:text-dotori-50',
+)
 const ACTION_BUTTON_CLASS =
-  'min-h-10 rounded-2xl border border-dotori-200/90 bg-white/85 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.10)] transition-all duration-150 hover:bg-dotori-50 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+  'min-h-10 rounded-2xl border border-dotori-200/90 bg-white/85 px-3.5 text-dotori-700 transition-all duration-150 hover:bg-dotori-50 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:hover:bg-dotori-900/80'
 const QUICK_REPLY_CLASS =
-  'min-h-10 rounded-2xl border border-dotori-200/90 bg-dotori-100/80 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.08)] transition-all duration-150 hover:bg-dotori-100 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+  'min-h-10 rounded-2xl border border-dotori-200/90 bg-dotori-100/80 px-3.5 text-dotori-700 transition-all duration-150 hover:bg-dotori-100 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:hover:bg-dotori-900/80'
 const AVATAR_RING_CLASS =
   'rounded-full bg-white p-1.5 shadow-sm ring-1 ring-dotori-200/55 transition-shadow duration-150 dark:bg-dotori-950/70 dark:ring-dotori-700/60'
 

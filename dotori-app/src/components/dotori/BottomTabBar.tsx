@@ -68,7 +68,8 @@ const navShellClass = cn(
 )
 const navBlurClass =
   'pointer-events-none absolute inset-0 bg-gradient-to-r from-amber-200/20 via-forest-200/20 to-amber-100/20 blur-2xl'
-const navActivePillClass = 'bg-gradient-to-b from-dotori-100/95 to-white/95 ring-dotori-300/70'
+const navActivePillClass =
+  'bg-gradient-to-b from-dotori-100/95 to-white/95 ring-1 ring-dotori-200/80 dark:from-dotori-800 dark:to-dotori-900 dark:ring-dotori-700/70'
 const navPillClass = cn(
   'pointer-events-none absolute inset-0.5 rounded-[0.8rem] ring-1 ring-dotori-200/70',
 )
