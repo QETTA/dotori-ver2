@@ -119,6 +119,15 @@ scripts/
 7. Catalyst `plain` prop: must be literal `true`
 8. No arbitrary pixel values: `text-[Npx]` → `text-xs/sm/base/lg/xl`
 9. No custom CSS → Tailwind scale tokens only
+10. **UX/UI 작업 시 `/frontend-design` 스킬 필수 선행 호출** — 디자인 씽킹 후 코딩
+
+### Frontend Design 미학 (Dotori 브랜드 적용)
+- **Tone**: Warm organic — 육아앱답게 따뜻하고 자연스러운 톤
+- **Typography**: Pretendard Variable (본문) + Plus Jakarta Sans (숫자/영문), 시맨틱 토큰 필수
+- **Color**: dotori-400/500 CTA + forest-500 성공 + amber 카카오, 그래디언트는 brand warmth
+- **Motion**: `motion/react` spring 기반, 진입 애니메이션 stagger, whileTap micro-interaction
+- **Spatial**: max-w-md 중앙, rounded-2xl/3xl 카드, 섹션 간 border-b 구분, generous padding
+- **Background**: glass morphism (DS_GLASS 토큰), subtle dotori-50 tint, 카드 shadow-sm
 
 ## Commands
 

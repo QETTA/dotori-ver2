@@ -43,14 +43,23 @@ fi
 
 ### ── 공통 규칙 ────────────────────────────────────────────────────────
 SHARED_RULES='## 공통 규칙
-- text-[Npx] 금지. 시맨틱 토큰: text-display/h1/h2/h3/body/body-sm/caption/label
+
+### 디자인 미학 (Dotori 브랜드)
+- Tone: Warm organic — 따뜻한 육아앱, 제네릭 AI 디자인 금지
+- 카드: rounded-2xl/3xl, shadow-sm, ring-1 ring-dotori-100/70
+- 모션: motion/react spring, whileTap feedback, 진입 stagger
+- 배경: glass morphism (DS_GLASS), dotori-50 tint
+- 공간: generous padding, border-b 섹션 구분
+
+### 코드
+- text-[Npx] 금지 → text-display/h1/h2/h3/body/body-sm/caption/label
 - import { BRAND } from "@/lib/brand-assets"
 - import { DS_STATUS, DS_GLASS } from "@/lib/design-system/tokens"
-- motion/react만 사용 (framer-motion 금지)
-- color="dotori" → CTA, color="forest" → Badge만
+- motion/react만 (framer-motion 금지)
+- color="dotori" CTA, color="forest" Badge만
 - touch target: min-h-11
 - 담당 파일 외 수정 금지
-- npx tsc --noEmit → 0 에러 필수'
+- npx tsc --noEmit → 0 에러'
 
 ### ── 태스크 로드 ──────────────────────────────────────────────────────
 declare -a AGENT_IDS AGENT_FILES AGENT_DESCS

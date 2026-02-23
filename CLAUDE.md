@@ -13,16 +13,18 @@ dotori-ver2/
 
 ```
 Claude Code (지휘관, Opus 4.6)
-├── Serena MCP     → 코드 인텔리전스 + 에이전트 공유 메모리 허브
-├── Codex MCP      → 코드 구현 (순수 기능, MCP 호출)
-├── codex-wave.sh  → CLI 병렬 배치 (wave 단위, MCP 직렬 우회) ★ 권장
-├── launch.sh v7   → 워크트리 격리 + wave 빌드 (대규모 라운드용)
-└── Task(haiku)    → 스크린샷 분석 위임 (Opus 토큰 절감)
+├── /frontend-design  → UX/UI 작업 시 필수 호출 ★★★
+├── Serena MCP        → 코드 인텔리전스 + 에이전트 공유 메모리 허브
+├── Codex MCP         → 코드 구현 (순수 기능, MCP 호출)
+├── codex-wave.sh     → CLI 병렬 배치 (wave 단위, MCP 직렬 우회) ★ 권장
+├── launch.sh v7      → 워크트리 격리 + wave 빌드 (대규모 라운드용)
+└── Task(haiku)       → 스크린샷 분석 위임 (Opus 토큰 절감)
 ```
 
 ### 역할 분담
 | 작업 유형 | 담당 |
 |-----------|------|
+| **UX/UI 디자인 방향 + 코드 생성** | **`/frontend-design` 스킬** ★ 필수 선행 |
 | 코드 생성/리팩토링/버그 수정 (≥3파일) | **codex-wave.sh** (CLI 병렬) 또는 **Codex MCP** |
 | 코드 생성 (대규모 11+에이전트, 격리 필요) | **launch.sh v7** (워크트리 wave) |
 | 코드 분석/심볼 검색/타입 확인 | **Serena** MCP |
@@ -76,16 +78,38 @@ Claude Code (지휘관, Opus 4.6)
 | `ㅂ` | 빌드 검증만 (`env -u NODE_ENV npm run build && npm test`) |
 | `ㅅ` | 스크린샷 + 콘솔 통합 (`npx tsx scripts/screenshot-check.ts`) |
 
-## ㄱ 파이프라인 흐름 (v7 — wave 빌드)
+## ㄱ 파이프라인 흐름 (v7 — wave 빌드 + frontend-design)
 ```
 1. 분석: 빌드 상태 + Serena/Opus로 개선점 도출
-2. 설계: tasks.txt 생성 + task_designs/rN.md 메모리 저장
-3-A. [CLI 모드] codex-wave.sh tasks.txt --wave=4
+2. ★ /frontend-design 스킬 호출 (UX/UI 작업 시 필수)
+   → 디자인 씽킹: Purpose/Tone/Constraints/Differentiation 결정
+   → 미학 가이드라인을 Codex 에이전트 SHARED_RULES에 주입
+3. 설계: tasks.txt 생성 + task_designs/rN.md 메모리 저장
+4-A. [CLI 모드] codex-wave.sh tasks.txt --wave=4
      → Wave 1(4개) → tsc 검증 → Wave 2(4개) → tsc 검증 → Wave 3
-3-B. [MCP 모드] Codex MCP 순차 호출 (소규모 3-4개일 때)
-3-C. [격리 모드] launch.sh v7 (충돌 위험 큰 대규모 작업)
-4. QA: screenshot-check.ts → haiku Task로 분석 위임
-5. 후처리: git push origin main → doctl 배포
+4-B. [MCP 모드] Codex MCP 순차 호출 (소규모 3-4개일 때)
+4-C. [격리 모드] launch.sh v7 (충돌 위험 큰 대규모 작업)
+5. QA: screenshot-check.ts → haiku Task로 분석 위임
+6. 후처리: git push origin main → doctl 배포
+```
+
+### /frontend-design 스킬 호출 규칙
+```
+필수 호출 조건 (하나라도 해당 시 반드시 호출):
+- UX/UI 개선 작업
+- 새 컴포넌트/페이지 생성
+- 레이아웃/색상/타이포그래피 변경
+- 스크린샷 기반 개선
+
+호출 불필요:
+- 순수 백엔드 API 작업
+- 테스트 추가
+- 빌드/인프라 수정
+
+스킬 출력 활용:
+- 디자인 방향(Tone, Differentiation)을 Codex SHARED_RULES에 포함
+- 타이포/색상/모션 가이드라인을 에이전트별 태스크에 명시
+- 금지: 스킬 호출 없이 UX 코드 직접 작성
 ```
 
 ### 실행 모드 선택 기준
@@ -171,6 +195,7 @@ TIMEOUT=${CODEX_TIMEOUT:-5400}           # 90분 타임아웃
 - 산출물 포맷 매번 변경 (고정이 토큰 절감)
 - **동일 디버깅 4회 이상 반복** (3회 제한 → 에스컬레이션)
 - **Opus로 스크린샷 직접 분석** (haiku 위임 필수)
+- **`/frontend-design` 없이 UX/UI 코드 작성** (스킬 선행 호출 필수)
 
 ## 브랜드 색상
 - `color="dotori"` → CTA 브라운

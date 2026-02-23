@@ -70,23 +70,37 @@ info() { echo "     $1"; }
 
 ### ── 공통 컨텍스트 (R21 — DS 토큰 + 브랜드 에셋 강화) ──────────────────
 SHARED_RULES='## 공통 규칙 (필수)
-- text-[Npx] 절대 금지. 신규 시맨틱 토큰 우선 사용:
+
+### 디자인 미학 (Dotori 브랜드)
+- Tone: Warm organic — 따뜻하고 자연스러운 육아앱
+- 카드: rounded-2xl/3xl, shadow-sm, ring-1 ring-dotori-100/70
+- 모션: motion/react spring 기반, whileTap scale feedback, 진입 stagger
+- 배경: glass morphism (DS_GLASS), dotori-50 tint, 그래디언트는 brand warmth
+- 공간: generous padding, 섹션 간 border-b 구분, max-w-md 중앙
+- 제네릭 금지: 뻔한 레이아웃/색상 말고 Dotori 브랜드 개성 반영
+
+### 타이포그래피
+- text-[Npx] 절대 금지. 시맨틱 토큰 필수:
     헤딩: text-display(32px) text-h1(24px) text-h2(20px) text-h3(16px)
     본문: text-body(15px) text-body-sm(13px)
     소형: text-caption(11px) text-label(10px)
     위 없으면 기존 text-xs/sm/base/lg/xl 유지 (임의 px 금지)
-- 폰트 굵기 기준: 헤딩 font-bold/semibold, 본문 font-medium/normal
-- 브랜드 에셋: import { BRAND, BRAND_GUIDE } from "@/lib/brand-assets"
-    앱 내부 소형 아이콘 → BRAND.symbol (symbolCorporate는 B2B 전용, 앱 내 금지)
-    헤더 로고 → BRAND.lockupHorizontalKr h-7 (크기 통일)
-    스플래시/온보딩 아이콘 → BRAND.appIconWarm
-- DS 토큰: import { DS_STATUS, DS_GLASS, DS_LAYOUT } from "@/lib/design-system/tokens"
-- motion/react만 사용: framer-motion import 금지
-- color="dotori" → CTA 버튼, color="forest" → Badge 성공 표시만
+- 폰트 굵기: 헤딩 font-bold/semibold, 본문 font-medium/normal
+
+### 브랜드 에셋 & 토큰
+- import { BRAND, BRAND_GUIDE } from "@/lib/brand-assets"
+    앱 내부 소형 아이콘 → BRAND.symbol (symbolCorporate는 B2B 전용)
+    헤더 로고 → BRAND.lockupHorizontalKr h-7
+    스플래시/온보딩 → BRAND.appIconWarm
+- import { DS_STATUS, DS_GLASS, DS_LAYOUT } from "@/lib/design-system/tokens"
+- color="dotori" → CTA 버튼, color="forest" → Badge 성공만
 - dark: 클래스 = dotori 팔레트 (bg-gray-* 금지)
+
+### 코드 규칙
+- motion/react만 사용: framer-motion import 금지
 - touch target: min-h-11 이상
 - globals.css / layout.tsx / motion.ts / tokens.ts / brand-assets.ts 수정 금지
-- Catalyst 컴포넌트(src/components/catalyst/*) 내부 수정 금지
+- Catalyst(src/components/catalyst/*) 내부 수정 금지
 - 담당 파일 외 수정 금지
 - npx tsc --noEmit → TypeScript 에러 0개 필수'
 
@@ -478,7 +492,8 @@ Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
       ok "Inter-wave tsc ✅ — Wave $((WAVE_NUM + 1)) 진행"
     else
       TSC_ERRORS=$(grep -c "error TS" "$TSC_LOG" 2>/dev/null || echo "?")
-      fail "Inter-wave tsc ❌ (${TSC_ERRORS} errors) — Wave ${WAVE_NUM} 머지가 타입 깨뜨림. 파이프라인 중단."
+      warn "Inter-wave tsc ❌ (${TSC_ERRORS} errors) — Wave ${WAVE_NUM} 머지가 타입 깨뜨림. 파이프라인 중단."
+      FAIL+=("inter-wave-tsc:${WAVE_NUM}:${TSC_ERRORS}")
       warn "로그: $TSC_LOG"
       WAVE_ABORT=1
     fi
