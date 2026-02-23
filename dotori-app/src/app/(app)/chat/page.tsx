@@ -3,14 +3,16 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { Field, Fieldset, Label } from "@/components/catalyst/fieldset";
 import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { tap } from "@/lib/motion";
+import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "@/components/dotori/MarkdownText";
 import { ChatBubble } from "@/components/dotori/ChatBubble";
@@ -35,7 +37,6 @@ import {
 	PREMIUM_GATE_HINT,
 	RETRY_ACTION_ID,
 	suggestedPrompts,
-	TORI_ICON,
 } from "./_lib/chat-config";
 
 export default function ChatPage() {
@@ -81,6 +82,238 @@ function MessageBubble({
 				<MarkdownText content={msg.content} />
 			)}
 		</ChatBubble>
+	);
+}
+
+function ChatHeader({
+	isTrackingUsage,
+	isResetting,
+	isLoading,
+	isUsageLoading,
+	usageCount,
+	usageLimit,
+	onClearHistory,
+}: {
+	isTrackingUsage: boolean;
+	isResetting: boolean;
+	isLoading: boolean;
+	isUsageLoading: boolean;
+	usageCount: number;
+	usageLimit: number;
+	onClearHistory: () => Promise<void>;
+}) {
+	return (
+		<header
+			className={cn(
+				DS_GLASS.HEADER,
+				"sticky top-0 z-20 flex items-center gap-3 border-b border-dotori-100/70 px-5 py-3.5 dark:border-dotori-800/50",
+				"ring-1 ring-dotori-100/70",
+			)}
+		>
+			<div className="flex min-w-0 items-center gap-2.5">
+				{/* eslint-disable-next-line @next/next/no-img-element */}
+				<img
+					src={BRAND.symbol}
+					alt=""
+					aria-hidden="true"
+					className={cn("h-10 w-10 rounded-full bg-white p-1.5 shadow-sm", DS_GLASS.CARD)}
+				/>
+				<div className="min-w-0">
+					<Heading
+						level={3}
+						className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}
+					>
+						토리
+					</Heading>
+					<div className="mt-1 flex items-center gap-1.5">
+						<Badge
+							color="forest"
+							className={cn(DS_TYPOGRAPHY.label, "rounded-full px-2 py-0.5")}
+						>
+							<span className={cn("size-1.5 rounded-full", DS_STATUS.available.dot)} />
+							온라인
+						</Badge>
+					</div>
+				</div>
+			</div>
+
+			<div className="ml-auto flex items-center gap-2">
+				{isTrackingUsage ? (
+					<div
+						className={cn(
+							DS_GLASS.CARD,
+							"min-h-11 rounded-2xl border border-dotori-100/70 px-3 py-2 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/50",
+						)}
+					>
+						<UsageCounter
+							count={usageCount}
+							limit={usageLimit}
+							isLoading={isUsageLoading}
+						/>
+					</div>
+				) : null}
+				<motion.div {...tap.chip}>
+					<Button
+						plain={true}
+						onClick={onClearHistory}
+						disabled={isResetting || isLoading}
+						className={cn(
+							DS_TYPOGRAPHY.bodySm,
+							"min-h-11 min-w-24 rounded-2xl border border-dotori-100/70 bg-white/80 px-3 text-dotori-700 shadow-sm transition-all hover:bg-white/90 dark:border-dotori-800/50 dark:bg-dotori-950/60 dark:text-dotori-100 dark:hover:bg-dotori-950/80",
+						)}
+					>
+						대화 초기화
+					</Button>
+				</motion.div>
+			</div>
+		</header>
+	);
+}
+
+function ChatMessageArea({
+	isHistoryLoading,
+	messages,
+	messagesEndRef,
+	selectedPromptLabel,
+	onSelectPrompt,
+	onSuggestPrompt,
+	onBlockAction,
+	onQuickReply,
+}: {
+	isHistoryLoading: boolean;
+	messages: ChatMessage[];
+	messagesEndRef: React.RefObject<HTMLDivElement | null>;
+	selectedPromptLabel: string;
+	onSelectPrompt: (prompt: ChatPromptPanelItem) => void;
+	onSuggestPrompt: (prompt: ChatPromptPanelItem) => void;
+	onBlockAction: (actionId: string) => void;
+	onQuickReply: (value: string) => void;
+}) {
+	return (
+		<div className="flex-1 overflow-y-auto">
+			{isHistoryLoading ? (
+				<div className="px-5 py-4">
+					<Skeleton variant="chat" count={3} />
+				</div>
+			) : messages.length === 0 ? (
+				<div className="px-5 py-4">
+					<ChatPromptPanel
+						onSelectPrompt={onSelectPrompt}
+						onSuggestPrompt={onSuggestPrompt}
+						selectedPromptLabel={selectedPromptLabel}
+						toriIcon={BRAND.symbol}
+					/>
+				</div>
+			) : (
+				<motion.ul
+					{...stagger.container}
+					className="space-y-4 px-5 py-4"
+				>
+					{messages.map((msg) => (
+						<motion.li key={msg.id} {...stagger.item}>
+							<MessageBubble
+								msg={msg}
+								onBlockAction={onBlockAction}
+								onQuickReply={onQuickReply}
+							/>
+						</motion.li>
+					))}
+					<div ref={messagesEndRef} />
+				</motion.ul>
+			)}
+		</div>
+	);
+}
+
+function ChatComposer({
+	input,
+	isLoading,
+	isUsageLoading,
+	isUsageLimitReached,
+	isTrackingUsage,
+	inputRef,
+	onInputChange,
+	onSubmit,
+	usageLimit,
+}: {
+	input: string;
+	isLoading: boolean;
+	isUsageLoading: boolean;
+	isUsageLimitReached: boolean;
+	isTrackingUsage: boolean;
+	inputRef: React.RefObject<HTMLInputElement | null>;
+	onInputChange: (value: string) => void;
+	onSubmit: (value: string) => void;
+	usageLimit: number;
+}) {
+	const isSendDisabled = !input.trim() || isLoading || isUsageLoading || isUsageLimitReached;
+
+	return (
+		<div
+			className={cn(
+				DS_GLASS.SHEET,
+				"border-t border-dotori-100/30 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_24px_rgba(200,149,106,0.1)] dark:border-dotori-800/40 dark:shadow-none",
+				"ring-1 ring-dotori-100/70",
+			)}
+		>
+			{isTrackingUsage && isUsageLimitReached ? (
+				<PremiumGate usageLimit={usageLimit} message={PREMIUM_GATE_HINT} />
+			) : null}
+			<div className="flex items-center gap-2.5">
+				<Fieldset className="min-w-0 flex-1">
+					<Field>
+						<Label className="sr-only">메시지 입력</Label>
+						<Input
+							ref={inputRef}
+							type="text"
+							value={input}
+							onChange={(event) => onInputChange(event.target.value)}
+							placeholder="토리에게 물어보세요..."
+							className={cn(
+								DS_TYPOGRAPHY.bodySm,
+								DS_GLASS.CARD,
+								"min-h-11 rounded-2xl border-0 bg-dotori-100/65 px-4 text-dotori-900 placeholder:text-dotori-400 shadow-sm dark:bg-dotori-800/60 dark:text-dotori-50 dark:placeholder:text-dotori-600",
+							)}
+							onKeyDown={(event) => {
+								if (event.key === "Enter" && !isSendDisabled) {
+									onSubmit(event.currentTarget.value);
+								}
+							}}
+							disabled={isLoading || isUsageLoading || isUsageLimitReached}
+						/>
+					</Field>
+				</Fieldset>
+				<motion.div {...tap.button}>
+					<Button
+						color="dotori"
+						type="button"
+						onClick={() => onSubmit(input)}
+						disabled={isSendDisabled}
+						aria-label="메시지 전송"
+						className={cn(
+							"inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm",
+						)}
+					>
+						{isLoading ? (
+							<LoadingSpinner />
+						) : (
+							<svg
+								className="h-5 w-5"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									d="M3.9 2.6L22 11.4L3.9 20.2V13.7L15 11.4L3.9 9.1V2.6Z"
+									fill="currentColor"
+								/>
+							</svg>
+						)}
+					</Button>
+				</motion.div>
+			</div>
+		</div>
 	);
 }
 
@@ -281,167 +514,37 @@ function ChatContent() {
 	};
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/60 text-dotori-900 dark:from-dotori-900 dark:via-dotori-900 dark:to-dotori-950 dark:text-dotori-50">
-			{/* ── Header ── */}
-			<header
-				className={cn(
-					DS_GLASS.HEADER,
-					"sticky top-0 z-10 flex items-center gap-3 px-5 py-3.5",
-				)}
-			>
-				<div className="flex min-w-0 items-center gap-2.5">
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={TORI_ICON}
-						alt=""
-						aria-hidden="true"
-						className="h-10 w-10 rounded-full border border-dotori-100 bg-white dark:border-dotori-800 dark:bg-dotori-900"
-					/>
-						<div className="min-w-0">
-							<Heading
-								level={3}
-								className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}
-							>
-								토리
-							</Heading>
-							<div className="mt-0.5 flex items-center gap-1.5">
-								<span className="inline-block h-2 w-2 animate-pulse rounded-full bg-forest-500" />
-								<Text
-									className={cn(
-										DS_TYPOGRAPHY.caption,
-										"font-medium text-forest-700 dark:text-forest-300",
-									)}
-								>
-									온라인
-								</Text>
-							</div>
-					</div>
-				</div>
-
-				<div className="ml-auto flex items-center gap-2">
-					{isTrackingUsage ? (
-						<div
-							className={cn(
-								DS_GLASS.CARD,
-								"rounded-2xl border border-dotori-100/70 px-3 py-2 dark:border-dotori-800/50 dark:[&_*]:text-dotori-200",
-							)}
-						>
-							<UsageCounter
-								count={usageCount}
-								limit={usageLimit}
-								isLoading={isUsageLoading}
-							/>
-						</div>
-					) : null}
-					<Button
-						plain={true}
-						onClick={handleClearHistory}
-						disabled={isResetting || isLoading}
-						className={cn(
-							DS_TYPOGRAPHY.bodySm,
-							"min-h-11 min-w-24 rounded-2xl border border-dotori-100 bg-white/70 px-3 text-dotori-700 transition-all hover:bg-white active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/40 dark:text-dotori-100 dark:hover:bg-dotori-950/60",
-						)}
-					>
-						대화 초기화
-					</Button>
-				</div>
-			</header>
-
-			{/* ── Messages ── */}
-			<div className="flex-1 overflow-y-auto">
-				{isHistoryLoading ? (
-					<div className="px-5 py-4">
-						<Skeleton variant="chat" count={3} />
-					</div>
-				) : messages.length === 0 ? (
-					<ChatPromptPanel
-						onSelectPrompt={handleSelectPrompt}
-						onSuggestPrompt={handleSuggestPrompt}
-						selectedPromptLabel={selectedPromptLabel}
-						toriIcon={TORI_ICON}
-					/>
-				) : (
-					<div className="px-5 py-4">
-						{messages.map((msg) => (
-							<MessageBubble
-								key={msg.id}
-								msg={msg}
-								onBlockAction={handleBlockAction}
-								onQuickReply={sendMessage}
-							/>
-						))}
-						<div ref={messagesEndRef} />
-					</div>
-				)}
-			</div>
-
-			{/* ── Input area ── */}
-			<div
-				className={cn(
-					DS_GLASS.SHEET,
-					"border-t border-dotori-100/30 px-5 py-3.5 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_24px_rgba(200,149,106,0.10)] dark:border-dotori-800/40 dark:shadow-none",
-				)}
-			>
-				{isTrackingUsage && isUsageLimitReached ? (
-					<PremiumGate usageLimit={usageLimit} message={PREMIUM_GATE_HINT} />
-				) : null}
-				<div className="flex items-center gap-2.5">
-					<Fieldset className="min-w-0 flex-1">
-						<Field>
-							<Label className="sr-only">메시지 입력</Label>
-							<Input
-								ref={inputRef}
-								type="text"
-								value={input}
-								onChange={(event) => setInput(event.target.value)}
-								placeholder="토리에게 물어보세요..."
-								className={cn(
-									DS_TYPOGRAPHY.bodySm,
-									"min-h-12 bg-dotori-100/60 text-dotori-900 placeholder:text-dotori-400 dark:bg-dotori-800/60 dark:text-dotori-50 dark:placeholder:text-dotori-600",
-								)}
-								onKeyDown={(event) => {
-									if (event.key === "Enter" && input.trim()) {
-										sendMessage(input);
-									}
-								}}
-								disabled={isLoading || isUsageLoading || isUsageLimitReached}
-							/>
-						</Field>
-					</Fieldset>
-					<motion.div {...tap.button}>
-						<Button
-							plain={true}
-							type="button"
-							onClick={() => sendMessage(input)}
-							disabled={!input.trim() || isLoading || isUsageLoading || isUsageLimitReached}
-							aria-label="메시지 전송"
-							className={cn(
-								"flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all",
-								input.trim() && !isLoading && !isUsageLoading && !isUsageLimitReached
-									? "bg-dotori-900 text-white hover:bg-dotori-800 hover:shadow-sm dark:bg-dotori-50 dark:text-dotori-900 dark:hover:bg-dotori-100 dark:hover:shadow-none"
-									: "bg-dotori-100 text-dotori-500 dark:bg-dotori-800 dark:text-dotori-300",
-							)}
-						>
-							{isLoading ? (
-								<LoadingSpinner />
-							) : (
-								<svg
-									className="h-5 w-5"
-									viewBox="0 0 24 24"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-									aria-hidden="true"
-								>
-									<path
-										d="M3.9 2.6L22 11.4L3.9 20.2V13.7L15 11.4L3.9 9.1V2.6Z"
-										fill="currentColor"
-									/>
-								</svg>
-							)}
-						</Button>
-					</motion.div>
-				</div>
-			</div>
+		<div className="flex h-[calc(100dvh-8rem)] flex-col bg-dotori-50 text-dotori-900 dark:bg-dotori-900 dark:text-dotori-50">
+			<ChatHeader
+				isTrackingUsage={isTrackingUsage}
+				isResetting={isResetting}
+				isLoading={isLoading}
+				isUsageLoading={isUsageLoading}
+				usageCount={usageCount}
+				usageLimit={usageLimit}
+				onClearHistory={handleClearHistory}
+			/>
+			<ChatMessageArea
+				isHistoryLoading={isHistoryLoading}
+				messages={messages}
+				messagesEndRef={messagesEndRef}
+				selectedPromptLabel={selectedPromptLabel}
+				onSelectPrompt={handleSelectPrompt}
+				onSuggestPrompt={handleSuggestPrompt}
+				onBlockAction={handleBlockAction}
+				onQuickReply={sendMessage}
+			/>
+			<ChatComposer
+				input={input}
+				isLoading={isLoading}
+				isUsageLoading={isUsageLoading}
+				isUsageLimitReached={isUsageLimitReached}
+				isTrackingUsage={isTrackingUsage}
+				inputRef={inputRef}
+				onInputChange={setInput}
+				onSubmit={sendMessage}
+				usageLimit={usageLimit}
+			/>
 		</div>
 	);
 }

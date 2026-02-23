@@ -24,9 +24,9 @@ import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
-import { BRAND_GUIDE } from "@/lib/brand-assets";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { spring, tap } from "@/lib/motion";
+import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { stagger, spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreSuggestionPanel } from "./ExploreSuggestionPanel";
 import {
@@ -89,11 +89,13 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	const searchContainerRef = useRef<HTMLDivElement>(null);
 	const activeFilterPillClass = cn(
 		DS_TYPOGRAPHY.bodySm,
-		"bg-dotori-400 font-semibold text-white ring-1 ring-dotori-500 shadow-sm",
+		DS_STATUS.available.pill,
+		"font-semibold ring-1 ring-dotori-300/70 shadow-sm",
 	);
 	const inactiveFilterPillClass = cn(
 		DS_TYPOGRAPHY.bodySm,
-		"bg-dotori-50 text-dotori-700 ring-1 ring-dotori-200 dark:bg-dotori-900 dark:text-dotori-200 dark:ring-dotori-700/40",
+		DS_STATUS.full.pill,
+		"ring-1 ring-dotori-100/70 dark:ring-dotori-700/45",
 	);
 
 	useEffect(() => {
@@ -132,32 +134,47 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	);
 
 	return (
-		<header className={cn("sticky top-0 z-20 px-4 pb-2 pt-3", DS_GLASS.HEADER)}>
-			<div className="mb-2.5 flex items-center justify-between">
-				{/* eslint-disable-next-line @next/next/no-img-element */}
-				<img src={BRAND_GUIDE.header} alt="도토리" className="h-5 opacity-90" />
-				<div className="rounded-full border border-dotori-100 bg-white px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
+		<header
+			className={cn(
+				"sticky top-0 z-20 border-b border-dotori-100/60 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]",
+				DS_GLASS.HEADER,
+			)}
+		>
+			<motion.div {...stagger.container} className="space-y-3">
+				<motion.div {...stagger.item} className="mb-0.5 flex items-center justify-between">
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img src={BRAND_GUIDE.inApp} alt="" aria-hidden="true" className="h-4 w-4" />
-				</div>
-			</div>
+					<img
+						src={BRAND.lockupHorizontalKr}
+						alt="도토리"
+						className="h-5 opacity-90"
+					/>
+					<div className="rounded-full border border-dotori-100 bg-white px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img src={BRAND.symbol} alt="" aria-hidden="true" className="h-4 w-4" />
+					</div>
+				</motion.div>
 
-			<Heading
-				level={2}
-				className={cn(DS_TYPOGRAPHY.h2, "font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}
-			>
-				이동 고민이라면, 빈자리 먼저 확인해요
-			</Heading>
-			<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-500 dark:text-dotori-300")}>
-				지역·시나리오·필터를 조합해 지금 이동 가능한 시설을 빠르게 확인하세요
-			</Text>
+				<motion.div {...stagger.item}>
+					<Heading
+						level={2}
+						className={cn(DS_TYPOGRAPHY.h2, "font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}
+					>
+						이동 고민이라면, 빈자리 먼저 확인해요
+					</Heading>
+					<Text
+						className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-500 dark:text-dotori-300")}
+					>
+						지역·시나리오·필터를 조합해 지금 이동 가능한 시설을 빠르게 확인하세요
+					</Text>
+				</motion.div>
 
-			<Fieldset className="mt-3 space-y-2">
+				<Fieldset className="mt-2 space-y-3">
+					<motion.div {...stagger.item}>
 				<div
 					ref={searchContainerRef}
 					className={cn(
 						DS_GLASS.CARD,
-						"relative rounded-3xl border border-dotori-200/70 bg-gradient-to-br from-white via-dotori-50/90 to-amber-50/70 p-3 shadow-[0_16px_36px_-26px_rgba(122,78,48,0.8)] dark:border-dotori-800/70 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-950 dark:shadow-none",
+						"relative rounded-3xl border border-dotori-100/70 bg-dotori-50/85 p-4 shadow-sm ring-1 ring-dotori-100/70 dark:bg-dotori-900/70",
 					)}
 				>
 					<form onSubmit={handleFormSubmit}>
@@ -170,7 +187,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
 							className={cn(
 								DS_TYPOGRAPHY.body,
-								"min-h-12 w-full rounded-3xl bg-dotori-50 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-400 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
+								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-400 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
 							)}
 							aria-label="시설 검색"
 							name="q"
@@ -192,15 +209,15 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					</form>
 
 					<div className="mt-2.5 flex flex-wrap gap-2">
-						<motion.div {...tap.chip} className="inline-flex">
+						<motion.div {...tap.button} className="inline-flex">
 							<Button
 								type="button"
-								plain={true}
 								onClick={onUseCurrentLocation}
 								disabled={isGpsLoading}
+								color="dotori"
 								className={cn(
 									DS_TYPOGRAPHY.bodySm,
-									"inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dotori-200 bg-dotori-50 px-3 py-2 font-semibold text-dotori-700 transition-colors duration-150 hover:bg-dotori-100 dark:border-dotori-700 dark:bg-dotori-900 dark:text-dotori-100 dark:hover:bg-dotori-800",
+									"inline-flex min-h-11 items-center gap-1.5 rounded-full border border-transparent px-3 py-2 font-semibold shadow-sm transition-colors duration-150",
 									isGpsLoading && "opacity-70",
 								)}
 							>
@@ -246,8 +263,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						/>
 					) : null}
 				</div>
+					</motion.div>
 
-				<div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-center">
+				<motion.div {...tap.chip} className="mt-1 flex flex-col gap-2 border-b border-dotori-100/60 pb-1 sm:flex-row sm:items-center">
 					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mr-auto shrink-0 whitespace-nowrap text-dotori-500 dark:text-dotori-300")}>
 						{resultLabel}
 					</Text>
@@ -273,7 +291,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										exit={{ scale: 0.7, opacity: 0 }}
 										transition={spring.chip}
 									>
-										<Badge color="forest" className="px-1 py-0 text-xs">
+										<Badge color="forest" className={cn(DS_TYPOGRAPHY.caption, "px-1.5 py-0.5")}>
 											{activeFilterCount}
 										</Badge>
 									</motion.span>
@@ -295,7 +313,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							{showMap ? "리스트 보기" : "지도 보기"}
 						</Button>
 					</motion.div>
-				</div>
+				</motion.div>
 
 				<motion.div {...tap.chip} className="mt-1">
 					<Button
@@ -326,7 +344,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
 					</Button>
 				</motion.div>
-			</Fieldset>
+				</Fieldset>
+			</motion.div>
 
 			<AnimatePresence>
 				{showFilters ? (
@@ -338,12 +357,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						transition={spring.card}
 						className={cn(
 							DS_GLASS.SHEET,
-							"mt-3 rounded-3xl border border-dotori-200/70 p-4 shadow-[0_16px_36px_-26px_rgba(122,78,48,0.8)] dark:border-dotori-800/70 dark:shadow-none",
+							"mt-3 rounded-3xl border border-dotori-200/70 bg-dotori-50/70 p-4 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800/70 dark:bg-dotori-900/60",
 						)}
 					>
 						<Fieldset className="space-y-3">
 							<Field>
-								<Text className={cn(DS_TYPOGRAPHY.bodySm, "mb-2 block font-semibold text-dotori-600 dark:text-dotori-300")}>
+								<Text
+									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+								>
 									시설 유형
 								</Text>
 								<div className="flex flex-wrap gap-2">
@@ -372,7 +393,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							</Field>
 
 							<Field>
-								<Text className={cn(DS_TYPOGRAPHY.bodySm, "mb-2 block font-semibold text-dotori-600 dark:text-dotori-300")}>
+								<Text
+									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+								>
 									지역 필터
 								</Text>
 								<div className="grid gap-2 sm:grid-cols-2">
@@ -411,7 +434,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							</Field>
 
 							<Field>
-								<Text className={cn(DS_TYPOGRAPHY.bodySm, "mb-2 block font-semibold text-dotori-600 dark:text-dotori-300")}>
+								<Text
+									className={cn(DS_TYPOGRAPHY.label, "mb-2 block text-dotori-600 dark:text-dotori-300")}
+								>
 									정렬
 								</Text>
 								<div className="flex flex-wrap gap-2">
