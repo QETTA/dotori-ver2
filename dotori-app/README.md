@@ -19,6 +19,10 @@ npm run test:integration
 npm run test:engine
 npm run test:e2e
 npm run build
+
+# UX/UI auto guard (console + screenshot + scroll audit)
+# dev server must be up (ex: npm run dev:3002)
+BASE_URL=http://127.0.0.1:3002 npm run ux:guard
 ```
 
 ## Development

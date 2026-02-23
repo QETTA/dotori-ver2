@@ -1,7 +1,15 @@
-import { BRAND } from "@/lib/brand-assets";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/catalyst/button";
+"use client";
+
+import { DsButton } from "@/components/ds/DsButton";
+import {
+	DOTORI_ERROR_VARIANT_META,
+	DOTORI_STATE_MOTION,
+	DOTORI_STATE_TOKENS,
+	type DotoriErrorStateVariant,
+} from "@/components/dotori/EmptyState";
 import { Surface } from "@/components/dotori/Surface";
+import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 export function ErrorState({
 	message,
@@ -12,48 +20,45 @@ export function ErrorState({
 	message: string;
 	detail?: string;
 	action?: { label: string; onClick: () => void };
-	variant?: "default" | "network" | "notfound";
+	variant?: DotoriErrorStateVariant;
 }) {
-	const illustrations: Record<string, string> = {
-		default: BRAND.errorState,
-		network: BRAND.errorState,
-		notfound: BRAND.emptyState,
-	};
-
-	const defaultDetails: Record<string, string> = {
-		network: "인터넷 연결을 확인해주세요",
-		notfound: "요청하신 페이지를 찾을 수 없습니다",
-	};
+	const meta = DOTORI_ERROR_VARIANT_META[variant];
+	const resolvedDetail = detail ?? meta.fallbackDetail;
 
 	return (
-		<div
-			className={cn(
-				"px-5 py-6 text-center",
-				"motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 duration-300",
-			)}
-		>
-			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-5">
+		<motion.div className={DOTORI_STATE_TOKENS.container} {...DOTORI_STATE_MOTION}>
+			<Surface className={DOTORI_STATE_TOKENS.surface} tone="muted">
+				<span className={DOTORI_STATE_TOKENS.accentTop} aria-hidden="true" />
+				<span className={DOTORI_STATE_TOKENS.accentBottom} aria-hidden="true" />
 				{/* eslint-disable-next-line @next/next/no-img-element */}
 				<img
-					src={illustrations[variant]}
+					src={DOTORI_ERROR_VARIANT_META[variant].illustration}
 					alt=""
 					aria-hidden="true"
-					className="h-24 w-24 opacity-80"
+					className={DOTORI_STATE_TOKENS.watermark}
 				/>
-				<div className="flex max-w-xs flex-col gap-2">
-					<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">{message}</h3>
-					{(detail || defaultDetails[variant]) ? (
-						<p className="text-body-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
-							{detail || defaultDetails[variant]}
-						</p>
+				<div className={DOTORI_STATE_TOKENS.content}>
+					<div className={DOTORI_STATE_TOKENS.mediaWrap}>
+						{/* eslint-disable-next-line @next/next/no-img-element */}
+						<img
+							src={meta.illustration}
+							alt=""
+							aria-hidden="true"
+							className={cn(DOTORI_STATE_TOKENS.image, "h-16 w-16")}
+						/>
+					</div>
+					<div className={DOTORI_STATE_TOKENS.copyWrap}>
+						<p className={DOTORI_STATE_TOKENS.eyebrow}>{meta.eyebrow}</p>
+						<h3 className={DOTORI_STATE_TOKENS.title}>{message}</h3>
+						<p className={DOTORI_STATE_TOKENS.description}>{resolvedDetail}</p>
+					</div>
+					{action ? (
+						<DsButton onClick={action.onClick} className={DOTORI_STATE_TOKENS.action}>
+							{action.label}
+						</DsButton>
 					) : null}
 				</div>
-				{action ? (
-					<Button color="dotori" onClick={action.onClick} className="min-h-11 w-full">
-						{action.label}
-					</Button>
-				) : null}
 			</Surface>
-		</div>
+		</motion.div>
 	);
 }

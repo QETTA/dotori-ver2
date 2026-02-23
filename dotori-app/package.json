@@ -18,6 +18,7 @@
     "format": "prettier --write src/lib/chat-quota.ts src/app/api/chat/route.ts src/app/api/chat/stream/route.ts src/lib/engine/__tests__/report-engine.test.ts src/__tests__/api/chat.test.ts src/__tests__/e2e/chat.spec.ts src/__tests__/e2e/explore.spec.ts src/__tests__/e2e/home.spec.ts scripts/flaky-engine-tests.mjs README.md package.json",
     "format:check": "prettier --check src/lib/chat-quota.ts src/app/api/chat/route.ts src/app/api/chat/stream/route.ts src/lib/engine/__tests__/report-engine.test.ts src/__tests__/api/chat.test.ts src/__tests__/e2e/chat.spec.ts src/__tests__/e2e/explore.spec.ts src/__tests__/e2e/home.spec.ts scripts/flaky-engine-tests.mjs README.md package.json",
     "screenshot": "npx tsx scripts/screenshot-check.ts",
+    "ux:guard": "bash scripts/ux-guard.sh",
     "qa:mobile": "./scripts/mobile-qa.sh",
     "check-console": "npx tsx scripts/check-console.ts",
     "check:ds": "npx tsx scripts/check-design-system.ts",

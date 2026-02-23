@@ -8,6 +8,7 @@ import { Surface } from "@/components/dotori/Surface";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_LAYOUT, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 import { stagger } from "@/lib/motion";
@@ -38,7 +39,28 @@ export default function MyPage() {
 	const [interestPreview, setInterestPreview] = useState<Facility[]>([]);
 	const [isInterestLoading, setIsInterestLoading] = useState(false);
 	const menuItemClass =
-		"flex min-h-12 items-center justify-between gap-3 px-4 py-4";
+		"flex min-h-12 items-center justify-between gap-3 px-4 py-3.5";
+	const sectionTitleClass = cn(
+		DS_TYPOGRAPHY.label,
+		"mb-2.5 font-semibold uppercase tracking-[0.2em] text-dotori-400 dark:text-dotori-500",
+	);
+	const menuPanelClass = cn(
+		DS_LAYOUT.CARD_SOFT,
+		DS_GLASS.CARD,
+		"overflow-hidden rounded-3xl bg-gradient-to-b from-white/85 via-dotori-50/40 to-white/70 ring-1 ring-dotori-100/70 dark:from-dotori-950/90 dark:via-dotori-900/80 dark:to-dotori-900/88 dark:ring-dotori-800/80",
+	);
+	const cardSurfaceClass = cn(
+		DS_LAYOUT.CARD_SOFT,
+		"rounded-3xl ring-1 ring-dotori-100/70 shadow-[0_16px_28px_-24px_rgba(122,78,48,0.45)] dark:ring-dotori-800/80 dark:shadow-none",
+	);
+	const menuItemTitleClass = cn(
+		DS_TYPOGRAPHY.h3,
+		"font-semibold tracking-tight text-dotori-900 dark:text-dotori-50",
+	);
+	const menuItemDescriptionClass = cn(
+		DS_TYPOGRAPHY.caption,
+		"mt-0.5 text-dotori-400 dark:text-dotori-500",
+	);
 
 	const visibleMenuSections = useMemo(
 		() => (user ? menuSections : publicMenuSections),
@@ -185,7 +207,7 @@ export default function MyPage() {
 		return (
 			<div className="pb-8 text-dotori-900 dark:text-dotori-50">
 				<header className="px-5 pt-8 pb-2">
-					<h1 className="text-h2 font-bold">MY</h1>
+					<h1 className={cn(DS_TYPOGRAPHY.h2, "font-bold tracking-tight")}>MY</h1>
 				</header>
 				<div className="px-5 pt-4">
 					<ErrorState
@@ -204,7 +226,12 @@ export default function MyPage() {
 		return (
 			<div className="pb-8 text-dotori-900 dark:text-dotori-50">
 				<header className="px-5 pt-6 pb-2">
-					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-5 py-5">
+					<div
+						className={cn(
+							DS_LAYOUT.CARD_SOFT,
+							"rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-amber-50 px-5 py-5 ring-1 ring-dotori-200/60 shadow-[0_22px_36px_-30px_rgba(122,78,48,0.55)] dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 dark:ring-dotori-800/80 dark:shadow-none",
+						)}
+					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontalKr} alt="도토리" className="mb-3 h-6" />
 						<div className="flex items-center gap-4">
@@ -217,8 +244,10 @@ export default function MyPage() {
 								/>
 							</div>
 							<div>
-								<h1 className="text-h2 font-bold">MY 페이지</h1>
-								<p className="mt-0.5 text-body-sm text-dotori-700 dark:text-dotori-200">
+								<h1 className={cn(DS_TYPOGRAPHY.h2, "font-bold tracking-tight")}>
+									MY 페이지
+								</h1>
+								<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-0.5 text-dotori-700 dark:text-dotori-200")}>
 									로그인하면 이동 수요 기준으로 시설 비교와 빈자리 체크를 바로 볼 수 있어요
 								</p>
 							</div>
@@ -230,11 +259,11 @@ export default function MyPage() {
 					<Button
 						href="/login"
 						color="amber"
-						className="w-full min-h-11 py-4 text-base font-semibold active:scale-[0.97]"
+						className="w-full min-h-11 py-4 text-base font-semibold tracking-tight active:scale-[0.97]"
 					>
 						카카오 로그인
 					</Button>
-					<p className="mt-2 text-center text-caption text-dotori-500 dark:text-dotori-300">
+					<p className={cn(DS_TYPOGRAPHY.caption, "mt-2 text-center text-dotori-500 dark:text-dotori-300")}>
 						로그인 후 관심 시설, 대기 현황, 알림을 한 번에 확인하세요
 					</p>
 				</div>
@@ -242,10 +271,10 @@ export default function MyPage() {
 				<div className="mt-5 space-y-4 px-5">
 					{groupedMenuSections.map((section) => (
 						<section key={section.title}>
-							<h2 className="mb-2.5 text-caption font-semibold uppercase tracking-[0.18em] text-dotori-300 dark:text-dotori-600">
+							<h2 className={sectionTitleClass}>
 								{section.title}
 							</h2>
-							<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-dotori-100/70 dark:bg-dotori-900 dark:ring-dotori-800">
+							<div className={menuPanelClass}>
 								<motion.ul
 									{...stagger.container}
 									className="divide-y divide-dotori-100 dark:divide-dotori-800"
@@ -266,10 +295,10 @@ export default function MyPage() {
 													<div className="flex min-w-0 flex-1 items-center gap-3">
 														<Icon className="h-5 w-5 text-dotori-500" />
 														<div className="min-w-0 flex-1">
-															<p className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
+															<p className={menuItemTitleClass}>
 																{item.label}
 															</p>
-															<p className="mt-0.5 text-caption text-dotori-400">
+															<p className={menuItemDescriptionClass}>
 																{item.description}
 															</p>
 														</div>
@@ -292,11 +321,14 @@ export default function MyPage() {
 		<div className="pb-8 text-dotori-900 dark:text-dotori-50">
 			{/* 프로필 헤더 */}
 			<header className="px-5 pt-6 pb-2">
-				<Surface tone="muted" className="px-5 py-5">
+				<Surface
+					tone="muted"
+					className="px-5 py-5 ring-1 ring-dotori-100/70 shadow-[0_22px_36px_-30px_rgba(122,78,48,0.48)] dark:ring-dotori-800/80 dark:shadow-none"
+				>
 					<div className="mb-3 flex items-center justify-between">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
-						<Badge color="dotori" className="text-caption font-semibold">
+						<Badge color="dotori" className={cn(DS_TYPOGRAPHY.caption, "font-semibold")}>
 							MY
 						</Badge>
 					</div>
@@ -321,7 +353,9 @@ export default function MyPage() {
 						</div>
 						<div className="min-w-0 flex-1">
 							<div className="flex items-center gap-2">
-								<h1 className="text-lg font-bold">{userLabel}</h1>
+								<h1 className={cn(DS_TYPOGRAPHY.h2, "font-bold leading-tight tracking-tight")}>
+									{userLabel}
+								</h1>
 								<Link
 									href="/my/settings"
 									aria-label="플랜 설정으로 이동"
@@ -329,17 +363,20 @@ export default function MyPage() {
 								>
 									<Badge
 										color={user.plan === "free" ? "dotori" : "forest"}
-										className="text-caption"
+										className={DS_TYPOGRAPHY.caption}
 									>
 										{planLabel}
 									</Badge>
 								</Link>
 							</div>
-							<p className="mt-0.5 text-body-sm text-dotori-500 dark:text-dotori-300">{formatRegion(user.region)}</p>
-							<p className="mt-1 text-body-sm text-dotori-500 dark:text-dotori-300">{childSummary}</p>
+							<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-0.5 text-dotori-500 dark:text-dotori-300")}>{formatRegion(user.region)}</p>
+							<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-500 dark:text-dotori-300")}>{childSummary}</p>
 							<Link
 								href="/my/settings"
-								className="mt-2 inline-flex min-h-11 items-center justify-center rounded-2xl bg-dotori-50 dark:bg-dotori-900 px-4 text-body-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors hover:bg-dotori-100 dark:hover:bg-dotori-800 active:scale-[0.98]"
+								className={cn(
+									DS_TYPOGRAPHY.bodySm,
+									"mt-2 inline-flex min-h-11 items-center justify-center rounded-2xl bg-dotori-50 px-4 font-semibold text-dotori-700 transition-colors hover:bg-dotori-100 active:scale-[0.98] dark:bg-dotori-900 dark:text-dotori-200 dark:hover:bg-dotori-800",
+								)}
 							>
 								프로필 수정
 							</Link>
@@ -357,15 +394,16 @@ export default function MyPage() {
 							href={stat.href}
 							aria-label={`${stat.ariaLabel} ${stat.value}개`}
 							className={cn(
-								"rounded-full border border-dotori-200 dark:border-dotori-700 bg-white dark:bg-dotori-950 px-3 py-2.5",
+								DS_LAYOUT.CARD_SOFT,
+								"rounded-2xl bg-gradient-to-b from-white/90 to-dotori-50/70 px-3 py-2.5 ring-1 ring-dotori-100/80 dark:from-dotori-950/90 dark:to-dotori-900/75 dark:ring-dotori-800/80",
 								"flex flex-col items-center justify-center gap-0.5 text-center",
-								"transition-colors transition-transform hover:bg-dotori-50/60 dark:hover:bg-dotori-900/60 active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
+								"transition-colors transition-transform hover:bg-dotori-50/70 dark:hover:bg-dotori-900/65 active:scale-[0.98] active:bg-dotori-50 dark:active:bg-dotori-900",
 							)}
 						>
-							<span className="text-h2 font-bold leading-none text-dotori-900 dark:text-dotori-50">
+							<span className={cn(DS_TYPOGRAPHY.h2, "font-bold leading-none tabular-nums text-dotori-900 dark:text-dotori-50")}>
 								{stat.value}
 							</span>
-							<span className="text-caption text-dotori-500 dark:text-dotori-300">
+							<span className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500 dark:text-dotori-300")}>
 								{stat.label}
 							</span>
 						</Link>
@@ -375,14 +413,19 @@ export default function MyPage() {
 
 			{!isPremiumUser && (
 				<section className="mt-5 px-5">
-					<div className="rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 px-4 py-5">
-						<p className="text-caption font-semibold uppercase tracking-[0.18em] text-dotori-500 dark:text-dotori-300">
+					<div
+						className={cn(
+							DS_LAYOUT.CARD_SOFT,
+							"rounded-3xl bg-gradient-to-r from-dotori-100 via-dotori-50 to-amber-50 px-4 py-5 ring-1 ring-dotori-200/65 shadow-[0_20px_34px_-28px_rgba(122,78,48,0.55)] dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900 dark:ring-dotori-800/80 dark:shadow-none",
+						)}
+					>
+						<p className={cn(DS_TYPOGRAPHY.label, "font-semibold uppercase tracking-[0.2em] text-dotori-500 dark:text-dotori-300")}>
 							프리미엄
 						</p>
-						<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">
+						<p className={cn(DS_TYPOGRAPHY.h2, "mt-2 font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}>
 							프리미엄 · 월 1,900원
 						</p>
-						<div className="mt-2 space-y-1.5 text-body-sm text-dotori-700 dark:text-dotori-200">
+						<div className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 space-y-1.5 text-dotori-700 dark:text-dotori-200")}>
 							<p>• 즉시 알림</p>
 							<p>• 무제한 AI</p>
 							<p>• 우선 매칭</p>
@@ -405,8 +448,8 @@ export default function MyPage() {
 						href="/my/interests"
 						className="flex items-center justify-between"
 					>
-						<h2 className="text-h3 font-bold">관심 시설 {interestsCount}곳</h2>
-						<span className="inline-flex items-center text-body-sm text-dotori-500 dark:text-dotori-300">
+						<h2 className={cn(DS_TYPOGRAPHY.h3, "font-bold tracking-tight")}>관심 시설 {interestsCount}곳</h2>
+						<span className={cn(DS_TYPOGRAPHY.bodySm, "inline-flex items-center text-dotori-500 dark:text-dotori-300")}>
 							자세히 보기
 							<ChevronRightIcon className="ml-0.5 h-4 w-4" />
 						</span>
@@ -420,7 +463,10 @@ export default function MyPage() {
 							<Link
 								key={facility.id}
 								href={`/facility/${facility.id}`}
-								className="block rounded-3xl bg-white dark:bg-dotori-950 p-4 shadow-sm dark:shadow-none transition-all active:scale-[0.99]"
+								className={cn(
+									cardSurfaceClass,
+									"block p-4 transition-all active:scale-[0.99]",
+								)}
 							>
 								<div className="flex items-start gap-3">
 									<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-dotori-50 dark:bg-dotori-900 text-dotori-500">
@@ -428,14 +474,14 @@ export default function MyPage() {
 									</div>
 									<div className="min-w-0 flex-1">
 										<div className="flex items-center justify-between gap-2">
-											<p className="font-semibold text-dotori-900 dark:text-dotori-50 leading-snug line-clamp-1">
+											<p className={cn(DS_TYPOGRAPHY.body, "font-semibold text-dotori-900 dark:text-dotori-50 leading-snug line-clamp-1")}>
 												{facility.name}
 											</p>
-											<span className="rounded-full bg-dotori-100 dark:bg-dotori-800 px-2 py-0.5 text-caption text-dotori-500">
+											<span className={cn(DS_TYPOGRAPHY.caption, "rounded-full bg-dotori-100 dark:bg-dotori-800 px-2 py-0.5 text-dotori-500")}>
 												{facility.type}
 											</span>
 										</div>
-										<p className="mt-1 text-caption text-dotori-500 dark:text-dotori-300 line-clamp-1">
+										<p className={cn(DS_TYPOGRAPHY.caption, "mt-1 text-dotori-500 dark:text-dotori-300 line-clamp-1")}>
 											{facility.address}
 										</p>
 									</div>
@@ -444,19 +490,27 @@ export default function MyPage() {
 						))}
 					</div>
 				) : (
-					<div className="rounded-3xl bg-dotori-50 dark:bg-dotori-900 px-5 py-5 text-center">
+					<div
+						className={cn(
+							DS_LAYOUT.CARD_SOFT,
+							"rounded-3xl px-5 py-5 text-center ring-1 ring-dotori-100/80 dark:ring-dotori-800/80",
+						)}
+					>
 						<div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/70 dark:bg-dotori-950/50">
 							<HeartIcon className="h-6 w-6 text-dotori-500" />
 						</div>
-						<p className="mt-3 text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
+						<p className={cn(DS_TYPOGRAPHY.h3, "mt-3 font-semibold tracking-tight text-dotori-900 dark:text-dotori-50")}>
 							관심 시설을 저장해두면 비교가 훨씬 쉬워요
 						</p>
-						<p className="mt-1 text-body-sm text-dotori-600 dark:text-dotori-300">
+						<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-1 text-dotori-600 dark:text-dotori-300")}>
 							탐색에서 하트를 눌러 관심 목록을 만들어보세요.
 						</p>
 						<Link
 							href="/explore"
-							className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-dotori-100 dark:bg-dotori-800 px-4 text-body-sm font-semibold text-dotori-700 dark:text-dotori-200 active:scale-[0.97]"
+							className={cn(
+								DS_TYPOGRAPHY.bodySm,
+								"mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-dotori-100 dark:bg-dotori-800 px-4 font-semibold text-dotori-700 dark:text-dotori-200 active:scale-[0.97]",
+							)}
 						>
 							이동할 시설 찾기
 						</Link>
@@ -466,13 +520,13 @@ export default function MyPage() {
 
 			{/* 내 아이 */}
 			<section className="mt-5 px-5">
-				<h2 className="mb-2.5 text-h3 font-bold">내 아이</h2>
+				<h2 className={cn(DS_TYPOGRAPHY.h3, "mb-2.5 font-bold tracking-tight")}>내 아이</h2>
 				{user.children.length > 0 ? (
 					<div className="space-y-2">
 						{childDetails.map(({ child, ageLabel }) => (
 							<div
 								key={child.id}
-								className="flex items-center gap-3.5 rounded-3xl bg-white dark:bg-dotori-950 p-5 shadow-sm dark:shadow-none"
+								className={cn(cardSurfaceClass, "flex items-center gap-3.5 p-5")}
 							>
 								<div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-dotori-50 dark:bg-dotori-900 text-body-sm font-bold text-dotori-500">
 									{child?.gender === "female"
@@ -482,14 +536,14 @@ export default function MyPage() {
 											: "👶"}
 								</div>
 								<div className="min-w-0 flex-1">
-									<span className="text-base font-semibold">{child.name}</span>
-									<span className="ml-1.5 text-body-sm text-dotori-500 dark:text-dotori-300">
+									<span className={cn(DS_TYPOGRAPHY.body, "font-semibold")}>{child.name}</span>
+									<span className={cn(DS_TYPOGRAPHY.bodySm, "ml-1.5 text-dotori-500 dark:text-dotori-300")}>
 										만 {ageLabel}
 									</span>
 								</div>
 								<Link
 									href="/my/settings"
-									className="py-1 text-body-sm text-dotori-500 dark:text-dotori-300 transition-colors hover:text-dotori-600 dark:hover:text-dotori-200"
+									className={cn(DS_TYPOGRAPHY.bodySm, "py-1 text-dotori-500 dark:text-dotori-300 transition-colors hover:text-dotori-600 dark:hover:text-dotori-200")}
 								>
 									수정
 								</Link>
@@ -497,8 +551,13 @@ export default function MyPage() {
 						))}
 				</div>
 				) : (
-					<div className="rounded-2xl bg-dotori-50 dark:bg-dotori-900 p-5 text-center">
-						<p className="text-h3 text-dotori-500 dark:text-dotori-300">
+					<div
+						className={cn(
+							DS_LAYOUT.CARD_SOFT,
+							"rounded-3xl p-5 text-center ring-1 ring-dotori-100/80 dark:ring-dotori-800/80",
+						)}
+					>
+						<p className={cn(DS_TYPOGRAPHY.h3, "text-dotori-500 dark:text-dotori-300")}>
 							아이를 등록하면 맞춤 전략을 받을 수 있어요
 						</p>
 						<Button
@@ -517,18 +576,19 @@ export default function MyPage() {
 				<Link
 					href="/my/import"
 					className={cn(
-						"flex items-center gap-3.5 rounded-3xl bg-gradient-to-r from-dotori-50 to-white dark:from-dotori-900 dark:to-dotori-950 p-5 shadow-sm dark:shadow-none transition-all",
-						"active:scale-[0.98] hover:shadow-md dark:hover:shadow-none",
+						DS_LAYOUT.CARD_SOFT,
+						"flex items-center gap-3.5 rounded-3xl bg-gradient-to-r from-dotori-50 to-white dark:from-dotori-900 dark:to-dotori-950 p-5 ring-1 ring-dotori-100/80 dark:ring-dotori-800/80 transition-all",
+						"active:scale-[0.98] hover:bg-dotori-50/70 dark:hover:bg-dotori-900/65",
 					)}
 				>
 					<div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-dotori-100 dark:bg-dotori-800">
 						<CameraIcon className="h-6 w-6 text-dotori-600 dark:text-dotori-300" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<span className="block text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
+						<span className={cn(DS_TYPOGRAPHY.h3, "block font-semibold tracking-tight text-dotori-900 dark:text-dotori-50")}>
 							아이사랑 데이터 가져오기
 						</span>
-						<span className="text-body-sm text-dotori-500 dark:text-dotori-300">
+						<span className={cn(DS_TYPOGRAPHY.bodySm, "text-dotori-500 dark:text-dotori-300")}>
 							스크린샷 AI 분석으로 대기현황 자동 등록
 						</span>
 					</div>
@@ -540,10 +600,10 @@ export default function MyPage() {
 			<div className="mt-5 space-y-4 px-5">
 				{groupedMenuSections.map((section) => (
 					<section key={section.title}>
-						<h2 className="mb-2.5 text-caption font-semibold uppercase tracking-[0.18em] text-dotori-300 dark:text-dotori-600">
+						<h2 className={sectionTitleClass}>
 							{section.title}
 						</h2>
-						<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-dotori-100/70 dark:bg-dotori-900 dark:ring-dotori-800">
+						<div className={menuPanelClass}>
 							<motion.ul
 								{...stagger.container}
 								className="divide-y divide-dotori-100 dark:divide-dotori-800"
@@ -564,10 +624,10 @@ export default function MyPage() {
 												<div className="flex min-w-0 flex-1 items-center gap-3">
 													<Icon className="h-5 w-5 text-dotori-500" />
 													<div className="min-w-0 flex-1">
-														<p className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
+														<p className={menuItemTitleClass}>
 															{item.label}
 														</p>
-														<p className="mt-0.5 text-caption text-dotori-400">
+														<p className={menuItemDescriptionClass}>
 															{item.description}
 														</p>
 													</div>
@@ -588,12 +648,12 @@ export default function MyPage() {
 				<Button
 					color="dotori"
 					onClick={handleLogout}
-					className="w-full min-h-11 py-3"
+					className="w-full min-h-11 py-3 tracking-tight"
 				>
 					로그아웃
 				</Button>
 			</div>
-			<p className="mt-2 text-center text-caption text-dotori-300 dark:text-dotori-600">버전 1.0.0</p>
+			<p className={cn(DS_TYPOGRAPHY.caption, "mt-2 text-center text-dotori-300 dark:text-dotori-600")}>버전 1.0.0</p>
 		</div>
 	);
 }

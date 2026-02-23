@@ -2,6 +2,7 @@
 
 > Repo scope: QETTA/dotori-ver2 (main)  
 > 목적: 엔진(Engine) 핵심 로직의 정확성/결정성/회귀 방지/플레이키 제거/운영 안정성을 테스트로 고정한다.
+> 현재 누락 스냅샷: `docs/ENGINE_ERROR_GAP_REPORT_2026-02-23.md`
 
 ---
 

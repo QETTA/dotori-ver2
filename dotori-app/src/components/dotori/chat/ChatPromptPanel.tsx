@@ -6,7 +6,9 @@ import { Heading } from "@/components/catalyst/heading";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
 import { suggestedPrompts } from "@/app/(app)/chat/_lib/chat-config";
-import { stagger } from "@/lib/motion";
+import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 
@@ -32,25 +34,48 @@ export function ChatPromptPanel({
 	};
 
 	return (
-		<div className="relative px-5 py-6">
-			<div className="mx-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-dotori-100 bg-white p-6 shadow-[0_10px_30px_rgba(200,149,106,0.10)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none">
-				<div className="relative rounded-3xl bg-gradient-to-b from-dotori-50 to-white px-4 py-5 dark:from-dotori-900 dark:to-dotori-950">
+		<div className="relative px-4 py-4">
+			<div
+				className={cn(
+					DS_GLASS.CARD,
+					"mx-auto w-full max-w-sm overflow-hidden rounded-[24px] border border-dotori-200/80 p-4 shadow-[0_14px_30px_rgba(200,149,106,0.16)] dark:border-dotori-800/70 dark:shadow-none",
+				)}
+			>
+				<motion.div
+					className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dotori-100/80 via-dotori-50 to-white px-3.5 py-4 dark:from-dotori-900 dark:via-dotori-900 dark:to-dotori-950"
+					{...fadeUp}
+				>
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img
+						src={BRAND.socialGradient}
+						alt=""
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.12] dark:opacity-[0.2]"
+					/>
+					<div className="relative">
+						<div className="mb-2 flex items-center justify-between gap-2">
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img src={BRAND.lockupHorizontalKr} alt="도토리" className="h-5 w-auto" />
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img src={BRAND.symbolCorporate} alt="" aria-hidden="true" className="h-4 w-4" />
+						</div>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						src={toriIcon}
 						alt=""
-						className="mx-auto mb-3 h-16 w-16 rounded-full border border-dotori-100 bg-white shadow-sm dark:border-dotori-800 dark:bg-dotori-900 dark:shadow-none"
+						className="mx-auto mb-2.5 h-14 w-14 rounded-full border border-dotori-200/80 bg-white shadow-[0_8px_18px_rgba(200,149,106,0.14)] dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none"
 					/>
 					<Heading
 						level={3}
-						className="text-h2 text-center font-bold tracking-tight text-dotori-900 dark:text-dotori-50"
+						className={cn(DS_TYPOGRAPHY.h2, "text-center font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}
 					>
 						이동 고민이라면 뭐든 물어보세요
 					</Heading>
-					<Text className="text-body-sm mt-1.5 block text-center text-dotori-500 dark:text-dotori-300">
+					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1.5 block text-center text-dotori-500 dark:text-dotori-300")}>
 						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
 					</Text>
-				</div>
+					</div>
+				</motion.div>
 
 				<Fieldset className="sr-only">
 					<Field>
@@ -68,34 +93,42 @@ export function ChatPromptPanel({
 					</Field>
 				</Fieldset>
 
-				<motion.ul className="relative mt-6 space-y-3" {...stagger.container}>
-					{suggestedPrompts.map((prompt) => (
-						<motion.li key={prompt.label} {...stagger.item}>
-							<Button
-								plain={true}
-								type="button"
-								onClick={() => onSuggestPrompt(prompt)}
-						className={cn(
-							"flex min-h-12 w-full items-center gap-2.5 rounded-2xl border border-dotori-100 bg-dotori-50/70 p-3.5 text-left transition-all dark:border-dotori-800 dark:bg-dotori-900/60",
-							"hover:-translate-y-0.5 hover:bg-dotori-100 hover:shadow-sm hover:ring-2 hover:ring-dotori-200 active:scale-[0.97] dark:hover:bg-dotori-800 dark:hover:shadow-none",
-							"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
-						)}
-					>
-								<span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-dotori-100 bg-white text-lg shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
-									{prompt.icon}
-								</span>
-								<div className="min-w-0">
-									<Text className="text-label block text-dotori-800 dark:text-dotori-100">
-										{prompt.label}
-									</Text>
-									<Text className="text-caption mt-0.5 block line-clamp-1 text-dotori-500 dark:text-dotori-300">
-										{prompt.prompt}
-									</Text>
-								</div>
-							</Button>
-						</motion.li>
-					))}
-				</motion.ul>
+					<motion.ul className="relative mt-4 space-y-2.5" {...stagger.container}>
+						{suggestedPrompts.map((prompt) => (
+							<motion.li key={prompt.label} {...stagger.item}>
+								<motion.div {...tap.chip}>
+									<Button
+										plain={true}
+										type="button"
+										onClick={() => onSuggestPrompt(prompt)}
+										className={cn(
+											DS_GLASS.CARD,
+											"flex min-h-10 w-full items-center gap-2.5 rounded-xl border border-dotori-200/80 px-3 py-2.5 text-left transition-all dark:border-dotori-800/70",
+											"hover:-translate-y-0.5 hover:border-dotori-300 hover:bg-dotori-100/80 hover:shadow-[0_8px_18px_rgba(200,149,106,0.14)] dark:hover:border-dotori-700 dark:hover:bg-dotori-800/80 dark:hover:shadow-none",
+											"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500 dark:focus-visible:ring-offset-dotori-950",
+										)}
+									>
+										<span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-dotori-200/70 bg-white text-base shadow-sm dark:border-dotori-700 dark:bg-dotori-900 dark:shadow-none">
+											{prompt.icon}
+										</span>
+										<div className="min-w-0">
+											<Text className={cn(DS_TYPOGRAPHY.body, "block text-dotori-800 dark:text-dotori-100")}>
+												{prompt.label}
+											</Text>
+											<Text
+												className={cn(
+													DS_TYPOGRAPHY.caption,
+													"mt-0.5 block line-clamp-1 text-dotori-500 dark:text-dotori-300",
+												)}
+											>
+												{prompt.prompt}
+											</Text>
+										</div>
+									</Button>
+								</motion.div>
+							</motion.li>
+						))}
+					</motion.ul>
 			</div>
 		</div>
 	);

@@ -32,7 +32,7 @@ export function DsButton({
 				: { plain: true };
 
 	const mergedClassName = cn(
-		"min-h-11",
+		"min-h-10 rounded-xl text-sm",
 		fullWidth && "w-full justify-center",
 		DS_BUTTON_TONE_CLASS[variant][tone],
 		className,

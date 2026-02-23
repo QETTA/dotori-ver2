@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { BottomTabBar } from "@/components/dotori/BottomTabBar";
 import { PageTransition } from "@/components/dotori/PageTransition";
-import { SplashScreen } from "@/components/dotori/SplashScreen";
 import { ToastProvider } from "@/components/dotori/ToastProvider";
 import { AuthProvider } from "@/components/shared/AuthProvider";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
@@ -20,7 +19,6 @@ export const metadata: Metadata = {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<AuthProvider>
-			<SplashScreen />
 			<AppProvider>
 				<ToastProvider>
 					<ErrorBoundary>
@@ -38,10 +36,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 									alt=""
 									width={192}
 									height={192}
+									style={{ width: "auto", height: "auto" }}
 									loading="eager"
 									priority
 									aria-hidden="true"
-									className="absolute -right-16 top-8 h-48 w-48 opacity-10"
+									className="absolute -right-16 top-8 h-auto w-48 opacity-10"
+									sizes="192px"
 								/>
 							</div>
 							<PageTransition className="relative">{children}</PageTransition>

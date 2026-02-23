@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 120;
 const RATE_LIMIT_MAX_TRACKED_IPS = 10_000;
+const PREHOME_SPLASH_COOKIE = "dotori_prehome_splash";
 const rateLimitMap = new Map<string, number[]>();
 let cleanupCounter = 0;
 
@@ -112,6 +113,13 @@ export default auth((req) => {
 		}
 
 		return NextResponse.next();
+	}
+
+	if (pathname === "/") {
+		const hasSeenSplash = req.cookies.get(PREHOME_SPLASH_COOKIE)?.value === "1";
+		if (!hasSeenSplash) {
+			return NextResponse.redirect(new URL("/landing", req.url));
+		}
 	}
 
 	const isLoggedIn = !!req.auth;

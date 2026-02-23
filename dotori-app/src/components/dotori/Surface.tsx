@@ -12,7 +12,7 @@ export function Surface({ className, tone = "default", ...props }: SurfaceProps)
 		<div
 			{...props}
 			className={cn(
-				"relative overflow-hidden rounded-3xl ring-1",
+				"relative overflow-hidden rounded-2xl ring-1",
 				tone === "default" &&
 					"bg-white ring-dotori-100 shadow-sm dark:bg-dotori-900 dark:ring-dotori-800 dark:shadow-none",
 				tone === "muted" &&

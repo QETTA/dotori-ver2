@@ -3,7 +3,10 @@ import { motion } from "motion/react";
 import { useState } from "react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { BRAND } from "@/lib/brand-assets";
+import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeUp } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 
 const FEATURE_OPTIONS = [
@@ -65,41 +68,53 @@ export function FacilityInsightSection({
 	return (
 		<motion.section
 			{...fadeUp}
-			className="mb-6 rounded-3xl border border-b border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-5 pb-6 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:from-dotori-950 dark:via-dotori-900/60 dark:to-dotori-950 dark:shadow-none"
+			className={cn(
+				DS_GLASS.CARD,
+				"relative mb-5 overflow-hidden rounded-2xl border border-b border-dotori-100 bg-gradient-to-b from-white via-dotori-50/70 to-white p-4 pb-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:from-dotori-950 dark:via-dotori-900/60 dark:to-dotori-950 dark:shadow-none",
+			)}
 		>
+			{/* eslint-disable-next-line @next/next/no-img-element */}
+			<img
+				src={BRAND.watermark}
+				alt=""
+				aria-hidden="true"
+				className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 opacity-[0.07]"
+			/>
 			<div className="flex items-center justify-between gap-2">
-				<Badge color={status === "available" ? "forest" : "dotori"}>AI 이동 인사이트</Badge>
-				<span className="text-caption font-semibold text-dotori-500">
+				<Badge color={status === "available" ? "forest" : "dotori"} className={cn(DS_TYPOGRAPHY.label, "font-semibold")}>
+					AI 이동 인사이트
+				</Badge>
+				<span className={cn(DS_TYPOGRAPHY.caption, "font-semibold text-dotori-500")}>
 					데이터 품질 {qualityScore ?? "-"}점
 				</span>
 			</div>
-			<p className="mt-3 text-body-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
+			<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2.5 leading-relaxed text-dotori-700 dark:text-dotori-200")}>
 				{aiInsightSummary}
 			</p>
-			<div className="mt-3 grid grid-cols-3 gap-1.5 rounded-2xl bg-dotori-50/60 p-1.5 dark:bg-dotori-900/50">
+			<div className="mt-2.5 grid grid-cols-3 gap-1.5 rounded-xl bg-dotori-50/60 p-1.5 dark:bg-dotori-900/50">
 				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-caption font-medium text-dotori-500">정원</p>
-					<p className="mt-1 text-h2 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>정원</p>
+					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
 						{totalCapacity}
-						<span className="ml-0.5 text-caption font-semibold text-dotori-500 dark:text-dotori-300">
+						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
 							명
 						</span>
 					</p>
 				</div>
 				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-caption font-medium text-dotori-500">현원</p>
-					<p className="mt-1 text-h2 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>현원</p>
+					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
 						{currentCapacity}
-						<span className="ml-0.5 text-caption font-semibold text-dotori-500 dark:text-dotori-300">
+						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
 							명
 						</span>
 					</p>
 				</div>
 				<div className="rounded-xl border border-dotori-100/80 bg-white px-2.5 py-2.5 text-center dark:border-dotori-800 dark:bg-dotori-950">
-					<p className="text-caption font-medium text-dotori-500">대기</p>
-					<p className="mt-1 text-h2 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50">
+					<p className={cn(DS_TYPOGRAPHY.caption, "font-medium text-dotori-500")}>대기</p>
+					<p className={cn(DS_TYPOGRAPHY.h2, "mt-1 font-bold leading-none tracking-tight text-dotori-900 dark:text-dotori-50")}>
 						{waitingCapacity}
-						<span className="ml-0.5 text-caption font-semibold text-dotori-500 dark:text-dotori-300">
+						<span className={cn(DS_TYPOGRAPHY.caption, "ml-0.5 font-semibold text-dotori-500 dark:text-dotori-300")}>
 							명
 						</span>
 					</p>
@@ -123,20 +138,23 @@ export function FacilityCapacitySection({
 		<>
 			<motion.section
 				{...fadeUp}
-				className="mb-6 rounded-3xl border-b border-dotori-100 bg-white px-5 py-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+				className={cn(
+					DS_GLASS.CARD,
+					"mb-5 rounded-2xl border-b border-dotori-100 bg-white px-4 py-4 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+				)}
 			>
 				<button
 					type="button"
 					onClick={() => setIsExpanded((prev) => !prev)}
 					aria-expanded={isExpanded}
 					aria-controls="facility-capacity-details"
-					className="flex w-full min-h-11 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
+					className="flex w-full min-h-10 items-center justify-between gap-3 rounded-xl py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200"
 				>
 					<div className="flex min-w-0 items-baseline gap-2">
-						<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
+						<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 							정원 현황
 						</h2>
-						<span className="text-h1 font-bold leading-none text-dotori-700 dark:text-dotori-200">
+						<span className={cn(DS_TYPOGRAPHY.h1, "font-bold leading-none text-dotori-700 dark:text-dotori-200")}>
 							{occupancyRate}%
 						</span>
 					</div>
@@ -148,7 +166,7 @@ export function FacilityCapacitySection({
 				</button>
 				{isExpanded ? (
 					<div id="facility-capacity-details" className="mt-3">
-						<p className="text-body-sm text-dotori-700 dark:text-dotori-200">
+						<p className={cn(DS_TYPOGRAPHY.bodySm, "text-dotori-700 dark:text-dotori-200")}>
 							현원 {currentCapacity}명 · 정원 {totalCapacity}명 · 대기 {waitingCapacity}명
 						</p>
 						<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800">
@@ -164,9 +182,12 @@ export function FacilityCapacitySection({
 			{isExpanded && keyStats.length > 0 ? (
 				<motion.section
 					{...fadeUp}
-					className="mb-6 rounded-3xl border-b border-dotori-100 bg-white px-5 py-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+					className={cn(
+						DS_GLASS.CARD,
+						"mb-5 rounded-2xl border-b border-dotori-100 bg-white px-4 py-4 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+					)}
 				>
-					<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
+					<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 						주요 지표
 					</h2>
 					<div className="mt-3 grid grid-cols-2 gap-3">
@@ -175,8 +196,8 @@ export function FacilityCapacitySection({
 								key={stat.label}
 								className="rounded-2xl border border-dotori-100 bg-dotori-50/80 px-3 py-3 dark:border-dotori-800 dark:bg-dotori-900/60"
 							>
-								<p className="text-caption text-dotori-500">{stat.label}</p>
-								<p className="mt-1 text-base font-semibold text-dotori-800 dark:text-dotori-100">
+								<p className={cn(DS_TYPOGRAPHY.caption, "text-dotori-500")}>{stat.label}</p>
+								<p className={cn(DS_TYPOGRAPHY.body, "mt-1 font-semibold text-dotori-800 dark:text-dotori-100")}>
 									{stat.value}
 								</p>
 							</div>
@@ -196,19 +217,22 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 	return (
 		<motion.section
 			{...fadeUp}
-			className="mb-6 rounded-3xl border border-b border-dotori-100 bg-white p-5 pb-6 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none"
+			className={cn(
+				DS_GLASS.CARD,
+				"mb-5 rounded-2xl border border-b border-dotori-100 bg-white p-4 pb-5 shadow-[0_10px_22px_rgba(200,149,106,0.08)] dark:border-dotori-800 dark:bg-dotori-950 dark:shadow-none",
+			)}
 		>
-			<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">특징</h2>
+			<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>특징</h2>
 			{activeFeatures.length > 0 ? (
 				<div className="mt-3 flex flex-wrap gap-2">
 					{activeFeatures.map((feature) => (
-						<Badge key={feature.key} color={feature.color} className="text-body-sm">
+						<Badge key={feature.key} color={feature.color} className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold")}>
 							{feature.label} ✓
 						</Badge>
 					))}
 				</div>
 			) : (
-				<p className="mt-3 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
+				<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-3 leading-relaxed text-dotori-500 dark:text-dotori-300")}>
 					아직 등록된 특징이 없어요. 시설에 직접 문의하거나 아이사랑포털 정보를 함께 확인해
 					보세요.
 				</p>
@@ -221,12 +245,15 @@ export function FacilityAdmissionGuideSection() {
 	return (
 		<motion.div
 			{...fadeUp}
-			className="mb-6 rounded-3xl border border-b border-dotori-100 bg-dotori-50 p-5 pb-6 dark:border-dotori-800 dark:bg-dotori-900"
+			className={cn(
+				DS_GLASS.CARD,
+				"mb-5 rounded-2xl border border-b border-dotori-100 bg-dotori-50 p-4 pb-5 dark:border-dotori-800 dark:bg-dotori-900",
+			)}
 		>
-			<h2 className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
+			<h2 className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 				입소 설명회 안내
 			</h2>
-			<p className="mt-2 text-body-sm leading-6 text-dotori-600 dark:text-dotori-300">
+			<p className={cn(DS_TYPOGRAPHY.bodySm, "mt-2 leading-6 text-dotori-600 dark:text-dotori-300")}>
 				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
 				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
 			</p>
@@ -234,7 +261,10 @@ export function FacilityAdmissionGuideSection() {
 				href="https://www.childcare.go.kr"
 				target="_blank"
 				rel="noopener noreferrer"
-				className="mt-3 inline-flex w-full min-h-12 items-center justify-center gap-1.5 rounded-2xl bg-dotori-100 px-4 py-3 text-body-sm font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200 dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700"
+				className={cn(
+					DS_TYPOGRAPHY.bodySm,
+					"mt-3 inline-flex w-full min-h-10 items-center justify-center gap-1.5 rounded-xl bg-dotori-100 px-4 py-2.5 font-semibold text-dotori-700 transition-all active:scale-[0.97] hover:bg-dotori-200 dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700",
+				)}
 			>
 				아이사랑포털에서 확인
 				<ArrowTopRightOnSquareIcon className="h-4 w-4" />

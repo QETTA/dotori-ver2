@@ -336,7 +336,8 @@ export function MapEmbed({
 						alt=""
 						width={40}
 						height={40}
-						className="h-10 w-10 animate-bounce"
+						className="h-auto w-10 animate-bounce"
+						sizes="40px"
 						aria-hidden="true"
 					/>
 				</div>

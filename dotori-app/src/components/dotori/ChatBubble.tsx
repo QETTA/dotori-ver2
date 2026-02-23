@@ -1,8 +1,11 @@
 'use client'
 
 import { memo, isValidElement } from 'react'
+import { motion } from 'motion/react'
 import { Button } from '@/components/catalyst/button'
 import { BRAND } from '@/lib/brand-assets'
+import { DS_GLASS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { fadeUp, tap } from '@/lib/motion'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import type { ActionButton, ChatBlock, ChatRole, SourceInfo } from '@/types/dotori'
 import type { ReactNode } from 'react'
@@ -46,23 +49,25 @@ export const ChatBubble = memo(function ChatBubble({
 
 	if (role === 'user') {
 		return (
-			<div
+			<motion.div
 				role="log"
 				aria-label="사용자 메시지"
-				className={cn(
-					'mb-3 flex justify-end',
-					'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-2 duration-300'
-				)}
+				className={cn('mb-3 flex justify-end')}
+				{...fadeUp}
 			>
 				<div
 					className={cn(
-						'max-w-[85%] rounded-2xl rounded-br-sm bg-dotori-500 px-4 py-3 text-white shadow-none'
+						DS_TYPOGRAPHY.body,
+						'max-w-[85%] rounded-2xl rounded-br-sm border border-dotori-300/45 bg-gradient-to-br from-dotori-400 via-dotori-500 to-dotori-600 px-4 py-3 text-white shadow-[0_14px_28px_rgba(122,78,48,0.26)] dark:border-dotori-500/35 dark:from-dotori-500 dark:via-dotori-600 dark:to-dotori-700 dark:shadow-[0_12px_24px_rgba(20,14,10,0.45)]'
 					)}
 				>
 					<div className="space-y-1">
 						{children}
 						<span
-							className="mt-1 flex items-center justify-end gap-1.5 text-xs text-dotori-100"
+							className={cn(
+								DS_TYPOGRAPHY.caption,
+								'mt-1 flex items-center justify-end gap-1.5 text-dotori-100/90'
+							)}
 							suppressHydrationWarning
 						>
 							{isRead ? (
@@ -92,29 +97,29 @@ export const ChatBubble = memo(function ChatBubble({
 						</span>
 					</div>
 				</div>
-			</div>
+			</motion.div>
 		);
 	}
 
 	return (
-		<div
+		<motion.div
 			role="log"
 			aria-label="어시스턴트 메시지"
-			className={cn(
-				'mb-3 flex justify-start gap-2.5',
-				'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2 duration-300'
-			)}
+			className={cn('mb-3 flex justify-start gap-2.5')}
+			{...fadeUp}
 		>
 			{/* eslint-disable-next-line @next/next/no-img-element */}
 			<img
 				src={BRAND.symbol}
 				alt="토리"
-				className="mt-1 h-9 w-9 shrink-0 rounded-full"
+				className="mt-1 h-9 w-9 shrink-0 rounded-full border border-dotori-100/70 bg-dotori-50/80 ring-1 ring-dotori-200/75 shadow-[0_4px_10px_rgba(122,78,48,0.12)] dark:border-dotori-800/70 dark:bg-dotori-900/80 dark:ring-dotori-700/60 dark:shadow-none"
 			/>
 			<div className="flex max-w-[85%] flex-col gap-2">
 				<div
 					className={cn(
-						'rounded-2xl rounded-bl-sm border border-dotori-100 bg-white px-4 py-3 shadow-sm'
+						DS_GLASS.CARD,
+						DS_TYPOGRAPHY.body,
+						'rounded-2xl rounded-bl-sm border border-dotori-200/85 bg-gradient-to-br from-white/95 via-dotori-50/90 to-dotori-100/70 px-4 py-3 text-dotori-900 shadow-[0_12px_28px_rgba(200,149,106,0.16)] dark:border-dotori-700/70 dark:from-dotori-900/90 dark:via-dotori-900/88 dark:to-dotori-800/86 dark:text-dotori-50 dark:shadow-none'
 					)}
 				>
 					{isStreaming && !hasStreamingContent ? (
@@ -122,7 +127,7 @@ export const ChatBubble = memo(function ChatBubble({
 							{[0, 250, 500].map((delay) => (
 								<span
 									key={delay}
-									className="h-2 w-2 rounded-full bg-dotori-300 animate-bounce"
+									className="h-2 w-2 rounded-full bg-dotori-400 animate-bounce dark:bg-dotori-500"
 									style={{ animationDelay: `${delay}ms` }}
 								/>
 							))}
@@ -151,21 +156,28 @@ export const ChatBubble = memo(function ChatBubble({
 					<div className="flex flex-wrap gap-2 px-1">
 						{actions.map((a) =>
 							a.variant === 'outline' ? (
-								<Button
-									key={a.id}
-									plain={true}
-									onClick={() => onBlockAction?.(a.id)}
-								>
-									{a.label}
-								</Button>
+								<motion.div key={a.id} {...tap.button}>
+									<Button
+										plain={true}
+										onClick={() => onBlockAction?.(a.id)}
+										className={cn(
+											DS_TYPOGRAPHY.bodySm,
+											'min-h-10 rounded-2xl border border-dotori-200/90 bg-white/85 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.10)] transition-colors hover:bg-white dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+										)}
+									>
+										{a.label}
+									</Button>
+								</motion.div>
 							) : (
-								<Button
-									key={a.id}
-									color="dotori"
-									onClick={() => onBlockAction?.(a.id)}
-								>
-									{a.label}
-								</Button>
+								<motion.div key={a.id} {...tap.button}>
+									<Button
+										color="dotori"
+										onClick={() => onBlockAction?.(a.id)}
+										className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-10 rounded-2xl px-3.5')}
+									>
+										{a.label}
+									</Button>
+								</motion.div>
 							),
 						)}
 					</div>
@@ -173,23 +185,28 @@ export const ChatBubble = memo(function ChatBubble({
 				{showQuickReplies ? (
 					<div className="flex flex-wrap gap-2 px-1">
 						{normalizedQuickReplies?.map((text) => (
-							<Button
-								key={text}
-								plain={true}
-								onClick={() => onQuickReply?.(text)}
-							>
-								{text}
-							</Button>
+							<motion.div key={text} {...tap.chip}>
+								<Button
+									plain={true}
+									onClick={() => onQuickReply?.(text)}
+									className={cn(
+										DS_TYPOGRAPHY.bodySm,
+										'min-h-10 rounded-2xl border border-dotori-200/90 bg-dotori-100/80 px-3.5 text-dotori-700 shadow-[0_4px_12px_rgba(200,149,106,0.08)] transition-colors hover:bg-dotori-100 dark:border-dotori-700/80 dark:bg-dotori-900/60 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900/80'
+									)}
+								>
+									{text}
+								</Button>
+							</motion.div>
 						))}
 					</div>
 				) : null}
 				<span
-					className="px-1 text-xs text-dotori-500"
+					className={cn(DS_TYPOGRAPHY.caption, 'px-1 text-dotori-600 dark:text-dotori-300')}
 					suppressHydrationWarning
 				>
 					{relativeTime}
 				</span>
 			</div>
-		</div>
+		</motion.div>
 	);
 })
