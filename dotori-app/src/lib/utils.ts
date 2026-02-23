@@ -1,5 +1,6 @@
 import clsx, { type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { DS_FRESHNESS } from "@/lib/design-system/tokens";
 
 /** Tailwind 클래스 병합 (clsx + tailwind-merge) */
 export function cn(...inputs: ClassValue[]) {
@@ -53,16 +54,11 @@ export function facilityTypeBadgeColor(
 	return map[type] ?? "zinc";
 }
 
-/** 데이터 신선도 → 색상 */
+/** 데이터 신선도 → 색상 (DS_FRESHNESS가 단일 소스) */
 export function freshnessColor(
 	freshness: "realtime" | "recent" | "cached",
 ): string {
-	const map = {
-		realtime: "text-forest-600 bg-forest-50",
-		recent: "text-amber-700 bg-amber-50",
-		cached: "text-dotori-500 bg-dotori-100",
-	};
-	return map[freshness];
+	return DS_FRESHNESS[freshness].base;
 }
 
 /** 거리(미터) → 한국어 포맷 */

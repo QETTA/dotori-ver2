@@ -1,5 +1,5 @@
 # ── Dotori CI/CD Pipeline ──
-# 순서: lint → type-check → test → build → deploy
+# 순서: preflight(lint+type-check+test) → build → deploy
 # GitHub Student Pack (Pro): 3000분/월, deployment environments 사용 가능
 
 name: CI/CD
@@ -23,28 +23,14 @@ on:
 permissions:
   contents: read
 
-jobs:
-  # ── Job 1: Lint ──
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: dotori-app/package-lock.json
-      - name: Install dependencies
-        run: npm ci
-        working-directory: dotori-app
-      - name: Lint
-        run: npm run lint
-        working-directory: dotori-app
+concurrency:
+  group: dotori-cicd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-  # ── Job 2: Type Check + Test ──
+jobs:
+  # ── Job 1: Preflight (Lint + Type Check + Test) ──
   test:
     runs-on: ubuntu-latest
-    needs: lint
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,16 +39,13 @@ jobs:
           cache: npm
           cache-dependency-path: dotori-app/package-lock.json
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
         working-directory: dotori-app
-      - name: Type check
-        run: npx tsc --noEmit
-        working-directory: dotori-app
-      - name: Unit tests
-        run: npm test
+      - name: Preflight checks
+        run: npm run ci:preflight
         working-directory: dotori-app
 
-  # ── Job 3: Build ──
+  # ── Job 2: Build ──
   build:
     runs-on: ubuntu-latest
     needs: test
@@ -84,7 +67,7 @@ jobs:
             nextjs-${{ runner.os }}-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
         working-directory: dotori-app
 
       - name: Build
@@ -103,7 +86,7 @@ jobs:
           NEXT_PUBLIC_MAPBOX_STYLE: ${{ vars.NEXT_PUBLIC_MAPBOX_STYLE }}
           NEXT_PUBLIC_TOSS_CLIENT_KEY: ${{ vars.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
 
-  # ── Job 4: Deploy to DigitalOcean (main push only) ──
+  # ── Job 3: Deploy to DigitalOcean (main push only) ──
   # app.yaml의 deploy_on_push: false 로 설정 → GitHub Actions가 단일 배포 경로
   deploy:
     needs: build

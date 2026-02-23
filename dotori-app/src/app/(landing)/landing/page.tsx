@@ -174,7 +174,7 @@ export default function LandingPage() {
 					</div>
 				</header>
 
-				<section className="relative overflow-hidden px-6 py-16 text-center sm:py-20">
+				<section className="relative overflow-hidden px-6 py-10 text-center sm:py-20">
 					<div className="pointer-events-none absolute inset-0">
 						<motion.div
 							className="absolute left-0 top-10 h-52 w-52 rounded-full bg-dotori-300/20 blur-3xl dark:bg-dotori-700/20"
@@ -185,7 +185,7 @@ export default function LandingPage() {
 					<motion.div {...fadeUp} className="relative mx-auto max-w-3xl">
 						<Heading
 							level={1}
-							className="text-3xl font-semibold leading-tight text-dotori-900 dark:text-dotori-50 sm:text-4xl"
+							className="text-h1 font-semibold leading-tight text-dotori-900 dark:text-dotori-50 sm:text-4xl"
 						>
 							아이에게 맞는 어린이집, 더 빨리 찾으세요
 						</Heading>
@@ -196,11 +196,11 @@ export default function LandingPage() {
 							<Badge color="forest">무료로 시작</Badge>
 							<Text className="text-base font-semibold text-forest-700">월 1,900원</Text>
 						</div>
-						<div className="mx-auto mt-8 grid max-w-sm grid-cols-2 gap-3">
+						<div className="mx-auto mt-8 grid max-w-sm grid-cols-2 gap-2">
 							{HERO_STATS.map((stat) => (
 								<div
 									key={stat.label}
-									className="rounded-2xl bg-white/85 p-4 ring-1 ring-dotori-100/80 dark:bg-dotori-950/80 dark:ring-dotori-800/70"
+									className="rounded-2xl bg-white/85 p-3 ring-1 ring-dotori-100/80 dark:bg-dotori-950/80 dark:ring-dotori-800/70"
 								>
 									<Text className="text-2xl font-semibold text-dotori-900 dark:text-dotori-50">{stat.value}</Text>
 									<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">{stat.label}</Text>
@@ -274,7 +274,7 @@ export default function LandingPage() {
 											<feature.Icon className="h-5 w-5 text-forest-500" aria-hidden="true" />
 										</span>
 										<div className="min-w-0 flex-1">
-											<Text className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{feature.title}</Text>
+											<Text className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">{feature.title}</Text>
 											<Text className="mt-1 text-sm text-dotori-600 dark:text-dotori-300">{feature.description}</Text>
 										</div>
 									</div>
@@ -377,7 +377,7 @@ export default function LandingPage() {
 											aria-controls={`faq-answer-${index}`}
 											className="flex w-full items-center justify-between px-4 py-3 text-left"
 										>
-											<Text className="text-sm font-semibold text-dotori-900 dark:text-dotori-50">{item.question}</Text>
+											<Text className="text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">{item.question}</Text>
 											<Text className={`text-lg text-dotori-500 ${isOpen ? 'rotate-45' : ''}`}>＋</Text>
 										</button>
 										{isOpen && (
@@ -385,7 +385,7 @@ export default function LandingPage() {
 												id={`faq-answer-${index}`}
 												className="border-t border-dotori-100 px-4 py-3 dark:border-dotori-800"
 											>
-												<Text className="text-sm text-dotori-600 dark:text-dotori-300">{item.answer}</Text>
+												<Text className="text-body-sm text-dotori-600 dark:text-dotori-300">{item.answer}</Text>
 											</div>
 										)}
 									</div>
@@ -403,7 +403,7 @@ export default function LandingPage() {
 							alt=""
 							className="mx-auto mb-4 h-12 w-12 opacity-80"
 						/>
-						<Heading level={2} className="text-3xl">
+						<Heading level={2} className="text-h1">
 							지금 바로 이동을 시작해 보세요
 						</Heading>
 						<Text className="mt-3 text-base text-white/90">

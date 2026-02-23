@@ -31,7 +31,7 @@ export default function SupportPage() {
 				{/* 연락처 */}
 				<motion.li {...stagger.item}>
 					<div className="rounded-3xl bg-white dark:bg-dotori-950 p-5 shadow-sm dark:shadow-none">
-						<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+						<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
 							연락처
 						</h3>
 						<div className="mt-3 space-y-3">
@@ -40,7 +40,7 @@ export default function SupportPage() {
 									<EnvelopeIcon className="h-5 w-5 text-dotori-500" />
 								</div>
 								<div>
-									<span className="block text-sm text-dotori-500 dark:text-dotori-300">
+									<span className="block text-body-sm text-dotori-500 dark:text-dotori-300">
 										이메일
 									</span>
 									<span className="text-base font-medium text-dotori-900 dark:text-dotori-50">
@@ -53,7 +53,7 @@ export default function SupportPage() {
 									<PhoneIcon className="h-5 w-5 text-dotori-500" />
 								</div>
 								<div>
-									<span className="block text-sm text-dotori-500 dark:text-dotori-300">
+									<span className="block text-body-sm text-dotori-500 dark:text-dotori-300">
 										전화
 									</span>
 									<span className="text-base font-medium text-dotori-900 dark:text-dotori-50">
@@ -78,10 +78,10 @@ export default function SupportPage() {
 							<QuestionMarkCircleIcon className="h-5 w-5 text-dotori-500" />
 						</div>
 						<div className="min-w-0 flex-1">
-							<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">
+							<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">
 								자주 묻는 질문
 							</h3>
-							<p className="mt-0.5 text-sm text-dotori-500 dark:text-dotori-300">
+							<p className="mt-0.5 text-body-sm text-dotori-500 dark:text-dotori-300">
 								FAQ에서 궁금한 점을 확인해보세요
 							</p>
 						</div>

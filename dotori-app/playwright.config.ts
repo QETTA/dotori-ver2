@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-	testDir: "e2e",
+	testDir: ".",
+	testMatch: ["e2e/**/*.spec.ts", "src/__tests__/e2e/**/*.spec.ts"],
 	use: {
 		baseURL: process.env.BASE_URL || "http://localhost:3000",
 	},

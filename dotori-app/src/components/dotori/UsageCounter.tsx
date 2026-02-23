@@ -51,22 +51,22 @@ export function UsageCounter({ current, limit, label }: UsageCounterProps) {
 			)}
 		>
 			<div className="flex items-end justify-between gap-3">
-				<Text className={cn("text-sm font-medium", labelColor)}>{label}</Text>
-				<div className={cn("rounded-full px-3 py-1 text-xs font-semibold tabular-nums", counterPillColor)}>
+				<Text className={cn("text-label font-semibold", labelColor)}>{label}</Text>
+				<div className={cn("rounded-full px-3 py-1 text-caption font-semibold tabular-nums", counterPillColor)}>
 					{isUnlimited ? "무제한" : `${current}/${limit}`}
 				</div>
 			</div>
-			<div className={cn("h-3 overflow-hidden rounded-full", trackBgColor)}>
+			<div className={cn("h-1.5 overflow-hidden rounded-full", trackBgColor)}>
 				<div
 					className={cn("h-full rounded-full transition-all duration-300", barColor)}
 					style={{ width: isUnlimited ? "100%" : `${percent}%` }}
 				/>
 			</div>
 			{isNearLimit ? (
-				<Text className="text-sm text-dotori-700 dark:text-dotori-200">이번 달 사용 한도의 80% 이상을 사용했어요.</Text>
+				<Text className="text-body-sm text-dotori-800 dark:text-dotori-100">이번 달 사용 한도의 80% 이상을 사용했어요.</Text>
 			) : null}
 			{isLimitReached ? (
-				<Text className="text-sm text-dotori-700 dark:text-dotori-200">
+				<Text className="text-body-sm text-dotori-800 dark:text-dotori-100">
 					{isOverLimit ? "현재 사용량을 초과했습니다." : "이번 달 사용 한도에 도달했습니다."}{" "}
 					<Link
 						href="/my/settings"

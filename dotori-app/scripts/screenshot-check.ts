@@ -1,9 +1,20 @@
-import { chromium } from '@playwright/test'
+import { chromium, firefox } from '@playwright/test'
 import fs from 'fs'
 import path from 'path'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
 const OUT = '/tmp/dotori-screenshots'
+type BrowserError = {
+  route: string
+  type: string
+  message: string
+}
+
+const consoleIssues: BrowserError[] = []
+
+const recordIssue = (route: string, type: string, message: string) => {
+  consoleIssues.push({ route, type, message })
+}
 
 async function getFacilityId(): Promise<string> {
   try {
@@ -34,7 +45,9 @@ async function main() {
     { path: '/my/settings', name: '10-settings' },
   ]
 
-  const browser = await chromium.launch()
+  const browserType =
+    process.env.BROWSER === 'firefox' ? firefox : chromium
+  const browser = await browserType.launch()
   const context = await browser.newContext({
     viewport: { width: 375, height: 812 },
     deviceScaleFactor: 2,
@@ -44,6 +57,19 @@ async function main() {
 
   for (const route of routes) {
     const page = await context.newPage()
+    const routeName = route.name
+    page.on('console', (msg) => {
+      if (msg.type() === 'error' || msg.type() === 'warning') {
+        const text = `[${routeName}] console.${msg.type()}: ${msg.text()}`
+        recordIssue(route.path, msg.type(), text)
+        console.log(text)
+      }
+    })
+    page.on('pageerror', (error) => {
+      const text = `[${routeName}] pageerror: ${error.message}`
+      recordIssue(route.path, 'pageerror', text)
+      console.log(text)
+    })
     try {
       await page.goto(`${BASE}${route.path}`, {
         waitUntil: (route as { waitUntil?: 'networkidle' | 'load' | 'domcontentloaded' }).waitUntil ?? 'networkidle',
@@ -64,6 +90,17 @@ async function main() {
   }
 
   await browser.close()
+  if (consoleIssues.length > 0) {
+    console.log(`\n브라우저 콘솔 이슈: ${consoleIssues.length}건`)
+    const summary = consoleIssues.slice(0, 20)
+    for (const item of summary) {
+      console.log(item.message)
+    }
+    if (consoleIssues.length > 20) {
+      console.log(`... +${consoleIssues.length - 20}건 더 있음`)
+    }
+    process.exitCode = 1
+  }
   console.log(`\n스크린샷 저장: ${OUT}/`)
 }
 

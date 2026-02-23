@@ -82,8 +82,6 @@ export const BottomTabBar = memo(function BottomTabBar() {
 						<Link
 							key={tab.id}
 							href={tab.href}
-							role="tab"
-							aria-selected={active}
 							aria-current={active ? "page" : undefined}
 							aria-label={tab.label}
 							className="relative flex flex-1 min-h-12 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors duration-150 active:scale-[0.97]"
@@ -97,10 +95,8 @@ export const BottomTabBar = memo(function BottomTabBar() {
 							<motion.div
 								className={cn(
 									"relative z-10 grid h-9 w-9 place-items-center rounded-2xl transition-colors duration-200",
-									isChat && active && "bg-dotori-900 text-white dark:bg-dotori-400",
-									isChat &&
-										!active &&
-										"bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
+									isChat && "bg-dotori-100/80 dark:bg-dotori-900/70",
+									active && "bg-dotori-100 dark:bg-dotori-800/70",
 								)}
 								whileTap={{ scale: 0.85 }}
 								transition={{ type: "spring", stiffness: 500, damping: 25 }}
@@ -108,22 +104,14 @@ export const BottomTabBar = memo(function BottomTabBar() {
 								<Icon
 									className={cn(
 										"h-6 w-6 transition-colors duration-200",
-										isChat
-											? active
-												? "text-white"
-												: "text-dotori-800 dark:text-dotori-100"
-											: active
-												? "text-dotori-900 dark:text-dotori-50"
-												: "text-dotori-500",
+										active ? "text-dotori-500" : "text-dotori-400/70",
 									)}
 								/>
 							</motion.div>
 							<span
 								className={cn(
-									"relative z-10 text-xs tracking-tight transition-colors duration-200",
-									active
-										? "font-semibold text-dotori-900 dark:text-dotori-50"
-										: "text-dotori-500",
+									"relative z-10 text-label tracking-tight transition-colors duration-200",
+									active ? "font-semibold text-dotori-500" : "font-normal text-dotori-400/70",
 								)}
 							>
 								{tab.label}

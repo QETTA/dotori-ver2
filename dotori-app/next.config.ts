@@ -13,13 +13,13 @@ const cspDirectives = [
   "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
   "img-src 'self' data: blob: https://k.kakaocdn.net https://img1.kakaocdn.net https://*.daumcdn.net",
   "font-src 'self' https://cdn.jsdelivr.net",
-  "connect-src 'self' https://*.kakao.com https://*.google-analytics.com https://api.anthropic.com",
+  "connect-src 'self' https://*.kakao.com https://*.google-analytics.com https://api.anthropic.com https://cdn.jsdelivr.net",
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join('; ')
 
 const nextConfig: NextConfig = {
@@ -46,12 +46,28 @@ const nextConfig: NextConfig = {
           { key: 'Content-Security-Policy', value: cspDirectives },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), payment=(), usb=(), bluetooth=()',
+            value: 'camera=(), microphone=(), geolocation=(self), payment=(), usb=()',
           },
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
         ],
       },
+      {
+        source: '/_next/static/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/in-fox/:path*',
+        destination: '/:path*',
+      },
+      {
+        source: '/in-fox',
+        destination: '/',
+      },
+    ];
   },
   poweredByHeader: false,
 }

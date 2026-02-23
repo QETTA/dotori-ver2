@@ -149,7 +149,7 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 							<h4 className="mb-2 text-sm font-semibold text-dotori-600 dark:text-dotori-300">
 								{category.title}
 							</h4>
-							<motion.ul className="space-y-1" {...stagger.container}>
+							<motion.ul className="space-y-1.5" {...stagger.container}>
 								{category.items.map((item) => {
 									const isChecked = checkedMap[item.id] ?? false;
 									const detailId = `${item.id}-detail`;
@@ -167,28 +167,29 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 											>
 												<span
 													className={cn(
-														"mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
+														"mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 bg-white transition-colors dark:bg-dotori-950",
 														isChecked
-															? "border-forest-500 bg-forest-500"
-															: "border-dotori-200 bg-white dark:border-dotori-700 dark:bg-dotori-950",
+															? "border-forest-400/80 bg-forest-50/80 dark:border-forest-500/80 dark:bg-forest-950/30"
+															: "border-dotori-200 dark:border-dotori-700",
 													)}
 												>
-													{isChecked && (
-														<svg
-															className="h-3 w-3 text-white"
-															fill="none"
-															viewBox="0 0 24 24"
-															stroke="currentColor"
-															strokeWidth={3}
-															aria-hidden="true"
-														>
-															<path
-																strokeLinecap="round"
-																strokeLinejoin="round"
-																d="M5 13l4 4L19 7"
-															/>
-														</svg>
-													)}
+													<svg
+														className={cn(
+															"h-3 w-3 transition-colors",
+															isChecked ? "text-forest-500" : "text-dotori-300",
+														)}
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke="currentColor"
+														strokeWidth={3}
+														aria-hidden="true"
+													>
+														<path
+															strokeLinecap="round"
+															strokeLinejoin="round"
+															d="M5 13l4 4L19 7"
+														/>
+													</svg>
 												</span>
 												<div className="min-w-0 flex-1">
 													<span

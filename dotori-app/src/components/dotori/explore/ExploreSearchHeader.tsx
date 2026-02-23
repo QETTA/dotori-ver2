@@ -265,14 +265,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						className={cn(
 							"inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm transition-colors transition-transform duration-150 active:scale-[0.97]",
 							toOnly
-								? "bg-forest-500 font-semibold text-white shadow-sm ring-1 ring-forest-400/60"
-								: "bg-forest-50 text-forest-700 ring-1 ring-forest-200 hover:bg-forest-100 dark:bg-dotori-900 dark:text-forest-200 dark:ring-forest-700/40 dark:hover:bg-dotori-800",
+								? "bg-dotori-500 font-semibold text-white shadow-sm ring-1 ring-dotori-400/60"
+								: "bg-dotori-50 text-dotori-700 ring-1 ring-dotori-200 hover:bg-dotori-100 dark:bg-dotori-900 dark:text-dotori-200 dark:ring-dotori-700/40 dark:hover:bg-dotori-800",
 						)}
 					>
 						<span
 							className={cn(
 								"h-1.5 w-1.5 rounded-full",
-								toOnly ? "bg-white" : "bg-forest-500",
+								toOnly ? "bg-white" : "bg-dotori-500",
 							)}
 						/>
 						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}

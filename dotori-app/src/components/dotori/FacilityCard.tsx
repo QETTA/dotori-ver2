@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
 import { Button } from "@/components/catalyst/button";
 import { tap } from "@/lib/motion";
+import { DS_STATUS } from "@/lib/design-system/tokens";
 import { cn, facilityTypeBadgeColor, formatRelativeTime } from "@/lib/utils";
 import type { ActionType, Facility, SourceInfo } from "@/types/dotori";
 import { SourceChip } from "./SourceChip";
@@ -12,26 +13,7 @@ import { Surface } from "./Surface";
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-const statusMeta = {
-	available: {
-		label: "TO 있음",
-		dot: "bg-forest-500",
-		pill: "bg-forest-100 text-forest-900 dark:bg-forest-900/20 dark:text-forest-100",
-		border: "border-l-4 border-l-forest-500/80",
-	},
-	waiting: {
-		label: "대기",
-		dot: "bg-warning",
-		pill: "bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
-		border: "border-l-4 border-l-warning/80",
-	},
-	full: {
-		label: "마감",
-		dot: "bg-danger",
-		pill: "bg-dotori-100 text-dotori-900 dark:bg-dotori-800 dark:text-dotori-50",
-		border: "border-l-4 border-l-danger/80",
-	},
-} as const;
+const statusMeta = DS_STATUS;
 
 export const FacilityCard = memo(function FacilityCard({
 	facility,

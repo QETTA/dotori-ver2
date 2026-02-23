@@ -23,7 +23,8 @@ export const SourceChip = memo(function SourceChip({
 	return (
 		<motion.span
 			layout
-			animate={selected ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+			animate={selected ? { scale: 1 } : { scale: 1 }}
+			whileTap={{ scale: 1.06 }}
 			transition={spring.chip}
 			className={cn(
 				"inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-all",

@@ -37,10 +37,12 @@ export default function EmptyStateFallback({
 					src={BRAND.emptyState}
 					alt=""
 					aria-hidden="true"
-					className="h-20 w-20 opacity-70"
+					className="h-14 w-14 opacity-70"
 				/>
-				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
-				{message ? <p className="text-sm text-dotori-600 dark:text-dotori-300">{message}</p> : null}
+				<div className="flex flex-col gap-2">
+					<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
+					{message ? <p className="text-body-sm text-dotori-700 dark:text-dotori-200">{message}</p> : null}
+				</div>
 				{actionLabel && onAction ? (
 					<Button color="dotori" onClick={onAction} className="min-h-11 w-full">
 						{actionLabel}
@@ -97,7 +99,7 @@ export function EmptyState({
 		>
 			<Surface className="mx-auto flex max-w-sm flex-col items-center gap-3 p-5">
 				{resolvedIcon ? (
-					<div className="rounded-full bg-dotori-100 p-5 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
+					<div className="flex h-14 w-14 items-center justify-center rounded-full bg-dotori-100 text-dotori-700 dark:bg-dotori-800 dark:text-dotori-100">
 						{resolvedIcon}
 					</div>
 				) : (
@@ -106,15 +108,17 @@ export function EmptyState({
 						src={BRAND.emptyState}
 						alt=""
 						aria-hidden="true"
-						className="h-24 w-24 opacity-80"
+						className="h-14 w-14 opacity-80"
 					/>
 				)}
-				<h3 className="text-base font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
-				{resolvedDescription ? (
-					<p className="max-w-xs text-sm leading-relaxed text-dotori-600 dark:text-dotori-300">
-						{resolvedDescription}
-					</p>
-				) : null}
+				<div className="flex max-w-xs flex-col gap-2">
+					<h3 className="text-h3 font-semibold text-dotori-900 dark:text-dotori-50">{title}</h3>
+					{resolvedDescription ? (
+						<p className="text-body-sm leading-relaxed text-dotori-700 dark:text-dotori-200">
+							{resolvedDescription}
+						</p>
+					) : null}
+				</div>
 				{actionLabel ? (
 					<Button
 						color="dotori"

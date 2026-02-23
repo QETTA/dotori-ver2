@@ -1,6 +1,7 @@
-import { chromium } from '@playwright/test'
+import { chromium, firefox, webkit } from '@playwright/test'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3002'
+const BROWSER = (process.env.BROWSER ?? 'chromium').toLowerCase()
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i
 
 type CapturedError = {
@@ -234,7 +235,9 @@ async function main() {
       'ℹ️ 검사 가능한 시설 ID를 찾지 못해 /facility/:id 검사를 건너뜁니다.'
     )
   }
-  const browser = await chromium.launch()
+  const browserType =
+    BROWSER === 'firefox' ? firefox : BROWSER === 'webkit' ? webkit : chromium
+  const browser = await browserType.launch()
   const context = await browser.newContext({
     viewport: { width: 375, height: 812 },
     userAgent:
