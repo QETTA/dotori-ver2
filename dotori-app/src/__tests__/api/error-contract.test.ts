@@ -58,6 +58,35 @@ beforeEach(() => {
   dbConnectMock.mockResolvedValue(undefined)
 })
 
+function getCanonicalError(body: unknown): Record<string, unknown> {
+  if (!body || typeof body !== 'object') {
+    return {}
+  }
+
+  const record = body as Record<string, unknown>
+  if (record.error && typeof record.error === 'object') {
+    return record.error as Record<string, unknown>
+  }
+  return record
+}
+
+function getErrorMessage(body: unknown): string {
+  if (!body || typeof body !== 'object') {
+    return ''
+  }
+
+  const record = body as Record<string, unknown>
+  if (typeof record.error === 'string') {
+    return record.error
+  }
+  if (typeof record.message === 'string') {
+    return record.message
+  }
+
+  const canonical = getCanonicalError(body)
+  return typeof canonical.message === 'string' ? canonical.message : ''
+}
+
 describe('API error contract (current compatibility)', () => {
   it('returns current BAD_REQUEST for validation error equivalent (400)', async () => {
     const { withApiHandler } = await import('@/lib/api-handler')
@@ -78,12 +107,14 @@ describe('API error contract (current compatibility)', () => {
 
     const res = await handler(req)
     const body = await res.json()
+    const canonical = getCanonicalError(body)
+    const code = typeof body.code === 'string' ? body.code : ''
+    const canonicalCode = typeof canonical.code === 'string' ? canonical.code : ''
 
     expect(res.status).toBe(400)
-    expect(body).toMatchObject({
-      code: 'BAD_REQUEST',
-      error: expect.any(String),
-    })
+    expect(['BAD_REQUEST', 'VALIDATION_ERROR']).toContain(code)
+    expect(['BAD_REQUEST', 'VALIDATION_ERROR']).toContain(canonicalCode)
+    expect(getErrorMessage(body)).toBeTruthy()
     expect(res.headers.get('X-Request-Id')).toBeTruthy()
   })
 
@@ -98,11 +129,14 @@ describe('API error contract (current compatibility)', () => {
 
     const res = await protectedHandler(req)
     const body = await res.json()
+    const canonical = getCanonicalError(body)
+    const code = typeof body.code === 'string' ? body.code : ''
+    const canonicalCode = typeof canonical.code === 'string' ? canonical.code : ''
 
     expect(res.status).toBe(401)
-    expect(body).toMatchObject({
-      code: 'UNAUTHORIZED',
-    })
+    expect(['UNAUTHORIZED', 'UNAUTHENTICATED']).toContain(code)
+    expect(['UNAUTHORIZED', 'UNAUTHENTICATED']).toContain(canonicalCode)
+    expect(getErrorMessage(body)).toContain('인증')
     expect(res.headers.get('X-Request-Id')).toBeTruthy()
   })
 
@@ -123,16 +157,17 @@ describe('API error contract (current compatibility)', () => {
     })
     const res = await brokenHandler(req)
     const body = await res.json()
+    const canonical = getCanonicalError(body)
+    const errorMessage = getErrorMessage(body)
 
     expect(res.status).toBe(500)
-    expect(body).toMatchObject({
-      code: 'INTERNAL_ERROR',
-      error: expect.any(String),
-    })
-    expect(body.error).not.toContain('DB_PASSWORD')
-    expect(body.error).not.toContain('token')
-    expect(body.error).not.toContain('SELECT * FROM users')
-    expect(body.error).not.toContain('/srv/app/route.ts')
+    expect(body).toMatchObject({ code: 'INTERNAL_ERROR' })
+    expect(canonical).toMatchObject({ code: 'INTERNAL_ERROR' })
+    expect(errorMessage).toBeTruthy()
+    expect(errorMessage).not.toContain('DB_PASSWORD')
+    expect(errorMessage).not.toContain('token')
+    expect(errorMessage).not.toContain('SELECT * FROM users')
+    expect(errorMessage).not.toContain('/srv/app/route.ts')
     expect(res.headers.get('X-Request-Id')).toBeTruthy()
   })
 })

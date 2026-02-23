@@ -1,3 +1,4 @@
+import { createApiErrorResponse } from '@/lib/api-error'
 import dbConnect from '@/lib/db'
 import UsageLog from '@/models/UsageLog'
 import { NextResponse } from 'next/server'
@@ -18,6 +19,7 @@ type EnsureQuotaParams = {
   userId?: string
   isPremiumPlan: boolean
   clientIp: string
+  requestId?: string
 }
 
 type RecordUsageParams = EnsureQuotaParams
@@ -52,19 +54,21 @@ function incrementGuestUsage(ip: string): void {
   guestUsageMap.set(ip, usage)
 }
 
-function buildQuotaExceededResponse(limitType: 'guest' | 'monthly'): NextResponse {
-  return NextResponse.json(
-    {
-      error: 'quota_exceeded',
-      code: 'FORBIDDEN',
-      message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
-      details: {
-        limitType,
-        limit: limitType === 'guest' ? GUEST_CHAT_LIMIT : MONTHLY_FREE_CHAT_LIMIT,
-      },
+function buildQuotaExceededResponse(
+  limitType: 'guest' | 'monthly',
+  requestId?: string,
+): NextResponse {
+  return createApiErrorResponse({
+    status: 403,
+    code: 'FORBIDDEN',
+    message: MONTHLY_QUOTA_EXCEEDED_MESSAGE,
+    details: {
+      limitType,
+      limit: limitType === 'guest' ? GUEST_CHAT_LIMIT : MONTHLY_FREE_CHAT_LIMIT,
     },
-    { status: 403 },
-  )
+    legacyError: 'quota_exceeded',
+    requestId,
+  })
 }
 
 async function getMonthlyChatCount(userId: string): Promise<number> {
@@ -105,12 +109,13 @@ export async function ensureChatQuota({
   userId,
   isPremiumPlan,
   clientIp,
+  requestId,
 }: EnsureQuotaParams): Promise<NextResponse | null> {
   if (userId && !isPremiumPlan) {
     await dbConnect()
     const currentMonthUsage = await getMonthlyChatCount(userId)
     if (currentMonthUsage >= MONTHLY_FREE_CHAT_LIMIT) {
-      return buildQuotaExceededResponse('monthly')
+      return buildQuotaExceededResponse('monthly', requestId)
     }
     return null
   }
@@ -118,7 +123,7 @@ export async function ensureChatQuota({
   if (!userId) {
     const guestUsage = getGuestUsage(clientIp)
     if (guestUsage.count >= GUEST_CHAT_LIMIT) {
-      return buildQuotaExceededResponse('guest')
+      return buildQuotaExceededResponse('guest', requestId)
     }
   }
 

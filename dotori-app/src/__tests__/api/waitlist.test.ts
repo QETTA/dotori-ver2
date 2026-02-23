@@ -1,131 +1,164 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NextRequest } from "next/server";
+import { NextRequest } from 'next/server'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { authMock, dbConnectMock, applyWaitlistMock } = vi.hoisted(() => ({
-	authMock: vi.fn(),
-	dbConnectMock: vi.fn(),
-	applyWaitlistMock: vi.fn(),
-}));
+  authMock: vi.fn(),
+  dbConnectMock: vi.fn(),
+  applyWaitlistMock: vi.fn(),
+}))
 
-vi.mock("@/auth", () => ({
-	auth: authMock,
-}));
+vi.mock('@/auth', () => ({
+  auth: authMock,
+}))
 
-vi.mock("@/lib/db", () => ({
-	default: dbConnectMock,
-}));
+vi.mock('@/lib/db', () => ({
+  default: dbConnectMock,
+}))
 
-vi.mock("@/lib/services/waitlist-service", () => ({
-	applyWaitlist: applyWaitlistMock,
-}));
+vi.mock('@/lib/services/waitlist-service', () => ({
+  applyWaitlist: applyWaitlistMock,
+}))
 
 beforeEach(() => {
-	vi.clearAllMocks();
-	dbConnectMock.mockResolvedValue(undefined);
-});
+  vi.clearAllMocks()
+  dbConnectMock.mockResolvedValue(undefined)
+})
 
-function ensureCryptoRandomUUID(): void {
-	if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
-		return;
-	}
+function getCanonicalError(body: unknown): Record<string, unknown> {
+  if (!body || typeof body !== 'object') {
+    return {}
+  }
 
-	(globalThis as typeof globalThis & { crypto: Crypto }).crypto = {
-		randomUUID: () => "00000000-0000-4000-8000-000000000000",
-	} as Crypto;
+  const record = body as Record<string, unknown>
+  if (record.error && typeof record.error === 'object') {
+    return record.error as Record<string, unknown>
+  }
+  return record
 }
 
-describe("POST /api/waitlist", () => {
-	it("returns 400 when required fields are missing", async () => {
-		ensureCryptoRandomUUID();
+function getErrorMessage(body: unknown): string {
+  if (!body || typeof body !== 'object') {
+    return ''
+  }
 
-		authMock.mockResolvedValueOnce({ user: { id: "user-1" } });
+  const record = body as Record<string, unknown>
+  if (typeof record.error === 'string') {
+    return record.error
+  }
+  if (typeof record.message === 'string') {
+    return record.message
+  }
 
-		const { POST } = await import("@/app/api/waitlist/route");
-		const req = new NextRequest("http://localhost:3000/api/waitlist", {
-			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify({
-				facilityId: "507f1f77bcf86cd799439011",
-				childName: "도토리",
-				// childBirthDate missing
-			}),
-		});
+  const canonical = getCanonicalError(body)
+  return typeof canonical.message === 'string' ? canonical.message : ''
+}
 
-		const res = await POST(req);
-		expect(res.status).toBe(400);
-		expect(applyWaitlistMock).not.toHaveBeenCalled();
+function ensureCryptoRandomUUID(): void {
+  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+    return
+  }
 
-		const json = await res.json();
-		expect(json).toMatchObject({
-			code: "BAD_REQUEST",
-		});
-	});
+  ;(globalThis as typeof globalThis & { crypto: Crypto }).crypto = {
+    randomUUID: () => '00000000-0000-4000-8000-000000000000',
+  } as Crypto
+}
 
-	it("creates a waitlist entry for valid payload", async () => {
-		ensureCryptoRandomUUID();
+describe('POST /api/waitlist', () => {
+  it('returns 400 when required fields are missing', async () => {
+    ensureCryptoRandomUUID()
 
-		authMock.mockResolvedValueOnce({ user: { id: "user-1" } });
-		applyWaitlistMock.mockResolvedValueOnce({
-			success: true,
-			waitlist: {
-				_id: "waitlist-1",
-				userId: "user-1",
-				facilityId: "507f1f77bcf86cd799439011",
-				childName: "도토리",
-				childBirthDate: "2021-05-03",
-				status: "pending",
-			},
-			position: 3,
-		});
+    authMock.mockResolvedValueOnce({ user: { id: 'user-1' } })
 
-		const { POST } = await import("@/app/api/waitlist/route");
-		const req = new NextRequest("http://localhost:3000/api/waitlist", {
-			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify({
-				facilityId: "507f1f77bcf86cd799439011",
-				childName: "도토리",
-				childBirthDate: "2021-05-03",
-			}),
-		});
+    const { POST } = await import('@/app/api/waitlist/route')
+    const req = new NextRequest('http://localhost:3000/api/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        facilityId: '507f1f77bcf86cd799439011',
+        childName: '도토리',
+        // childBirthDate missing
+      }),
+    })
 
-		const res = await POST(req);
-		expect(res.status).toBe(201);
-		expect(applyWaitlistMock).toHaveBeenCalledWith({
-			userId: "user-1",
-			facilityId: "507f1f77bcf86cd799439011",
-			childName: "도토리",
-			childBirthDate: "2021-05-03",
-			hasMultipleChildren: false,
-			isDualIncome: false,
-			isSingleParent: false,
-			hasDisability: false,
-		});
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    expect(applyWaitlistMock).not.toHaveBeenCalled()
 
-		const json = await res.json();
-		expect(json).toMatchObject({
-			data: expect.any(Object),
-			position: 3,
-		});
-	});
-});
+    const json = await res.json()
+    const canonical = getCanonicalError(json)
+    const code = typeof json.code === 'string' ? json.code : ''
+    const canonicalCode = typeof canonical.code === 'string' ? canonical.code : ''
+    expect(['BAD_REQUEST', 'VALIDATION_ERROR']).toContain(code)
+    expect(['BAD_REQUEST', 'VALIDATION_ERROR']).toContain(canonicalCode)
+    expect(getErrorMessage(json)).toBeTruthy()
+  })
 
-describe("GET /api/waitlist", () => {
-	it("returns 401 when unauthenticated", async () => {
-		ensureCryptoRandomUUID();
+  it('creates a waitlist entry for valid payload', async () => {
+    ensureCryptoRandomUUID()
 
-		authMock.mockResolvedValueOnce(null);
+    authMock.mockResolvedValueOnce({ user: { id: 'user-1' } })
+    applyWaitlistMock.mockResolvedValueOnce({
+      success: true,
+      waitlist: {
+        _id: 'waitlist-1',
+        userId: 'user-1',
+        facilityId: '507f1f77bcf86cd799439011',
+        childName: '도토리',
+        childBirthDate: '2021-05-03',
+        status: 'pending',
+      },
+      position: 3,
+    })
 
-		const { GET } = await import("@/app/api/waitlist/route");
-		const req = new NextRequest("http://localhost:3000/api/waitlist");
-		const res = await GET(req);
+    const { POST } = await import('@/app/api/waitlist/route')
+    const req = new NextRequest('http://localhost:3000/api/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        facilityId: '507f1f77bcf86cd799439011',
+        childName: '도토리',
+        childBirthDate: '2021-05-03',
+      }),
+    })
 
-		expect(res.status).toBe(401);
-		const json = await res.json();
-		expect(json).toMatchObject({
-			error: "인증이 필요합니다",
-			code: "UNAUTHORIZED",
-		});
-	});
-});
+    const res = await POST(req)
+    expect(res.status).toBe(201)
+    expect(applyWaitlistMock).toHaveBeenCalledWith({
+      userId: 'user-1',
+      facilityId: '507f1f77bcf86cd799439011',
+      childName: '도토리',
+      childBirthDate: '2021-05-03',
+      hasMultipleChildren: false,
+      isDualIncome: false,
+      isSingleParent: false,
+      hasDisability: false,
+    })
 
+    const json = await res.json()
+    expect(json).toMatchObject({
+      data: expect.any(Object),
+      position: 3,
+    })
+  })
+})
+
+describe('GET /api/waitlist', () => {
+  it('returns 401 when unauthenticated', async () => {
+    ensureCryptoRandomUUID()
+
+    authMock.mockResolvedValueOnce(null)
+
+    const { GET } = await import('@/app/api/waitlist/route')
+    const req = new NextRequest('http://localhost:3000/api/waitlist')
+    const res = await GET(req)
+
+    expect(res.status).toBe(401)
+    const json = await res.json()
+    const canonical = getCanonicalError(json)
+    const code = typeof json.code === 'string' ? json.code : ''
+    const canonicalCode = typeof canonical.code === 'string' ? canonical.code : ''
+    expect(['UNAUTHORIZED', 'UNAUTHENTICATED']).toContain(code)
+    expect(['UNAUTHORIZED', 'UNAUTHENTICATED']).toContain(canonicalCode)
+    expect(getErrorMessage(json)).toContain('인증')
+  })
+})

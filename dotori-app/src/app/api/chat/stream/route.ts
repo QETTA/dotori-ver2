@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import { createApiErrorResponse } from '@/lib/api-error'
 import { ensureChatQuota, recordChatUsage, resolveClientIp } from '@/lib/chat-quota'
 import dbConnect from '@/lib/db'
 import type { ChatIntent } from '@/lib/engine/intent-classifier'
@@ -159,7 +160,7 @@ function buildFacilityContext(blocks: ChatBlock[]): string {
 
 export const POST = async (req: NextRequest) => {
   const requestId = crypto.randomUUID()
-  const limited = strictLimiter.check(req)
+  const limited = strictLimiter.check(req, requestId)
   if (limited) return withRequestId(limited, requestId)
 
   let rawBody: unknown
@@ -167,12 +168,17 @@ export const POST = async (req: NextRequest) => {
     rawBody = await req.json()
   } catch {
     return withRequestId(
-      NextResponse.json({ error: '유효하지 않은 JSON입니다' }, { status: 400 }),
+      createApiErrorResponse({
+        status: 400,
+        code: 'BAD_REQUEST',
+        message: '유효하지 않은 JSON입니다',
+        requestId,
+      }),
       requestId,
     )
   }
 
-  const parsed = parseBody(chatMessageSchema, rawBody)
+  const parsed = parseBody(chatMessageSchema, rawBody, requestId)
   if (!parsed.success) return withRequestId(parsed.response, requestId)
 
   const message = sanitizeString(parsed.data.message)
@@ -184,6 +190,7 @@ export const POST = async (req: NextRequest) => {
     userId,
     isPremiumPlan,
     clientIp,
+    requestId,
   })
   if (quotaResponse) {
     return withRequestId(quotaResponse, requestId)
