@@ -28,7 +28,7 @@ const PREMIUM_BENEFITS = [
 	"이동 우선 매칭",
 ] as const;
 
-const KAKAO_CHANNEL_ID = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_ID || "_dotori";
+const KAKAO_CHANNEL_ID = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_ID || "_wxmYIX";
 const supportChannelUrl = `https://pf.kakao.com/${KAKAO_CHANNEL_ID}`;
 
 function formatDateLabel(dateString?: string) {
@@ -310,7 +310,7 @@ export default function SettingsPage() {
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<Heading level={2} className="text-h3">
-						카카오 채널
+						육아AI토리톡
 					</Heading>
 					<Text className="mt-1 text-dotori-500">
 						친구 추가하면 빈자리 소식과 이동 팁을 받을 수 있어요.

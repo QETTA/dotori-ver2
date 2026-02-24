@@ -39,8 +39,9 @@
 
 | 항목 | 값 |
 |------|-----|
-| 채널명 | **도토리** |
-| 검색용 ID | **@dotori_kr** |
+| 채널명 | **육아AI토리톡** |
+| 검색용 ID | **@_wxmYIX** |
+| 채널 URL | `https://pf.kakao.com/_wxmYIX` |
 | 카테고리 | 교육 > 교육서비스 |
 | 소개글 | 어린이집 이동 고민, 도토리가 해결해드려요. 빈자리 탐색부터 AI 상담까지. |
 | 프로필 이미지 | `/public/brand/dotori-app-icon-warm.svg` (640×640 PNG 변환) |
@@ -356,7 +357,7 @@ https://dotori-app-pwyc9.ondigitalocean.app/explore
 | 온보딩 완료 후 | "카카오 채널 친구 추가" CTA | 미구현 |
 | 빈자리 알림 설정 | "카카오로도 알림 받기" 옵션 | 미구현 (Phase 1) |
 | 시설 상세 하단 | "이 시설 관심 등록 → 카카오 알림" | 미구현 (Phase 1) |
-| 마이페이지 | 카카오 채널 바로가기 링크 | `NEXT_PUBLIC_KAKAO_CHANNEL_ID=_dotori` 설정됨 |
+| 마이페이지 | 카카오 채널 바로가기 링크 | `NEXT_PUBLIC_KAKAO_CHANNEL_ID=_wxmYIX` 설정됨 |
 
 ### 딥링크 URL 맵 (채널 메시지 → 앱)
 
