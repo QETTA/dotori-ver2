@@ -28,8 +28,8 @@ const PREMIUM_BENEFITS = [
 	"이동 우선 매칭",
 ] as const;
 
-const kakaoChannelPath = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_ID || "_dotori";
-const supportChannelUrl = `https://pf.kakao.com/${kakaoChannelPath}`;
+const KAKAO_CHANNEL_ID = process.env.NEXT_PUBLIC_KAKAO_CHANNEL_ID || "_dotori";
+const supportChannelUrl = `https://pf.kakao.com/${KAKAO_CHANNEL_ID}`;
 
 function formatDateLabel(dateString?: string) {
 	if (!dateString) return "";
@@ -310,19 +310,39 @@ export default function SettingsPage() {
 			<section className="mt-4 px-5">
 				<div className="rounded-3xl border border-dotori-100 dark:border-dotori-800 bg-white dark:bg-dotori-950 px-4 py-4">
 					<Heading level={2} className="text-h3">
-						고객센터
+						카카오 채널
 					</Heading>
 					<Text className="mt-1 text-dotori-500">
-						결제가 안 되거나 궁금한 점이 있으면 채널로 연락해 주세요.
+						친구 추가하면 빈자리 소식과 이동 팁을 받을 수 있어요.
 					</Text>
-					<a
-						href={supportChannelUrl}
-						target="_blank"
-						rel="noreferrer noopener"
-						className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 dark:border-dotori-700 px-4 text-body-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.98]"
-					>
-						카카오톡 채널로 문의하기
-					</a>
+					<div className="mt-3 flex gap-2">
+						<button
+							type="button"
+							onClick={() => {
+								if (typeof window !== "undefined" && window.Kakao?.isInitialized?.()) {
+									window.Kakao.Channel.addChannel({ channelPublicId: KAKAO_CHANNEL_ID });
+								} else {
+									window.open(supportChannelUrl, "_blank", "noopener,noreferrer");
+								}
+							}}
+							className="flex-1 inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#FEE500] px-4 text-body-sm font-semibold text-[#191919] transition-transform active:scale-[0.97]"
+						>
+							친구 추가
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								if (typeof window !== "undefined" && window.Kakao?.isInitialized?.()) {
+									window.Kakao.Channel.chat({ channelPublicId: KAKAO_CHANNEL_ID });
+								} else {
+									window.open(supportChannelUrl, "_blank", "noopener,noreferrer");
+								}
+							}}
+							className="flex-1 inline-flex min-h-11 items-center justify-center rounded-2xl border border-dotori-200 dark:border-dotori-700 px-4 text-body-sm font-semibold text-dotori-700 dark:text-dotori-200 transition-colors transition-transform hover:bg-dotori-50 dark:hover:bg-dotori-900 active:scale-[0.97]"
+						>
+							1:1 문의하기
+						</button>
+					</div>
 				</div>
 			</section>
 

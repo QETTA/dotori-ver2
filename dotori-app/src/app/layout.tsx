@@ -121,6 +121,24 @@ export default function RootLayout({
 			<body className="bg-dotori-50 text-dotori-900 antialiased transition-colors duration-200 dark:bg-dotori-950 dark:text-dotori-50">
 				<WebVitalsReporter />
 				{children}
+				{/* Kakao JS SDK (Channel, Share) */}
+				<Script
+					src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
+					integrity="sha384-DKYJZ8NLiK8MN4/C5P2ezmFnkrysYIcMIVBjvVWjmFcMdanGpK+FEbfesxOiWiA"
+					crossOrigin="anonymous"
+					strategy="afterInteractive"
+				/>
+				<Script
+					id="kakao-init"
+					strategy="afterInteractive"
+					dangerouslySetInnerHTML={{
+						__html: `
+							if(window.Kakao && !window.Kakao.isInitialized()){
+								window.Kakao.init('${process.env.NEXT_PUBLIC_KAKAO_JS_KEY || process.env.NEXT_PUBLIC_KAKAO_KEY || ""}');
+							}
+						`,
+					}}
+				/>
 				{/* GA4 (Google Analytics) */}
 				{GA_ID && (
 					<>
