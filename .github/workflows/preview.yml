@@ -55,6 +55,12 @@ jobs:
         run: |
           URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "Preview URL unavailable")
           echo "preview_url=$URL" >> $GITHUB_OUTPUT
+          
+          SOURCE_COMMIT=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print((json.load(sys.stdin).get('active_deployment',{}).get('services') or [{}])[0].get('source_commit_hash',''))" 2>/dev/null || echo "")
+          if [ -z "$SOURCE_COMMIT" ]; then
+            SOURCE_COMMIT=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print((json.load(sys.stdin).get('services') or [{}])[0].get('source_commit_hash',''))" 2>/dev/null || echo "")
+          fi
+          echo "source_commit=$SOURCE_COMMIT" >> $GITHUB_OUTPUT
 
       - name: Fail if preview URL is missing
         run: |
@@ -85,18 +91,21 @@ jobs:
         env:
           PREVIEW_URL: ${{ steps.url.outputs.preview_url }}
           PREVIEW_HEALTH_URL: ${{ steps.health.outputs.preview_health }}
+          PREVIEW_SOURCE_COMMIT: ${{ steps.url.outputs.source_commit }}
         with:
           script: |
             const url = process.env.PREVIEW_URL;
             const healthUrl = process.env.PREVIEW_HEALTH_URL;
+            const commit = process.env.PREVIEW_SOURCE_COMMIT ? process.env.PREVIEW_SOURCE_COMMIT.substring(0, 7) : `${context.sha.substring(0, 7)}`;
             const body = [
               '### Preview Deployment',
               '',
               `**URL**: ${url}`,
               `**Health**: ${healthUrl}`,
+              `**Source Commit**: \`${commit}\``,
               '',
               `Deployed: ${new Date().toISOString()}`,
-              `Commit: \`${context.sha.substring(0, 7)}\``,
+              `Run SHA: \`${context.sha.substring(0, 7)}\``,
               `[Workflow Run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
             ].join('\n');
 
