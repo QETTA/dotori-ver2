@@ -129,12 +129,27 @@ scripts/
 - **Spatial**: max-w-md 중앙, rounded-2xl/3xl 카드, 섹션 간 border-b 구분, generous padding
 - **Background**: glass morphism (DS_GLASS 토큰), subtle dotori-50 tint, 카드 shadow-sm
 
+## Git 규칙 (커밋 누락 방지) ★★★
+
+```
+⚠️ CWD(dotori-app/) ≠ git root(dotori-ver2-qetta/)
+⚠️ dotori-app/ 안에서 git status → docs/, brand/, .github/ 변경 안 보임
+⚠️ 항상 레포 루트 기준으로 git 명령 실행:
+
+git -C /home/sihu2/dotori-ver2-qetta status
+git -C /home/sihu2/dotori-ver2-qetta add -A
+git -C /home/sihu2/dotori-ver2-qetta commit -m "..."
+git -C /home/sihu2/dotori-ver2-qetta push origin main
+
+작업 종료 시 반드시: status → add → commit → push (main 브랜치)
+```
+
 ## Commands
 
 ```bash
 npm run dev                          # Dev server
 env -u NODE_ENV npm run build        # Production build (47 pages) — NODE_ENV unset 필수
-npm test                             # Tests (111, vitest)
+npm test                             # Tests (126, vitest)
 npx tsx scripts/screenshot-check.ts  # 스크린샷 + 콘솔에러 통합 QA
 ./scripts/codex-wave.sh tasks.txt    # Codex CLI 병렬 wave 실행
 ```
@@ -165,11 +180,10 @@ npx tsx scripts/screenshot-check.ts  # 스크린샷 + 콘솔에러 통합 QA
 doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
-## Current State (2026-02-24, R22 완료)
+## Current State (2026-02-24, R27 완료)
 
-- **47 pages**, 0 TypeScript errors, **111 tests** (vitest, 16 test files)
+- **47 pages**, 0 TypeScript errors, **126 tests** (vitest, 21 test files)
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
-- **113 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11, R17: 11, R22: 11)
 - **파이프라인 v7**: wave 빌드, codex-wave.sh, haiku QA 위임
 - **text-[Npx] 0건**, **P0~P1 보안 이슈 0건**

@@ -202,11 +202,45 @@ TIMEOUT=${CODEX_TIMEOUT:-5400}           # 90분 타임아웃
 - `color="forest"` → 성공/활성 (Badge 전용, Button 금지)
 - `color="amber"` → 카카오 전용 (앱 CTA 사용 금지)
 
+## Git 규칙 (커밋 누락 방지) ★★★
+
+### 근본 원칙: 항상 main 브랜치에서 작업, 항상 커밋+푸시로 마감
+```
+1. 작업 시작 전: git checkout main && git pull origin main
+2. 작업 중: feature branch 사용 금지 (Codex가 만든 branch는 즉시 main merge)
+3. 작업 종료 시: 반드시 아래 순서 실행
+   a) git add -A (dotori-app 밖의 docs/, brand/, .github/ 포함)
+   b) git commit
+   c) git push origin main
+4. git status 확인 시: 반드시 레포 루트에서 실행 (git -C /home/sihu2/dotori-ver2-qetta status)
+```
+
+### CWD ≠ git root 주의
+```
+git root:  /home/sihu2/dotori-ver2-qetta           ← 레포 루트
+CWD:       /home/sihu2/dotori-ver2-qetta/dotori-app ← Claude Code 작업 디렉토리
+
+⚠️ dotori-app/ 안에서 git status 하면 docs/, brand/, .github/ 변경이 안 보임
+⚠️ git add/commit은 항상 레포 루트 기준으로 실행:
+   git -C /home/sihu2/dotori-ver2-qetta add -A
+   git -C /home/sihu2/dotori-ver2-qetta commit -m "..."
+   git -C /home/sihu2/dotori-ver2-qetta push origin main
+```
+
+### Codex 에이전트 후처리
+```
+Codex가 feature branch에서 작업 완료 시:
+1. git checkout main && git merge <branch> --no-edit
+2. git branch -d <branch>
+3. git push origin main
+→ feature branch 방치 = 다음 세션에서 "레포 그대로" 원인
+```
+
 ## 핵심 명령
 ```bash
-cd /home/sihu2129/dotori-ver2/dotori-app
+cd /home/sihu2/dotori-ver2-qetta/dotori-app
 env -u NODE_ENV npm run build   # 빌드 (47 pages) — NODE_ENV unset 필수
-npm test                         # 테스트 (111개, vitest)
+npm test                         # 테스트 (126개, vitest)
 npm run dev                      # 개발 서버
 
 # 스크린샷 + 콘솔 통합 QA
@@ -215,13 +249,18 @@ npx tsx scripts/screenshot-check.ts
 # Codex wave 병렬 (CLI)
 ./scripts/codex-wave.sh /tmp/tasks.txt --wave=4
 
+# Git (항상 레포 루트 기준)
+git -C /home/sihu2/dotori-ver2-qetta status        # 전체 상태 확인
+git -C /home/sihu2/dotori-ver2-qetta add -A         # 전체 스테이징
+git -C /home/sihu2/dotori-ver2-qetta push origin main
+
 # 배포
 git push origin main
 doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
-## 현재 상태 (2026-02-24, R22 완료)
-- **47 pages**, 0 TypeScript errors, **111 tests** (vitest, 16 test files)
+## 현재 상태 (2026-02-24, R27 완료)
+- **47 pages**, 0 TypeScript errors, **126 tests** (vitest, 21 test files)
 - **113 에이전트** 완료 (R1~R3: 36, R5: 11, R8: 11, R9: 11, R11: 6, R12: 5, R13: 11, R17: 11, R22: 11)
 - **파이프라인 v7**: wave 빌드 + codex-wave.sh + haiku QA 위임
 - **text-[Npx] 0건**, **P0~P1 보안 이슈 0건**
