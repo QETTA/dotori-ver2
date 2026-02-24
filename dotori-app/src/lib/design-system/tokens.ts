@@ -145,7 +145,7 @@ export const DS_LAYOUT = {
 
 export const DS_STATUS = {
 	available: {
-		label:  "TO 있음",
+		label:  "빈자리 있음",
 		dot:    "bg-forest-500",
 		pill:   "bg-forest-100 text-forest-900 dark:bg-forest-900/20 dark:text-forest-100",
 		border: "border-l-4 border-l-forest-500/80",

@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { Field, Fieldset, Label } from '@/components/catalyst/fieldset'
 import { Heading } from '@/components/catalyst/heading'
 import { Input } from '@/components/catalyst/input'
@@ -180,8 +180,8 @@ function ChatHeader({
           </div>
         ) : null}
         <motion.div {...tap.chip}>
-          <Button
-            plain={true}
+          <DsButton
+            variant="ghost"
             onClick={onClearHistory}
             disabled={isResetting || isLoading}
             className={cn(
@@ -190,7 +190,7 @@ function ChatHeader({
             )}
           >
             대화 초기화
-          </Button>
+          </DsButton>
         </motion.div>
       </div>
     </header>
@@ -338,8 +338,8 @@ function ChatComposer({
           </Field>
         </Fieldset>
         <motion.div {...tap.button}>
-          <Button
-            color="dotori"
+          <DsButton
+           
             type="button"
             onClick={() => onSubmit(input)}
             disabled={isSendDisabled}
@@ -361,7 +361,7 @@ function ChatComposer({
                 <path d="M3.9 2.6L22 11.4L3.9 20.2V13.7L15 11.4L3.9 9.1V2.6Z" fill="currentColor" />
               </svg>
             )}
-          </Button>
+          </DsButton>
         </motion.div>
       </div>
     </motion.footer>

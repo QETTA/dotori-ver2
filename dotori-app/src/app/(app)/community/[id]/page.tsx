@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
@@ -309,22 +309,22 @@ export default function CommunityPostPage() {
 								첫 댓글로 따뜻한 한마디를 남겨보세요.
 							</p>
 							{session?.user ? (
-								<Button
-									color="dotori"
+								<DsButton
+								
 									type="button"
 									onClick={() => inputRef.current?.focus()}
 									className="mt-4 w-full min-h-11"
 								>
 									첫 댓글 남기기
-								</Button>
+								</DsButton>
 							) : (
-								<Button
+								<DsButton
 									href="/login"
-									color="dotori"
+								
 									className="mt-4 w-full min-h-11"
 								>
 									로그인하고 댓글 남기기
-								</Button>
+								</DsButton>
 							)}
 						</div>
 					) : (

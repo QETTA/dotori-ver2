@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from '@/components/ds/DsButton'
 import {
   DOTORI_STATE_ITEM_MOTION,
   DOTORI_STATE_META,
@@ -10,6 +10,7 @@ import {
   type DotoriErrorStateVariant,
 } from '@/components/dotori/EmptyState'
 import { Surface } from '@/components/dotori/Surface'
+import { copy } from '@/lib/brand-copy'
 import { DS_STATUS } from '@/lib/design-system/tokens'
 import { tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -21,12 +22,14 @@ export function ErrorState({
   action,
   variant = 'default',
 }: {
-  message: string
+  message?: string
   detail?: string
   action?: { label: string; onClick: () => void }
   variant?: DotoriErrorStateVariant
 }) {
   const meta = DOTORI_STATE_META.error[variant]
+  const variantCopy = copy.errorState[variant]
+  const resolvedMessage = message ?? variantCopy.title
   const resolvedDetail = detail ?? meta.detail
   const statusTone = meta.tone
 
@@ -77,7 +80,7 @@ export function ErrorState({
               variants={DOTORI_STATE_ITEM_MOTION.variants}
               className={DOTORI_STATE_TOKENS.title}
             >
-              {message}
+              {resolvedMessage}
             </motion.h3>
             <motion.p
               variants={DOTORI_STATE_ITEM_MOTION.variants}
@@ -92,13 +95,12 @@ export function ErrorState({
               variants={DOTORI_STATE_ITEM_MOTION.variants}
             >
               <motion.div whileTap={tap.button.whileTap} transition={tap.button.transition}>
-                <Button
-                  color="dotori"
+                <DsButton
                   onClick={action.onClick}
                   className={cn(DOTORI_STATE_TOKENS.action, 'min-h-11 w-full rounded-xl')}
                 >
                   {action.label}
-                </Button>
+                </DsButton>
               </motion.div>
             </motion.div>
           ) : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
@@ -114,9 +114,9 @@ export default function InterestsPage() {
 						<p className="mt-2 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 							탐색에서 마음에 드는 어린이집에 하트를 눌러 저장해 보세요. 나중에 한 번에 비교하기 쉬워요.
 						</p>
-						<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
+						<DsButton href="/explore" className="mt-5 w-full min-h-11">
 							시설 탐색하기
-						</Button>
+						</DsButton>
 					</div>
 				</div>
 			) : (

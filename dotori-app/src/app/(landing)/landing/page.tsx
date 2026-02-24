@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { PageTransition } from '@/components/dotori/PageTransition'
@@ -194,18 +194,18 @@ export default function LandingPage() {
 
                 <div className="mt-5 space-y-2.5">
                   <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                    <Button
-                      color="dotori"
+                    <DsButton
+                     
                       onClick={handleEnterHome}
                       className="min-h-12 w-full justify-center rounded-full border border-transparent text-h3"
                     >
                       홈으로 이동
-                    </Button>
+                    </DsButton>
                   </motion.div>
                   <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                    <Button color="dotori" href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
+                    <DsButton href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
                       온보딩 시작
-                    </Button>
+                    </DsButton>
                   </motion.div>
                 </div>
               </div>

@@ -1,9 +1,10 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from '@/components/ds/DsButton'
 import { Surface } from '@/components/dotori/Surface'
 import { BRAND } from '@/lib/brand-assets'
+import { copy } from '@/lib/brand-copy'
 import { DS_GLASS, DS_STATUS } from '@/lib/design-system/tokens'
 import { spring, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -54,41 +55,40 @@ export const DOTORI_STATE_META = {
   empty: {
     default: {
       tone: 'available',
-      eyebrow: '도토리 안내',
-      description: '표시할 정보가 아직 없어요. 잠시 후 다시 확인해 주세요.',
+      eyebrow: copy.emptyState.default.eyebrow,
+      description: copy.emptyState.default.description,
       media: BRAND.emptyState,
     },
     search: {
       tone: 'waiting',
-      eyebrow: '검색 결과 없음',
-      description: '검색어 또는 조건을 조금 바꾸면 원하는 결과를 더 쉽게 찾을 수 있어요.',
+      eyebrow: copy.emptyState.search.eyebrow,
+      description: copy.emptyState.search.description,
       media: BRAND.emptyState,
     },
     transfer: {
       tone: 'full',
-      eyebrow: '이동 조건 안내',
-      description:
-        '요청하신 이동 조건에 맞는 시설을 찾지 못했어요. 지역·정렬·필터를 조정해 다시 찾아볼까요?',
+      eyebrow: copy.emptyState.transfer.eyebrow,
+      description: copy.emptyState.transfer.description,
       media: BRAND.symbol,
     },
   } satisfies Record<DotoriEmptyStateVariant, DotoriEmptyVisualMeta>,
   error: {
     default: {
       tone: 'available',
-      eyebrow: '일시적 오류',
-      detail: '잠시 후 다시 시도해 주세요.',
+      eyebrow: copy.errorState.default.eyebrow,
+      detail: copy.errorState.default.detail,
       media: BRAND.errorState,
     },
     network: {
       tone: 'waiting',
-      eyebrow: '네트워크 확인 필요',
-      detail: '인터넷 연결 상태를 확인한 뒤 다시 시도해 주세요.',
+      eyebrow: copy.errorState.network.eyebrow,
+      detail: copy.errorState.network.detail,
       media: BRAND.errorState,
     },
     notfound: {
       tone: 'full',
-      eyebrow: '페이지를 찾을 수 없음',
-      detail: '요청하신 페이지를 찾지 못했어요. 경로를 다시 확인해 주세요.',
+      eyebrow: copy.errorState.notfound.eyebrow,
+      detail: copy.errorState.notfound.detail,
       media: BRAND.emptyState,
     },
   } satisfies Record<DotoriErrorStateVariant, DotoriErrorVisualMeta>,
@@ -144,7 +144,7 @@ interface EmptyStateSimpleProps {
 }
 
 export default function EmptyStateFallback({
-  title = '아직 데이터가 없어요',
+  title = copy.emptyState.default.title,
   message,
   actionLabel,
   onAction,
@@ -220,9 +220,9 @@ export default function EmptyStateFallback({
               variants={DOTORI_STATE_ITEM_MOTION.variants}
             >
               <motion.div whileTap={tap.button.whileTap} transition={tap.button.transition}>
-                <Button color="dotori" onClick={onAction} className={DOTORI_STATE_TOKENS.action}>
+                <DsButton onClick={onAction} className={DOTORI_STATE_TOKENS.action}>
                   {actionLabel}
-                </Button>
+                </DsButton>
               </motion.div>
             </motion.div>
           ) : null}
@@ -350,34 +350,34 @@ export function EmptyState({
               {actionLabel ? (
                 <motion.div whileTap={tap.button.whileTap} transition={tap.button.transition}>
                   {actionHref ? (
-                    <Button
-                      color="dotori"
+                    <DsButton
+                     
                       href={actionHref}
                       onClick={onAction}
                       className={DOTORI_STATE_TOKENS.action}
                     >
                       {actionLabel}
-                    </Button>
+                    </DsButton>
                   ) : (
-                    <Button
-                      color="dotori"
+                    <DsButton
+                     
                       onClick={onAction}
                       className={DOTORI_STATE_TOKENS.action}
                     >
                       {actionLabel}
-                    </Button>
+                    </DsButton>
                   )}
                 </motion.div>
               ) : null}
               {secondaryLabel && secondaryHref ? (
                 <motion.div whileTap={tap.button.whileTap} transition={tap.button.transition}>
-                  <Button
-                    outline
+                  <DsButton
+                    variant="secondary"
                     href={secondaryHref}
                     className={DOTORI_STATE_TOKENS.secondaryAction}
                   >
                     {secondaryLabel}
-                  </Button>
+                  </DsButton>
                 </motion.div>
               ) : null}
             </motion.div>

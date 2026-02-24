@@ -1,6 +1,7 @@
 'use client'
 
 import { BRAND } from '@/lib/brand-assets'
+import { copy } from '@/lib/brand-copy'
 import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -26,35 +27,35 @@ import { memo } from 'react'
 const tabs = [
   {
     id: 'home',
-    label: '홈',
+    label: copy.navigation.tabs.home,
     href: '/',
     icon: HomeOutline,
     activeIcon: HomeSolid,
   },
   {
     id: 'explore',
-    label: '탐색',
+    label: copy.navigation.tabs.explore,
     href: '/explore',
     icon: SearchOutline,
     activeIcon: SearchSolid,
   },
   {
     id: 'chat',
-    label: '토리챗',
+    label: copy.navigation.tabs.chat,
     href: '/chat',
     icon: ChatOutline,
     activeIcon: ChatSolid,
   },
   {
     id: 'community',
-    label: '이웃',
+    label: copy.navigation.tabs.community,
     href: '/community',
     icon: GroupOutline,
     activeIcon: GroupSolid,
   },
   {
     id: 'my',
-    label: '마이',
+    label: copy.navigation.tabs.my,
     href: '/my',
     icon: UserOutline,
     activeIcon: UserSolid,

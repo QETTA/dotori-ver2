@@ -338,10 +338,10 @@ export default function HomePage() {
 								))}
 							</div>
 							<div className="mt-3 grid grid-cols-2 gap-2">
-								<DsButton href="/explore" color="dotori" className="min-h-11" fullWidth>
+								<DsButton href="/explore" className="min-h-11" fullWidth>
 									빈자리 바로 탐색
 								</DsButton>
-								<DsButton href="/community" variant="secondary" color="dotori" className="min-h-11" fullWidth>
+								<DsButton href="/community" variant="secondary" className="min-h-11" fullWidth>
 									이웃 후기 보기
 								</DsButton>
 							</div>
@@ -441,7 +441,7 @@ export default function HomePage() {
 						<Heading level={2} className={cn(DS_TYPOGRAPHY.h3, "font-semibold text-dotori-900 dark:text-dotori-50")}>
 							내 주변 빈자리
 						</Heading>
-						<DsButton href="/explore" color="dotori" className="min-h-11">
+						<DsButton href="/explore" className="min-h-11">
 							전체 보기
 						</DsButton>
 					</div>
@@ -497,10 +497,10 @@ export default function HomePage() {
 								조건을 넓히거나 알림을 켜두면 새 빈자리를 빠르게 확인할 수 있어요.
 							</Text>
 							<div className="mt-3.5 space-y-2">
-								<DsButton href="/my/notifications" color="dotori" className="min-h-11" fullWidth>
+								<DsButton href="/my/notifications" className="min-h-11" fullWidth>
 									빈자리 알림 설정
 								</DsButton>
-								<DsButton variant="ghost" href="/explore" color="dotori" className="min-h-11" fullWidth>
+								<DsButton variant="ghost" href="/explore" className="min-h-11" fullWidth>
 									탐색 조건 조정하기
 								</DsButton>
 							</div>
@@ -517,7 +517,7 @@ export default function HomePage() {
 							>
 								지금 추천
 							</Heading>
-							<DsButton href="/chat" variant="ghost" color="dotori" className="min-h-11">
+							<DsButton href="/chat" variant="ghost" className="min-h-11">
 								토리에게 물어보기
 							</DsButton>
 						</div>
@@ -552,7 +552,7 @@ export default function HomePage() {
 											</div>
 											{item.action ? (
 												<div className="mt-2.5">
-													<DsButton href={item.action.href} color="dotori" className="min-h-11" fullWidth>
+													<DsButton href={item.action.href} className="min-h-11" fullWidth>
 														{item.action.label}
 													</DsButton>
 												</div>

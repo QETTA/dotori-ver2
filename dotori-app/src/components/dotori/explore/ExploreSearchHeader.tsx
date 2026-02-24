@@ -18,7 +18,7 @@ import {
 	useState,
 } from "react";
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Field, Fieldset } from "@/components/catalyst/fieldset";
 import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
@@ -206,9 +206,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							name="q"
 						/>
 						{searchInput ? (
-							<Button
+							<DsButton
 								type="button"
-								plain={true}
+							 variant="ghost"
 								onClick={onClearSearch}
 								aria-label="검색어 지우기"
 								className={cn(
@@ -217,17 +217,17 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								)}
 							>
 								<XMarkIcon className="h-5 w-5" />
-							</Button>
+							</DsButton>
 						) : null}
 					</form>
 
 					<div className="mt-1 flex flex-wrap gap-2 border-b border-dotori-100/60 pb-3">
 						<motion.div {...tap.button} className="inline-flex">
-							<Button
+							<DsButton
 								type="button"
 								onClick={onUseCurrentLocation}
 								disabled={isGpsLoading}
-								color="dotori"
+							
 								className={cn(
 									"text-body-sm",
 									"inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-2 font-semibold shadow-sm transition-colors duration-150",
@@ -240,7 +240,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									<MapPinIcon className="h-4 w-4 text-dotori-500" />
 								)}
 								현재 위치
-							</Button>
+							</DsButton>
 						</motion.div>
 					</div>
 
@@ -256,9 +256,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						<div className="mt-2 flex flex-wrap gap-2">
 							{MOVE_SCENARIO_CHIPS.map((chip) => (
 								<motion.div key={chip} {...tap.chip} className="inline-flex">
-									<Button
+									<DsButton
 										type="button"
-										plain={true}
+									 variant="ghost"
 										onClick={() => handleSelectTerm(chip)}
 										className={cn(
 											"text-body-sm",
@@ -266,7 +266,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										)}
 									>
 										{chip}
-									</Button>
+									</DsButton>
 								</motion.div>
 							))}
 						</div>
@@ -291,9 +291,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						{resultLabel}
 					</Text>
 					<motion.div {...tap.chip} className="inline-flex">
-						<Button
+						<DsButton
 							type="button"
-							plain={true}
+						 variant="ghost"
 							onClick={onToggleFilters}
 							className={cn(
 								"relative inline-flex min-h-11 items-center gap-1 rounded-full px-3 py-2 transition-colors duration-150",
@@ -318,12 +318,12 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									</motion.span>
 								</AnimatePresence>
 							) : null}
-						</Button>
+						</DsButton>
 					</motion.div>
 					<motion.div {...tap.chip} className="inline-flex">
-						<Button
+						<DsButton
 							type="button"
-							plain={true}
+						 variant="ghost"
 							onClick={onToggleMap}
 							className={cn(
 								"text-body-sm",
@@ -332,12 +332,12 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						>
 							{showMap ? <ListBulletIcon className="h-4 w-4" /> : <MapIcon className="h-4 w-4" />}
 							{showMap ? "리스트 보기" : "지도 보기"}
-						</Button>
+						</DsButton>
 					</motion.div>
 				</motion.div>
 
 				<motion.div {...tap.chip} className="mt-2">
-					<Button
+					<DsButton
 						type="button"
 						onClick={onToggleToOnly}
 						aria-pressed={toOnly}
@@ -363,7 +363,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							/>
 						</AnimatePresence>
 						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
-					</Button>
+					</DsButton>
 				</motion.div>
 				</Fieldset>
 			</motion.div>
@@ -393,9 +393,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										const isSelectedType = selectedTypes.includes(type);
 										return (
 											<motion.div key={type} {...tap.chip} className="inline-flex">
-												<Button
+												<DsButton
 													type="button"
-													plain={true}
+												 variant="ghost"
 													onClick={() => onToggleType(type)}
 													aria-pressed={isSelectedType}
 													className={cn(
@@ -406,7 +406,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 													)}
 												>
 													{type}
-												</Button>
+												</DsButton>
 											</motion.div>
 										);
 									})}
@@ -463,9 +463,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								<div className="flex flex-wrap gap-2">
 									{EXPLORE_SORT_OPTIONS.map((option) => (
 										<motion.div key={option.key} {...tap.chip} className="inline-flex">
-											<Button
+											<DsButton
 												type="button"
-												plain={true}
+											 variant="ghost"
 												onClick={() => onSortChange(option.key)}
 												className={cn(
 													"min-h-11 rounded-full px-4 py-2 transition-colors duration-150",
@@ -475,7 +475,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 												)}
 											>
 												{option.label}
-											</Button>
+											</DsButton>
 										</motion.div>
 									))}
 								</div>
@@ -483,8 +483,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 							{activeFilterCount > 0 ? (
 								<div className="mt-3 flex items-center justify-between gap-2">
-									<Button
-										plain={true}
+									<DsButton
+									 variant="ghost"
 										onClick={onResetFilters}
 										className={cn(
 											"text-body-sm",
@@ -492,7 +492,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										)}
 									>
 										필터 초기화
-									</Button>
+									</DsButton>
 								</div>
 							) : null}
 						</Fieldset>

@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 
 const categories = [
 	{
@@ -177,8 +177,8 @@ function CommunityWriteForm() {
 				<h1 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 					글쓰기
 				</h1>
-				<Button
-					color="dotori"
+				<DsButton
+				
 					onClick={handleSubmit}
 					disabled={!canSubmit || isSubmitting}
 					className={cn(
@@ -186,7 +186,7 @@ function CommunityWriteForm() {
 					)}
 				>
 					{isSubmitting ? "등록 중..." : "등록"}
-				</Button>
+				</DsButton>
 			</header>
 
 			{/* 시설 연동 배지 */}

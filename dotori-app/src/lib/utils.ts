@@ -32,7 +32,7 @@ export function formatRelativeTime(dateString: string): string {
 export function facilityStatusLabel(
 	status: "available" | "waiting" | "full",
 ): string {
-	const map = { available: "TO 있음", waiting: "대기 중", full: "마감" };
+	const map = { available: "빈자리 있음", waiting: "대기 중", full: "마감" };
 	return map[status];
 }
 

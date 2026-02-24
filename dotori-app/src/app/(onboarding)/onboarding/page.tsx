@@ -8,7 +8,7 @@ import {
 	ChevronDownIcon,
 	ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Badge } from "@/components/catalyst/badge";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -361,7 +361,7 @@ export default function OnboardingPage() {
 							</p>
 						</div>
 					</div>
-					<Badge color="dotori" className="shrink-0 text-caption font-semibold">
+					<Badge className="shrink-0 text-caption font-semibold">
 						{activeGuide.eta}
 					</Badge>
 				</div>
@@ -817,8 +817,8 @@ export default function OnboardingPage() {
 				)}
 				{step < totalSteps - 1 ? (
 					<>
-						<Button
-							color="dotori"
+						<DsButton
+						
 							onClick={next}
 							disabled={isSaving}
 							className={cn(
@@ -829,7 +829,7 @@ export default function OnboardingPage() {
 							{isSaving
 								? "저장 중..."
 								: "다음"}
-						</Button>
+						</DsButton>
 						<button
 							type="button"
 							onClick={skipStep}
@@ -841,13 +841,13 @@ export default function OnboardingPage() {
 					</>
 				) : (
 					<div className="space-y-3">
-						<Button
-							color="dotori"
+						<DsButton
+						
 							onClick={() => router.push("/")}
 							className="w-full min-h-12 bg-dotori-900 text-base font-semibold text-white hover:bg-dotori-950 active:scale-[0.98]"
 						>
 							무료로 시작하기
-						</Button>
+						</DsButton>
 						<button
 							type="button"
 							onClick={() => router.push("/my/settings")}

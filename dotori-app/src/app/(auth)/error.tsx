@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { BRAND } from "@/lib/brand-assets";
 import { copy } from "@/lib/brand-copy";
 import { motion, useReducedMotion } from "motion/react";
@@ -70,13 +70,13 @@ export default function AuthError({
 
 				<div className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 text-left shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
 					<div className="grid gap-3">
-						<Button
+						<DsButton
 							onClick={reset}
-							color="dotori"
+						
 							className="w-full min-h-11 text-base font-semibold transition-transform active:scale-[0.97]"
 						>
 							{copy.auth.error.retry}
-						</Button>
+						</DsButton>
 						<Link
 							href="/"
 							className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-dotori-200 bg-white/70 px-6 text-base font-semibold text-dotori-700 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/90 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-100 dark:hover:bg-dotori-950/70"

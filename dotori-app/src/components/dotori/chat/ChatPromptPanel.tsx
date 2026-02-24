@@ -1,24 +1,25 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/catalyst/button";
-import { Field, Fieldset, Label } from "@/components/catalyst/fieldset";
-import { Heading } from "@/components/catalyst/heading";
-import { Select } from "@/components/catalyst/select";
-import { Text } from "@/components/catalyst/text";
-import { suggestedPrompts } from "@/app/(app)/chat/_lib/chat-config";
-import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
-import { fadeUp, stagger, tap } from "@/lib/motion";
-import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { suggestedPrompts } from '@/app/(app)/chat/_lib/chat-config'
+import { Field, Fieldset, Label } from '@/components/catalyst/fieldset'
+import { Heading } from '@/components/catalyst/heading'
+import { Select } from '@/components/catalyst/select'
+import { Text } from '@/components/catalyst/text'
+import { DsButton } from '@/components/ds/DsButton'
+import { BRAND } from '@/lib/brand-assets'
+import { copy } from '@/lib/brand-copy'
+import { DS_GLASS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { fadeUp, stagger, tap } from '@/lib/motion'
+import { cn } from '@/lib/utils'
+import { motion } from 'motion/react'
 
 export type ChatPromptPanelItem = (typeof suggestedPrompts)[number];
 
 interface ChatPromptPanelProps {
-	onSelectPrompt: (prompt: ChatPromptPanelItem) => void;
-	onSuggestPrompt: (prompt: ChatPromptPanelItem) => void;
-	selectedPromptLabel: string;
-	toriIcon: string;
+	onSelectPrompt: (prompt: ChatPromptPanelItem) => void
+	onSuggestPrompt: (prompt: ChatPromptPanelItem) => void
+	selectedPromptLabel: string
+	toriIcon: string
 }
 
 export function ChatPromptPanel({
@@ -27,11 +28,12 @@ export function ChatPromptPanel({
 	selectedPromptLabel,
 	toriIcon,
 }: ChatPromptPanelProps) {
+	const chatCopy = copy.chat
 	const handlePromptSelectChange = (value: string) => {
-		const selectedPrompt = suggestedPrompts.find((prompt) => prompt.label === value);
-		if (!selectedPrompt) return;
-		onSelectPrompt(selectedPrompt);
-	};
+		const selectedPrompt = suggestedPrompts.find((prompt) => prompt.label === value)
+		if (!selectedPrompt) return
+		onSelectPrompt(selectedPrompt)
+	}
 
 	return (
 		<div className="relative px-4 py-4">
@@ -69,10 +71,10 @@ export function ChatPromptPanel({
 						level={3}
 						className={cn(DS_TYPOGRAPHY.h2, "text-center font-bold tracking-tight text-dotori-900 dark:text-dotori-50")}
 					>
-						이동 고민이라면 뭐든 물어보세요
+						{chatCopy.panelTitle}
 					</Heading>
 					<Text className={cn(DS_TYPOGRAPHY.bodySm, "mt-1.5 block text-center text-dotori-500 dark:text-dotori-300")}>
-						반편성, 교사 교체, 빈자리까지 토리가 함께 정리해드려요.
+						{chatCopy.panelDescription}
 					</Text>
 					</div>
 				</motion.div>
@@ -97,8 +99,8 @@ export function ChatPromptPanel({
 						{suggestedPrompts.map((prompt) => (
 							<motion.li key={prompt.label} {...stagger.item}>
 								<motion.div {...tap.chip}>
-									<Button
-										plain={true}
+									<DsButton
+									 variant="ghost"
 										type="button"
 										onClick={() => onSuggestPrompt(prompt)}
 										className={cn(
@@ -124,7 +126,7 @@ export function ChatPromptPanel({
 												{prompt.prompt}
 											</Text>
 										</div>
-									</Button>
+									</DsButton>
 								</motion.div>
 							</motion.li>
 						))}

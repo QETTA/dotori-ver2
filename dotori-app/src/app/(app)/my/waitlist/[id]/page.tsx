@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
@@ -640,17 +640,17 @@ export default function WaitlistDetailPage() {
 							어린이집 전화하기
 						</a>
 					) : null}
-					<Button
+					<DsButton
 						onClick={cancelWaitlist}
 						disabled={isCancelling}
-						plain={true}
+					 variant="ghost"
 						className={cn(
 							"w-full min-h-11 justify-center px-4 text-body-sm text-dotori-700 ring-1 ring-dotori-200/60 data-hover:bg-dotori-50 data-active:bg-dotori-50 dark:text-dotori-100 dark:ring-dotori-700/60 dark:data-hover:bg-dotori-900 dark:data-active:bg-dotori-900",
 							isCancelling && "opacity-70",
 						)}
 					>
 						{isCancelling ? "취소 중..." : "대기 취소"}
-					</Button>
+					</DsButton>
 				</div>
 			)}
 		</div>

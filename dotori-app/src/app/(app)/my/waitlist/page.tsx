@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { apiFetch } from "@/lib/api";
@@ -194,13 +194,13 @@ export default function WaitlistPage() {
 						</Badge>
 					</div>
 					{!isPremiumUser && (
-						<Button
-							color="dotori"
+						<DsButton
+						
 							href="/landing#pricing"
 							className="mt-3 w-full min-h-11"
 						>
 							월 1,900원으로 즉시 알림 받기
-						</Button>
+						</DsButton>
 					)}
 				</motion.div>
 			)}
@@ -233,9 +233,9 @@ export default function WaitlistPage() {
 						<p className="mt-2 text-center text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 							마음에 드는 시설을 찾고 대기 신청을 하면, 여기서 순번과 서류 진행 상황까지 한 번에 확인할 수 있어요.
 						</p>
-						<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
+						<DsButton href="/explore" className="mt-5 w-full min-h-11">
 							탐색하러 가기
-						</Button>
+						</DsButton>
 						<Link
 							href="/my/import"
 							className="mt-3 inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-full border border-dotori-200/60 bg-white px-5 text-body-sm font-semibold text-dotori-700 shadow-sm transition-all active:scale-[0.97] hover:bg-dotori-50 dark:border-dotori-700 dark:bg-dotori-950 dark:text-dotori-100 dark:shadow-none dark:hover:bg-dotori-900"
@@ -461,8 +461,8 @@ export default function WaitlistPage() {
 												>
 													상세 보기
 												</Link>
-												<Button
-													color="dotori"
+												<DsButton
+												
 													onClick={() => cancelWaitlist(item._id)}
 													disabled={cancellingIds.has(item._id)}
 													className={cn(
@@ -471,7 +471,7 @@ export default function WaitlistPage() {
 													)}
 												>
 													{cancellingIds.has(item._id) ? "취소 중..." : "대기 취소"}
-												</Button>
+												</DsButton>
 											</div>
 								)}
 								</motion.div>

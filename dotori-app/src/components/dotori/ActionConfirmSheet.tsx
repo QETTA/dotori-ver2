@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { Checkbox, CheckboxField } from '@/components/catalyst/checkbox'
 import {
   Dialog,
@@ -69,9 +69,9 @@ export function ActionConfirmSheet({
           <div className="flex flex-col items-center gap-3 py-8">
             <CheckCircleIcon className="h-12 w-12 text-forest-500" />
             <p className="text-lg font-semibold text-dotori-900 dark:text-dotori-50">완료되었습니다</p>
-            <Button color="dotori" onClick={onClose} className="min-h-11 w-full">
+            <DsButton onClick={onClose} className="min-h-11 w-full">
               확인
-            </Button>
+            </DsButton>
           </div>
         </DialogBody>
       </Dialog>
@@ -86,12 +86,12 @@ export function ActionConfirmSheet({
             <ExclamationCircleIcon className="h-12 w-12 text-amber-700" />
             <p className="text-sm text-amber-800 dark:text-amber-200">{error}</p>
             <div className="flex w-full flex-col gap-3 sm:flex-row">
-              <Button plain={true} onClick={onClose} className="min-h-11 w-full">
+              <DsButton variant="ghost" onClick={onClose} className="min-h-11 w-full">
                 닫기
-              </Button>
-              <Button color="dotori" onClick={onConfirm} className="min-h-11 w-full">
+              </DsButton>
+              <DsButton onClick={onConfirm} className="min-h-11 w-full">
                 재시도
-              </Button>
+              </DsButton>
             </div>
           </div>
         </DialogBody>
@@ -117,12 +117,12 @@ export function ActionConfirmSheet({
           <span className="text-sm text-dotori-800 dark:text-dotori-100">위 내용이 맞습니다</span>
         </CheckboxField>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <Button plain={true} onClick={onClose} className="min-h-11 w-full">
+          <DsButton variant="ghost" onClick={onClose} className="min-h-11 w-full">
             취소
-          </Button>
-          <Button color="dotori" disabled={!agreed} onClick={onConfirm} className="min-h-11 w-full">
+          </DsButton>
+          <DsButton disabled={!agreed} onClick={onConfirm} className="min-h-11 w-full">
             확인
-          </Button>
+          </DsButton>
         </div>
       </DialogBody>
     </Dialog>

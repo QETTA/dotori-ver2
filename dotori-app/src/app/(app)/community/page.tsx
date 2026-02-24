@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { EmptyState } from '@/components/dotori/EmptyState'
 import { ErrorState } from '@/components/dotori/ErrorState'
 import { Skeleton } from '@/components/dotori/Skeleton'
@@ -416,8 +416,8 @@ export default function CommunityPage() {
               const isActive = activeTab === tab
               return (
                 <motion.div key={tab} {...tap.chip}>
-                  <Button
-                    plain={true}
+                  <DsButton
+                    variant="ghost"
                     type="button"
                     aria-pressed={isActive}
                     onClick={() => setActiveTab(tab)}
@@ -433,7 +433,7 @@ export default function CommunityPage() {
                     )}
                   >
                     {tab}
-                  </Button>
+                  </DsButton>
                 </motion.div>
               )
             })}
@@ -510,9 +510,9 @@ export default function CommunityPage() {
         {userId && gpsVerified === false && hasGeolocationPermission !== true && (
           <motion.div {...fadeIn}>
             <motion.div {...tap.button} className="mb-4">
-              <Button
+              <DsButton
                 type="button"
-                color="dotori"
+               
                 onClick={handleGpsVerify}
                 disabled={isVerifying}
                 className={cn(
@@ -553,7 +553,7 @@ export default function CommunityPage() {
                     인증
                   </Badge>
                 )}
-              </Button>
+              </DsButton>
             </motion.div>
           </motion.div>
         )}
@@ -683,8 +683,8 @@ export default function CommunityPage() {
                     {post.aiSummary ? (
                       <div className="mt-2.5">
                         <motion.div {...tap.chip}>
-                          <Button
-                            plain={true}
+                          <DsButton
+                            variant="ghost"
                             type="button"
                             onClick={() =>
                               setShowAiSummary((prev) => ({
@@ -703,7 +703,7 @@ export default function CommunityPage() {
                           >
                             <SparklesIcon className="h-4 w-4" />
                             {showAiSummary[post.id] ? 'AI 요약 접기' : 'AI 요약'}
-                          </Button>
+                          </DsButton>
                         </motion.div>
                         {showAiSummary[post.id] ? (
                           <motion.div
@@ -734,8 +734,8 @@ export default function CommunityPage() {
                       </p>
                       <div className="ml-auto flex items-center gap-2">
                         <motion.div {...tap.button}>
-                          <Button
-                            plain={true}
+                          <DsButton
+                            variant="ghost"
                             type="button"
                             onClick={() => toggleLike(post.id)}
                             disabled={likingPosts.has(post.id)}
@@ -754,7 +754,7 @@ export default function CommunityPage() {
                               <HeartIcon className="h-4 w-4" />
                             )}
                             좋아요 {post.likes}
-                          </Button>
+                          </DsButton>
                         </motion.div>
                         <span
                           className={cn(

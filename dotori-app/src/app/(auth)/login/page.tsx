@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { BRAND } from "@/lib/brand-assets";
 import { copy } from "@/lib/brand-copy";
 import { cn } from "@/lib/utils";
@@ -202,7 +202,7 @@ const LoginCard = memo(function LoginCard({
 			<p className="text-xs leading-relaxed text-dotori-500">
 					{copy.auth.login.cardHint}
 				</p>
-			<Button
+			<DsButton
 				onClick={onKakaoLogin}
 				disabled={isLoading}
 				aria-busy={isLoading}
@@ -229,7 +229,7 @@ const LoginCard = memo(function LoginCard({
 						</svg>
 					)}
 					{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
-				</Button>
+				</DsButton>
 			<p className="mt-2 text-xs font-medium text-dotori-500">
 				{copy.auth.login.quickHint}
 			</p>

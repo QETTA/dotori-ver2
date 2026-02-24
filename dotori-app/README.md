@@ -55,6 +55,23 @@ gh pr checks <pr-number> -R QETTA/dotori-ver2
 doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
+### 로컬 작업 즉시 반영 배포 (Root Cause Fix)
+
+`main` 자동배포만 쓰면, 로컬에서만 수정된 변경은 배포에 반영되지 않습니다.  
+아래 커맨드는 로컬 코드를 직접 이미지로 빌드하고 App Spec에 이미지 태그를 주입해 즉시 배포합니다.
+
+```bash
+# dotori-app 디렉터리에서 실행
+npm run deploy:do:local
+
+# 빠른 강제 배포 (검증 스킵)
+SKIP_PRECHECK=1 npm run deploy:do:local
+```
+
+- Flow: `local build -> DOCR push -> app spec patch(image tag) -> doctl update -> health check`
+- 기본 앱 ID: `29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2`
+- 필요 조건: `doctl auth`, `docker daemon running`
+
 ## Development
 
 ```bash

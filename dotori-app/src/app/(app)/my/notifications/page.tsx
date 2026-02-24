@@ -15,7 +15,7 @@ import {
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 
 interface Notification {
 	id: string;
@@ -234,9 +234,9 @@ export default function NotificationsPage() {
 							<p className="mt-2 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300">
 								시설을 저장하거나 대기 신청을 하면, 빈자리/대기열 변동 소식을 알림으로 받아볼 수 있어요.
 							</p>
-							<Button color="dotori" href="/explore" className="mt-5 w-full min-h-11">
+							<DsButton href="/explore" className="mt-5 w-full min-h-11">
 								이동 가능 시설 찾기
-							</Button>
+							</DsButton>
 						</div>
 					</div>
 				) : (

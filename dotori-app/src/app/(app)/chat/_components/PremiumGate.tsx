@@ -1,5 +1,5 @@
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Text } from "@/components/catalyst/text";
 
 export function PremiumGate({
@@ -15,14 +15,14 @@ export function PremiumGate({
 				이번 달 무료 채팅 횟수를 모두 사용했어요
 			</Text>
 			<Text className="mt-1 text-sm text-dotori-700">
-				<Badge color="dotori" className="text-xs">
+				<Badge className="text-xs">
 					{usageLimit}회 제한
 				</Badge>
 				{` ${message}`}
 			</Text>
-			<Button href="/landing" color="dotori" className="mt-2.5 w-full">
+			<DsButton href="/landing" className="mt-2.5 w-full">
 				프리미엄으로 업그레이드
-			</Button>
+			</DsButton>
 		</div>
 	);
 }

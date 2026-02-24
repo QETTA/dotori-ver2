@@ -4,7 +4,7 @@ import { HeartIcon } from "@heroicons/react/24/solid";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { memo } from "react";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { AiBriefingCard } from "@/components/dotori/AiBriefingCard";
 import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
@@ -220,8 +220,8 @@ export const ExploreResultList = memo(function ExploreResultList({
 
 								<div className={actionRowClassName}>
 									<motion.div {...tap.chip}>
-										<Button
-											plain={true}
+										<DsButton
+										 variant="ghost"
 											type="button"
 											disabled={isActionLoading}
 											onClick={() => onRegisterInterest(facility.id)}
@@ -231,11 +231,11 @@ export const ExploreResultList = memo(function ExploreResultList({
 										>
 											<HeartIcon className="h-3.5 w-3.5" />
 											관심
-										</Button>
+										</DsButton>
 									</motion.div>
 									<motion.div {...tap.chip}>
-										<Button
-											color="dotori"
+										<DsButton
+										
 											type="button"
 											disabled={isActionLoading}
 											onClick={() => onApplyWaiting(facility.id)}
@@ -244,7 +244,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 											)}
 										>
 											{isAvailable ? "입소신청" : "대기신청"}
-										</Button>
+										</DsButton>
 									</motion.div>
 								</div>
 							</motion.li>
@@ -254,14 +254,14 @@ export const ExploreResultList = memo(function ExploreResultList({
 					{hasMore ? (
 						<motion.li {...stagger.fast.item} className="pt-2">
 							<motion.div {...tap.chip}>
-								<Button
-									color="dotori"
+								<DsButton
+								
 									onClick={onLoadMore}
 									disabled={isLoadingMore}
 									className="min-h-11 w-full text-body"
 								>
 									{isLoadingMore ? "불러오는 중..." : "더 보기"}
-								</Button>
+								</DsButton>
 							</motion.div>
 						</motion.li>
 					) : null}
@@ -281,18 +281,18 @@ export const ExploreResultList = memo(function ExploreResultList({
 					/>
 					<div className="space-y-2.5">
 						<motion.div {...tap.chip}>
-							<Button
-								color="dotori"
+							<DsButton
+							
 								type="button"
 								onClick={emptyPrimaryAction.onClick}
 								className="min-h-11 w-full text-body"
 							>
 								{emptyPrimaryAction.label}
-							</Button>
+							</DsButton>
 						</motion.div>
 						<motion.div {...tap.chip}>
-							<Button
-								plain={true}
+							<DsButton
+							 variant="ghost"
 								href={chatPromptHref}
 								className={cn(
 									"text-body-sm",
@@ -300,7 +300,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								)}
 							>
 								토리에게 물어보기
-							</Button>
+							</DsButton>
 						</motion.div>
 					</div>
 				</motion.div>
