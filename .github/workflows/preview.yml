@@ -16,12 +16,18 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - 'brand/**'
       - 'reference/**'
   # cleanup은 별도 트리거 — paths-ignore 없이 모든 close에서 실행
   pull_request_target:
     branches: [main]
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      force_comment_only:
+        description: 'Run only comment refresh without deployment'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -92,17 +98,24 @@ jobs:
           PREVIEW_URL: ${{ steps.url.outputs.preview_url }}
           PREVIEW_HEALTH_URL: ${{ steps.health.outputs.preview_health }}
           PREVIEW_SOURCE_COMMIT: ${{ steps.url.outputs.source_commit }}
+          PREVIEW_HEAD_COMMIT: ${{ github.event.pull_request.head.sha }}
         with:
           script: |
             const url = process.env.PREVIEW_URL;
             const healthUrl = process.env.PREVIEW_HEALTH_URL;
-            const commit = process.env.PREVIEW_SOURCE_COMMIT ? process.env.PREVIEW_SOURCE_COMMIT.substring(0, 7) : `${context.sha.substring(0, 7)}`;
+            const sourceCommit = process.env.PREVIEW_SOURCE_COMMIT
+              ? process.env.PREVIEW_SOURCE_COMMIT.substring(0, 7)
+              : 'unknown';
+            const headCommit = process.env.PREVIEW_HEAD_COMMIT
+              ? process.env.PREVIEW_HEAD_COMMIT.substring(0, 7)
+              : `${context.sha.substring(0, 7)}`;
             const body = [
               '### Preview Deployment',
               '',
               `**URL**: ${url}`,
               `**Health**: ${healthUrl}`,
-              `**Source Commit**: \`${commit}\``,
+              `**Source Commit**: \`${sourceCommit}\``,
+              `**PR Head SHA**: \`${headCommit}\``,
               '',
               `Deployed: ${new Date().toISOString()}`,
               `Run SHA: \`${context.sha.substring(0, 7)}\``,
