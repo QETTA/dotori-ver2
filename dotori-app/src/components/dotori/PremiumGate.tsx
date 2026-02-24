@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Text, Strong } from "@/components/catalyst/text";
 
 interface PremiumGateProps {
@@ -27,9 +27,9 @@ export function PremiumGate({ feature, description, children, isPremium }: Premi
 						<Strong className="block text-h3 text-dotori-900 dark:text-dotori-50">{feature}</Strong>
 						<Text className="text-body-sm text-dotori-700 dark:text-dotori-200">{description}</Text>
 					</div>
-					<Button color="dotori" href="/my/settings" className="mt-4 min-h-11 w-full">
+					<DsButton href="/my/settings" className="mt-4 min-h-11 w-full">
 						프리미엄으로 업그레이드
-					</Button>
+					</DsButton>
 				</div>
 			</div>
 		</div>

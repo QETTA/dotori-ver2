@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Heading } from "@/components/catalyst/heading";
 import { Text } from "@/components/catalyst/text";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -102,7 +102,7 @@ export default function SettingsPage() {
 			setNextRenewalDate(formatDateLabel(renewalDate));
 			setSuccessMessage(
 				nextPlan === "premium"
-					? "프리미엄 결제가 완료되었어요. 다음 갱신일에 맞춰 자동 결제돼요."
+					? "프리미엄 결제가 완료되었어요. 다음 결제일에 맞춰 자동 결제돼요."
 					: "요청은 접수되었지만 플랜 반영은 조금 뒤에 반영될 수 있어요.",
 			);
 			refresh();
@@ -140,12 +140,12 @@ export default function SettingsPage() {
 						{error}
 					</Text>
 					<div className="mt-4 space-y-2">
-						<Button onClick={refresh} color="dotori" className="w-full min-h-11">
+						<DsButton onClick={refresh} className="w-full min-h-11">
 							다시 시도
-						</Button>
-						<Button href="/login" color="dotori" className="w-full min-h-11">
+						</DsButton>
+						<DsButton href="/login" className="w-full min-h-11">
 							로그인하기
-						</Button>
+						</DsButton>
 					</div>
 				</div>
 			</div>
@@ -164,9 +164,9 @@ export default function SettingsPage() {
 					<Text className="mt-1 text-body-sm text-dotori-700 dark:text-dotori-200">
 						로그인하면 플랜 관리와 테마 설정을 바로 할 수 있어요.
 					</Text>
-					<Button href="/login" color="dotori" className="mt-4 w-full min-h-11">
+					<DsButton href="/login" className="mt-4 w-full min-h-11">
 						로그인하기
-					</Button>
+					</DsButton>
 					<Text className="mt-2 text-center text-caption text-dotori-500 dark:text-dotori-300">
 						로그인 후 마이페이지에서 관심·대기·알림도 함께 확인할 수 있어요.
 					</Text>
@@ -243,7 +243,7 @@ export default function SettingsPage() {
 					<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">{planLabel}</p>
 					{isPremium && (
 						<p className="mt-1 text-body-sm text-forest-600">
-							다음 갱신일: {nextRenewalDate || "확인 중"}
+							다음 결제일: {nextRenewalDate || "확인 중"}
 						</p>
 					)}
 				</div>
@@ -277,19 +277,19 @@ export default function SettingsPage() {
 							</div>
 							<p className="text-caption text-forest-600">
 								{nextRenewalDate
-									? `다음 갱신일은 ${nextRenewalDate}이에요`
-									: "다음 갱신일 정보를 불러오는 중이에요"}
+									? `다음 결제일은 ${nextRenewalDate}이에요`
+									: "다음 결제일 정보를 불러오는 중이에요"}
 							</p>
 						</div>
 					) : (
-						<Button
-							color="dotori"
+						<DsButton
+						
 							className="w-full min-h-11"
 							onClick={handleStartPremium}
 							disabled={isUpgrading}
 						>
 							{isUpgrading ? "처리 중" : "프리미엄 시작하기"}
-						</Button>
+						</DsButton>
 					)}
 
 					{isPremium && (

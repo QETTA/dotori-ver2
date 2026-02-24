@@ -1,41 +1,51 @@
 # ── Repo root .dockerignore ──
-# 빌드 컨텍스트 = repo root (app.yaml dockerfile_path: dotori-app/Dockerfile)
+# 빌드 컨텍스트 = repo root
+# 목표: 최소한의 파일만 Docker에 전달 → 빌드 컨텍스트 전송 시간 단축
 
-# Dependencies (각 서브디렉토리)
+# ── Dependencies ──
 **/node_modules
 npm-debug.log*
 
-# Next.js build output
+# ── Build output (CI 잔여물) ──
 **/.next
 **/out
 
-# Environment files (secrets — NEVER include in image)
+# ── Secrets ──
 **/.env*
 !**/.env.example
 
-# Version control
+# ── VCS / IDE / OS ──
 .git
 **/.gitignore
-
-# IDE
 .vscode
 *.code-workspace
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Workspace directories not needed for build
+# ── 빌드에 불필요한 워크스페이스 디렉토리 ──
 brand/
 docs/
 reference/
 .claude/
 .serena/
 .worktrees/
+.codex/
 .do/
 .github/
 
-# Testing & dev tools
+# ── 테스트/개발 전용 (프로덕션 이미지에 불필요) ──
+dotori-app/scripts/
+dotori-app/vitest.config.*
+dotori-app/playwright.config.*
+dotori-app/eslint.config.*
+dotori-app/prettier.config.*
+dotori-app/map-test.*
+dotori-app/src/**/*.test.*
+dotori-app/src/**/*.spec.*
+dotori-app/src/**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
 **/coverage
 **/tmp
 *.png.bak

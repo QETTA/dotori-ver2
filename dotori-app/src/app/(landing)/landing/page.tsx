@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { PageTransition } from '@/components/dotori/PageTransition'
@@ -18,8 +18,8 @@ const SPLASH_COOKIE = 'dotori_prehome_splash'
 const SPLASH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
 const AI_SIGNALS = [
-  '실시간 TO 변화 감지',
-  '교사 교체 리스크 브리핑',
+  '실시간 빈자리 변화 감지',
+  '교사 교체 현황 알림',
   '입소 가능성 우선순위 업데이트',
 ] as const
 
@@ -157,7 +157,7 @@ export default function LandingPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-7 -top-8 h-20 w-20 rotate-[-9deg] opacity-85"
                 />
-                <Text className="text-label font-semibold tracking-[0.14em] text-dotori-600">HOME READY FRAME</Text>
+                <Text className="text-label font-semibold tracking-wide text-dotori-600">HOME READY FRAME</Text>
                 <Heading level={1} className="text-display mt-2 leading-tight text-dotori-950">
                   홈 진입 전에
                   <br />
@@ -194,18 +194,18 @@ export default function LandingPage() {
 
                 <div className="mt-5 space-y-2.5">
                   <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                    <Button
-                      color="dotori"
+                    <DsButton
+                     
                       onClick={handleEnterHome}
                       className="min-h-12 w-full justify-center rounded-full border border-transparent text-h3"
                     >
                       홈으로 이동
-                    </Button>
+                    </DsButton>
                   </motion.div>
                   <motion.div whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 360, damping: 20 }}>
-                    <Button color="dotori" href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
+                    <DsButton href="/onboarding" className="min-h-11 w-full justify-center rounded-full border border-dotori-300/80 bg-dotori-50/80">
                       온보딩 시작
-                    </Button>
+                    </DsButton>
                   </motion.div>
                 </div>
               </div>

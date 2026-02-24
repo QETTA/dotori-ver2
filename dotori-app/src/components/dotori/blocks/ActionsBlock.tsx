@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import type { ActionsBlock as ActionsBlockType } from "@/types/dotori";
 
 export const ActionsBlock = memo(function ActionsBlock({
@@ -17,23 +17,23 @@ export const ActionsBlock = memo(function ActionsBlock({
 		<div className="mt-2 flex flex-col gap-2">
 			{block.buttons.map((btn) =>
 				btn.variant === "outline" ? (
-					<Button
+					<DsButton
 						key={btn.id}
-						plain={true}
+					 variant="ghost"
 						onClick={() => onAction?.(btn.id)}
 						className={actionButtonClass}
 					>
 						{btn.label}
-					</Button>
+					</DsButton>
 				) : (
-					<Button
+					<DsButton
 						key={btn.id}
-						color="dotori"
+					
 						onClick={() => onAction?.(btn.id)}
 						className={actionButtonClass}
 					>
 						{btn.label}
-					</Button>
+					</DsButton>
 				),
 			)}
 		</div>

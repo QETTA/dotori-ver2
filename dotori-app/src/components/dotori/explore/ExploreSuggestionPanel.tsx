@@ -3,7 +3,7 @@
 import { ClockIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Text } from "@/components/catalyst/text";
 import { BRAND } from "@/lib/brand-assets";
 import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
@@ -104,14 +104,14 @@ export function ExploreSuggestionPanel({
 							</div>
 						</div>
 						<motion.div whileTap={{ scale: 0.96 }} transition={spring.chip}>
-							<Button
+							<DsButton
 								type="button"
-								color="dotori"
+							
 								onClick={onClearRecent}
 								className="min-h-11 px-3 text-body-sm"
 							>
 								전체 삭제
-							</Button>
+							</DsButton>
 						</motion.div>
 					</div>
 					<motion.div initial="hidden" animate="show" variants={sectionVariants} className="flex flex-wrap gap-2">
@@ -119,10 +119,10 @@ export function ExploreSuggestionPanel({
 							const tone = getStatusTone(index);
 							return (
 								<motion.div key={term} variants={chipVariants} whileTap={{ scale: 0.96 }} transition={spring.chip}>
-									<Button
+									<DsButton
 										type="button"
 										onClick={() => onSelectTerm(term)}
-										plain={true}
+									 variant="ghost"
 										className={cn(
 											"inline-flex min-h-11 w-full items-center gap-2 rounded-2xl border bg-white/90 px-3 py-2 text-body-sm shadow-sm ring-1 ring-dotori-100/70 transition-colors duration-150",
 											"hover:bg-dotori-50 hover:text-dotori-800 dark:border-dotori-800 dark:bg-dotori-950/80 dark:hover:bg-dotori-900/80 dark:hover:text-dotori-50",
@@ -133,7 +133,7 @@ export function ExploreSuggestionPanel({
 										<span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone.dot)} />
 										<ClockIcon className={cn("h-3.5 w-3.5 text-current")} />
 										{term}
-									</Button>
+									</DsButton>
 								</motion.div>
 							);
 						})}
@@ -166,9 +166,9 @@ export function ExploreSuggestionPanel({
 						const tone = getStatusTone(index + recentSearches.length);
 						return (
 							<motion.div key={term} variants={chipVariants} whileTap={{ scale: 0.96 }} transition={spring.chip}>
-								<Button
+								<DsButton
 									type="button"
-									plain={true}
+								 variant="ghost"
 									onClick={() => onSelectTerm(term)}
 									className={cn(
 										"inline-flex min-h-11 w-full items-center gap-2 rounded-2xl border border-dotori-100/70 bg-white/90 px-3 py-2 text-body-sm shadow-sm ring-1 ring-dotori-100/70 transition-colors duration-150",
@@ -180,7 +180,7 @@ export function ExploreSuggestionPanel({
 									<span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", tone.dot)} />
 									<MagnifyingGlassIcon className={cn("h-3.5 w-3.5 text-current")} />
 									{term}
-								</Button>
+								</DsButton>
 							</motion.div>
 						);
 					})}

@@ -196,7 +196,7 @@ export function ChecklistBlock({ block }: { block: ChecklistBlockType }) {
 														className={cn(
 															"text-sm leading-snug",
 															isChecked
-																? "text-dotori-500 line-through dark:text-dotori-400"
+																? "text-dotori-500 line-through dark:text-dotori-300"
 																: "text-dotori-900 dark:text-dotori-50",
 														)}
 													>

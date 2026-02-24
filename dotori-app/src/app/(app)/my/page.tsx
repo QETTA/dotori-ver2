@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { ErrorState } from '@/components/dotori/ErrorState'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { Surface } from '@/components/dotori/Surface'
@@ -33,7 +33,7 @@ export default function MyPage() {
   )
   const sectionTitleClass = cn(
     DS_TYPOGRAPHY.label,
-    'mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold tracking-[0.2em] text-dotori-500 uppercase dark:border-dotori-800/80 dark:text-dotori-400',
+    'mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold tracking-wider text-dotori-500 uppercase dark:border-dotori-800/80 dark:text-dotori-300',
   )
   const menuPanelClass = cn(
     DS_LAYOUT.CARD_SOFT,
@@ -57,7 +57,7 @@ export default function MyPage() {
   )
   const menuItemDescriptionClass = cn(
     DS_TYPOGRAPHY.caption,
-    'mt-0.5 text-dotori-400 dark:text-dotori-500',
+    'mt-0.5 text-dotori-500 dark:text-dotori-300',
   )
   const myPageRootClass = 'pb-8 text-dotori-900 dark:text-dotori-50'
 
@@ -253,13 +253,13 @@ export default function MyPage() {
         </header>
 
         <div className="mt-5 px-5">
-          <Button
+          <DsButton
             href="/login"
-            color="dotori"
+           
             className="min-h-11 w-full py-3 font-semibold tracking-tight active:scale-[0.97]"
           >
             카카오 로그인
-          </Button>
+          </DsButton>
           <p
             className={cn(
               DS_TYPOGRAPHY.caption,
@@ -330,7 +330,7 @@ export default function MyPage() {
           <div className="mb-3 flex items-center justify-between">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={BRAND.lockupHorizontal} alt="Dotori" className="h-5 opacity-90" />
-            <Badge color="dotori" className={cn(DS_TYPOGRAPHY.caption, 'font-semibold')}>
+            <Badge className={cn(DS_TYPOGRAPHY.caption, 'font-semibold')}>
               MY
             </Badge>
           </div>
@@ -436,7 +436,7 @@ export default function MyPage() {
             <p
               className={cn(
                 DS_TYPOGRAPHY.label,
-                'font-semibold tracking-[0.2em] text-dotori-500 uppercase dark:text-dotori-300',
+                'font-semibold tracking-wider text-dotori-500 uppercase dark:text-dotori-300',
               )}
             >
               프리미엄
@@ -459,9 +459,9 @@ export default function MyPage() {
               <p>• 무제한 AI</p>
               <p>• 우선 매칭</p>
             </div>
-            <Button href="/my/settings" color="dotori" className="mt-4 min-h-11 w-full">
+            <DsButton href="/my/settings" className="mt-4 min-h-11 w-full">
               지금 시작하기
-            </Button>
+            </DsButton>
           </div>
         </section>
       )}
@@ -618,9 +618,9 @@ export default function MyPage() {
             <p className={cn(DS_TYPOGRAPHY.h3, 'text-dotori-500 dark:text-dotori-300')}>
               아이를 등록하면 맞춤 전략을 받을 수 있어요
             </p>
-            <Button href="/onboarding" color="dotori" className="mt-3 min-h-11 w-full">
+            <DsButton href="/onboarding" className="mt-3 min-h-11 w-full">
               등록하기
-            </Button>
+            </DsButton>
           </div>
         )}
       </section>
@@ -704,13 +704,13 @@ export default function MyPage() {
 
       {/* 로그아웃 */}
       <div className="mt-6 px-5">
-        <Button
-          color="dotori"
+        <DsButton
+         
           onClick={handleLogout}
           className="min-h-11 w-full py-3 tracking-tight"
         >
           로그아웃
-        </Button>
+        </DsButton>
       </div>
       <p
         className={cn(

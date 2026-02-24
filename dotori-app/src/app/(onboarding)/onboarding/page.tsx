@@ -8,9 +8,9 @@ import {
 	ChevronDownIcon,
 	ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Badge } from "@/components/catalyst/badge";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -70,6 +70,15 @@ const stepGuides = [
 	},
 ] as const;
 
+const getStepMotion = (shouldReduceMotion: boolean) =>
+	shouldReduceMotion
+		? ({
+				initial: false,
+				animate: fadeUp.animate,
+				transition: { duration: 0 },
+			} as const)
+		: fadeUp;
+
 export default function OnboardingPage() {
 	const router = useRouter();
 	const totalSteps = 6;
@@ -77,6 +86,8 @@ export default function OnboardingPage() {
 	const [step, setStep] = useState(0);
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
+	const shouldReduceMotion = useReducedMotion() === true;
+	const stepMotion = getStepMotion(shouldReduceMotion);
 
 	const [childName, setChildName] = useState("");
 	const [birthDate, setBirthDate] = useState("");
@@ -274,7 +285,7 @@ export default function OnboardingPage() {
 	}
 
 	const inputCls =
-		"w-full min-h-11 rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none ring-1 ring-dotori-200 transition-all placeholder:text-dotori-500 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:ring-dotori-800 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
+		"w-full min-h-11 rounded-3xl border border-dotori-100 bg-dotori-50 px-5 py-4 text-base text-dotori-900 outline-none ring-1 ring-dotori-200 transition-all placeholder:text-dotori-500 focus:border-dotori-200 focus:bg-white focus:ring-2 focus:ring-dotori-500 dark:border-dotori-800 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600 dark:ring-dotori-800 dark:focus:border-dotori-700 dark:focus:bg-dotori-950 dark:focus:ring-dotori-700";
 	const sliderCls =
 		"h-2 w-full cursor-pointer appearance-none rounded-lg bg-dotori-100 accent-dotori-500 dark:bg-dotori-700 [&::-webkit-slider-thumb]:h-8 [&::-webkit-slider-thumb]:w-8 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dotori-400 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-lg [&::-webkit-slider-runnable-track]:bg-dotori-100 [&::-moz-range-thumb]:h-8 [&::-moz-range-thumb]:w-8 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dotori-400 [&::-moz-range-thumb]:shadow-md [&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-lg [&::-moz-range-track]:bg-dotori-100";
 	const choicePillBase =
@@ -350,7 +361,7 @@ export default function OnboardingPage() {
 							</p>
 						</div>
 					</div>
-					<Badge color="dotori" className="shrink-0 text-caption font-semibold">
+					<Badge className="shrink-0 text-caption font-semibold">
 						{activeGuide.eta}
 					</Badge>
 				</div>
@@ -362,11 +373,7 @@ export default function OnboardingPage() {
 			{/* ── 컨텐츠 ── */}
 			<div className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-3xl border border-dotori-100 bg-white/90 p-5 shadow-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
 				{step === 0 && (
-					<motion.div
-						key="step0"
-						{...fadeUp}
-						className="space-y-4"
-					>
+					<motion.div key="step0" {...stepMotion} className="space-y-4">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={BRAND.appIconWarm}
@@ -486,7 +493,7 @@ export default function OnboardingPage() {
 				{step === 1 && (
 					<motion.div
 						key="step1"
-						{...fadeUp}
+						{...stepMotion}
 						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -612,7 +619,7 @@ export default function OnboardingPage() {
 				{step === 2 && (
 					<motion.div
 						key="step2"
-						{...fadeUp}
+						{...stepMotion}
 						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -694,7 +701,7 @@ export default function OnboardingPage() {
 				)}
 
 				{step === 3 && (
-					<motion.div key="step3" {...fadeUp} className="space-y-4 text-center">
+					<motion.div key="step3" {...stepMotion} className="space-y-4 text-center">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.appIconWarm} alt="" className="mx-auto h-11 w-11" />
 						<div>
@@ -721,7 +728,7 @@ export default function OnboardingPage() {
 				{step === 4 && (
 					<motion.div
 						key="step4"
-						{...fadeUp}
+						{...stepMotion}
 						className="space-y-4"
 					>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -756,7 +763,7 @@ export default function OnboardingPage() {
 				)}
 
 				{step === totalSteps - 1 && (
-					<motion.div key="done" {...fadeUp} className="space-y-4 text-center">
+					<motion.div key="done" {...stepMotion} className="space-y-4 text-center">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img src={BRAND.appIconWarm} alt="" className="mx-auto h-12 w-12" />
 						<div>
@@ -810,8 +817,8 @@ export default function OnboardingPage() {
 				)}
 				{step < totalSteps - 1 ? (
 					<>
-						<Button
-							color="dotori"
+						<DsButton
+						
 							onClick={next}
 							disabled={isSaving}
 							className={cn(
@@ -822,25 +829,25 @@ export default function OnboardingPage() {
 							{isSaving
 								? "저장 중..."
 								: "다음"}
-						</Button>
+						</DsButton>
 						<button
 							type="button"
 							onClick={skipStep}
 							disabled={isSaving}
 							className="mt-2 inline-flex min-h-11 w-full items-center justify-center text-caption font-semibold text-dotori-500 transition-colors hover:text-dotori-600 disabled:opacity-50 dark:hover:text-dotori-300"
 						>
-							무료로 먼저 체험하기
+							무료로 시작하기
 						</button>
 					</>
 				) : (
 					<div className="space-y-3">
-						<Button
-							color="dotori"
+						<DsButton
+						
 							onClick={() => router.push("/")}
 							className="w-full min-h-12 bg-dotori-900 text-base font-semibold text-white hover:bg-dotori-950 active:scale-[0.98]"
 						>
 							무료로 시작하기
-						</Button>
+						</DsButton>
 						<button
 							type="button"
 							onClick={() => router.push("/my/settings")}

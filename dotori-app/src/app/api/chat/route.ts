@@ -16,13 +16,35 @@ const QUICK_REPLIES_BY_INTENT: Record<string, string[]> = {
   general: ['이동 고민', '빈자리 탐색', '입소 체크리스트'],
 }
 
+type ChatRequest = {
+  message: string
+  previousMessages?: Array<{
+    role: 'user' | 'assistant'
+    content: string
+  }>
+}
+
+function sanitizePreviousMessages(messages: ChatRequest['previousMessages'] = []): {
+  role: 'user' | 'assistant'
+  content: string
+}[] {
+  return messages
+    .map((msg) => ({
+      role: msg.role,
+      content: sanitizeString(msg.content),
+    }))
+    .filter((msg) => msg.content.length > 0)
+    .slice(-10)
+}
+
 function getQuickReplies(intent: ChatIntent): string[] {
   return QUICK_REPLIES_BY_INTENT[intent] ?? []
 }
 
 export const POST = withApiHandler(
   async (req, { userId, body }) => {
-    const message = sanitizeString(body.message)
+    const requestBody = body as ChatRequest
+    const message = sanitizeString(requestBody.message)
     const session = await auth()
     const authUserId =
       (typeof session?.user?.id === 'string' && session.user.id.length > 0
@@ -66,10 +88,15 @@ export const POST = withApiHandler(
 
     // Extract conversation context for multi-turn support
     const recentMessages = chatHistory?.messages.slice(-10) ?? []
-    const previousMessages = recentMessages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    }))
+    const previousMessages = chatHistory
+      ? sanitizePreviousMessages(
+          recentMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        )
+      : sanitizePreviousMessages(requestBody.previousMessages)
+
     const conversationContext = extractConversationContext(
       recentMessages.map((m) => ({
         role: m.role,

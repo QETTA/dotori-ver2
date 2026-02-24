@@ -5,6 +5,56 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## 2026-02-24 — CI/CD v2: Pre-built Image Deployment
+
+### Changed
+- CI/CD 파이프라인 근본 재설계: `detect → ci → docker → deploy`
+- DO Dockerfile 풀빌드(~15분) → **DOCR pre-built 이미지 배포(~3분)**
+- `ci.yml`: test+build 2job → 단일 `ci` job (`ci:preflight`, npm ci 1회)
+- 변경 감지 `detect` job 추가 (앱 소스 변경 시만 배포 트리거)
+
+### Added
+- **DOCR 레지스트리** `dotori` (sgp1) 생성 — `registry.digitalocean.com/dotori/web`
+- Docker `build-push-action` + GHA BuildKit 레이어 캐시 (`type=gha,mode=max`)
+- Dockerfile ARG로 NEXT_PUBLIC_* 빌드타임 주입
+- 이미지 태그: `latest` + `sha-<commit>`
+
+### Improved
+- Dockerfile 3레이어 분리: config(거의 불변) → public(가끔) → src(자주)
+- `.dockerignore`: 테스트/스크립트/lint설정 등 불필요 파일 전면 제외
+- `app.yaml`: Dockerfile 빌드 → DOCR 이미지 기반, BUILD_TIME env 제거 (이미지에 번들링)
+- Health check: `failure_threshold` 5→3, `initial_delay` 15→10초 (이미지 pull이므로 빠름)
+
+---
+
+## 2026-02-24 — R23: haiku 분석 + frontend-design 기반 P0 UX 개선
+
+### Changed
+- 7 에이전트 병렬 실행, frontend-design 스킬 기반 디자인 씽킹 적용
+- 모바일 UX P0 이슈 전면 수정
+
+---
+
+## 2026-02-23 — R22: 모바일 UX/UI 전면 개선
+
+### Changed
+- 11 에이전트 병렬 실행, 49 파일 수정
+- SourceChip spring crash 수정 (랜딩 백지 해결)
+- NODE_ENV prerender crash 해결 (env -u NODE_ENV)
+- 디자인 시스템 토큰 도입 (DS_TYPOGRAPHY, DS_GLASS 등)
+- 파이프라인 v7: wave 빌드 + codex-wave.sh + haiku QA 위임
+- Tests: 106 → **111개** (16 files)
+
+---
+
+## 2026-02-22 — R17: 모바일 UX 폴리싱 + 스크립트 정비
+
+### Changed
+- 11 에이전트, 모바일 전 페이지 UI 폴리싱
+- codex-wave.sh 도입 (MCP 직렬 우회, CLI 병렬 배치)
+
+---
+
 ## 2026-02-22 — R14: 불일치 해소 + 대규모 최적화 파이프라인
 
 ### Added
@@ -98,7 +148,3 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Next.js + TypeScript + Tailwind CSS + MongoDB Atlas
 - 카카오 OAuth, 토리챗 AI, 시설 탐색, 대기 신청
 - Catalyst UI Kit, DigitalOcean 배포
-
----
-
-> Template origin: Tailwind Plus (2025-12-18 initial release)

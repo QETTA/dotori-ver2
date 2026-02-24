@@ -291,7 +291,7 @@ async function buildKnowledgeResponse(
 					{
 						id: "explore",
 						label: "시설 탐색하기",
-						action: "compare",
+						action: "register_interest",
 						variant: "outline",
 					},
 					{

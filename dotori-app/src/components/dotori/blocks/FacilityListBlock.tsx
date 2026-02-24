@@ -2,7 +2,9 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
+import { stagger } from "@/lib/motion";
 import type { FacilityListBlock as FacilityListBlockType } from "@/types/dotori";
 
 export const FacilityListBlock = memo(function FacilityListBlock({
@@ -24,17 +26,18 @@ export const FacilityListBlock = memo(function FacilityListBlock({
 	}
 
 	return (
-		<div className="mt-2 space-y-3">
+		<motion.ul {...stagger.fast.container} className="mt-2 space-y-3">
 			{block.facilities.map((f) => (
-				<Link
-					key={f.id}
-					href={`/facility/${f.id}`}
-					className="block rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500/40 dark:focus-visible:ring-offset-dotori-950"
-					aria-label={`${f.name} 상세 보기`}
-				>
-					<FacilityCard facility={f} compact />
-				</Link>
+				<motion.li key={f.id} {...stagger.fast.item}>
+					<Link
+						href={`/facility/${f.id}`}
+						className="block rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-dotori-500/40 dark:focus-visible:ring-offset-dotori-950"
+						aria-label={`${f.name} 상세 보기`}
+					>
+						<FacilityCard facility={f} compact />
+					</Link>
+				</motion.li>
 			))}
-		</div>
+		</motion.ul>
 	);
 });

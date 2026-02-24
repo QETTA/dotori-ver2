@@ -6,7 +6,7 @@ const ONBOARDING_PATH = "/onboarding";
 const ONBOARDING_STEP_HEADING =
 	/(아이 정보를 알려주세요|거주 지역을 알려주세요|관심 유형을 선택하세요|빈자리 생기면 바로 알려드려요|토리챗 AI가 이동 전략을 짜줘요)/;
 const NEXT_BUTTON_TEXT = /^다음$/;
-const SKIP_BUTTON_TEXT = /무료로 먼저 체험하기/;
+const SKIP_BUTTON_TEXT = /무료로 시작하기/;
 const FINAL_CTA_TEXT = /무료로 시작하기|시작하기/;
 
 async function mockOnboardingSave(page: Page): Promise<void> {

@@ -1,28 +1,28 @@
 # 도토리 (Dotori) 프로젝트 개요
 
-## 현재 상태 (2026-02-22, R20 완료)
+## 현재 상태 (2026-02-24, R23 완료 + CI/CD v2)
 
-- **47 pages**, 0 TypeScript errors, **106 tests** (vitest, 15 test files), 빌드 성공
+- **47 pages**, 0 TypeScript errors, **111 tests** (vitest, 16 test files), 빌드 성공
 - **14 models**, **35 API routes**, **72 components** (27 catalyst + 44 dotori + 1 landing)
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
-- **DO 배포**: DigitalOcean App Platform (sgp 리전)
+- **DO 배포**: DigitalOcean App Platform (sgp 리전) + **DOCR** (pre-built 이미지)
   - URL: https://dotori-app-pwyc9.ondigitalocean.app
   - App ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
-- **완료 라운드**: R1(12)+R2(12)+R3(12)+R5(11)+R8(11)+R9(11)+R11(6)+R12(5)+R13(11)+R17(11)+R18(11)+R19(11)+R20(4) = **128 에이전트**
+  - DOCR: `registry.digitalocean.com/dotori/web` (sgp1)
+- **완료 라운드**: R1(12)+R2(12)+R3(12)+R5(11)+R8(11)+R9(11)+R11(6)+R12(5)+R13(11)+R17(11)+R22(11)+R23(7) = **120+ 에이전트**
 - **보안**: P0~P1 이슈 0건 (R13에서 Opus 분석 기반 전체 수정)
-- **UX 기반 완성 (R18~R20)**: dark mode, glass morphism, motion/react, layout polish, interaction feedback 전 페이지 적용
-- **R20 성과**: 나노단위 UI 검수 — 폰트/워딩/카드/배치/컬러 전면 폴리싱, auth layout pt-[22vh] 제거(로그인 중앙정렬), 카카오 K 아이콘, 채팅 헤딩 1줄(text-xl)
+- **UX 기반 완성 (R17~R23)**: dark mode, glass morphism, motion/react, layout polish, interaction feedback 전 페이지 적용
 - **auth 픽스**: NextAuth v5 trustHost=true (UntrustedHost 에러 해결)
 - **E2E 스펙**: e2e/smoke.spec.ts + e2e/console-errors.spec.ts (크리티컬 에러 자동 감지)
-- **106 tests** (vitest), **E2E 15/15** (Playwright)
 
-## R14 문서 동기화 상태 (2026-02-22)
+## CI/CD v2 — Pre-built Image Deployment (2026-02-24)
 
-- **목적**: R14 실행 전 문서 기준선(목적/범위/소유권/머지 순서/완료 조건) 통일
-- **범위**: `../docs/CHANGELOG.md`, `.serena/memories/agent_task_registry.md`, `.serena/memories/project_overview.md`
-- **진행상태**: `docs-sync-r14` 반영 완료, 11개 에이전트 소유권/머지 순서(1→11) 확정
-- **소유권/머지 기준 문서**: `.serena/memories/agent_task_registry.md`
-- **R14 완료 조건**: 콘솔 오류 0 (`BASE_URL=http://localhost:3000 npm run check-console`), `npm run lint` 통과, `npm run build` 통과, `npx tsc --noEmit` 에러 0
+- **구조**: `detect(변경감지) → ci(lint+test) → docker(GHA캐시빌드→DOCR push) → deploy(이미지pull)`
+- **핵심 개선**: DO Dockerfile 풀빌드(~15분) → GHA BuildKit 캐시 빌드 + DOCR pre-built 이미지(~3분)
+- **변경 감지**: `detect` job이 앱 소스/Dockerfile/설정 변경 시만 배포 트리거 (테스트/문서 변경은 스킵)
+- **Docker 레이어**: config(불변) → public(가끔) → src(자주) 3레이어 분리 + ARG로 NEXT_PUBLIC 주입
+- **이미지 태그**: `latest` + `sha-<commit>` (DOCR)
+- **.dockerignore**: 테스트/스크립트/lint설정 등 불필요 파일 전면 제외
 
 ## 앱 포지셔닝 (2026 핵심 전략)
 
@@ -73,7 +73,7 @@
 
 User, Facility, Waitlist, Alert, ChatHistory, Post, Comment, Subscription, UsageLog, ActionIntent, ActionExecution, AlimtalkLog, FacilitySnapshot, SystemConfig
 
-## 48 컴포넌트
+## 72 컴포넌트
 
 ### Catalyst (27) — 원자 UI (수정 금지)
 Button, Badge, Input, Heading, Text, Strong, Select, Fieldset, Field, Dialog, Avatar, Switch, Radio, Checkbox, Textarea, Table, DescriptionList, Divider, Link, etc.
@@ -124,5 +124,7 @@ facility/(13): FacilityCapacitySection, FacilityContactSection, FacilityDetailCl
 
 ## DigitalOcean 배포
 
-- health_check: `/api/health`
+- **CI/CD v2**: GHA → DOCR pre-built 이미지 → DO pull 배포 (~3분)
+- **DOCR**: `registry.digitalocean.com/dotori/web` (sgp1 리전)
+- health_check: `/api/health` (liveness, DB 미포함)
 - 환경변수 변경: `scripts/do-env-update.sh` 사용 필수 (전체 spec 교체 시 EV 손상)

@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { Field, Fieldset, Label } from '@/components/catalyst/fieldset'
 import { Heading } from '@/components/catalyst/heading'
 import { Input } from '@/components/catalyst/input'
@@ -43,6 +43,33 @@ const CHAT_PAGE_WRAP_CLASS =
   'relative flex min-h-0 flex-1 flex-col bg-dotori-50 dark:bg-dotori-900'
 const CHAT_COMPOSER_SURFACE_CLASS =
   'rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)]'
+export const CHAT_ACTION_ROUTES: Record<string, string> = {
+  explore: '/explore',
+  waitlist: '/my/waitlist',
+  interests: '/my/interests',
+  community: '/community',
+  settings: '/my/settings',
+  login: '/login',
+  import: '/my/import',
+}
+
+export const QUICK_ACTION_MAP: Record<string, string> = {
+  recommend: '동네 추천해줘',
+  compare: '시설 비교해줘',
+  strategy: '입소 전략 정리해줘',
+  generate_report: '동네 추천해줘',
+  generate_checklist: '입소 체크리스트 정리해줘',
+  checklist: '입소 체크리스트 정리해줘',
+  broaden: '다른 시설을 더 찾아줘',
+}
+
+export function isKnownBlockAction(actionId: string): boolean {
+  if (actionId.startsWith('facility_')) {
+    return true
+  }
+
+  return Boolean(CHAT_ACTION_ROUTES[actionId] || QUICK_ACTION_MAP[actionId])
+}
 
 export default function ChatPage() {
   return (
@@ -153,8 +180,8 @@ function ChatHeader({
           </div>
         ) : null}
         <motion.div {...tap.chip}>
-          <Button
-            plain={true}
+          <DsButton
+            variant="ghost"
             onClick={onClearHistory}
             disabled={isResetting || isLoading}
             className={cn(
@@ -163,7 +190,7 @@ function ChatHeader({
             )}
           >
             대화 초기화
-          </Button>
+          </DsButton>
         </motion.div>
       </div>
     </header>
@@ -311,8 +338,8 @@ function ChatComposer({
           </Field>
         </Fieldset>
         <motion.div {...tap.button}>
-          <Button
-            color="dotori"
+          <DsButton
+           
             type="button"
             onClick={() => onSubmit(input)}
             disabled={isSendDisabled}
@@ -334,7 +361,7 @@ function ChatComposer({
                 <path d="M3.9 2.6L22 11.4L3.9 20.2V13.7L15 11.4L3.9 9.1V2.6Z" fill="currentColor" />
               </svg>
             )}
-          </Button>
+          </DsButton>
         </motion.div>
       </div>
     </motion.footer>
@@ -367,6 +394,7 @@ function ChatContent() {
     isTrackingUsage,
     isUsageLoading,
     isUsageLimitReached,
+    messages,
     monthKey,
     setInput,
     setMessages,
@@ -383,17 +411,7 @@ function ChatContent() {
         return
       }
 
-      const actionRoutes: Record<string, string> = {
-        explore: '/explore',
-        waitlist: '/my/waitlist',
-        interests: '/my/interests',
-        community: '/community',
-        settings: '/my/settings',
-        login: '/login',
-        import: '/my/import',
-      }
-
-      const route = actionRoutes[actionId]
+      const route = CHAT_ACTION_ROUTES[actionId]
       if (route) {
         router.push(route)
         return
@@ -405,7 +423,12 @@ function ChatContent() {
         return
       }
 
-      sendMessage(actionId)
+      if (QUICK_ACTION_MAP[actionId]) {
+        sendMessage(QUICK_ACTION_MAP[actionId])
+        return
+      }
+
+      console.warn(`Unhandled chat action: ${actionId}`)
     },
     [retryLastMessage, router, sendMessage],
   )

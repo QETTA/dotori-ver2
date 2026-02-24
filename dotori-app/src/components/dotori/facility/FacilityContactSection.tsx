@@ -13,10 +13,10 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { useState } from "react";
 
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { ActionStatus, Facility } from "@/types/dotori";
@@ -124,8 +124,8 @@ export function FacilityContactSection({
 								<span>{phone}</span>
 							</motion.a>
 							<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
-								<Button
-									plain={true}
+								<DsButton
+								 variant="ghost"
 									type="button"
 									onClick={onCopyPhone}
 									disabled={!copyablePhone || copyingPhone}
@@ -133,7 +133,7 @@ export function FacilityContactSection({
 								>
 									<ClipboardDocumentIcon className="h-5 w-5" />
 									전화 복사
-								</Button>
+								</DsButton>
 							</motion.div>
 						</motion.div>
 					) : (
@@ -161,8 +161,8 @@ export function FacilityContactSection({
 							<span className="line-clamp-2">{address}</span>
 						</motion.a>
 						<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
-							<Button
-								plain={true}
+							<DsButton
+							 variant="ghost"
 								type="button"
 								onClick={onCopyAddress}
 								disabled={!copyableAddress || copyingAddress}
@@ -170,7 +170,7 @@ export function FacilityContactSection({
 							>
 								<ClipboardDocumentIcon className="h-5 w-5" />
 								주소 복사
-							</Button>
+							</DsButton>
 						</motion.div>
 					</motion.div>
 					{websiteUrl && (
@@ -291,8 +291,8 @@ export function FacilityActionBar({
 			<div className="mx-auto flex w-full max-w-md flex-col space-y-2 px-0.5">
 				<motion.div {...stagger.container} className="flex gap-3">
 					<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
-						<Button
-							plain={true}
+						<DsButton
+						 variant="ghost"
 							disabled={isTogglingLike}
 							onClick={onToggleLike}
 							aria-label="관심 시설 추가/제거"
@@ -307,7 +307,7 @@ export function FacilityActionBar({
 								<HeartIcon className="h-5 w-5" />
 							)}
 							{liked ? "관심 추가됨" : "관심 추가"}
-						</Button>
+						</DsButton>
 					</motion.div>
 					<div className="flex-1">
 						{actionStatus === "executing" ? (
@@ -338,13 +338,13 @@ export function FacilityActionBar({
 									MY &gt; 대기 현황에서 확인하세요
 								</Link>
 								<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="mt-2">
-									<Button
-										plain={true}
+									<DsButton
+									 variant="ghost"
 										onClick={onResetActionStatus}
 										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
 									>
 										확인
-									</Button>
+									</DsButton>
 								</motion.div>
 							</motion.div>
 						) : actionStatus === "error" ? (
@@ -352,35 +352,35 @@ export function FacilityActionBar({
 								<p className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-danger")}>{error ?? "대기 신청 중 오류가 발생했어요."}</p>
 								<div className="mt-2 flex gap-2">
 									<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
-										<Button
-											plain={true}
+										<DsButton
+										 variant="ghost"
 											onClick={onResetActionStatus}
 											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
 										>
 											닫기
-										</Button>
+										</DsButton>
 									</motion.div>
 									<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition} className="flex-1">
-										<Button
-											color="dotori"
+										<DsButton
+										
 											onClick={onApplyClick}
 											className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl")}
 										>
 											다시 신청
-										</Button>
+										</DsButton>
 									</motion.div>
 								</div>
 							</motion.div>
 						) : (
 							<>
 								<motion.div {...stagger.item} whileTap={tap.button.whileTap} transition={tap.button.transition}>
-									<Button
-										color="dotori"
+									<DsButton
+									
 										onClick={onApplyClick}
 										className={cn(DS_TYPOGRAPHY.bodySm, "min-h-11 w-full rounded-xl py-2.5 font-semibold shadow-sm shadow-dotori-900/5")}
 									>
 										{applyActionLabel}
-									</Button>
+									</DsButton>
 								</motion.div>
 								<p className={cn(DS_TYPOGRAPHY.caption, "mt-1 text-dotori-500 dark:text-dotori-300")}>
 									{waitingHintText}
@@ -413,7 +413,7 @@ export function FacilityContactMapSections({
 	status,
 }: FacilityContactMapSectionsProps) {
 	return (
-		<div className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
+		<div className={DS_LAYOUT.SAFE_AREA_BOTTOM}>
 			<FacilityContactSection
 				phone={phone}
 				address={address}

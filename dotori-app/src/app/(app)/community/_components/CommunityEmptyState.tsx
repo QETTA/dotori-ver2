@@ -1,4 +1,4 @@
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { DS_GLASS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeIn, fadeScale, fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -77,16 +77,16 @@ export function CommunityEmptyState({ message }: { message: string }) {
 
 			<motion.div className="pt-4" {...stagger.item}>
 				<motion.div {...tap.button}>
-					<Button
+					<DsButton
 						href="/community/write"
-						color="dotori"
+					
 						className={cn(
 							"min-h-11 w-full justify-center rounded-full font-semibold shadow-sm shadow-dotori-900/20",
 							DS_TYPOGRAPHY.body,
 						)}
 					>
 						첫 번째 이웃 이야기를 올려보세요
-					</Button>
+					</DsButton>
 				</motion.div>
 			</motion.div>
 		</motion.section>

@@ -7,6 +7,8 @@ import { AuthProvider } from "@/components/shared/AuthProvider";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { AppProvider } from "@/hooks/use-app-state";
 import { BRAND } from "@/lib/brand-assets";
+import { DS_LAYOUT } from "@/lib/design-system/tokens";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +27,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 						<main
 							id="app-main-content"
 							tabIndex={-1}
-							className="relative mx-auto h-[100svh] min-h-[100svh] max-h-[100svh] max-w-md overflow-x-hidden overflow-y-auto bg-gradient-to-b from-dotori-50 via-white to-dotori-50 pb-[calc(5.5rem+env(safe-area-inset-bottom))]"
+							className={cn(
+								DS_LAYOUT.SAFE_AREA_BOTTOM,
+								"relative mx-auto h-[100svh] min-h-[100svh] max-h-[100svh] max-w-md overflow-x-hidden overflow-y-auto bg-gradient-to-b from-dotori-50 via-white to-dotori-50",
+							)}
 						>
 							{/* Background accents: subtle, brand-safe, mobile-first */}
 							<div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">

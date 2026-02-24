@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { Skeleton } from "@/components/dotori/Skeleton";
 import { useToast } from "@/components/dotori/ToastProvider";
@@ -214,7 +214,7 @@ export default function CommunityPostPage() {
 
 			<div className="px-5 pt-4">
 				{/* 게시물 */}
-				<article className="rounded-[28px] border border-dotori-100 bg-white/90 p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)] backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
+				<article className="rounded-3xl border border-dotori-100 bg-white/90 p-5 shadow-[0_12px_24px_rgba(200,149,106,0.08)] backdrop-blur-sm dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
 					<div className="flex items-start gap-3">
 						<div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dotori-100 text-sm font-bold text-dotori-600 dark:bg-dotori-800 dark:text-dotori-100">
 							?
@@ -309,22 +309,22 @@ export default function CommunityPostPage() {
 								첫 댓글로 따뜻한 한마디를 남겨보세요.
 							</p>
 							{session?.user ? (
-								<Button
-									color="dotori"
+								<DsButton
+								
 									type="button"
 									onClick={() => inputRef.current?.focus()}
 									className="mt-4 w-full min-h-11"
 								>
 									첫 댓글 남기기
-								</Button>
+								</DsButton>
 							) : (
-								<Button
+								<DsButton
 									href="/login"
-									color="dotori"
+								
 									className="mt-4 w-full min-h-11"
 								>
 									로그인하고 댓글 남기기
-								</Button>
+								</DsButton>
 							)}
 						</div>
 					) : (
@@ -392,7 +392,7 @@ export default function CommunityPostPage() {
 						}
 						disabled={!session?.user}
 						maxLength={2000}
-						className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
+						className="min-w-0 flex-1 rounded-2xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 					/>
 					<button
 						onClick={submitComment}

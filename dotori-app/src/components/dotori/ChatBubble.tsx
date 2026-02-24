@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/catalyst/button'
+import { DsButton } from "@/components/ds/DsButton";
 import { BRAND } from '@/lib/brand-assets'
 import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { fadeUp, tap } from '@/lib/motion'
@@ -171,23 +171,23 @@ export const ChatBubble = memo(function ChatBubble({
             {actions.map((a) =>
               a.variant === 'outline' ? (
                 <motion.div key={a.id} {...tap.button}>
-                  <Button
-                    plain={true}
+                  <DsButton
+                    variant="ghost"
                     onClick={() => onBlockAction?.(a.id)}
                     className={cn(DS_TYPOGRAPHY.bodySm, ACTION_BUTTON_CLASS)}
                   >
                     {a.label}
-                  </Button>
+                  </DsButton>
                 </motion.div>
               ) : (
                 <motion.div key={a.id} {...tap.button}>
-                  <Button
-                    color="dotori"
+                  <DsButton
+                   
                     onClick={() => onBlockAction?.(a.id)}
                     className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-10 rounded-2xl px-3.5')}
                   >
                     {a.label}
-                  </Button>
+                  </DsButton>
                 </motion.div>
               ),
             )}
@@ -197,13 +197,13 @@ export const ChatBubble = memo(function ChatBubble({
           <div className="flex flex-wrap gap-2 px-1">
             {normalizedQuickReplies?.map((text) => (
               <motion.div key={text} {...tap.chip}>
-                <Button
-                  plain={true}
+                <DsButton
+                  variant="ghost"
                   onClick={() => onQuickReply?.(text)}
                   className={cn(DS_TYPOGRAPHY.bodySm, QUICK_REPLY_CLASS)}
                 >
                   {text}
-                </Button>
+                </DsButton>
               </motion.div>
             ))}
           </div>

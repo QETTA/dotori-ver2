@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build:ci",
     "ci:preflight": "npm run lint && npm run typecheck && npm test",
+    "deploy:do:local": "bash ../scripts/deploy-do-local-fast.sh",
     "format": "prettier --write src/lib/chat-quota.ts src/app/api/chat/route.ts src/app/api/chat/stream/route.ts src/lib/engine/__tests__/report-engine.test.ts src/__tests__/api/chat.test.ts src/__tests__/e2e/chat.spec.ts src/__tests__/e2e/explore.spec.ts src/__tests__/e2e/home.spec.ts scripts/flaky-engine-tests.mjs README.md package.json",
     "format:check": "prettier --check src/lib/chat-quota.ts src/app/api/chat/route.ts src/app/api/chat/stream/route.ts src/lib/engine/__tests__/report-engine.test.ts src/__tests__/api/chat.test.ts src/__tests__/e2e/chat.spec.ts src/__tests__/e2e/explore.spec.ts src/__tests__/e2e/home.spec.ts scripts/flaky-engine-tests.mjs README.md package.json",
     "screenshot": "npx tsx scripts/screenshot-check.ts",

@@ -32,6 +32,19 @@ export const chatMessageSchema = z.object({
     .string({ error: 'message는 필수입니다' })
     .min(1, 'message는 필수입니다')
     .max(2000, '메시지는 2000자 이내로 입력해주세요'),
+  previousMessages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant'], {
+          error: 'role 값이 유효하지 않습니다',
+        }),
+        content: z
+          .string({ error: 'previousMessages content는 필수입니다' })
+          .min(1, 'previousMessages content는 필수입니다'),
+      }),
+    )
+    .max(10, '이전 메시지는 최대 10개까지 전송할 수 있어요')
+    .optional(),
 })
 
 // --- Actions ---

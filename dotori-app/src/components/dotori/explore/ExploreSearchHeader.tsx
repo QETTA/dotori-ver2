@@ -18,14 +18,14 @@ import {
 	useState,
 } from "react";
 import { Badge } from "@/components/catalyst/badge";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 import { Field, Fieldset } from "@/components/catalyst/fieldset";
 import { Heading } from "@/components/catalyst/heading";
 import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_LAYOUT, DS_STATUS } from "@/lib/design-system/tokens";
 import { stagger, spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreSuggestionPanel } from "./ExploreSuggestionPanel";
@@ -138,7 +138,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+0.875rem)]",
+				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4",
+				DS_LAYOUT.SAFE_AREA_HEADER_TOP,
 				DS_GLASS.HEADER,
 			)}
 		>
@@ -199,15 +200,15 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
 							className={cn(
 								"text-body",
-								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-400 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
+								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-500 focus:bg-white focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
 							)}
 							aria-label="시설 검색"
 							name="q"
 						/>
 						{searchInput ? (
-							<Button
+							<DsButton
 								type="button"
-								plain={true}
+							 variant="ghost"
 								onClick={onClearSearch}
 								aria-label="검색어 지우기"
 								className={cn(
@@ -216,17 +217,17 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								)}
 							>
 								<XMarkIcon className="h-5 w-5" />
-							</Button>
+							</DsButton>
 						) : null}
 					</form>
 
 					<div className="mt-1 flex flex-wrap gap-2 border-b border-dotori-100/60 pb-3">
 						<motion.div {...tap.button} className="inline-flex">
-							<Button
+							<DsButton
 								type="button"
 								onClick={onUseCurrentLocation}
 								disabled={isGpsLoading}
-								color="dotori"
+							
 								className={cn(
 									"text-body-sm",
 									"inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 py-2 font-semibold shadow-sm transition-colors duration-150",
@@ -239,7 +240,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									<MapPinIcon className="h-4 w-4 text-dotori-500" />
 								)}
 								현재 위치
-							</Button>
+							</DsButton>
 						</motion.div>
 					</div>
 
@@ -255,9 +256,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						<div className="mt-2 flex flex-wrap gap-2">
 							{MOVE_SCENARIO_CHIPS.map((chip) => (
 								<motion.div key={chip} {...tap.chip} className="inline-flex">
-									<Button
+									<DsButton
 										type="button"
-										plain={true}
+									 variant="ghost"
 										onClick={() => handleSelectTerm(chip)}
 										className={cn(
 											"text-body-sm",
@@ -265,7 +266,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										)}
 									>
 										{chip}
-									</Button>
+									</DsButton>
 								</motion.div>
 							))}
 						</div>
@@ -290,9 +291,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						{resultLabel}
 					</Text>
 					<motion.div {...tap.chip} className="inline-flex">
-						<Button
+						<DsButton
 							type="button"
-							plain={true}
+						 variant="ghost"
 							onClick={onToggleFilters}
 							className={cn(
 								"relative inline-flex min-h-11 items-center gap-1 rounded-full px-3 py-2 transition-colors duration-150",
@@ -317,12 +318,12 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 									</motion.span>
 								</AnimatePresence>
 							) : null}
-						</Button>
+						</DsButton>
 					</motion.div>
 					<motion.div {...tap.chip} className="inline-flex">
-						<Button
+						<DsButton
 							type="button"
-							plain={true}
+						 variant="ghost"
 							onClick={onToggleMap}
 							className={cn(
 								"text-body-sm",
@@ -331,12 +332,12 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						>
 							{showMap ? <ListBulletIcon className="h-4 w-4" /> : <MapIcon className="h-4 w-4" />}
 							{showMap ? "리스트 보기" : "지도 보기"}
-						</Button>
+						</DsButton>
 					</motion.div>
 				</motion.div>
 
 				<motion.div {...tap.chip} className="mt-2">
-					<Button
+					<DsButton
 						type="button"
 						onClick={onToggleToOnly}
 						aria-pressed={toOnly}
@@ -362,7 +363,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							/>
 						</AnimatePresence>
 						이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
-					</Button>
+					</DsButton>
 				</motion.div>
 				</Fieldset>
 			</motion.div>
@@ -392,9 +393,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										const isSelectedType = selectedTypes.includes(type);
 										return (
 											<motion.div key={type} {...tap.chip} className="inline-flex">
-												<Button
+												<DsButton
 													type="button"
-													plain={true}
+												 variant="ghost"
 													onClick={() => onToggleType(type)}
 													aria-pressed={isSelectedType}
 													className={cn(
@@ -405,7 +406,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 													)}
 												>
 													{type}
-												</Button>
+												</DsButton>
 											</motion.div>
 										);
 									})}
@@ -462,9 +463,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 								<div className="flex flex-wrap gap-2">
 									{EXPLORE_SORT_OPTIONS.map((option) => (
 										<motion.div key={option.key} {...tap.chip} className="inline-flex">
-											<Button
+											<DsButton
 												type="button"
-												plain={true}
+											 variant="ghost"
 												onClick={() => onSortChange(option.key)}
 												className={cn(
 													"min-h-11 rounded-full px-4 py-2 transition-colors duration-150",
@@ -474,7 +475,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 												)}
 											>
 												{option.label}
-											</Button>
+											</DsButton>
 										</motion.div>
 									))}
 								</div>
@@ -482,8 +483,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 							{activeFilterCount > 0 ? (
 								<div className="mt-3 flex items-center justify-between gap-2">
-									<Button
-										plain={true}
+									<DsButton
+									 variant="ghost"
 										onClick={onResetFilters}
 										className={cn(
 											"text-body-sm",
@@ -491,7 +492,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 										)}
 									>
 										필터 초기화
-									</Button>
+									</DsButton>
 								</div>
 							) : null}
 						</Fieldset>

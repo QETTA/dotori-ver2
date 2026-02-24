@@ -131,7 +131,7 @@ export const FacilityCard = memo(function FacilityCard({
 									</span>
 									{facility.status === "available" ? (
 										<p className="mt-1 text-body-sm font-semibold text-forest-700 dark:text-forest-200">
-											TO {availableSeats}석
+											빈자리 {availableSeats}석
 										</p>
 									) : null}
 								</div>
@@ -143,8 +143,8 @@ export const FacilityCard = memo(function FacilityCard({
 
 						<section className="border-b border-dotori-100/70 py-3">
 							<div className="mb-1 flex items-center justify-between">
-								<p className={cn(DS_TYPOGRAPHY.label, "font-semibold uppercase tracking-[0.14em] text-dotori-500 dark:text-dotori-300")}>
-									수용률
+								<p className={cn(DS_TYPOGRAPHY.label, "font-semibold uppercase tracking-wide text-dotori-500 dark:text-dotori-300")}>
+									정원 현황
 								</p>
 								<p className={cn(DS_TYPOGRAPHY.bodySm, "font-semibold text-dotori-700 dark:text-dotori-100")}>
 									{occupancyRate}%
@@ -191,7 +191,7 @@ export const FacilityCard = memo(function FacilityCard({
 							</div>
 
 							{facility.status === "available" ? (
-								<div className={cn(DS_TYPOGRAPHY.caption, "mt-2 text-dotori-700 dark:text-dotori-100")}>현재 입소 가능 시설</div>
+								<div className={cn(DS_TYPOGRAPHY.caption, "mt-2 text-dotori-700 dark:text-dotori-100")}>빈자리 있음</div>
 							) : null}
 
 							<div className="mt-3 flex flex-wrap items-start justify-between gap-2.5">
@@ -295,7 +295,7 @@ export const FacilityCard = memo(function FacilityCard({
 						<div className="shrink-0 text-right">
 							<span
 								className={cn(
-									"inline-flex items-center rounded-full px-2.5 py-0.5 text-label font-semibold tracking-[0.02em]",
+									"inline-flex items-center rounded-full px-2.5 py-0.5 text-label font-semibold tracking-wide",
 									status.pill,
 								)}
 							>
@@ -303,7 +303,7 @@ export const FacilityCard = memo(function FacilityCard({
 							</span>
 							{facility.status === "available" ? (
 								<p className="mt-1 text-body-sm font-semibold text-forest-700 dark:text-forest-200">
-									TO {availableSeats}석
+									빈자리 {availableSeats}석
 								</p>
 							) : null}
 							<p className="mt-1 text-caption text-dotori-500 dark:text-dotori-300" suppressHydrationWarning>
@@ -316,8 +316,8 @@ export const FacilityCard = memo(function FacilityCard({
 				<motion.section variants={cardRevealItem} className="border-b border-dotori-100/70 px-4 py-3">
 					<div className="mb-2">
 						<div className="mb-1 flex items-center justify-between">
-							<p className="text-label font-semibold uppercase tracking-[0.18em] text-dotori-500 dark:text-dotori-300">
-								수용률
+							<p className="text-label font-semibold uppercase tracking-wider text-dotori-500 dark:text-dotori-300">
+								정원 현황
 							</p>
 							<p className="text-body-sm font-semibold text-dotori-700 dark:text-dotori-100">{occupancyRate}%</p>
 						</div>

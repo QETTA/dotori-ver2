@@ -1,15 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import { WebVitalsReporter } from "@/components/shared/WebVitalsReporter";
 import "./globals.css";
-
-const plusJakarta = Plus_Jakarta_Sans({
-	subsets: ["latin"],
-	weight: ["400", "600", "700", "800"],
-	variable: "--font-wordmark",
-	display: "swap",
-});
 
 const SITE_URL =
 	process.env.NEXT_PUBLIC_SITE_URL || "https://dotori.app";
@@ -101,7 +93,6 @@ export default function RootLayout({
 	return (
 		<html
 			lang="ko"
-			className={plusJakarta.variable}
 			data-scroll-behavior="smooth"
 			suppressHydrationWarning
 		>
@@ -115,6 +106,10 @@ export default function RootLayout({
 					rel="stylesheet"
 					crossOrigin="anonymous"
 					href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+				/>
+				<link
+					rel="stylesheet"
+					href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
 				/>
 				<Script
 					id="organization-schema"

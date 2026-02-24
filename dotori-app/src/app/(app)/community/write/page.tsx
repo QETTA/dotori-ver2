@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
-import { Button } from "@/components/catalyst/button";
+import { DsButton } from "@/components/ds/DsButton";
 
 const categories = [
 	{
@@ -177,8 +177,8 @@ function CommunityWriteForm() {
 				<h1 className="text-base font-bold text-dotori-900 dark:text-dotori-50">
 					글쓰기
 				</h1>
-				<Button
-					color="dotori"
+				<DsButton
+				
 					onClick={handleSubmit}
 					disabled={!canSubmit || isSubmitting}
 					className={cn(
@@ -186,7 +186,7 @@ function CommunityWriteForm() {
 					)}
 				>
 					{isSubmitting ? "등록 중..." : "등록"}
-				</Button>
+				</DsButton>
 			</header>
 
 			{/* 시설 연동 배지 */}
@@ -255,7 +255,7 @@ function CommunityWriteForm() {
 					placeholder="제목을 입력해주세요"
 					maxLength={120}
 					aria-required="true"
-					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
+					className="w-full rounded-2xl bg-dotori-50 px-4 py-3 text-base text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 				/>
 			</div>
 
@@ -276,7 +276,7 @@ function CommunityWriteForm() {
 					rows={10}
 					maxLength={5000}
 					aria-required="true"
-					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-base leading-relaxed text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
+					className="w-full resize-none rounded-2xl bg-dotori-50 p-4 text-base leading-relaxed text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 				/>
 				{content.trim().length > 0 && content.trim().length < 10 ? (
 					<p className="mt-1.5 text-xs text-dotori-600 dark:text-dotori-300">
@@ -305,7 +305,7 @@ function CommunityWriteForm() {
 					/>
 					<label
 						htmlFor="community-image-input"
-						className="inline-flex min-h-[44px] cursor-pointer items-center rounded-xl bg-dotori-100 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100"
+						className="inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-dotori-100 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100"
 					>
 						사진 선택
 					</label>
@@ -313,7 +313,7 @@ function CommunityWriteForm() {
 						<button
 							onClick={clearImages}
 							type="button"
-							className="inline-flex min-h-[44px] items-center rounded-xl bg-dotori-50 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-900 dark:text-dotori-100"
+							className="inline-flex min-h-11 items-center rounded-xl bg-dotori-50 px-4 py-2.5 text-sm font-medium text-dotori-700 transition-all active:scale-[0.97] dark:bg-dotori-900 dark:text-dotori-100"
 						>
 							선택 초기화
 						</button>
@@ -353,7 +353,7 @@ function CommunityWriteForm() {
 							}
 						}}
 						placeholder="시설 이름 입력"
-						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-400 focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
+						className="min-w-0 flex-1 rounded-xl bg-dotori-50 px-4 py-3 text-sm text-dotori-900 outline-none transition-all placeholder:text-dotori-500 focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900 dark:text-dotori-50 dark:placeholder:text-dotori-600"
 					/>
 					<button
 						onClick={addTag}

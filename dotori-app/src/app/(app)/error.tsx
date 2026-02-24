@@ -1,6 +1,7 @@
 "use client";
 
 import { ErrorState } from "@/components/dotori/ErrorState";
+import { copy } from "@/lib/brand-copy";
 
 export default function AppError({
 	reset,
@@ -11,8 +12,8 @@ export default function AppError({
 	return (
 		<div className="flex min-h-[60dvh] items-center justify-center">
 			<ErrorState
-				message="문제가 발생했어요. 다시 시도해주세요."
-				action={{ label: "다시 시도", onClick: reset }}
+				message={copy.global.error.description}
+				action={{ label: copy.global.error.retry, onClick: reset }}
 			/>
 		</div>
 	);

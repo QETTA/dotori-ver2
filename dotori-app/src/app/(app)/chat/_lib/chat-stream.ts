@@ -10,8 +10,31 @@ export interface StreamEvent {
   quick_replies?: string[]
 }
 
+export interface StreamErrorPayload {
+  isQuotaExceeded: boolean
+  message: string
+  retryAfterSeconds?: number
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' ? (value as Record<string, unknown>) : null
+}
+
+function isRateLimitCode(value: unknown): boolean {
+  return value === 'quota_exceeded' || value === 'RATE_LIMITED' || value === 'TOO_MANY_REQUESTS'
+}
+
+function hasQuotaDetails(value: unknown): boolean {
+  const record = asRecord(value)
+  if (!record) {
+    return false
+  }
+
+  if (typeof record.limitType === 'string' && record.limit !== undefined) {
+    return true
+  }
+
+  return false
 }
 
 function includesQuotaExceeded(details: unknown): boolean {
@@ -21,12 +44,19 @@ function includesQuotaExceeded(details: unknown): boolean {
   }
 
   const keys = ['reason', 'error', 'code', 'type', 'kind'] as const
-  return keys.some((key) => record[key] === 'quota_exceeded')
+  return keys.some((key) => isRateLimitCode(record[key]))
 }
 
-export function getStreamErrorPayload(
-  response: Response,
-): Promise<{ isQuotaExceeded: boolean; message: string }> {
+function getRetryAfter(response: Response): number | undefined {
+  const retryAfter = response.headers.get('Retry-After')
+  const parsed = Number.parseInt(retryAfter || '', 10)
+  if (Number.isNaN(parsed) || parsed < 0) {
+    return undefined
+  }
+  return parsed
+}
+
+export function getStreamErrorPayload(response: Response): Promise<StreamErrorPayload> {
   const fallback = '스트리밍 응답을 받을 수 없습니다.'
   if (!response.headers.get('content-type')?.includes('application/json')) {
     return response
@@ -55,16 +85,25 @@ export function getStreamErrorPayload(
       const topLevelDetails = record.details
       const isQuotaExceeded =
         legacyError === 'quota_exceeded' ||
-        canonicalError?.code === 'quota_exceeded' ||
+        isRateLimitCode(canonicalError?.code) ||
+        isRateLimitCode(record.code) ||
         includesQuotaExceeded(canonicalDetails) ||
-        includesQuotaExceeded(topLevelDetails)
+        includesQuotaExceeded(topLevelDetails) ||
+        hasQuotaDetails(canonicalDetails) ||
+        hasQuotaDetails(topLevelDetails) ||
+        (response.status === 429 &&
+          (isRateLimitCode(record.code) || isRateLimitCode(canonicalError?.code)))
       const message =
         typeof canonicalError?.message === 'string'
           ? canonicalError.message
           : typeof record.message === 'string'
             ? record.message
             : legacyError || fallback
-      return { isQuotaExceeded, message }
+      return {
+        isQuotaExceeded,
+        message,
+        retryAfterSeconds: getRetryAfter(response),
+      }
     })
     .catch(() => ({ isQuotaExceeded: false, message: fallback }))
 }
