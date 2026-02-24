@@ -5,6 +5,10 @@
 
 name: PR Preview
 
+concurrency:
+  group: dotori-preview-${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches: [main]
@@ -12,12 +16,18 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - 'brand/**'
       - 'reference/**'
   # cleanup은 별도 트리거 — paths-ignore 없이 모든 close에서 실행
   pull_request_target:
     branches: [main]
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      force_comment_only:
+        description: 'Run only comment refresh without deployment'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,6 +38,8 @@ jobs:
   preview:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 20
     environment:
       name: staging
       url: ${{ steps.url.outputs.preview_url }}
@@ -36,6 +48,8 @@ jobs:
 
       - name: Deploy PR preview
         id: deploy
+        timeout-minutes: 10
+        continue-on-error: true
         uses: digitalocean/app_action/deploy@v2
         with:
           deploy_pr_preview: "true"
@@ -43,9 +57,16 @@ jobs:
 
       - name: Extract preview URL
         id: url
+        if: steps.deploy.outcome == 'success'
         run: |
           URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "Preview URL unavailable")
           echo "preview_url=$URL" >> $GITHUB_OUTPUT
+          
+          SOURCE_COMMIT=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print((json.load(sys.stdin).get('active_deployment',{}).get('services') or [{}])[0].get('source_commit_hash',''))" 2>/dev/null || echo "")
+          if [ -z "$SOURCE_COMMIT" ]; then
+            SOURCE_COMMIT=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print((json.load(sys.stdin).get('services') or [{}])[0].get('source_commit_hash',''))" 2>/dev/null || echo "")
+          fi
+          echo "source_commit=$SOURCE_COMMIT" >> $GITHUB_OUTPUT
 
       - name: Fail if preview URL is missing
         run: |
@@ -76,18 +97,28 @@ jobs:
         env:
           PREVIEW_URL: ${{ steps.url.outputs.preview_url }}
           PREVIEW_HEALTH_URL: ${{ steps.health.outputs.preview_health }}
+          PREVIEW_SOURCE_COMMIT: ${{ steps.url.outputs.source_commit }}
+          PREVIEW_HEAD_COMMIT: ${{ github.event.pull_request.head.sha }}
         with:
           script: |
             const url = process.env.PREVIEW_URL;
             const healthUrl = process.env.PREVIEW_HEALTH_URL;
+            const sourceCommit = process.env.PREVIEW_SOURCE_COMMIT
+              ? process.env.PREVIEW_SOURCE_COMMIT.substring(0, 7)
+              : 'unknown';
+            const headCommit = process.env.PREVIEW_HEAD_COMMIT
+              ? process.env.PREVIEW_HEAD_COMMIT.substring(0, 7)
+              : `${context.sha.substring(0, 7)}`;
             const body = [
               '### Preview Deployment',
               '',
               `**URL**: ${url}`,
               `**Health**: ${healthUrl}`,
+              `**Source Commit**: \`${sourceCommit}\``,
+              `**PR Head SHA**: \`${headCommit}\``,
               '',
               `Deployed: ${new Date().toISOString()}`,
-              `Commit: \`${context.sha.substring(0, 7)}\``,
+              `Run SHA: \`${context.sha.substring(0, 7)}\``,
               `[Workflow Run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
             ].join('\n');
 
@@ -117,7 +148,7 @@ jobs:
             }
 
       - name: Comment on failure
-        if: failure()
+        if: steps.deploy.outcome != 'success'
         uses: actions/github-script@v7
         with:
           script: |
