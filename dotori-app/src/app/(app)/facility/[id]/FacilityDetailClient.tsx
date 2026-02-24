@@ -32,8 +32,8 @@ import { useToast } from "@/components/dotori/ToastProvider";
 import { apiFetch } from "@/lib/api";
 import { BRAND } from "@/lib/brand-assets";
 import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
-import { getFacilityImage } from "@/lib/facility-images";
 import { stagger, tap } from "@/lib/motion";
+import { getFirstSafeImageUrl } from "@/lib/safe-image";
 import type { CommunityPost, Facility } from "@/types/dotori";
 
 const ActionConfirmSheet = dynamic(
@@ -142,6 +142,7 @@ export default function FacilityDetailClient({
 function FacilityDetailClientContent({ facility }: { facility: FacilityDetailClientFacility }) {
 	const [copyingPhone, setCopyingPhone] = useState(false);
 	const [copyingAddress, setCopyingAddress] = useState(false);
+	const [isFacilityImageBroken, setIsFacilityImageBroken] = useState(false);
 	const [relatedPosts, setRelatedPosts] = useState<CommunityPost[]>([]);
 	const { addToast } = useToast();
 	const router = useRouter();
@@ -206,8 +207,10 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		Number.isFinite(facility.lat) &&
 		Number.isFinite(facility.lng) &&
 		!(facility.lat === 0 && facility.lng === 0);
-	const hasFacilityImage = Boolean(facility.images?.[0]);
-	const facilityImageUrl = getFacilityImage(facility);
+	const facilityImageUrl = useMemo(
+		() => getFirstSafeImageUrl(facility.images),
+		[facility.images],
+	);
 	const waitingHintText = useMemo(() => getWaitingHintText(facility), [facility]);
 	const totalCapacity = Math.max(0, facility.capacity.total);
 	const currentCapacity = Math.max(0, facility.capacity.current);
@@ -271,7 +274,7 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 		?.map((item) => item?.trim())
 		.filter((item): item is string => item.length > 0);
 	const premiumPhotos = premiumFacility.premiumProfile?.photos
-		?.map((photo) => photo.trim())
+		?.map((photo) => photo?.trim())
 		.filter((photo): photo is string => photo.length > 0);
 	const premiumVerifiedAt = premiumMeta?.verifiedAt
 		? getFormattedVerifiedAt(premiumMeta.verifiedAt)
@@ -337,6 +340,10 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 	}, [addToast, facility.id, facility.name, facility.type]);
 
 	useEffect(() => {
+		setIsFacilityImageBroken(false);
+	}, [facility.id, facilityImageUrl]);
+
+	useEffect(() => {
 		apiFetch<{ data: CommunityPost[] }>(
 			`/api/community/posts?facilityId=${facility.id}&limit=3`,
 		)
@@ -393,12 +400,13 @@ function FacilityDetailClientContent({ facility }: { facility: FacilityDetailCli
 				{...stagger.item}
 				className={`${DS_GLASS.CARD} relative mx-4 mt-3 h-52 overflow-hidden rounded-3xl shadow-sm ring-1 ring-dotori-100/70 dark:ring-dotori-800`}
 			>
-				{hasFacilityImage ? (
+				{facilityImageUrl && !isFacilityImageBroken ? (
 					// eslint-disable-next-line @next/next/no-img-element
 					<img
 						src={facilityImageUrl}
 						alt={`${facility.name} 사진`}
 						className="h-full w-full object-cover"
+						onError={() => setIsFacilityImageBroken(true)}
 					/>
 				) : (
 					<div className="absolute inset-0 bg-dotori-100 dark:bg-dotori-900">

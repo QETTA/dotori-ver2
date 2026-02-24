@@ -71,6 +71,35 @@ SKIP_PRECHECK=1 npm run deploy:do:local
 - Flow: `local build -> DOCR push -> app spec patch(image tag) -> doctl update -> health check`
 - 기본 앱 ID: `29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2`
 - 필요 조건: `doctl auth`, `docker daemon running`
+- 배포용 헬스 체크: `/api/health` + `/api/health/deep`
+
+### 배포 전 준비 Runbook (권장)
+
+```bash
+# 1) 배포 준비(필수) - 로컬 빌드/테스트/옵션 헬스체크까지 통합 수행
+cd /home/sihu2/dotori-ver2-qetta/dotori-app
+bash scripts/deploy-readiness.sh
+
+# 2) 운영 URL 기반 사전 체크(선택)
+APP_URL=https://dotori-app-pwyc9.ondigitalocean.app bash scripts/deploy-readiness.sh
+
+# 3) 긴급 수동 배포(옵션)
+SKIP_BUILD=1 APP_URL=https://dotori-app-pwyc9.ondigitalocean.app bash scripts/deploy-readiness.sh
+npm run deploy:do:local
+```
+
+### 배포 Runbook 문서
+
+- `../docs/ops/DEPLOYMENT_RUNBOOK.md`
+
+### 수동 롤백(권장)
+
+```bash
+# 이전 SHA로 되돌린 뒤 앱 spec의 image tag를 다시 반영
+cp ../.do/app.yaml .do/app.deploy.yaml
+sed -i "s/tag: .*/tag: sha-<previous_commit>/g" .do/app.deploy.yaml
+doctl apps update 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2 --spec .do/app.deploy.yaml --wait
+```
 
 ## Development
 

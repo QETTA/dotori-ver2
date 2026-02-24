@@ -10,9 +10,9 @@ const cspDirectives = [
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://t1.kakaocdn.net https://dapi.kakao.com https://www.googletagmanager.com https://www.google-analytics.com"
     : "script-src 'self' 'unsafe-inline' https://t1.kakaocdn.net https://dapi.kakao.com https://www.googletagmanager.com https://www.google-analytics.com",
   // 'unsafe-inline' required for Tailwind CSS v4 runtime styles
-  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-  "img-src 'self' data: blob: https://k.kakaocdn.net https://img1.kakaocdn.net https://*.daumcdn.net",
-  "font-src 'self' https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https://k.kakaocdn.net https://img1.kakaocdn.net https://*.daumcdn.net https://*.googleusercontent.com",
+  "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com",
   "connect-src 'self' https://*.kakao.com https://*.google-analytics.com https://api.anthropic.com https://cdn.jsdelivr.net",
   "frame-src 'none'",
   "object-src 'none'",

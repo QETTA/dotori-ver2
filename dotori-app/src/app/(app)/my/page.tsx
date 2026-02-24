@@ -10,6 +10,7 @@ import { apiFetch } from '@/lib/api'
 import { BRAND } from '@/lib/brand-assets'
 import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { stagger, tap } from '@/lib/motion'
+import { sanitizeImageUrl } from '@/lib/safe-image'
 import { cn } from '@/lib/utils'
 import type { Facility } from '@/types/dotori'
 import { CameraIcon, ChevronRightIcon, HeartIcon } from '@heroicons/react/24/outline'
@@ -151,6 +152,14 @@ export default function MyPage() {
     [user?.interests],
   )
   const isPremiumUser = user?.plan === 'premium'
+  const [isAvatarFallback, setIsAvatarFallback] = useState(false)
+  const userImage = user?.image?.trim() ?? ''
+  const safeUserImage = sanitizeImageUrl(userImage) ?? ''
+  const hasUserImage = safeUserImage.length > 0
+
+  useEffect(() => {
+    setIsAvatarFallback(false)
+  }, [userImage])
 
   useEffect(() => {
     if (!user || userInterestPreviewIds.length === 0) {
@@ -337,13 +346,17 @@ export default function MyPage() {
           <div className="flex items-start gap-4">
             <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-dotori-100 via-dotori-50 to-forest-100 dark:from-dotori-900 dark:via-dotori-950 dark:to-dotori-900">
               <div className="absolute inset-0 opacity-15" />
-              {user.image ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={user.image} alt="" className="h-full w-full rounded-full object-cover" />
-              ) : (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={BRAND.appIconDark} alt="" className="h-9 w-9 rounded-full" />
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={hasUserImage && !isAvatarFallback ? safeUserImage : BRAND.appIconDark}
+                alt=""
+                className={
+                  hasUserImage && !isAvatarFallback
+                    ? 'h-full w-full rounded-full object-cover'
+                    : 'h-9 w-9 rounded-full'
+                }
+                onError={() => setIsAvatarFallback(true)}
+              />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">

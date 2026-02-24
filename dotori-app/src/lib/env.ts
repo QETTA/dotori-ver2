@@ -4,6 +4,9 @@ const isBuildTime =
 	process.env.SKIP_ENV_VALIDATION === "1" ||
 	process.env.NEXT_PHASE === "phase-production-build";
 const isProduction = process.env.NODE_ENV === "production";
+const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL;
+const fallbackPublicAppUrl = publicAppUrl || "http://localhost:3000";
 
 const envSchema = z.object({
 	/** MongoDB Atlas connection string */
@@ -18,7 +21,7 @@ const envSchema = z.object({
 	AUTH_KAKAO_SECRET: z.string().default(""),
 	/** Public app URL */
 	NEXT_PUBLIC_APP_URL: isBuildTime || !isProduction
-		? z.string().default("http://localhost:3000")
+		? z.string().default(fallbackPublicAppUrl)
 		: z.string().min(1, "NEXT_PUBLIC_APP_URL 환경변수를 설정해주세요"),
 	/** Node environment */
 	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -27,7 +30,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse({
 	MONGODB_URI: process.env.MONGODB_URI,
 	MONGODB_DB_NAME: process.env.MONGODB_DB_NAME,
-	AUTH_SECRET: process.env.AUTH_SECRET,
+	AUTH_SECRET: authSecret,
 	AUTH_KAKAO_ID: process.env.AUTH_KAKAO_ID,
 	AUTH_KAKAO_SECRET: process.env.AUTH_KAKAO_SECRET,
 	NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,

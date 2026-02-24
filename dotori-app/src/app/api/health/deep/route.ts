@@ -9,7 +9,7 @@ export const revalidate = 0;
 // Deep health check — DB 포함 (모니터링/알림용, DO health_check 경로 아님)
 export async function GET() {
 	const start = Date.now();
-	const checks: Record<string, { status: "ok" | "error"; latencyMs?: number }> = {};
+	const checks: Record<string, { status: "ok" | "error"; latencyMs?: number; reason?: string }> = {};
 
 	try {
 		await dbConnect();
@@ -19,7 +19,10 @@ export async function GET() {
 		checks.mongodb = { status: "ok", latencyMs: Date.now() - dbStart };
 	} catch (err) {
 		log.error("Deep health check MongoDB failed", { error: err instanceof Error ? err.message : String(err) });
-		checks.mongodb = { status: "error" };
+		checks.mongodb = {
+			status: "error",
+			reason: err instanceof Error ? err.message : "MongoDB check failed",
+		};
 	}
 
 	const allOk = Object.values(checks).every((c) => c.status === "ok");

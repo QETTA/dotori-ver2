@@ -1,8 +1,12 @@
 import mongoose from "mongoose";
-import { env } from "@/lib/env";
 import { log } from "@/lib/logger";
 
-const MONGODB_URI = env.MONGODB_URI;
+const getMongoUri = () => {
+	if (!process.env.MONGODB_URI) {
+		throw new Error("MONGODB_URI is not configured");
+	}
+	return process.env.MONGODB_URI;
+};
 
 declare global {
 	var mongooseCache: {
@@ -22,7 +26,7 @@ const RETRY_DELAY_MS = 1000;
 
 async function connectWithRetry(attempt = 1): Promise<typeof mongoose> {
 	try {
-		const conn = await mongoose.connect(MONGODB_URI, {
+		const conn = await mongoose.connect(getMongoUri(), {
 			dbName: process.env.MONGODB_DB_NAME ?? "dotori",
 			bufferCommands: false,
 			serverSelectionTimeoutMS: 5000,

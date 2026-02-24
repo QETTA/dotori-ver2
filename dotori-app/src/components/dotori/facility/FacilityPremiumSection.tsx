@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { BRAND } from "@/lib/brand-assets";
 import { fadeUp } from "@/lib/motion";
+import { sanitizeImageUrls } from "@/lib/safe-image";
 import {
 	VERIFIED_FACILITY_DATE_LABEL,
 	VERIFIED_FACILITY_INFO_LABEL,
@@ -28,6 +30,7 @@ export function FacilityPremiumSection({
 	facilityName,
 }: FacilityPremiumSectionProps) {
 	if (!showPremiumSection) return null;
+	const safePremiumPhotos = sanitizeImageUrls(premiumPhotos);
 
 	return (
 		<motion.section
@@ -86,13 +89,13 @@ export function FacilityPremiumSection({
 				</div>
 			) : null}
 
-			{premiumPhotos && premiumPhotos.length > 0 ? (
+			{safePremiumPhotos.length > 0 ? (
 				<div className="mt-3">
 					<h3 className="mb-2 text-sm font-medium text-dotori-700 dark:text-dotori-200">
 						추가 사진
 					</h3>
 					<div className="grid grid-cols-2 gap-2">
-						{premiumPhotos.map((photo, index) => (
+						{safePremiumPhotos.map((photo, index) => (
 							<div key={`${photo}-${index}`} className="overflow-hidden rounded-xl">
 								{/* eslint-disable-next-line @next/next/no-img-element */}
 								<img
@@ -100,6 +103,14 @@ export function FacilityPremiumSection({
 									alt={`${facilityName} ${VERIFIED_FACILITY_LABEL} 사진 ${index + 1}`}
 									loading="lazy"
 									className="h-28 w-full rounded-xl object-cover"
+									onError={(event) => {
+										const target = event.currentTarget;
+										target.onerror = null;
+										target.src = BRAND.emptyState;
+										target.alt = `${facilityName} 사진 준비 중`;
+										target.className =
+											"h-28 w-full rounded-xl bg-dotori-50 p-3 object-contain dark:bg-dotori-900";
+									}}
 								/>
 							</div>
 						))}

@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: ${{ steps.extract.outputs.url }}
+      url: ${{ steps.app.outputs.url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -177,14 +177,18 @@ jobs:
           BASE_URL="${{ steps.app.outputs.url }}"
           BASE_URL="${BASE_URL%/}"
           HEALTH_URL="${BASE_URL}/api/health"
+          DEEP_HEALTH_URL="${BASE_URL}/api/health/deep"
           for i in $(seq 1 60); do
-            if curl -fsS --max-time 5 "$HEALTH_URL" >/dev/null 2>&1; then
+            if \
+              curl -fsS --max-time 5 "$HEALTH_URL" >/dev/null 2>&1 \
+              && curl -fsS --max-time 8 "$DEEP_HEALTH_URL" >/dev/null 2>&1; then
               echo "Production health ready in $((i*2))s: $HEALTH_URL"
+              echo "Deep health ready in $((i*2))s: $DEEP_HEALTH_URL"
               exit 0
             fi
             sleep 2
           done
-          echo "Production health check timeout: $HEALTH_URL"
+          echo "Production health check timeout: $HEALTH_URL and $DEEP_HEALTH_URL"
           exit 1
 
       - name: Deployment summary
@@ -198,6 +202,7 @@ jobs:
             echo "|-----|-------|"
             echo "| URL | ${BASE_URL} |"
             echo "| Health | ${BASE_URL}/api/health |"
+            echo "| Deep Health | ${BASE_URL}/api/health/deep |"
             echo "| Commit | \`${GITHUB_SHA::7}\` |"
             echo "| Image | \`${{ env.IMAGE }}:sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"

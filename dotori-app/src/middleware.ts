@@ -10,6 +10,22 @@ const PREHOME_SPLASH_COOKIE = "dotori_prehome_splash";
 const rateLimitMap = new Map<string, number[]>();
 let cleanupCounter = 0;
 
+const getPublicBaseUrl = (req: NextRequest) => {
+	const forwardedHost = req.headers
+		.get("x-forwarded-host")
+		?.split(",")[0]
+		?.trim();
+	const host = forwardedHost || req.headers.get("host");
+
+	const protocolHeader = req.headers
+		.get("x-forwarded-proto")
+		?.split(",")[0]
+		?.trim();
+	const protocol = protocolHeader || req.nextUrl.protocol.replace(":", "");
+
+	return host ? `${protocol}://${host}` : req.nextUrl.origin;
+};
+
 const pruneOldestRateLimitEntries = () => {
 	while (rateLimitMap.size > RATE_LIMIT_MAX_TRACKED_IPS) {
 		const oldestIp = rateLimitMap.keys().next().value;
@@ -99,6 +115,7 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
 	const { pathname } = req.nextUrl;
+	const publicBaseUrl = getPublicBaseUrl(req);
 	if (pathname === "/api" || pathname.startsWith("/api/")) {
 		const rateLimit = isRateLimited(req);
 		if (rateLimit.limited) {
@@ -119,7 +136,7 @@ export default auth((req) => {
 	if (pathname === "/") {
 		const hasSeenSplash = req.cookies.get(PREHOME_SPLASH_COOKIE)?.value === "1";
 		if (!hasSeenSplash) {
-			return NextResponse.redirect(new URL("/landing", req.url));
+			return NextResponse.redirect(new URL("/landing", publicBaseUrl));
 		}
 	}
 
@@ -132,7 +149,7 @@ export default auth((req) => {
 
 	// Redirect authenticated users away from login
 	if (isLoggedIn && authOnlyPaths.some((p) => pathname.startsWith(p))) {
-		return NextResponse.redirect(new URL("/", req.url));
+		return NextResponse.redirect(new URL("/", publicBaseUrl));
 	}
 
 	// Allow public paths
@@ -142,7 +159,7 @@ export default auth((req) => {
 
 	// Redirect unauthenticated users to login for protected paths
 	if (!isLoggedIn) {
-		const loginUrl = new URL("/login", req.url);
+		const loginUrl = new URL("/login", publicBaseUrl);
 		loginUrl.searchParams.set("callbackUrl", pathname);
 		return NextResponse.redirect(loginUrl);
 	}

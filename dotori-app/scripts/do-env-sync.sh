@@ -176,5 +176,4 @@ rm -f "$SPEC_FILE"
 echo "✅ 완료: env 동기화됨"
 echo ""
 echo "새 배포 트리거:"
-echo "  doctl apps create-deployment $APP_ID"
-
+echo "  doctl apps create-deployment $APP_ID --wait"

@@ -21,6 +21,19 @@ echo "→ 현재 스펙 가져오는 중..."
 doctl apps spec get "$APP_ID" > "$SPEC_FILE"
 
 echo "→ '$KEY' 값 업데이트 중..."
+
+if [ "$KEY" = "MONGODB_URI" ] && [ -n "$VALUE" ]; then
+  case "$VALUE" in
+    mongodb://*|mongodb+srv://*)
+      ;;
+    *)
+      echo "ERROR: MONGODB_URI 값이 잘못되었습니다. mongodb:// 또는 mongodb+srv:// 로 시작해야 합니다." >&2
+      echo "현재 값: ${VALUE:0:20}..." >&2
+      exit 1
+      ;;
+  esac
+fi
+
 SPEC_FILE="$SPEC_FILE" KEY="$KEY" VALUE="$VALUE" python3 - <<'PY'
 import os
 import sys
@@ -85,4 +98,4 @@ rm -f "$SPEC_FILE"
 echo "✅ 완료: $KEY 업데이트됨"
 echo ""
 echo "새 배포 트리거하려면:"
-echo "  doctl apps create-deployment $APP_ID"
+echo "  doctl apps create-deployment $APP_ID --wait"

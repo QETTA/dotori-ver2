@@ -89,7 +89,11 @@ export const BottomTabBar = memo(function BottomTabBar() {
 
   return (
     <nav
-      className={cn(navShellClass, DS_LAYOUT.SAFE_AREA_TABBAR)}
+      className={cn(
+        navShellClass,
+        DS_LAYOUT.SAFE_AREA_TABBAR,
+        'pb-[max(0.55rem,env(safe-area-inset-bottom))]',
+      )}
       role="navigation"
       aria-label="메인 내비게이션"
     >
