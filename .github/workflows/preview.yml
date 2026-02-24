@@ -33,6 +33,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    continue-on-error: true
     environment:
       name: staging
       url: ${{ steps.url.outputs.preview_url }}
