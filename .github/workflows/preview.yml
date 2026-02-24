@@ -5,6 +5,10 @@
 
 name: PR Preview
 
+concurrency:
+  group: dotori-preview-${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches: [main]
