@@ -28,6 +28,7 @@ jobs:
   preview:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: staging
       url: ${{ steps.url.outputs.preview_url }}
@@ -36,6 +37,7 @@ jobs:
 
       - name: Deploy PR preview
         id: deploy
+        timeout-minutes: 10
         uses: digitalocean/app_action/deploy@v2
         with:
           deploy_pr_preview: "true"
