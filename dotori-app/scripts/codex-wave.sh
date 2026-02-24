@@ -16,7 +16,7 @@ set -uo pipefail
 
 ### ── CONFIG ─────────────────────────────────────────────────────────
 APP=$(cd "$(dirname "$0")/.." && pwd)
-CODEX_MODEL=${CODEX_MODEL:-gpt-5.2}
+CODEX_MODEL=${CODEX_MODEL:-gpt-5.3-codex}
 WAVE_SIZE=4
 TASKS_FILE=""
 TASK_TIMEOUT=${TASK_TIMEOUT:-900}
