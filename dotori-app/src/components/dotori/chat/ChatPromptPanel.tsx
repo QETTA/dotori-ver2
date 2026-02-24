@@ -13,7 +13,11 @@ import { fadeUp, stagger, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { motion } from 'motion/react'
 
-export type ChatPromptPanelItem = (typeof suggestedPrompts)[number];
+export type ChatPromptPanelItem = {
+	label: string
+	prompt: string
+	icon: string
+}
 
 interface ChatPromptPanelProps {
 	onSelectPrompt: (prompt: ChatPromptPanelItem) => void
@@ -29,8 +33,14 @@ export function ChatPromptPanel({
 	toriIcon,
 }: ChatPromptPanelProps) {
 	const chatCopy = copy.chat
+	const resolvedPrompts: ChatPromptPanelItem[] = suggestedPrompts.map((prompt, index) => ({
+		label: chatCopy.suggestions[index] ?? prompt.label,
+		prompt: prompt.prompt,
+		icon: prompt.icon,
+	}))
+
 	const handlePromptSelectChange = (value: string) => {
-		const selectedPrompt = suggestedPrompts.find((prompt) => prompt.label === value)
+		const selectedPrompt = resolvedPrompts.find((prompt) => prompt.label === value)
 		if (!selectedPrompt) return
 		onSelectPrompt(selectedPrompt)
 	}
@@ -86,7 +96,7 @@ export function ChatPromptPanel({
 							value={selectedPromptLabel}
 							onChange={(event) => handlePromptSelectChange(event.currentTarget.value)}
 						>
-							{suggestedPrompts.map((prompt) => (
+							{resolvedPrompts.map((prompt) => (
 								<option key={prompt.label} value={prompt.label}>
 									{prompt.label}
 								</option>
@@ -96,7 +106,7 @@ export function ChatPromptPanel({
 				</Fieldset>
 
 					<motion.ul className="relative mt-4 space-y-2.5" {...stagger.container}>
-						{suggestedPrompts.map((prompt) => (
+						{resolvedPrompts.map((prompt) => (
 							<motion.li key={prompt.label} {...stagger.item}>
 								<motion.div {...tap.chip}>
 									<DsButton

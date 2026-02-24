@@ -241,10 +241,14 @@ export function normalizeChatBlocks(rawBlocks: unknown): ChatBlock[] {
 				for (const [index, button] of buttonsRaw.entries()) {
 					const buttonRecord = asRecord(button);
 					if (!buttonRecord) continue;
+					const action =
+						buttonRecord.action != null
+							? sanitizeActionType(buttonRecord.action)
+							: undefined;
 					buttons.push({
 						id: asString(buttonRecord.id) || `action-${index}`,
 						label: asString(buttonRecord.label) || "버튼",
-						action: sanitizeActionType(buttonRecord.action),
+						...(action != null && { action }),
 						variant:
 							buttonRecord.variant === "solid" || buttonRecord.variant === "outline"
 								? buttonRecord.variant

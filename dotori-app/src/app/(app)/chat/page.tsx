@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/catalyst/badge'
-import { DsButton } from "@/components/ds/DsButton";
+import { DsButton } from '@/components/ds/DsButton'
 import { Field, Fieldset, Label } from '@/components/catalyst/fieldset'
 import { Heading } from '@/components/catalyst/heading'
 import { Input } from '@/components/catalyst/input'
@@ -14,6 +14,7 @@ import { MarkdownText } from '@/components/dotori/MarkdownText'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { apiFetch } from '@/lib/api'
 import { BRAND } from '@/lib/brand-assets'
+import { copy } from '@/lib/brand-copy'
 import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { fadeIn, stagger, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -322,7 +323,7 @@ function ChatComposer({
               type="text"
               value={input}
               onChange={(event) => onInputChange(event.target.value)}
-              placeholder="토리에게 물어보세요..."
+              placeholder={copy.chat.placeholder}
               className={cn(
                 'text-body-sm',
                 DS_GLASS.CARD,
@@ -380,7 +381,7 @@ function ChatContent() {
   const [usageLimit, setUsageLimit] = useState(0)
   const [isUsageLoading, setIsUsageLoading] = useState(false)
   const [selectedPromptLabel, setSelectedPromptLabel] = useState<string>(
-    suggestedPrompts[0]?.label ?? '',
+    copy.chat.suggestions[0] ?? suggestedPrompts[0]?.label ?? '',
   )
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)

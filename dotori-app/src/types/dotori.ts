@@ -177,7 +177,7 @@ export interface EmbeddedCard {
 export interface ActionButton {
 	id: string;
 	label: string;
-	action: ActionType;
+	action?: ActionType;
 	variant: "solid" | "outline";
 	icon?: string;
 }
