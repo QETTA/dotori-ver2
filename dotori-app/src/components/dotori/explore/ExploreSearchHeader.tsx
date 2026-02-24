@@ -25,7 +25,7 @@ import { Input } from "@/components/catalyst/input";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_LAYOUT, DS_STATUS } from "@/lib/design-system/tokens";
 import { stagger, spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreSuggestionPanel } from "./ExploreSuggestionPanel";
@@ -138,7 +138,8 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+0.875rem)]",
+				"sticky top-0 z-20 border-b border-dotori-100/50 px-4 pb-4",
+				DS_LAYOUT.SAFE_AREA_HEADER_TOP,
 				DS_GLASS.HEADER,
 			)}
 		>
@@ -199,7 +200,7 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 							placeholder="이동 고민? 내 주변 빈자리 먼저 확인해요"
 							className={cn(
 								"text-body",
-								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-400 focus:bg-white focus:ring-2 focus:ring-dotori-300 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
+								"min-h-11 w-full rounded-3xl bg-white/95 py-3 pl-11 pr-10 text-dotori-900 ring-1 ring-dotori-200/50 outline-none transition-all placeholder:text-dotori-500 focus:bg-white focus:ring-2 focus:ring-dotori-500 dark:bg-dotori-900/80 dark:text-dotori-50 dark:ring-dotori-700/60 dark:placeholder:text-dotori-500 dark:focus:bg-dotori-950 dark:focus:ring-dotori-600",
 							)}
 							aria-label="시설 검색"
 							name="q"

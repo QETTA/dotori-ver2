@@ -355,7 +355,7 @@ export function MapEmbed({
 								type="button"
 								onClick={handleRetry}
 								disabled={!hasApiKey}
-								className="mt-1 min-h-[44px] rounded-xl bg-dotori-500 px-4 py-2 text-sm font-semibold text-white disabled:bg-dotori-200 disabled:text-dotori-500 dark:disabled:bg-dotori-800 dark:disabled:text-dotori-300"
+								className="mt-1 min-h-11 rounded-xl bg-dotori-500 px-4 py-2 text-sm font-semibold text-white disabled:bg-dotori-200 disabled:text-dotori-500 dark:disabled:bg-dotori-800 dark:disabled:text-dotori-300"
 							>
 								재시도
 							</button>

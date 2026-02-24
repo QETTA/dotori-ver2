@@ -52,7 +52,10 @@ const WARM_SURFACE =
   'bg-gradient-to-br from-dotori-50 via-amber-50/45 to-white dark:from-dotori-900 dark:via-dotori-900 dark:to-dotori-950'
 const MOTION_SMOOTH = 'transition-transform duration-200 ease-out'
 const COMMUNITY_PAGE_CLASS =
-  'relative flex min-h-0 flex-1 flex-col bg-dotori-50/20 pb-[calc(5.5rem+env(safe-area-inset-bottom))]'
+  cn(
+    'relative flex min-h-0 flex-1 flex-col bg-dotori-50/20',
+    DS_LAYOUT.SAFE_AREA_BOTTOM,
+  )
 const COMMUNITY_LIST_ITEM_CLASS = cn(
   DS_LAYOUT.CARD_SOFT,
   DS_GLASS.CARD,
@@ -79,13 +82,15 @@ export default function CommunityPage() {
   const [hasGeolocationPermission, setHasGeolocationPermission] = useState<boolean | null>(null)
   const isTransitionMonth = new Date().getMonth() <= 2
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const fetchPostsControllerRef = useRef<AbortController | null>(null)
+  const mountedRef = useRef(true)
 
   const [gpsVerified, setGpsVerified] = useState<boolean | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
 
   const tabEmptyMessages: Record<TabLabel, string> = {
     전체: '이웃들과 이야기를 나눌 첫 글을 함께 시작해보세요',
-    '어린이집 이동': '입주 이전 고민을 먼저 공유해볼까요?',
+    '어린이집 이동': '이동 고민을 먼저 공유해볼까요?',
     '입소 고민': '입소 고민을 이야기해주시면 좋은 조언이 모여요',
     '정보 공유': '현장 체험이 담긴 유익한 정보를 올려주세요',
     '자유 토론': '편하게 고민, 생각을 나눠보세요',
@@ -155,7 +160,10 @@ export default function CommunityPage() {
     async (pageNum: number, append = false) => {
       if (append) setIsLoadingMore(true)
       else setIsLoading(true)
+      const controller = new AbortController()
 
+      fetchPostsControllerRef.current?.abort()
+      fetchPostsControllerRef.current = controller
       setError(null)
 
       try {
@@ -167,7 +175,10 @@ export default function CommunityPage() {
         const category = tabToCategoryParam[activeTab]
         if (category) params.set('category', category)
 
-        const res = await apiFetch<PostsResponse>(`/api/community/posts?${params.toString()}`)
+        const res = await apiFetch<PostsResponse>(`/api/community/posts?${params.toString()}`, {
+          signal: controller.signal,
+        })
+        if (controller.signal.aborted) return
 
         if (append) {
           setPosts((prev) => [...prev, ...res.data])
@@ -192,15 +203,27 @@ export default function CommunityPage() {
         }
 
         setTotalPages(res.pagination.totalPages)
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return
         setError('게시물을 불러오지 못했어요')
       } finally {
-        setIsLoading(false)
-        setIsLoadingMore(false)
+        if (fetchPostsControllerRef.current === controller) {
+          setIsLoading(false)
+          setIsLoadingMore(false)
+        }
       }
     },
     [activeTab, userId],
   )
+
+  useEffect(() => {
+    mountedRef.current = true
+
+    return () => {
+      mountedRef.current = false
+      fetchPostsControllerRef.current?.abort()
+    }
+  }, [])
 
   useEffect(() => {
     setPage(1)
@@ -210,33 +233,50 @@ export default function CommunityPage() {
   const toggleLike = useCallback(
     async (postId: string) => {
       if (likingPosts.has(postId)) return
+      const targetPost = posts.find((post) => post.id === postId)
+      if (!targetPost) return
 
       setLikingPosts((prev) => new Set(prev).add(postId))
       const isLiked = likedPosts.has(postId)
+      const originalLikeCount = targetPost.likes
+
+      setLikedPosts((prev) => {
+        const next = new Set(prev)
+        if (isLiked) next.delete(postId)
+        else next.add(postId)
+        return next
+      })
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === postId
+            ? { ...p, likes: Math.max(0, isLiked ? p.likes - 1 : p.likes + 1) }
+            : p,
+        ),
+      )
 
       try {
         if (isLiked) {
           await apiFetch(`/api/community/posts/${postId}/like`, {
             method: 'DELETE',
           })
-          setLikedPosts((prev) => {
-            const next = new Set(prev)
-            next.delete(postId)
-            return next
-          })
-          setPosts((prev) =>
-            prev.map((p) => (p.id === postId ? { ...p, likes: Math.max(0, p.likes - 1) } : p)),
-          )
         } else {
           await apiFetch(`/api/community/posts/${postId}/like`, {
             method: 'POST',
           })
-          setLikedPosts((prev) => new Set(prev).add(postId))
-          setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, likes: p.likes + 1 } : p)))
         }
       } catch {
-        fetchPosts(1)
+        if (!mountedRef.current) return
+        setLikedPosts((prev) => {
+          const next = new Set(prev)
+          if (isLiked) next.add(postId)
+          else next.delete(postId)
+          return next
+        })
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, likes: originalLikeCount } : p)),
+        )
       } finally {
+        if (!mountedRef.current) return
         setLikingPosts((prev) => {
           const next = new Set(prev)
           next.delete(postId)
@@ -244,7 +284,7 @@ export default function CommunityPage() {
         })
       }
     },
-    [fetchPosts, likedPosts, likingPosts],
+    [likedPosts, likingPosts, posts],
   )
 
   const loadMore = useCallback(() => {
@@ -686,7 +726,7 @@ export default function CommunityPage() {
                     <div
                       className={cn(
                         'text-caption',
-                        'mt-3 flex items-center justify-between gap-2 text-dotori-500 dark:text-dotori-400',
+                        'mt-3 flex items-center justify-between gap-2 text-dotori-500 dark:text-dotori-300',
                       )}
                     >
                       <p className="min-w-0 truncate" suppressHydrationWarning>
@@ -756,7 +796,7 @@ export default function CommunityPage() {
       {!isLoading && !error && posts.length > 0 ? (
         <motion.div
           {...tap.button}
-          className="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50"
+          className={cn('fixed right-4 z-50', DS_LAYOUT.SAFE_AREA_FLOATING_ACTION)}
         >
           <Link
             href="/community/write"

@@ -18,8 +18,8 @@ const SPLASH_COOKIE = 'dotori_prehome_splash'
 const SPLASH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
 const AI_SIGNALS = [
-  '실시간 TO 변화 감지',
-  '교사 교체 리스크 브리핑',
+  '실시간 빈자리 변화 감지',
+  '교사 교체 현황 알림',
   '입소 가능성 우선순위 업데이트',
 ] as const
 
@@ -157,7 +157,7 @@ export default function LandingPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-7 -top-8 h-20 w-20 rotate-[-9deg] opacity-85"
                 />
-                <Text className="text-label font-semibold tracking-[0.14em] text-dotori-600">HOME READY FRAME</Text>
+                <Text className="text-label font-semibold tracking-wide text-dotori-600">HOME READY FRAME</Text>
                 <Heading level={1} className="text-display mt-2 leading-tight text-dotori-950">
                   홈 진입 전에
                   <br />

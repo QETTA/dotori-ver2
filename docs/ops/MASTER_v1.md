@@ -1,5 +1,5 @@
-# 🌰 DOTORI MASTER DOCUMENT v1.1
-> **최종 업데이트:** 2026-02-22
+# 🌰 DOTORI MASTER DOCUMENT v1.2
+> **최종 업데이트:** 2026-02-24
 > **용도:** 운영자 & 새 Claude 세션이 프로젝트 전체를 즉시 파악하기 위한 단일 마스터 자료
 > **관련 문서:** [KAKAO_CHANNEL.md](./KAKAO_CHANNEL.md) · [PREMIUM_SPEC.md](./PREMIUM_SPEC.md) · [BUSINESS_PLAN.md](./BUSINESS_PLAN.md)
 
@@ -30,18 +30,19 @@
 | 애니메이션 | **motion/react** (motion 12) — framer-motion 사용 금지 |
 | DB | MongoDB Atlas (클러스터: kidsmap, DB명: dotori) + **Mongoose 8.23** |
 | 검색 | Atlas Search 인덱스 facility_search |
-| 배포 | DigitalOcean App Platform (GitHub Student Pack $200) |
+| 배포 | **DigitalOcean App Platform** + **DOCR** (Pre-built 이미지 배포) |
+| CI/CD | **GitHub Actions v2** (detect→ci→docker→deploy) + **DOCR** 레이어 캐시 |
 | 인증 | **NextAuth v5** (next-auth@beta), Kakao OAuth, JWT 전략 |
-| AI | **Anthropic Claude** (claude-opus-4-6), SSE streaming + @anthropic-ai/sdk |
+| AI | **Anthropic Claude** (Sonnet 4.6), SSE streaming + @anthropic-ai/sdk |
 | 지도 | Kakao Map SDK |
 | 결제(준비) | Toss Payments |
 | 검증 | **Zod** (API 입력 검증) |
-| 테스트 | **Jest** (55개 유닛) + **Playwright** (E2E) |
+| 테스트 | **Vitest** (111개 유닛, 16 파일) + **Playwright** (E2E) |
 
-**현재 규모:** 47 pages, 36 API routes, 14 Mongoose 모델, 40+ 커스텀 컴포넌트
+**현재 규모:** 47 pages, 35 API routes, 14 Mongoose 모델, 72 컴포넌트 (27 catalyst + 44 dotori + 1 landing)
 
-**개발 서버:** /home/sihu2129/dotori-ver2/dotori-app
-**에이전트:** Claude Code → Serena MCP(메모리) → Codex CLI(워크트리 병렬, 최대 11개)
+**개발 서버:** /home/sihu2/dotori-ver2-qetta/dotori-app
+**에이전트:** Claude Code(Opus 4.6) → Serena MCP(메모리) → Codex CLI(워크트리 병렬, 최대 11개)
 
 ---
 
@@ -59,9 +60,24 @@
 
 ## 4. CI/CD & 배포 상태
 
-**파이프라인:** lint ✅ → test ✅ (55/55) → build ✅ (47p) → deploy ✅ sgp 리전
+### CI/CD Pipeline v2 — Pre-built Image Deployment (2026-02-24)
 
-**완료 라운드:** R1~R3(36), R5(11), R8(11), R9(11), R11(6), R12(5), R13(11) = **91 에이전트**
+```
+detect(변경 감지) → ci(lint+test) → docker(GHA 캐시 빌드→DOCR push) → deploy(이미지 pull)
+```
+
+| 항목 | 상세 |
+|------|------|
+| 빌드 위치 | GitHub Actions (BuildKit 레이어 캐시) |
+| 이미지 레지스트리 | **DOCR** `registry.digitalocean.com/dotori/web` (sgp1) |
+| 배포 방식 | DO가 DOCR pre-built 이미지 pull (~30초, 기존 풀빌드 ~10분) |
+| 변경 감지 | `detect` job이 앱 소스 변경 시만 배포 트리거 |
+| 패치 배포 | src만 변경 시 deps 레이어 캐시 히트 → ~3분 빌드 |
+| Health check | `/api/health` (liveness, 60회 × 2초 = 120초 타임아웃) |
+
+**파이프라인:** ci:preflight ✅ → docker build ✅ → DOCR push ✅ → deploy ✅ sgp 리전
+
+**완료 라운드:** R1~R3(36), R5(11), R8(11), R9(11), R11(6), R12(5), R13(11), R17(11), R22(11), R23(7) = **120+ 에이전트**
 **보안 수정:** Opus 4.6 분석 P0 4건 + P1 5건 전체 수정 완료 (R13)
 
 ---
@@ -76,6 +92,8 @@
 | 4 | 이동 수요 타겟 메시지 | ✅ | 완료 |
 | 5 | 프리미엄 구현 | ✅ | R9에서 완료, R13에서 보안 강화 |
 | 6 | 보안 P0~P1 | ✅ | R13에서 전체 수정 |
+| 7 | CI/CD 풀빌드 병목 | ✅ | v2 DOCR 파이프라인 전환 완료 (R24) |
+| 8 | DO 토큰 재생성 | 🔴 | 채팅 노출로 즉시 재생성 필요 → GitHub Secrets 업데이트 |
 
 ---
 
@@ -90,10 +108,20 @@
 ## 7. 핵심 명령
 
 ```bash
-cd /home/sihu2129/dotori-ver2/dotori-app
-npm run dev        # 개발 서버
-npm run build      # 빌드 (47 pages)
-npm run screenshot # 스크린샷
+cd /home/sihu2/dotori-ver2-qetta/dotori-app
+npm run dev             # 개발 서버
+env -u NODE_ENV npm run build   # 빌드 (47 pages)
+npm test                # 테스트 (111개, vitest)
+npm run ci:preflight    # lint + typecheck + test (빌드 제외)
+```
+
+**배포:**
+```bash
+# CI/CD v2: main push → GHA가 자동 빌드+DOCR push+배포
+git push origin main
+
+# 수동 배포 (긴급 시)
+doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
 > 세부: KAKAO_CHANNEL.md · PREMIUM_SPEC.md · BUSINESS_PLAN.md

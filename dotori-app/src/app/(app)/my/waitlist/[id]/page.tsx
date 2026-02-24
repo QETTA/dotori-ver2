@@ -104,7 +104,7 @@ function getProgressStateClass(state: ProgressState) {
 function getProgressTextClass(state: ProgressState) {
 	return state === "done" || state === "active" || state === "fail"
 		? "text-dotori-700 dark:text-dotori-200"
-		: "text-dotori-500 dark:text-dotori-400";
+		: "text-dotori-500 dark:text-dotori-300";
 }
 
 function getProgressSymbol(state: ProgressState) {
@@ -372,7 +372,7 @@ export default function WaitlistDetailPage() {
 								</p>
 							)}
 							{typeof data.position === "number" ? (
-								<p className="mt-1 text-caption font-semibold text-dotori-400 dark:text-dotori-300">
+								<p className="mt-1 text-caption font-semibold text-dotori-500 dark:text-dotori-300">
 									번째
 								</p>
 							) : null}
@@ -540,8 +540,8 @@ export default function WaitlistDetailPage() {
 												)
 											}
 													className={cn(
-														"flex min-h-[52px] w-full items-center gap-3 rounded-xl px-2 py-3 text-left transition-all",
-														"hover:bg-dotori-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-dotori-400/70 active:scale-[0.99] dark:hover:bg-dotori-900",
+														"flex min-h-14 w-full items-center gap-3 rounded-xl px-2 py-3 text-left transition-all",
+														"hover:bg-dotori-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-dotori-500/80 active:scale-[0.99] dark:hover:bg-dotori-900",
 														isToggling && "opacity-50",
 														data.status === "cancelled" &&
 															"opacity-40 pointer-events-none",
@@ -566,7 +566,7 @@ export default function WaitlistDetailPage() {
 												{doc.submitted &&
 													doc.submittedAt && (
 														<p
-															className="text-caption text-dotori-400 dark:text-dotori-300"
+															className="text-caption text-dotori-500 dark:text-dotori-300"
 															suppressHydrationWarning
 														>
 															{formatRelativeTime(doc.submittedAt)} 제출 완료

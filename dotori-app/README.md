@@ -9,6 +9,9 @@ npm ci
 # one-shot quality gate (format:check -> lint -> typecheck -> test -> build:ci)
 npm run ci
 
+# fast validation (no build, CI/CD v2에서 Docker가 빌드 담당)
+npm run ci:preflight
+
 # split commands
 npm run format
 npm run format:check
@@ -25,11 +28,18 @@ npm run build
 BASE_URL=http://127.0.0.1:3002 npm run ux:guard
 ```
 
-## DigitalOcean Auto Deploy (GitHub)
+## DigitalOcean Auto Deploy — CI/CD v2 (DOCR Pre-built Image)
 
-- PR 생성/업데이트 시: `PR Preview` 워크플로우가 자동으로 Preview URL을 배포하고, PR 코멘트에 URL/헬스체크를 남깁니다.
-- `main` 푸시 시: `CI/CD` 워크플로우가 `npm run ci` + `build` 성공 후 DigitalOcean 프로덕션 배포를 실행합니다.
-- 배포 후 워크플로우는 `/api/health`까지 확인하고 실패 시 즉시 실패 처리합니다.
+### 배포 흐름 (2026-02-24~)
+
+```
+main push → detect(변경감지) → ci(lint+test) → docker(GHA캐시빌드→DOCR push) → deploy(이미지pull)
+```
+
+- **PR 생성/업데이트**: `PR Preview` 워크플로우가 자동으로 Preview URL을 배포하고, PR 코멘트에 URL/헬스체크를 남깁니다.
+- **`main` 푸시**: `CI/CD` 워크플로우가 앱 소스 변경을 감지하고, `ci:preflight` 통과 후 Docker 이미지를 빌드하여 **DOCR**(`registry.digitalocean.com/dotori/web`)에 push합니다. DO App Platform은 pre-built 이미지를 pull하여 배포합니다.
+- **패치 배포**: src만 변경 시 deps 레이어 캐시 히트 → **~3분** (기존 DO 풀빌드 ~15분)
+- **변경 감지**: 앱 소스/Dockerfile/설정 변경 시만 배포. 테스트/스크립트/문서만 변경 시 배포 스킵.
 
 ```bash
 # repo root에서 최근 실행 확인
@@ -40,6 +50,9 @@ gh run watch <run-id> -R QETTA/dotori-ver2
 
 # PR 체크 상태 요약
 gh pr checks <pr-number> -R QETTA/dotori-ver2
+
+# 수동 배포 (긴급 시)
+doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 ```
 
 ## Development
@@ -54,6 +67,8 @@ npm run dev:3002
 
 - Engine test catalog: `../docs/ENGINE_TEST_CATALOG.md`
 - Backend error contract: `../docs/ERROR_CONTRACT.md`
+- Business plan: `../docs/ops/BUSINESS_PLAN.md`
+- CI/CD & infra: `../.github/workflows/ci.yml`
 
 ## Engine Test Reliability
 
@@ -78,5 +93,5 @@ REPEAT=10 npm run test:engine:flaky
 
 ## Environment Notes
 
-- CI 빌드는 `npm run build:ci`를 사용하며 내부에서 `SKIP_ENV_VALIDATION=1`로 실행됩니다.
-- 운영 배포용 `npm run build`는 실제 환경 변수를 요구할 수 있습니다.
+- CI 빌드는 Docker 내에서 실행되며 `SKIP_ENV_VALIDATION=1` + `NEXT_PUBLIC_*` build-args로 주입됩니다.
+- 로컬 `npm run build`는 `.env.local`의 환경 변수를 요구합니다.

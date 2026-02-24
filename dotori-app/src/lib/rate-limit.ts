@@ -78,7 +78,7 @@ export function createRateLimiter(options: RateLimitOptions) {
       const retryAfter = Math.ceil((1 - bucket.tokens) / refillRate / 1000)
       return createApiErrorResponse({
         status: 429,
-        code: 'RATE_LIMITED',
+        code: 'TOO_MANY_REQUESTS',
         message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.',
         details: { retryAfterSeconds: retryAfter },
         requestId,

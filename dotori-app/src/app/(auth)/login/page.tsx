@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/catalyst/button";
 import { BRAND } from "@/lib/brand-assets";
+import { copy } from "@/lib/brand-copy";
 import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "motion/react";
 import { useSearchParams } from "next/navigation";
@@ -35,9 +36,9 @@ const GUEST_LINK_TRANSITION = { delay: 0.55, duration: 0.4 } as const;
 const TERMS_TRANSITION = { delay: 0.62, duration: 0.4 } as const;
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
-	OAuthSignin: "카카오 로그인 연결에 문제가 있어요. 잠시 후 다시 시도해주세요.",
-	OAuthCallback: "카카오 로그인 연결에 문제가 있어요. 잠시 후 다시 시도해주세요.",
-	Default: "로그인에 실패했어요. 다시 시도해주세요.",
+	OAuthSignin: copy.auth.errors.oauthSignin,
+	OAuthCallback: copy.auth.errors.oauthCallback,
+	Default: copy.auth.errors.default,
 };
 
 function getAuthErrorMessage(error: string | null) {
@@ -131,7 +132,7 @@ const LoginIntro = memo(function LoginIntro({
 					transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TAGLINE_TRANSITION}
 					className="mt-6 text-sm font-semibold tracking-wide text-dotori-500"
 				>
-					이동 고민 전문 AI, 토리
+					{copy.auth.login.titleTagline}
 				</motion.p>
 				<motion.p
 					initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
@@ -139,15 +140,15 @@ const LoginIntro = memo(function LoginIntro({
 					transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TITLE_TRANSITION}
 					className="mt-3 text-base leading-snug font-bold text-dotori-700 dark:text-dotori-200 lg:text-lg"
 				>
-					반편성 불만·교사 교체·빈자리, 도토리 하나로
+					{copy.auth.login.titleMain}
 				</motion.p>
 			<motion.p
 				initial={shouldReduceMotion ? false : FADE_UP_INITIAL}
 				animate={FADE_UP_ANIMATE}
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : SUBTITLE_TRANSITION}
-				className="mt-2 text-xs text-dotori-400"
+				className="mt-2 text-xs text-dotori-500"
 			>
-				전국 20,000+ 어린이집 데이터
+				{copy.auth.login.subtitle}
 			</motion.p>
 		</>
 	);
@@ -198,8 +199,8 @@ const LoginCard = memo(function LoginCard({
 				transition={shouldReduceMotion ? NO_MOTION_TRANSITION : LOGIN_CARD_TRANSITION}
 				className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none"
 			>
-				<p className="text-xs leading-relaxed text-dotori-500">
-					1초면 시작돼요. 카카오로 바로 이용하세요.
+			<p className="text-xs leading-relaxed text-dotori-500">
+					{copy.auth.login.cardHint}
 				</p>
 			<Button
 				onClick={onKakaoLogin}
@@ -229,8 +230,8 @@ const LoginCard = memo(function LoginCard({
 					)}
 					{isLoading ? "로그인 처리 중..." : "카카오 로그인"}
 				</Button>
-			<p className="mt-2 text-xs font-medium text-dotori-400">
-				카카오 계정으로 1초 만에 시작
+			<p className="mt-2 text-xs font-medium text-dotori-500">
+				{copy.auth.login.quickHint}
 			</p>
 		</motion.div>
 	);
@@ -252,7 +253,7 @@ const LoginGuestLink = memo(function LoginGuestLink({
 					href="/"
 					className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-dotori-200 bg-white/60 px-4 text-sm font-semibold text-dotori-600 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/80 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-200 dark:hover:bg-dotori-950/70"
 				>
-					로그인 없이 둘러보기
+					{copy.auth.login.guestBrowse}
 				</Link>
 		</motion.div>
 	);
@@ -268,23 +269,23 @@ const LoginFooter = memo(function LoginFooter({
 			initial={shouldReduceMotion ? false : FADE_IN_INITIAL}
 			animate={FADE_IN_ANIMATE}
 			transition={shouldReduceMotion ? NO_MOTION_TRANSITION : TERMS_TRANSITION}
-			className="mt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300"
+			className="mt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-xs leading-relaxed text-dotori-500 dark:text-dotori-300"
 		>
-				로그인 시{" "}
+				{copy.auth.login.termsPrefix}{" "}
 				<Link
 					href="/my/terms"
 					className="font-medium underline underline-offset-2 hover:text-dotori-600 dark:hover:text-dotori-200"
 				>
-					서비스 이용약관
+					{copy.auth.login.termsService}
 				</Link>
 				{" "}및{" "}
 				<Link
 					href="/my/terms"
 					className="font-medium underline underline-offset-2 hover:text-dotori-600 dark:hover:text-dotori-200"
 				>
-					개인정보처리방침
+					{copy.auth.login.termsPrivacy}
 				</Link>
-				에 동의합니다
+				{` ${copy.auth.login.termsSuffix}`}
 		</motion.p>
 	);
 });
@@ -319,7 +320,7 @@ function LoginPageClient() {
 			// OAuth redirect flow is more reliable when NextAuth handles navigation directly.
 			await signIn("kakao", { redirectTo: callbackPath });
 		} catch {
-			setError("로그인에 실패했어요. 다시 시도해주세요");
+			setError(copy.auth.errors.default);
 			setIsLoading(false);
 		} finally {
 			// Successful OAuth redirect leaves this page, so keep loading state only on failure.

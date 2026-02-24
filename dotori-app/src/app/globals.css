@@ -147,6 +147,43 @@
   -webkit-backdrop-filter: blur(4px);
 }
 
+/* ── 레이아웃 유틸리티 (DS_LAYOUT) ── */
+@utility app-page-shell {
+  padding-bottom: 3rem;
+}
+
+@utility app-scroll-region {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@utility app-content-shell {
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+@utility app-card-soft {
+  background-image: linear-gradient(to bottom right, rgb(245 237 224 / 0.9), rgb(255 255 255 / 0.92));
+}
+
+/* ── Safe-area 유틸리티 (DS_LAYOUT) ── */
+@utility safe-area-bottom {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+@utility safe-area-tabbar {
+  padding-bottom: calc(0.55rem + env(safe-area-inset-bottom));
+}
+
+@utility safe-area-header-top {
+  padding-top: calc(env(safe-area-inset-top) + 0.875rem);
+}
+
+@utility safe-area-floating-action {
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
 .dark .glass-header {
   background-color: rgb(26 21 16 / 0.82);
   backdrop-filter: blur(16px) saturate(1.6);
@@ -214,6 +251,6 @@
 
 	:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [role='option'], [role='menuitem'], [role='checkbox'], [role='radio'])[tabindex]:focus-visible,
 	:where(a, button, input, textarea, select, [role='button'], [role='link'], [role='tab'], [role='option'], [role='menuitem'], [role='checkbox'], [role='radio']):focus-visible {
-		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400;
+		@apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-500;
 	}
 }

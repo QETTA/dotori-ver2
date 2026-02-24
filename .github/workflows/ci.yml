@@ -1,6 +1,12 @@
-# ── Dotori CI/CD Pipeline ──
-# 순서: ci(local=CI 동일 커맨드) → build → deploy
-# GitHub Student Pack (Pro): 3000분/월, deployment environments 사용 가능
+# ── Dotori CI/CD Pipeline v3 — Immutable Image Deployment ──
+# 구조: detect → ci(lint+test) → docker(빌드+DOCR push) → deploy(이미지 pull)
+#
+# 핵심 개선: DO에서 매번 Docker 풀빌드(~15분) → GHA 캐시 빌드 + DOCR pre-built 이미지 배포(~3분)
+# GitHub Student Pack (Pro): 3000분/월
+#
+# ── 최초 1회 셋업 (DOCR 레지스트리 생성) ──
+# doctl registry create dotori --region sgp --subscription-tier starter
+# doctl apps update 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2 --spec .do/app.yaml
 
 name: CI/CD
 
@@ -27,10 +33,41 @@ concurrency:
   group: dotori-cicd-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DO_APP_ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
+  REGISTRY: registry.digitalocean.com
+  IMAGE: registry.digitalocean.com/dotori/web
+
 jobs:
-  # ── Job 1: CI (Local = CI) ──
-  test:
+  # ── Job 1: 변경 범위 감지 ──
+  detect:
     runs-on: ubuntu-latest
+    outputs:
+      needs_deploy: ${{ steps.filter.outputs.needs_deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect deployable changes
+        id: filter
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "needs_deploy=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "dotori-app/")
+          if echo "$CHANGED" | grep -qE '^(dotori-app/|\.do/app\.yaml|\.github/workflows/ci\.yml)'; then
+            echo "needs_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_deploy=false" >> $GITHUB_OUTPUT
+            echo "::notice::Skip deploy — no deployable changes detected"
+          fi
+
+  # ── Job 2: CI — lint + typecheck + test (빌드는 Docker가 담당) ──
+  ci:
+    runs-on: ubuntu-latest
+    needs: detect
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,59 +75,69 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: dotori-app/package-lock.json
+
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
         working-directory: dotori-app
-      - name: Run local CI command
-        run: npm run ci
+
+      - name: Lint + Typecheck + Test
+        run: npm run ci:preflight
         working-directory: dotori-app
 
-  # ── Job 2: Build ──
-  build:
+  # ── Job 3: Docker build + DOCR push (GHA BuildKit 레이어 캐시) ──
+  # 패치 배포 핵심: src만 변경 시 deps 레이어 캐시 → ~2분 빌드
+  docker:
+    needs: [detect, ci]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.detect.outputs.needs_deploy == 'true'
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DOCR
+        uses: docker/login-action@v3
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: dotori-app/package-lock.json
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Cache Next.js build
-        uses: actions/cache@v4
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
-          path: dotori-app/.next/cache
-          key: nextjs-${{ runner.os }}-${{ hashFiles('dotori-app/package-lock.json') }}-${{ hashFiles('dotori-app/src/**') }}
-          restore-keys: |
-            nextjs-${{ runner.os }}-${{ hashFiles('dotori-app/package-lock.json') }}-
-            nextjs-${{ runner.os }}-
+          context: .
+          file: dotori-app/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            SKIP_ENV_VALIDATION=1
+            GIT_SHA=${{ github.sha }}
+            NEXT_PUBLIC_KAKAO_JS_KEY=${{ vars.NEXT_PUBLIC_KAKAO_JS_KEY }}
+            NEXT_PUBLIC_KAKAO_KEY=${{ vars.NEXT_PUBLIC_KAKAO_KEY }}
+            NEXT_PUBLIC_KAKAO_MAP_KEY=${{ vars.NEXT_PUBLIC_KAKAO_MAP_KEY }}
+            NEXT_PUBLIC_KAKAO_CHANNEL_ID=${{ vars.NEXT_PUBLIC_KAKAO_CHANNEL_ID }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_MAPBOX_TOKEN=${{ vars.NEXT_PUBLIC_MAPBOX_TOKEN }}
+            NEXT_PUBLIC_MAPBOX_STYLE=${{ vars.NEXT_PUBLIC_MAPBOX_STYLE }}
+            NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ vars.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
 
-      - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
-        working-directory: dotori-app
-
-      - name: Build
-        run: npm run build
-        working-directory: dotori-app
-        env:
-          SKIP_ENV_VALIDATION: 1
-          NEXT_PUBLIC_KAKAO_JS_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_JS_KEY }}
-          NEXT_PUBLIC_KAKAO_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_KEY }}
-          NEXT_PUBLIC_KAKAO_MAP_KEY: ${{ vars.NEXT_PUBLIC_KAKAO_MAP_KEY }}
-          NEXT_PUBLIC_KAKAO_CHANNEL_ID: ${{ vars.NEXT_PUBLIC_KAKAO_CHANNEL_ID }}
-          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
-          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
-          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ vars.NEXT_PUBLIC_MAPBOX_TOKEN }}
-          NEXT_PUBLIC_MAPBOX_STYLE: ${{ vars.NEXT_PUBLIC_MAPBOX_STYLE }}
-          NEXT_PUBLIC_TOSS_CLIENT_KEY: ${{ vars.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
-
-  # ── Job 3: Deploy to DigitalOcean (main push only) ──
-  # app.yaml의 deploy_on_push: false 로 설정 → GitHub Actions가 단일 배포 경로
+  # ── Job 4: Deploy (pre-built 이미지 pull → 즉시 배포) ──
   deploy:
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [detect, docker]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'push' &&
+      needs.detect.outputs.needs_deploy == 'true'
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -98,36 +145,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to DigitalOcean App Platform
-        id: deploy
-        uses: digitalocean/app_action/deploy@v2
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Extract deployment URL
-        id: extract
-        if: success()
+      - name: Render immutable app spec
         run: |
-          URL=$(echo '${{ steps.deploy.outputs.app }}' | python3 -c "import sys,json; print(json.load(sys.stdin).get('live_url',''))" 2>/dev/null || echo "")
+          cp .do/app.yaml .do/app.deploy.yaml
+          sed -i "s/tag: latest/tag: sha-${GITHUB_SHA}/g" .do/app.deploy.yaml
+
+      - name: Update app with immutable image tag
+        run: |
+          doctl apps update "${DO_APP_ID}" --spec .do/app.deploy.yaml --wait
+
+      - name: Resolve production URL
+        id: app
+        run: |
+          URL="$(doctl apps get "${DO_APP_ID}" --format DefaultIngress --no-header | tr -d '[:space:]')"
           echo "url=$URL" >> $GITHUB_OUTPUT
 
       - name: Fail if deployment URL is missing
-        if: success()
         run: |
-          if [ -z "${{ steps.extract.outputs.url }}" ]; then
+          if [ -z "${{ steps.app.outputs.url }}" ]; then
             echo "DigitalOcean deployment URL is empty"
             exit 1
           fi
 
       - name: Wait for production health
-        if: success()
         run: |
-          BASE_URL="${{ steps.extract.outputs.url }}"
+          BASE_URL="${{ steps.app.outputs.url }}"
           BASE_URL="${BASE_URL%/}"
           HEALTH_URL="${BASE_URL}/api/health"
-          for i in $(seq 1 90); do
+          for i in $(seq 1 60); do
             if curl -fsS --max-time 5 "$HEALTH_URL" >/dev/null 2>&1; then
-              echo "Production health ready in ${i}s: $HEALTH_URL"
+              echo "Production health ready in $((i*2))s: $HEALTH_URL"
               exit 0
             fi
             sleep 2
@@ -136,14 +188,16 @@ jobs:
           exit 1
 
       - name: Deployment summary
-        if: success()
+        if: always()
         run: |
-          BASE_URL="${{ steps.extract.outputs.url }}"
+          BASE_URL="${{ steps.app.outputs.url }}"
           BASE_URL="${BASE_URL%/}"
           {
-            echo "## DigitalOcean Deployment"
-            echo ""
-            echo "- URL: ${BASE_URL}"
-            echo "- Health: ${BASE_URL}/api/health"
-            echo "- Commit: \`${GITHUB_SHA::7}\`"
+            echo "## Deployment"
+            echo "| Key | Value |"
+            echo "|-----|-------|"
+            echo "| URL | ${BASE_URL} |"
+            echo "| Health | ${BASE_URL}/api/health |"
+            echo "| Commit | \`${GITHUB_SHA::7}\` |"
+            echo "| Image | \`${{ env.IMAGE }}:sha-${GITHUB_SHA}\` |"
           } >> "$GITHUB_STEP_SUMMARY"

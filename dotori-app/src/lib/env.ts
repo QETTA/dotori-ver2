@@ -3,6 +3,7 @@ import { z } from "zod";
 const isBuildTime =
 	process.env.SKIP_ENV_VALIDATION === "1" ||
 	process.env.NEXT_PHASE === "phase-production-build";
+const isProduction = process.env.NODE_ENV === "production";
 
 const envSchema = z.object({
 	/** MongoDB Atlas connection string */
@@ -16,7 +17,9 @@ const envSchema = z.object({
 	/** Kakao OAuth client secret */
 	AUTH_KAKAO_SECRET: z.string().default(""),
 	/** Public app URL */
-	NEXT_PUBLIC_APP_URL: z.string().default("http://localhost:3000"),
+	NEXT_PUBLIC_APP_URL: isBuildTime || !isProduction
+		? z.string().default("http://localhost:3000")
+		: z.string().min(1, "NEXT_PUBLIC_APP_URL 환경변수를 설정해주세요"),
 	/** Node environment */
 	NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });

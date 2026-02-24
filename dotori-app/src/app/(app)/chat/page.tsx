@@ -43,6 +43,33 @@ const CHAT_PAGE_WRAP_CLASS =
   'relative flex min-h-0 flex-1 flex-col bg-dotori-50 dark:bg-dotori-900'
 const CHAT_COMPOSER_SURFACE_CLASS =
   'rounded-3xl border-t border-dotori-100/30 px-4 py-3.5 pb-[env(safe-area-inset-bottom)]'
+export const CHAT_ACTION_ROUTES: Record<string, string> = {
+  explore: '/explore',
+  waitlist: '/my/waitlist',
+  interests: '/my/interests',
+  community: '/community',
+  settings: '/my/settings',
+  login: '/login',
+  import: '/my/import',
+}
+
+export const QUICK_ACTION_MAP: Record<string, string> = {
+  recommend: '동네 추천해줘',
+  compare: '시설 비교해줘',
+  strategy: '입소 전략 정리해줘',
+  generate_report: '동네 추천해줘',
+  generate_checklist: '입소 체크리스트 정리해줘',
+  checklist: '입소 체크리스트 정리해줘',
+  broaden: '다른 시설을 더 찾아줘',
+}
+
+export function isKnownBlockAction(actionId: string): boolean {
+  if (actionId.startsWith('facility_')) {
+    return true
+  }
+
+  return Boolean(CHAT_ACTION_ROUTES[actionId] || QUICK_ACTION_MAP[actionId])
+}
 
 export default function ChatPage() {
   return (
@@ -367,6 +394,7 @@ function ChatContent() {
     isTrackingUsage,
     isUsageLoading,
     isUsageLimitReached,
+    messages,
     monthKey,
     setInput,
     setMessages,
@@ -383,17 +411,7 @@ function ChatContent() {
         return
       }
 
-      const actionRoutes: Record<string, string> = {
-        explore: '/explore',
-        waitlist: '/my/waitlist',
-        interests: '/my/interests',
-        community: '/community',
-        settings: '/my/settings',
-        login: '/login',
-        import: '/my/import',
-      }
-
-      const route = actionRoutes[actionId]
+      const route = CHAT_ACTION_ROUTES[actionId]
       if (route) {
         router.push(route)
         return
@@ -405,7 +423,12 @@ function ChatContent() {
         return
       }
 
-      sendMessage(actionId)
+      if (QUICK_ACTION_MAP[actionId]) {
+        sendMessage(QUICK_ACTION_MAP[actionId])
+        return
+      }
+
+      console.warn(`Unhandled chat action: ${actionId}`)
     },
     [retryLastMessage, router, sendMessage],
   )

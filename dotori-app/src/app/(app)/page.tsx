@@ -273,7 +273,7 @@ export default function HomePage() {
 											href={card.emptyCta.href}
 											className={cn(
 												DS_TYPOGRAPHY.caption,
-												"mt-0.5 inline-flex min-h-11 items-center justify-center font-semibold text-dotori-500 transition-colors hover:text-dotori-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400",
+												"mt-0.5 inline-flex min-h-11 items-center justify-center font-semibold text-dotori-500 transition-colors hover:text-dotori-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-500",
 											)}
 										>
 											{card.emptyCta.label}
@@ -315,7 +315,7 @@ export default function HomePage() {
 							<Text
 								className={cn(DS_TYPOGRAPHY.bodySm, "mt-0.5 text-dotori-700 dark:text-dotori-200")}
 							>
-								브랜드 톤에서 정리한 핵심 신호를 기준으로 이동할지 말지 빠르게 판단해요.
+								반편성·교사·빈자리 변화를 한눈에 정리했어요.
 							</Text>
 							<div className="mt-3 grid grid-cols-3 gap-1.5">
 								{heroMetrics.map((metric) => (
@@ -452,7 +452,7 @@ export default function HomePage() {
 					>
 						<div className="space-y-2.5 rounded-2xl bg-gradient-to-br from-dotori-50/90 to-transparent p-3 dark:from-dotori-900/40">
 							<div className="flex items-center gap-2">
-								<Badge color="forest">NBA 기반</Badge>
+								<Badge color="forest">이동 판단 기준</Badge>
 								<Text className={cn(DS_TYPOGRAPHY.bodySm, "text-dotori-700 dark:text-dotori-200")}>
 									{vacancyGuide}
 								</Text>
@@ -570,7 +570,7 @@ export default function HomePage() {
 						href="/community"
 						className={cn(
 							DS_GLASS.CARD,
-							"group flex min-h-11 items-center gap-2 rounded-3xl border border-dotori-100 bg-dotori-50/70 px-3.5 py-2.5 shadow-sm transition-colors hover:bg-dotori-100/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-400 dark:border-dotori-800 dark:bg-dotori-950/40 dark:hover:bg-dotori-900/50",
+							"group flex min-h-11 items-center gap-2 rounded-3xl border border-dotori-100 bg-dotori-50/70 px-3.5 py-2.5 shadow-sm transition-colors hover:bg-dotori-100/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dotori-500 dark:border-dotori-800 dark:bg-dotori-950/40 dark:hover:bg-dotori-900/50",
 						)}
 						aria-label="커뮤니티로 이동"
 					>
@@ -582,7 +582,7 @@ export default function HomePage() {
 						>
 							커뮤니티: {communityLine}
 						</Text>
-						<ChevronRightIcon className="h-4 w-4 text-dotori-400 transition-transform duration-150 group-hover:translate-x-0.5" />
+						<ChevronRightIcon className="h-4 w-4 text-dotori-500 transition-transform duration-150 group-hover:translate-x-0.5" />
 					</Link>
 				</motion.div>
 			</motion.main>

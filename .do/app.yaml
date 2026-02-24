@@ -1,22 +1,25 @@
-# ── Dotori App — DigitalOcean App Platform Spec ──
+# ── Dotori App — DigitalOcean App Platform Spec (v2 DOCR) ──
+# Pre-built 이미지 배포: GHA에서 빌드 → DOCR push → DO pull (빌드 스킵)
 # 유료 계정 + GitHub Student Pack ($200 크레딧)
+#
+# ── 최초 1회 셋업 ──
+# doctl registry create dotori --region sgp --subscription-tier starter
+# doctl apps update 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2 --spec .do/app.yaml
+#
 # Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
-# Deploy: doctl apps create --spec .do/app.yaml
-# Validate: doctl apps spec validate .do/app.yaml
 
 name: dotori-app
-region: sgp  # Singapore — 한국에서 가장 가까운 유효 DO 리전 (nrt은 미지원)
+region: sgp
 
 services:
   - name: web
-    dockerfile_path: dotori-app/Dockerfile
-    github:
-      repo: QETTA/dotori-ver2
-      branch: main
-      deploy_on_push: false  # GitHub Actions ci.yml이 배포 담당 (이중 배포 방지)
-
-    # source_dir 미설정 → 빌드 컨텍스트 = repo root
-    # Dockerfile 내부에서 dotori-app/ 경로 참조
+    # DOCR pre-built 이미지 (GHA CI에서 빌드+push)
+    # DO는 이미지 pull만 → 배포 ~30초 (기존 Dockerfile 빌드 ~10분)
+    image:
+      registry_type: DOCR
+      repository: web
+      # CI deploy job replaces this to immutable tag: sha-<commit>
+      tag: latest
 
     instance_size_slug: apps-s-1vcpu-2gb
     instance_count: 1
@@ -43,16 +46,7 @@ services:
         type: SECRET
         scope: RUN_TIME
 
-      # ── Kakao SDK (client-side, 빌드타임 주입) ──
-      - key: NEXT_PUBLIC_KAKAO_JS_KEY
-        type: GENERAL
-        scope: BUILD_TIME
-      - key: NEXT_PUBLIC_KAKAO_MAP_KEY
-        type: GENERAL
-        scope: BUILD_TIME
-      - key: NEXT_PUBLIC_KAKAO_CHANNEL_ID
-        type: GENERAL
-        scope: BUILD_TIME
+      # ── Kakao SDK (서버사이드) ──
       - key: KAKAO_REST_API_KEY
         type: SECRET
         scope: RUN_TIME
@@ -88,62 +82,23 @@ services:
         value: production
         type: GENERAL
         scope: RUN_TIME
-      - key: NEXT_PUBLIC_APP_URL
-        value: ${APP_URL}
-        type: GENERAL
-        scope: BUILD_TIME
-      - key: NEXT_PUBLIC_SITE_URL
-        value: ${APP_URL}
-        type: GENERAL
-        scope: BUILD_TIME
-
-      # ── Analytics ──
-      - key: NEXT_PUBLIC_GA_ID
-        type: GENERAL
-        scope: BUILD_TIME
 
       # ── Cron ──
       - key: CRON_SECRET
         type: SECRET
         scope: RUN_TIME
 
-      # ── 미래 기능 (활성화 시 주석 해제) ──
-      # # Toss Payments (Phase 3)
-      # - key: NEXT_PUBLIC_TOSS_CLIENT_KEY
-      #   type: GENERAL
-      #   scope: BUILD_TIME
-      # # Sentry (Phase 4)
-      # - key: NEXT_PUBLIC_SENTRY_DSN
-      #   type: GENERAL
-      #   scope: BUILD_TIME
-      # - key: SENTRY_AUTH_TOKEN
-      #   type: SECRET
-      #   scope: BUILD_TIME
-      # # Solapi Alimtalk (Phase 3)
-      # - key: SOLAPI_API_KEY
-      #   type: SECRET
-      #   scope: RUN_TIME
-      # - key: SOLAPI_API_SECRET
-      #   type: SECRET
-      #   scope: RUN_TIME
-      # - key: KAKAO_SENDER_KEY
-      #   type: SECRET
-      #   scope: RUN_TIME
+      # ── NEXT_PUBLIC_* 는 Docker 빌드 시 주입됨 (GHA build-args) ──
+      # BUILD_TIME scope 불필요 — 이미지에 이미 번들링
 
     health_check:
       http_path: /api/health
-      initial_delay_seconds: 15
+      initial_delay_seconds: 10
       period_seconds: 30
       timeout_seconds: 5
-      failure_threshold: 5
+      failure_threshold: 3
       success_threshold: 1
 
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
-
-# ── Custom domain (uncomment when ready) ──
-# domains:
-#   - domain: dotori.app
-#     type: PRIMARY
-#     minimum_tls_version: "1.3"

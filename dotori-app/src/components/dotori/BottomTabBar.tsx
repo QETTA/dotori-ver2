@@ -1,7 +1,7 @@
 'use client'
 
 import { BRAND } from '@/lib/brand-assets'
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import {
@@ -54,7 +54,7 @@ const tabs = [
   },
   {
     id: 'my',
-    label: 'MY',
+    label: '마이',
     href: '/my',
     icon: UserOutline,
     activeIcon: UserSolid,
@@ -74,9 +74,9 @@ const navPillClass = cn(
   'pointer-events-none absolute inset-0.5 rounded-[0.8rem] ring-1 ring-dotori-200/70',
 )
 const activeLabelClass = 'font-semibold text-dotori-700 dark:text-dotori-100'
-const inactiveLabelClass = 'font-medium text-dotori-500/80 dark:text-dotori-400/80'
+const inactiveLabelClass = 'font-medium text-dotori-600 dark:text-dotori-300'
 const navItemBaseClass =
-  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-[0.85rem] py-1 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-dotori-50 dark:focus-visible:ring-dotori-700/80 dark:focus-visible:ring-offset-dotori-950'
+  'relative flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-[0.85rem] py-1 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-dotori-50 dark:focus-visible:ring-dotori-500/80 dark:focus-visible:ring-offset-dotori-950'
 
 export const BottomTabBar = memo(function BottomTabBar() {
   const pathname = usePathname() || '/'
@@ -88,8 +88,7 @@ export const BottomTabBar = memo(function BottomTabBar() {
 
   return (
     <nav
-      className={navShellClass}
-      style={{ paddingBottom: 'calc(0.55rem + env(safe-area-inset-bottom))' }}
+      className={cn(navShellClass, DS_LAYOUT.SAFE_AREA_TABBAR)}
       role="navigation"
       aria-label="메인 내비게이션"
     >
@@ -139,8 +138,8 @@ export const BottomTabBar = memo(function BottomTabBar() {
                     className={cn(
                       'h-4 w-4 transition-colors duration-200',
                       active
-                        ? 'text-dotori-600 dark:text-dotori-200'
-                        : 'text-dotori-500/80 dark:text-dotori-400/80',
+                        ? 'text-dotori-700 dark:text-dotori-100'
+                        : 'text-dotori-600 dark:text-dotori-300',
                     )}
                   />
                 </div>

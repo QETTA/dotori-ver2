@@ -92,8 +92,8 @@ function getEstimatedAdmissionLabel(raw?: string) {
 function getAdmissionGuide(position?: number, estimatedDate?: string) {
 	if (!estimatedDate) {
 		return typeof position === "number"
-			? "아직 최종 입소 시기 반영이 완료되지 않았어요. 대기 순번 기준으로 업데이트돼요."
-			: "아직 입소 시기 정보가 비어있어요. 나중에 다시 확인해 주세요.";
+			? "입소 시기는 아직 확정되지 않았어요. 순번 기준으로 업데이트될 거예요."
+			: "입소 시기 정보가 아직 없어요. 나중에 다시 확인해봐요.";
 	}
 
 	return "아이사랑 데이터 기준으로 입소 시기가 갱신됩니다.";
@@ -297,7 +297,7 @@ export default function WaitlistPage() {
 												</span>
 											)}
 											<span
-												className="ml-auto tabular-nums text-caption text-dotori-400 dark:text-dotori-300"
+												className="ml-auto tabular-nums text-caption text-dotori-500 dark:text-dotori-300"
 												suppressHydrationWarning
 											>
 												신청 {formatRelativeTime(item.appliedAt)}

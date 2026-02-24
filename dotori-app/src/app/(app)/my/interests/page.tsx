@@ -146,7 +146,7 @@ export default function InterestsPage() {
 									removingIds.has(facility.id) && "opacity-50",
 								)}
 							>
-								<HeartIcon className="h-5 w-5 fill-dotori-400 text-dotori-400" />
+								<HeartIcon className="h-5 w-5 fill-dotori-500 text-dotori-500" />
 							</button>
 						</div>
 					))}

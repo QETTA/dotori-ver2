@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/catalyst/button";
 import { BRAND } from "@/lib/brand-assets";
+import { copy } from "@/lib/brand-copy";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 
@@ -57,14 +58,14 @@ export default function AuthError({
 					>
 						!
 					</span>
-					로그인이 잠깐 막혔어요
+					{copy.auth.error.loginBlocked}
 				</div>
 
 				<h2 className="mt-4 text-xl font-bold text-dotori-900 dark:text-dotori-50">
-					로그인 중 문제가 발생했어요
+					{copy.auth.error.loginFailedTitle}
 				</h2>
 				<p className="mt-2 text-sm leading-relaxed text-dotori-500 dark:text-dotori-200/80">
-					잠시 후 다시 시도해주세요. 계속되면 홈으로 이동해 다시 로그인해보세요.
+					{copy.auth.error.loginFailedDesc}
 				</p>
 
 				<div className="mt-8 w-full rounded-3xl border border-dotori-100 bg-white/85 p-5 text-left shadow-[0_18px_50px_-30px_rgba(97,64,46,0.55)] backdrop-blur dark:border-dotori-800 dark:bg-dotori-950/80 dark:shadow-none">
@@ -74,20 +75,20 @@ export default function AuthError({
 							color="dotori"
 							className="w-full min-h-11 text-base font-semibold transition-transform active:scale-[0.97]"
 						>
-							다시 시도
+							{copy.auth.error.retry}
 						</Button>
 						<Link
 							href="/"
 							className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-dotori-200 bg-white/70 px-6 text-base font-semibold text-dotori-700 shadow-sm backdrop-blur transition-colors transition-transform hover:bg-white/90 active:scale-[0.97] dark:border-dotori-800 dark:bg-dotori-950/55 dark:text-dotori-100 dark:hover:bg-dotori-950/70"
 						>
-							홈으로
+							{copy.auth.error.goHome}
 						</Link>
 					</div>
 				</div>
 			</div>
 
-			<p className="mt-4 pb-6 pt-4 text-xs leading-relaxed text-dotori-400 dark:text-dotori-300">
-				문제가 계속되면 앱을 새로고침하거나, 잠시 뒤 다시 시도해주세요.
+			<p className="mt-4 pb-6 pt-4 text-xs leading-relaxed text-dotori-500 dark:text-dotori-300">
+				{copy.auth.error.persistentIssue}
 			</p>
 		</div>
 	);

@@ -33,7 +33,7 @@ export default function MyPage() {
   )
   const sectionTitleClass = cn(
     DS_TYPOGRAPHY.label,
-    'mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold tracking-[0.2em] text-dotori-500 uppercase dark:border-dotori-800/80 dark:text-dotori-400',
+    'mb-2.5 border-b border-dotori-100/70 pb-2 font-semibold tracking-wider text-dotori-500 uppercase dark:border-dotori-800/80 dark:text-dotori-300',
   )
   const menuPanelClass = cn(
     DS_LAYOUT.CARD_SOFT,
@@ -57,7 +57,7 @@ export default function MyPage() {
   )
   const menuItemDescriptionClass = cn(
     DS_TYPOGRAPHY.caption,
-    'mt-0.5 text-dotori-400 dark:text-dotori-500',
+    'mt-0.5 text-dotori-500 dark:text-dotori-300',
   )
   const myPageRootClass = 'pb-8 text-dotori-900 dark:text-dotori-50'
 
@@ -436,7 +436,7 @@ export default function MyPage() {
             <p
               className={cn(
                 DS_TYPOGRAPHY.label,
-                'font-semibold tracking-[0.2em] text-dotori-500 uppercase dark:text-dotori-300',
+                'font-semibold tracking-wider text-dotori-500 uppercase dark:text-dotori-300',
               )}
             >
               프리미엄

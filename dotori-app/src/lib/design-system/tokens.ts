@@ -129,6 +129,14 @@ export const DS_LAYOUT = {
 	CONTENT_SHELL: "app-content-shell",
 	/** 소프트 그라데이션 카드 */
 	CARD_SOFT:     "app-card-soft",
+	/** 바텀 탭 높이 + safe-area 하단 여백 */
+	SAFE_AREA_BOTTOM: "safe-area-bottom",
+	/** 바텀 탭 내부 safe-area 패딩 */
+	SAFE_AREA_TABBAR: "safe-area-tabbar",
+	/** 스티키 헤더 상단 safe-area 패딩 */
+	SAFE_AREA_HEADER_TOP: "safe-area-header-top",
+	/** 플로팅 버튼 안전 하단 위치 */
+	SAFE_AREA_FLOATING_ACTION: "safe-area-floating-action",
 } as const;
 
 // ─────────────────────────────────────────────
@@ -199,7 +207,7 @@ export const DS_FRESHNESS = {
 		dot:  "bg-amber-500 dark:bg-amber-400",
 	},
 	cached: {
-		base: "text-dotori-500 bg-dotori-100",
+		base: "text-dotori-700 bg-dotori-100",
 		dark: "dark:bg-dotori-800 dark:text-dotori-100",
 		dot:  "bg-dotori-300 dark:bg-dotori-600",
 	},

@@ -86,7 +86,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 			: { label: "조건 다시 설정", onClick: onResetSearch };
 
 	return (
-		<div className="relative pb-[calc(5.5rem+env(safe-area-inset-bottom))] bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/45 px-3 pt-2 dark:from-dotori-950 dark:via-dotori-950 dark:to-dotori-900/45">
+		<div className="relative bg-gradient-to-b from-dotori-50 via-dotori-50 to-dotori-100/45 px-3 pt-2 dark:from-dotori-950 dark:via-dotori-950 dark:to-dotori-900/45">
 			<img
 				src={BRAND.watermark}
 				alt=""

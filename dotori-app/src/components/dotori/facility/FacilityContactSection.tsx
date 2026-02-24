@@ -16,7 +16,7 @@ import { useState } from "react";
 import { Button } from "@/components/catalyst/button";
 import { MapEmbed } from "@/components/dotori/MapEmbed";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_GLASS, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_GLASS, DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { ActionStatus, Facility } from "@/types/dotori";
@@ -413,7 +413,7 @@ export function FacilityContactMapSections({
 	status,
 }: FacilityContactMapSectionsProps) {
 	return (
-		<div className="pb-[calc(5rem+env(safe-area-inset-bottom))]">
+		<div className={DS_LAYOUT.SAFE_AREA_BOTTOM}>
 			<FacilityContactSection
 				phone={phone}
 				address={address}

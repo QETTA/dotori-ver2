@@ -63,10 +63,10 @@
 /* ═══════ 로딩 텍스트 (선택) ═══════ */
 .dotori-loader__text {
 	margin-top: 12px;
-	font-family: "Pretendard", "Noto Sans KR", sans-serif;
-	font-size: 13px;
+	font-family: var(--font-sans);
+	font-size: 0.8125rem;
 	font-weight: 500;
-	color: #8a7a6a;
+	color: var(--color-dotori-600, #8a7a6a);
 	text-align: center;
 }
 

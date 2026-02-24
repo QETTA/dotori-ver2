@@ -94,16 +94,15 @@ export function SplashScreen() {
       {/* Wordmark — slide up */}
       <div className="dotori-splash__wordmark mt-5 text-center">
         <p
-          className="font-bold tracking-tight text-dotori-800"
-          style={{ fontSize: 28, fontFamily: 'Pretendard, system-ui, sans-serif' }}
+          className="font-sans font-bold tracking-tight text-dotori-800"
+          style={{ fontSize: 28 }}
         >
           도토리
         </p>
         {/* Tagline — delayed fade-in after wordmark */}
         <p
-          className="mt-1 text-sm font-medium text-dotori-600"
+          className="font-sans mt-1 text-sm font-medium text-dotori-600"
           style={{
-            fontFamily: 'Pretendard, system-ui, sans-serif',
             opacity: 0,
             animation: 'dotori-fade-in 400ms ease-out 1300ms forwards',
           }}

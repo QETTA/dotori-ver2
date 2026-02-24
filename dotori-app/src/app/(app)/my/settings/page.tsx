@@ -102,7 +102,7 @@ export default function SettingsPage() {
 			setNextRenewalDate(formatDateLabel(renewalDate));
 			setSuccessMessage(
 				nextPlan === "premium"
-					? "프리미엄 결제가 완료되었어요. 다음 갱신일에 맞춰 자동 결제돼요."
+					? "프리미엄 결제가 완료되었어요. 다음 결제일에 맞춰 자동 결제돼요."
 					: "요청은 접수되었지만 플랜 반영은 조금 뒤에 반영될 수 있어요.",
 			);
 			refresh();
@@ -243,7 +243,7 @@ export default function SettingsPage() {
 					<p className="mt-2 text-lg font-bold text-dotori-900 dark:text-dotori-50">{planLabel}</p>
 					{isPremium && (
 						<p className="mt-1 text-body-sm text-forest-600">
-							다음 갱신일: {nextRenewalDate || "확인 중"}
+							다음 결제일: {nextRenewalDate || "확인 중"}
 						</p>
 					)}
 				</div>
@@ -277,8 +277,8 @@ export default function SettingsPage() {
 							</div>
 							<p className="text-caption text-forest-600">
 								{nextRenewalDate
-									? `다음 갱신일은 ${nextRenewalDate}이에요`
-									: "다음 갱신일 정보를 불러오는 중이에요"}
+									? `다음 결제일은 ${nextRenewalDate}이에요`
+									: "다음 결제일 정보를 불러오는 중이에요"}
 							</p>
 						</div>
 					) : (
