@@ -38,7 +38,6 @@ export async function buildRecommendationResponse(
 							{
 								id: "broaden",
 								label: "전체 검색",
-								action: "compare",
 								variant: "outline",
 							},
 						],
@@ -157,4 +156,3 @@ function fallbackResponse(content: string): ChatResponse {
 		blocks: [{ type: "text", content }],
 	};
 }
-
