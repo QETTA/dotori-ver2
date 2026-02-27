@@ -22,8 +22,8 @@ import {
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
-import { scrollFadeIn } from '@/lib/motion'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
@@ -34,6 +34,7 @@ import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { FunnelSteps } from '@/components/dotori/FunnelSteps'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { ErrorState } from '@/components/dotori/ErrorState'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { ToBadge } from '@/components/dotori/ToBadge'
 import { StickyBottomCTA } from '@/components/dotori/StickyBottomCTA'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
@@ -123,7 +124,7 @@ export default function FacilityDetailPage({
           </div>
         </FadeIn>
         <FadeIn>
-          <h1 className={cn('mt-4 font-wordmark text-4xl/[1.15]', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('mt-4 font-wordmark text-4xl/[1.15] font-extrabold tracking-tight', gradientTextHero)}>
             {facility.name}
           </h1>
         </FadeIn>
@@ -137,28 +138,32 @@ export default function FacilityDetailPage({
 
       {/* ══════ TO SCORE — DonutGauge (상단 배치) ══════ */}
       <motion.div {...scrollFadeIn}>
-        <div className="rounded-xl bg-forest-50 p-6 dark:bg-forest-950/20 ring-1 ring-forest-200/40 dark:ring-forest-800/40">
-          <div className="flex items-center gap-6">
-            <DonutGauge
-              value={toScore}
-              size={100}
-              strokeWidth={8}
-              color="forest"
-              label="입소 가능성"
-              sublabel="TO 예측 엔진"
-            />
-            <div className="flex-1 space-y-2">
-              <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
-                빈자리 {vacancies}석
-              </h3>
-              <Text className="text-caption text-dotori-600 dark:text-dotori-400">
-                정원 {facility.capacity.total}명 중 {facility.capacity.current}명 재원
-              </Text>
-              {facility.capacity.waiting > 0 && (
-                <Text className="text-caption text-amber-600 dark:text-amber-400">
-                  대기 {facility.capacity.waiting}명
+        <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden')}>
+          <NoiseTexture opacity={0.02} />
+          <div className="h-1.5 bg-gradient-to-r from-forest-500 via-forest-400 to-forest-500" />
+          <div className="bg-forest-50/80 p-6 dark:bg-forest-950/20">
+            <div className="flex items-center gap-6">
+              <DonutGauge
+                value={toScore}
+                size={100}
+                strokeWidth={8}
+                color="forest"
+                label="입소 가능성"
+                sublabel="TO 예측 엔진"
+              />
+              <div className="flex-1 space-y-2">
+                <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary)}>
+                  빈자리 {vacancies}석
+                </h3>
+                <Text className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.secondary)}>
+                  정원 {facility.capacity.total}명 중 {facility.capacity.current}명 재원
                 </Text>
-              )}
+                {facility.capacity.waiting > 0 && (
+                  <Text className={cn(DS_TYPOGRAPHY.caption, 'text-amber-600 dark:text-amber-400')}>
+                    대기 {facility.capacity.waiting}명
+                  </Text>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -166,8 +171,8 @@ export default function FacilityDetailPage({
 
       {/* ══════ CAPACITY BarChart ══════ */}
       <motion.div {...scrollFadeIn}>
-        <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6')}>
-          <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'mb-4 font-medium text-dotori-950 dark:text-dotori-50')}>
+        <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-6')}>
+          <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'mb-4 font-medium', DS_TEXT.primary)}>
             정원 현황
           </h3>
           <BarChart
@@ -220,13 +225,15 @@ export default function FacilityDetailPage({
             {features.map((feat) => {
               const Icon = amenityIcons[feat]
               return (
-                <div
+                <motion.div
                   key={feat}
-                  className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5', DS_CARD.flat.base, DS_CARD.flat.dark)}
+                  whileHover={{ y: -2 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5 cursor-default', DS_CARD.flat.base, DS_CARD.flat.dark)}
                 >
                   {Icon && <Icon className="h-4 w-4 text-forest-600 dark:text-forest-400" />}
                   <span className={cn(DS_TYPOGRAPHY.caption, 'font-medium')}>{feat}</span>
-                </div>
+                </motion.div>
               )
             })}
           </div>
@@ -274,12 +281,16 @@ export default function FacilityDetailPage({
 
       {/* ══════ FUNNEL STEPS ══════ */}
       <motion.div {...scrollFadeIn}>
-        <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6')}>
-          <p className={DS_PAGE_HEADER.eyebrow}>
-            {copy.facility.funnelLabel}
-          </p>
-          <div className="mt-4">
-            <FunnelSteps currentStep={0} />
+        <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden')}>
+          <NoiseTexture opacity={0.02} />
+          <div className="h-1 bg-gradient-to-r from-dotori-400 via-amber-400 to-dotori-300" />
+          <div className="p-6">
+            <p className={DS_PAGE_HEADER.eyebrow}>
+              {copy.facility.funnelLabel}
+            </p>
+            <div className="mt-4">
+              <FunnelSteps currentStep={0} />
+            </div>
           </div>
         </div>
       </motion.div>

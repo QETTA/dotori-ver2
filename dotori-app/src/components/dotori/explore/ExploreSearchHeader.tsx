@@ -146,11 +146,11 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						/>
 					</motion.div>
 					<motion.div {...stagger.item}>
-						<h2 className={cn("font-wordmark text-2xl/8 font-bold tracking-tight", gradientTextHero)}>
+						<h1 className={cn("font-wordmark text-3xl/[1.2] font-extrabold tracking-tight", gradientTextHero)}>
 							시설 탐색
-						</h2>
-						<Text className={cn('mt-1', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.bodySm)}>
-							지역과 조건을 선택하세요
+						</h1>
+						<Text className={cn('mt-2', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.body)}>
+							어린이집·유치원 2만+ 시설을 검색하세요
 						</Text>
 					</motion.div>
 				</motion.div>

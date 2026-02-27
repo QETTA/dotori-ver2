@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from 'motion/react'
 import { tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { DS_SHADOW, DS_TEXT } from '@/lib/design-system/tokens'
-import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 
 export function QuickActionChips({
   chips,
@@ -28,14 +27,20 @@ export function QuickActionChips({
   }
 
   return (
-    <div
-      className={cn(DS_SURFACE.primary, 'flex flex-wrap gap-2', className)}
-    >
+    <div className={cn('relative', className)}>
+      {/* Fade edges */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-white to-transparent dark:from-dotori-950" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-white to-transparent dark:from-dotori-950" />
+      <div className={cn(
+        'flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 py-1',
+        '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+      )}>
       <AnimatePresence>
         {visible.map((chip) => (
           <motion.div
             key={chip}
             layout
+            className="shrink-0 snap-start"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
@@ -59,6 +64,7 @@ export function QuickActionChips({
           </motion.div>
         ))}
       </AnimatePresence>
+      </div>
     </div>
   )
 }

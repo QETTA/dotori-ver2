@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/dotori/Skeleton";
 import { NoiseTexture } from "@/components/dotori/NoiseTexture";
 import { DS_STATUS, DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { UiBlock as UiBlockType } from "@/types/dotori";
@@ -190,8 +191,14 @@ export const ExploreResultList = memo(function ExploreResultList({
 								{...stagger.fast.item}
 								className="group/card relative"
 							>
+								{/* z-0: hover background layer */}
 								<div className={cn(
-								'overflow-hidden',
+									'absolute -inset-px rounded-2xl opacity-0 transition duration-200 group-hover/card:opacity-100',
+									DS_SURFACE.sunken,
+								)} />
+								{/* z-10: content */}
+								<div className={cn(
+								'relative z-10 overflow-hidden',
 								DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover,
 							)}>
 								{/* Status accent bar */}

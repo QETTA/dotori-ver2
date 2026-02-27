@@ -26,6 +26,8 @@ function ExploreContent() {
 
   return (
     <div className={cn(DS_SURFACE.primary, 'relative min-h-screen')}>
+      {/* Warm gradient background */}
+      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-dotori-50/60 via-dotori-50/30 to-transparent dark:from-dotori-950/30 dark:via-transparent" />
       <BrandWatermark className="opacity-20" />
       {/* ══════ SEARCH HEADER ══════ */}
       <ExploreSearchHeader state={headerState} actions={headerActions} />
@@ -36,7 +38,7 @@ function ExploreContent() {
       </FadeIn>
 
       {/* ── Section accent divider ── */}
-      <div className="h-1 bg-gradient-to-r from-dotori-500/0 via-dotori-400/60 to-dotori-500/0" />
+      <div className="h-1.5 bg-gradient-to-r from-dotori-500/0 via-dotori-400/80 to-dotori-500/0" />
 
       {/* ══════ ToRI FAB ══════ */}
       <ToRiFAB prompt="주변 시설 추천해줘" />

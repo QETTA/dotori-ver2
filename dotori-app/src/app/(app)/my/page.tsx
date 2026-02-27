@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { gradientTextHero } from '@/lib/motion'
 
 type MenuItem = {
   href: string
@@ -77,6 +78,11 @@ export default function MyPage() {
           <p className={DS_PAGE_HEADER.eyebrow}>
             마이페이지
           </p>
+        </FadeIn>
+        <FadeIn>
+          <h1 className={cn('mt-3 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
+            나의 도토리
+          </h1>
         </FadeIn>
         <FadeIn>
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative mt-5 overflow-hidden')}>

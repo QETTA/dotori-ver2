@@ -15,9 +15,9 @@ import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
-import { scrollFadeIn } from '@/lib/motion'
+import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { Heading, Subheading } from '@/components/catalyst/heading'
+import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { Badge } from '@/components/catalyst/badge'
@@ -99,9 +99,9 @@ export default function OnboardingPage() {
           <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
             온보딩
           </p>
-          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
+          <h1 className={cn('mt-3 font-wordmark text-3xl/10 font-extrabold tracking-tight', gradientTextHero)}>
             {copy.onboarding.welcome}
-          </Heading>
+          </h1>
           <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
             {copy.onboarding.welcomeSub}
           </Text>

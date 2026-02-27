@@ -180,10 +180,13 @@ export default function HomePage() {
         </motion.div>
 
         {/* ══════ STATS ══════ */}
+        <FadeIn>
+          <p className={cn(DS_PAGE_HEADER.eyebrow, 'mb-3')}>실시간 현황</p>
+        </FadeIn>
         <FadeInStagger faster className="grid grid-cols-3 gap-3">
           <FadeIn>
             <div className={CARD_SM}>
-              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums', DS_TEXT.primary)}>
+              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
               </div>
               <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>분석 시설</p>
@@ -216,9 +219,9 @@ export default function HomePage() {
         </motion.div>
 
         {/* ══════ QUICK ACTIONS — 3-Layer Hover + Icon Accent ══════ */}
-        <div>
+        <motion.div {...scrollFadeIn}>
           <UiBlockCard block={quickActionsBlock} />
-        </div>
+        </motion.div>
 
         {/* ══════ ALERT BANNER — forest accent ══════ */}
         <motion.div {...scrollFadeIn}>
