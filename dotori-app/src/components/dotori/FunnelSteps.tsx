@@ -10,17 +10,17 @@ import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY, DS_PROGRESS } from '@/lib/design-system/tokens'
 import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 import {
-  MagnifyingGlassIcon,
-  ChartBarIcon,
-  CalendarDaysIcon,
-  DocumentCheckIcon,
-} from '@heroicons/react/24/outline'
+  Search,
+  BarChart3,
+  CalendarDays,
+  FileCheck,
+} from 'lucide-react'
 
 const STEPS = [
-  { label: '탐색', description: '어린이집·유치원 통합 검색', Icon: MagnifyingGlassIcon },
-  { label: 'TO예측', description: '빈자리 가능성 AI 분석', Icon: ChartBarIcon },
-  { label: '견학신청', description: '원클릭 견학 예약', Icon: CalendarDaysIcon },
-  { label: '전자서명', description: '입소 서류 10분 완결', Icon: DocumentCheckIcon },
+  { label: '탐색', description: '어린이집·유치원 통합 검색', Icon: Search },
+  { label: 'TO예측', description: '빈자리 가능성 AI 분석', Icon: BarChart3 },
+  { label: '견학신청', description: '원클릭 견학 예약', Icon: CalendarDays },
+  { label: '전자서명', description: '입소 서류 10분 완결', Icon: FileCheck },
 ] as const
 
 export interface FunnelStepsProps {

@@ -2,13 +2,13 @@
 
 ## CHECKPOINT (Single Source of Truth)
 - **현재**: R60 완료 (2커밋), 다음 R61
-- **QA**: TBD (R60 사후 QA 필요, R59 기준 6.6/10)
+- **QA**: **7.4/10** (R61 — 7.0 게이트 통과, Home 7.7, Chat 7.8, Landing 7.7, Community 7.5, My 7.2, Explore 6.7)
 - **빌드**: OK (20 pages, 804 tests, 70 files)
 - **P0**: 0건 | **P1**: 0건
 - **배포**: 수동 전용 (deploy.yml), DO sgp 리전
 - **MongoDB**: 20,027 시설 (17개 시도)
 - **DO API**: ⚠️ 토큰 만료 (doctl/API 401), 콘솔 수동 배포 필요
-- **최신 커밋**: 3de6b50 fix(R60) 플랜 누락 전수 수정
+- **최신 커밋**: 343a8ae feat(R61) QA 6.9→7.4
 - **DS 패턴**: DS_ 참조 914건, lucide 50종, group/card 15건, auto-animate 6건
 - **heroicons 잔여**: 6파일 (BottomTabBar, community/page, FunnelSteps, facility/[id], community/write, [...slug])
 
@@ -38,9 +38,10 @@
 - [ ] DS_STATES.focus 50%+: Tailwind variant prefix 제약
 - [ ] heroicons 잔여 6파일
 
-## Sonnet QA — R60 사후 측정 필요
-- R59 기준: 6.6/10 (Home 5.8, Explore 6.7, Facility 6.8, Chat 6.7, My 6.7, Landing 6.8)
-- R60 이후: TBD
+## Sonnet QA 이력
+- R59: 6.6/10 (Home 5.8, Explore 6.7, Facility 6.8, Chat 6.7, My 6.7, Landing 6.8)
+- R60: 6.9/10 (Home 7.3, Explore 6.3, Facility 6.3, Chat 7.5, My 6.3, Landing 7.7)
+- **R61: 7.4/10** (Home 7.7, Chat 7.8, Landing 7.7, Community 7.5, My 7.2, Explore 6.7) ← 7.0 게이트 통과
 
 ## P2 — 코드 품질
 - [ ] 대형 페이지 분리: community/page.tsx (~615줄), chat/page.tsx (~500줄)

@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import {
-  ChatBubbleLeftRightIcon,
-  MapPinIcon,
-  UsersIcon,
-} from '@heroicons/react/24/outline'
+  MessagesSquare,
+  MapPin,
+  Users,
+} from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { DS_STATUS } from '@/lib/design-system/tokens'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
@@ -147,7 +147,7 @@ export default async function AppRedesignPage({ params }: { params: Promise<{ sl
               type="button"
               className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-dotori-200 bg-white px-4 py-2.5 text-dotori-800"
             >
-              <ChatBubbleLeftRightIcon className="mr-2 h-4 w-4" />
+              <MessagesSquare className="mr-2 h-4 w-4" />
               {item}
             </button>
           ))}
@@ -167,7 +167,7 @@ export default async function AppRedesignPage({ params }: { params: Promise<{ sl
           <div className={`${cardClass}`}>
             <div className="flex items-center justify-between text-dotori-800">
               <p>지도형 탐색</p>
-              <MapPinIcon className="h-5 w-5" />
+              <MapPin className="h-5 w-5" />
             </div>
             <p className="mt-2 text-body-sm text-dotori-600">지역/유형/거리 기준 정렬</p>
           </div>
@@ -239,7 +239,7 @@ export default async function AppRedesignPage({ params }: { params: Promise<{ sl
         <div className="grid gap-2 sm:grid-cols-2">
           {[{ href: '/my/documents', label: '서류함' }, { href: '/my/waitlist', label: '입소 대기' }, { href: '/my/notifications', label: '알림' }, { href: '/my/settings', label: '설정' }].map((menu) => (
             <Link key={menu.href} href={menu.href} className="inline-flex min-h-11 items-center rounded-2xl border border-dotori-200 bg-white px-4 py-2.5 text-dotori-800">
-              <UsersIcon className="mr-2 h-4 w-4" />
+              <Users className="mr-2 h-4 w-4" />
               {menu.label}
             </Link>
           ))}

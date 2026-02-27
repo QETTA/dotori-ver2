@@ -11,14 +11,14 @@ import { use } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import {
-  ArrowLeftIcon,
-  MapPinIcon,
-  ShareIcon,
-  HeartIcon,
-  VideoCameraIcon,
-  TruckIcon,
-  StarIcon,
-} from '@heroicons/react/24/outline'
+  ArrowLeft,
+  MapPin,
+  Share,
+  Heart,
+  Video,
+  Truck,
+  Star,
+} from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
@@ -44,9 +44,9 @@ import { PhotoGallery } from '@/components/dotori/PhotoGallery'
 import { useFacilityDetail } from '@/hooks/use-facility-detail'
 
 const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  CCTV: VideoCameraIcon,
-  통학버스: TruckIcon,
-  평가인증: StarIcon,
+  CCTV: Video,
+  통학버스: Truck,
+  평가인증: Star,
 }
 
 export default function FacilityDetailPage({
@@ -96,15 +96,15 @@ export default function FacilityDetailPage({
       <FadeIn>
         <div className="flex items-center justify-between">
           <Link href="/explore" className={cn('inline-flex items-center gap-2 text-sm/6 hover:text-dotori-950 dark:hover:text-white', DS_TEXT.secondary)}>
-            <ArrowLeftIcon className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" />
             목록으로
           </Link>
           <div className="flex gap-2">
             <DsButton variant="ghost" aria-label="공유하기" className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
-              <ShareIcon className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
+              <Share className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
             </DsButton>
             <DsButton variant="ghost" aria-label="관심 등록" className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
-              <HeartIcon className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
+              <Heart className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
             </DsButton>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function FacilityDetailPage({
         </FadeIn>
         <FadeIn>
           <div className="mt-3 flex items-center gap-2">
-            <MapPinIcon className="h-4 w-4 shrink-0 text-dotori-600 dark:text-dotori-400" />
+            <MapPin className="h-4 w-4 shrink-0 text-dotori-600 dark:text-dotori-400" />
             <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>{facility.address}</Text>
           </div>
         </FadeIn>
@@ -247,7 +247,7 @@ export default function FacilityDetailPage({
         </h2>
         <div className={cn('flex h-36 items-center justify-center overflow-hidden rounded-xl', DS_SURFACE.sunken)}>
           <div className="text-center">
-            <MapPinIcon className="mx-auto h-8 w-8 text-dotori-400" />
+            <MapPin className="mx-auto h-8 w-8 text-dotori-400" />
             <Text className={cn('mt-2', DS_TYPOGRAPHY.caption)}>지도 준비 중</Text>
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function FacilityDetailPage({
         <div className={cn('mt-3 flex items-center gap-3 p-4', DS_CARD.raised.base, DS_CARD.raised.dark)}>
           <div className="flex gap-0.5">
             {Array.from({ length: 5 }, (_, i) => (
-              <StarIcon
+              <Star
                 key={i}
                 className={cn('h-4 w-4', i < Math.round(facility.rating) ? 'text-amber-400' : 'text-dotori-200 dark:text-dotori-700')}
               />

@@ -249,13 +249,6 @@ export const DS_STATUS_ALIAS = {
   pending: DS_STATUS.waiting,
 } as const
 
-/* ── States (Focus / Disabled / Active) ── */
-export const DS_STATES = {
-  focus: 'ring-2 ring-dotori-500/50 ring-offset-2 ring-offset-white dark:ring-offset-dotori-950',
-  disabled: 'opacity-50 pointer-events-none',
-  active: 'ring-2 ring-dotori-400/40',
-} as const
-
 /* ── Spacing Tokens ── */
 export const DS_SPACING = {
   xs: 'gap-1',

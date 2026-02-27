@@ -10,60 +10,23 @@ import {
 import { tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import {
-  ChatBubbleLeftIcon as ChatOutline,
-  UserGroupIcon as GroupOutline,
-  HomeIcon as HomeOutline,
-  MagnifyingGlassIcon as SearchOutline,
-  UserCircleIcon as UserOutline,
-} from '@heroicons/react/24/outline'
-import {
-  ChatBubbleLeftIcon as ChatSolid,
-  UserGroupIcon as GroupSolid,
-  HomeIcon as HomeSolid,
-  MagnifyingGlassIcon as SearchSolid,
-  UserCircleIcon as UserSolid,
-} from '@heroicons/react/24/solid'
+  Home,
+  Search,
+  MessageSquare,
+  Users,
+  CircleUser,
+} from 'lucide-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { memo } from 'react'
 
 const tabs = [
-  {
-    id: 'home',
-    label: copy.navigation.tabs.home,
-    href: '/',
-    icon: HomeOutline,
-    activeIcon: HomeSolid,
-  },
-  {
-    id: 'explore',
-    label: copy.navigation.tabs.explore,
-    href: '/explore',
-    icon: SearchOutline,
-    activeIcon: SearchSolid,
-  },
-  {
-    id: 'chat',
-    label: copy.navigation.tabs.chat,
-    href: '/chat',
-    icon: ChatOutline,
-    activeIcon: ChatSolid,
-  },
-  {
-    id: 'community',
-    label: copy.navigation.tabs.community,
-    href: '/community',
-    icon: GroupOutline,
-    activeIcon: GroupSolid,
-  },
-  {
-    id: 'my',
-    label: copy.navigation.tabs.my,
-    href: '/my',
-    icon: UserOutline,
-    activeIcon: UserSolid,
-  },
+  { id: 'home', label: copy.navigation.tabs.home, href: '/', icon: Home },
+  { id: 'explore', label: copy.navigation.tabs.explore, href: '/explore', icon: Search },
+  { id: 'chat', label: copy.navigation.tabs.chat, href: '/chat', icon: MessageSquare },
+  { id: 'community', label: copy.navigation.tabs.community, href: '/community', icon: Users },
+  { id: 'my', label: copy.navigation.tabs.my, href: '/my', icon: CircleUser },
 ] as const
 
 /* ── Precomputed class strings ── */
@@ -127,7 +90,7 @@ export const BottomTabBar = memo(function BottomTabBar({ badges }: BottomTabBarP
       <div className="relative flex items-center justify-around px-1.5 py-1.5">
         {tabs.map((tab) => {
           const active = isActive(tab.href)
-          const Icon = active ? tab.activeIcon : tab.icon
+          const Icon = tab.icon
           const isChat = tab.id === 'chat'
 
           return (
@@ -175,6 +138,8 @@ export const BottomTabBar = memo(function BottomTabBar({ badges }: BottomTabBarP
                         ? 'text-dotori-900 dark:text-dotori-50'
                         : 'text-dotori-600 dark:text-dotori-400',
                     )}
+                    fill={active ? 'currentColor' : 'none'}
+                    strokeWidth={active ? 1.5 : 2}
                   />
                 </div>
                 {/* Chat live dot */}

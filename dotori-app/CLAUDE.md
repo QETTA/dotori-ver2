@@ -8,7 +8,7 @@ Dotori (도토리) is a Korean childcare/education facility finder MVP. Parents 
 
 - **Framework**: Next.js 16.1 (App Router) + React 19 + TypeScript 5.8 strict
 - **Styling**: Tailwind CSS 4 with `@tailwindcss/postcss`, HEX color tokens
-- **UI**: @headlessui/react 2.2, @heroicons/react 2.2, Catalyst UI Kit (27 components)
+- **UI**: @headlessui/react 2.2, lucide-react 0.475, Catalyst UI Kit (27 components)
 - **Animation**: `motion/react` (motion 12) — **NEVER** use `framer-motion`
 - **State**: React Context + useReducer (no external state libraries)
 - **Backend**: Mongoose 8.23 + MongoDB Atlas (db: `dotori`, 20,027 facilities)

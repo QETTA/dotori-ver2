@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['mongoose'],
   experimental: {
-    optimizePackageImports: ['@heroicons/react', '@headlessui/react', 'motion', 'lucide-react'],
+    optimizePackageImports: ['@headlessui/react', 'motion', 'lucide-react'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],

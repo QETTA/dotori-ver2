@@ -316,12 +316,6 @@
 
 /* ── 디자인 전문가 유틸리티 (R60) ── */
 
-/* Card flip animation (3D perspective) */
-@utility card-flip {
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-
 /* Fluid typography (clamp-based responsive) */
 @utility text-fluid-sm {
   font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
