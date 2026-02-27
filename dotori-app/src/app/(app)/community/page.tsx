@@ -10,11 +10,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import {
-  PencilSquareIcon,
-  HeartIcon,
-  ChatBubbleLeftIcon,
-  ArrowTrendingUpIcon,
-} from '@heroicons/react/24/outline'
+  PenSquare,
+  Heart,
+  MessageCircle,
+  TrendingUp,
+} from 'lucide-react'
 import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
@@ -28,6 +28,7 @@ import { hoverLift, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { useCommunityPosts } from '@/hooks/use-community-posts'
 import { TrendingRegionChips } from '@/components/dotori/TrendingRegionChips'
@@ -60,14 +61,14 @@ export default function CommunityPage() {
             </p>
           </FadeIn>
           <FadeIn>
-            <h1 className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/[1.2]', gradientTextHero)}>
+            <h1 className={cn('mt-3 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
               이웃 이야기
             </h1>
           </FadeIn>
         </div>
         <FadeIn>
           <DsButton href="/community/write">
-            <PencilSquareIcon className="h-4 w-4" />
+            <PenSquare className="h-4 w-4" />
             글쓰기
           </DsButton>
         </FadeIn>
@@ -77,9 +78,10 @@ export default function CommunityPage() {
       {posts.length > 0 && (
         <FadeIn>
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden bg-amber-50/80 dark:bg-amber-950/20 ring-amber-200/40 dark:ring-amber-800/20')}>
+            <NoiseTexture opacity={0.02} />
             <div className="h-0.5 bg-gradient-to-r from-amber-400 via-amber-500 to-dotori-400" />
             <div className="flex items-center gap-3 px-4 py-3">
-              <ArrowTrendingUpIcon className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <TrendingUp className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
               <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-gray-950 dark:text-white')}>
                 <span className="font-semibold text-amber-700 dark:text-amber-300">인기</span>
                 {' '}{posts[0].title}
@@ -123,7 +125,8 @@ export default function CommunityPage() {
       ) : posts.length === 0 ? (
         <FadeIn>
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden py-14 text-center')}>
-            <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-400/60 via-transparent to-violet-400/60" />
+            <NoiseTexture opacity={0.03} />
+            <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-400/60 via-amber-400/40 to-violet-400/60" />
             <p className={DS_EMPTY_STATE.title}>
               아직 게시글이 없어요
             </p>
@@ -131,7 +134,7 @@ export default function CommunityPage() {
               첫 번째 글을 작성해보세요
             </Text>
             <DsButton href="/community/write" className="mt-5">
-              <PencilSquareIcon className="h-4 w-4" />
+              <PenSquare className="h-4 w-4" />
               글쓰기
             </DsButton>
           </div>
@@ -147,8 +150,8 @@ export default function CommunityPage() {
                   <div className="absolute -inset-px rounded-2xl bg-gray-50 opacity-0 transition duration-200 group-hover/card:opacity-100 dark:bg-white/5" />
                   {/* z-10: content */}
                   <motion.article {...hoverLift} className={cn('relative z-10 overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
-                    {/* Subtle accent line */}
-                    <div className="h-0.5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700" />
+                    {/* Brand-tinted accent line */}
+                    <div className="h-0.5 bg-gradient-to-r from-dotori-200/60 via-dotori-300/80 to-dotori-200/60 dark:from-dotori-700/40 dark:via-dotori-600/60 dark:to-dotori-700/40" />
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <Text className={cn(DS_TYPOGRAPHY.caption, 'font-mono text-gray-400')} suppressHydrationWarning>
@@ -164,10 +167,10 @@ export default function CommunityPage() {
                       </Text>
                       <div className={cn(DS_TYPOGRAPHY.caption, 'mt-3 flex items-center gap-4 text-gray-400')}>
                         <span className="inline-flex items-center gap-1">
-                          <HeartIcon className="h-3 w-3" /> {post.likes}
+                          <Heart className="h-3 w-3" /> {post.likes}
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <ChatBubbleLeftIcon className="h-3 w-3" /> {post.comments}
+                          <MessageCircle className="h-3 w-3" /> {post.comments}
                         </span>
                       </div>
                     </div>

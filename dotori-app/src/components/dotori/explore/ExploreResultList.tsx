@@ -120,6 +120,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 			{/* ── Loading state ── */}
 			{isLoading && !isTimeout ? (
 				<div className="pb-4">
+					<div className={cn('mb-4 flex items-center gap-2 rounded-xl px-4 py-3', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+						<div className="h-2 w-2 animate-pulse rounded-full bg-dotori-500" />
+						<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.secondary)}>
+							시설을 찾고 있어요...
+						</span>
+					</div>
 					<Skeleton variant="facility-card" count={6} />
 				</div>
 			) : null}

@@ -11,6 +11,7 @@ import { Text } from '@/components/catalyst/text'
 import { cn } from '@/lib/utils'
 import { DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
@@ -52,9 +53,13 @@ function ExploreContent() {
         />
       ) : (
         <FadeIn className="px-4 pb-28">
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'flex h-72 items-center justify-center')}>
+          <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative flex h-72 items-center justify-center overflow-hidden')}>
+            <NoiseTexture opacity={0.03} />
+            <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-500/60 via-amber-400/40 to-dotori-500/60" />
             <div className="text-center">
-              <Map className={cn(DS_EMPTY_STATE.illustration, 'mx-auto h-8 w-8 text-gray-400')} />
+              <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-dotori-100 ring-1 ring-dotori-200/60 dark:bg-dotori-900/50 dark:ring-dotori-700/40">
+                <Map className="h-6 w-6 text-dotori-500" />
+              </div>
               <Text className={cn(DS_EMPTY_STATE.title, 'mt-3')}>카카오맵 준비 중</Text>
               <Text className={DS_EMPTY_STATE.description}>
                 지역을 선택하면 지도에 시설이 표시돼요

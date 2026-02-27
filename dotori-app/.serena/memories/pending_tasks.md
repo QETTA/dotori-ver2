@@ -1,15 +1,16 @@
-# Pending Tasks (2026-02-27, R59 완료)
+# Pending Tasks (2026-02-28, R60 완료)
 
 ## CHECKPOINT (Single Source of Truth)
-- **현재**: R59 완료, 다음 R60
-- **QA**: 6.6/10 (Home 5.8, Explore 6.7, Facility 6.8, Chat 6.7, My 6.7, Landing 6.8)
+- **현재**: R60 완료 (2커밋), 다음 R61
+- **QA**: TBD (R60 사후 QA 필요, R59 기준 6.6/10)
 - **빌드**: OK (20 pages, 804 tests, 70 files)
 - **P0**: 0건 | **P1**: 0건
 - **배포**: 수동 전용 (deploy.yml), DO sgp 리전
 - **MongoDB**: 20,027 시설 (17개 시도)
 - **DO API**: ⚠️ 토큰 만료 (doctl/API 401), 콘솔 수동 배포 필요
-- **최신 커밋**: 269aa89 feat(R59)
-- **DS 패턴**: DS_CARD.premium 6개, NoiseTexture 31참조, gradientText 11파일
+- **최신 커밋**: 3de6b50 fix(R60) 플랜 누락 전수 수정
+- **DS 패턴**: DS_ 참조 914건, lucide 50종, group/card 15건, auto-animate 6건
+- **heroicons 잔여**: 6파일 (BottomTabBar, community/page, FunnelSteps, facility/[id], community/write, [...slug])
 
 ## 보안 상태
 - P0 이슈: 0건
@@ -17,45 +18,29 @@
 - P2 잔여: ~3건 (코드 품질)
 - P3 잔여: ~3건 (UX 개선)
 
-## R52~R59 완료 요약
+## R52~R60 완료 요약
 
-### R52 — Landing 전면 오버홀
-- [x] Wallpaper, pricing, FeatureClipCard 재설계
-- [x] ReviewMarquee, SocialProofBadge 신규
+### R52~R59 (이전 라운드, 상세 생략)
 
-### R53 — DS 토큰 100%
-- [x] DS_GLASS, DS_SHADOW, DS_TEXT, DS_SENTIMENT, DS_STATUS_ALIAS 5종 추가
+### R60 — "Warm Liquid Glass" (2 commits: ba347e8, 3de6b50)
+- [x] DS Foundation 2.0: DS_STATES, DS_SPACING, DS_ICON, DS_GRADIENT, DS_INTERACTIVE, DS_ZINDEX
+- [x] DS_CARD.glass (Liquid Glass 2.0), DS_SECTION_RHYTHM, DS_HERO
+- [x] Motion presets: parallaxFade, listAutoAnimate, liquidReveal, iconSwap
+- [x] culori color-utils: getCapacityColor, validateDsContrast, autoFixContrast
+- [x] icon-map.ts + DotoriIcon.tsx 아이콘 매핑 시스템
+- [x] SVG 최적화 (svgo -25%), heroicons→lucide 50종 (33파일)
+- [x] auto-animate 6곳, group/card 15건, Skeleton brand-tinted shimmer
+- [x] R60 CSS 유틸리티 10/11 활용
 
-### R54 — QA 6.1→7.0 도전
-- [x] ErrorState 프리미엄, NoiseTexture 컴포넌트, gradient 가시성 강화
+### R60 Deferred
+- [ ] card-flip: pricing 토글 UI (구조 변경 필요)
+- [ ] BrandWatermark SVGR: img→React 컴포넌트 (구조 변경)
+- [ ] DS_STATES.focus 50%+: Tailwind variant prefix 제약
+- [ ] heroicons 잔여 6파일
 
-### R55 — Triple shadow + gradient text
-- [x] outline+edge+glow 3중 shadow, Explore card depth
-
-### R56 — DS_TEXT 전면 적용
-- [x] 인라인 색상→DS_TEXT 토큰 일괄 전환, hydration fix
-
-### R57 — UiBlock V2 + DS 토큰 극대화
-- [x] rawClassName 1573→939 (−40%)
-
-### R58 — TP5 패턴 100% 전파
-- [x] gradientText 11파일, group/card 5파일, snap-mandatory 4파일
-
-### R59 — "7.0 Breakthrough"
-- [x] Explore hero DS_CARD.raised + NoiseTexture
-- [x] Insight banner → DS_CARD.premium 승격
-- [x] ExploreFilterToolbar 결과 라벨 가독성 강화
-- [x] ActionCard → DS_CARD.premium + NoiseTexture + DS_TEXT 토큰화
-- [x] SeasonalBriefing NoiseTexture + DS_TEXT 토큰화
-- [x] FunnelProgressWidget dot indicator 전환 + DS_TEXT
-- [x] Facility reviews → DS_CARD.raised 승격
-- [x] RecentFacilities → DS_CARD.raised + DS_TEXT 토큰화
-- [x] Home stat 카드 accent bar + Hero 통합 리디자인 (사용자 직접 수정)
-
-## Sonnet QA Top Issues (R59)
-1. Home 하단 빔 — 뷰포트 하단 콘텐츠 부족 (CSR 캡처 타이밍 이슈 포함)
-2. Gradient text 적용 범위 — Home에만 부분 적용, 3페이지+ 필요
-3. Chat empty state depth — brand-tinted shadow + border accent 부재
+## Sonnet QA — R60 사후 측정 필요
+- R59 기준: 6.6/10 (Home 5.8, Explore 6.7, Facility 6.8, Chat 6.7, My 6.7, Landing 6.8)
+- R60 이후: TBD
 
 ## P2 — 코드 품질
 - [ ] 대형 페이지 분리: community/page.tsx (~615줄), chat/page.tsx (~500줄)
@@ -88,5 +73,5 @@
 cd /home/sihu2129/dotori-ver2/dotori-app
 npm run build                   # 20 pages, 0 errors
 npm test                        # 804 tests pass (vitest, 70 files)
-git log --oneline -5            # 최신: 269aa89 feat(R59)
+git log --oneline -5            # 최신: 3de6b50 fix(R60)
 ```

@@ -16,6 +16,9 @@ import {
   Bell,
   Settings,
   MessageSquare,
+  Search,
+  Sparkles,
+  BookOpen,
 } from 'lucide-react'
 import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
@@ -109,6 +112,7 @@ export default function MyPage() {
 
       {/* ══════ STATS — colored accent numbers ══════ */}
       {(dashboard?.interestCount ?? 0) + (dashboard?.waitlistCount ?? 0) + (dashboard?.alertCount ?? 0) === 0 ? (
+        <>
         <FadeIn>
           <Link href="/explore" className="group block">
             <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative overflow-hidden p-6 text-center transition hover:bg-dotori-50/30 dark:hover:bg-white/5')}>
@@ -127,6 +131,26 @@ export default function MyPage() {
             </div>
           </Link>
         </FadeIn>
+        {/* Quick start guide — fills empty viewport */}
+        <FadeInStagger faster className="grid grid-cols-3 gap-2.5">
+          {[
+            { href: '/explore', icon: Search, label: '시설 탐색', tint: 'dotori' as const },
+            { href: '/chat', icon: Sparkles, label: 'AI 상담', tint: 'amber' as const },
+            { href: '/community', icon: BookOpen, label: '이웃 이야기', tint: 'forest' as const },
+          ].map((action) => (
+            <FadeIn key={action.href}>
+              <Link href={action.href} className="group/card block">
+                <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 text-center transition group-hover/card:bg-dotori-50/50 dark:group-hover/card:bg-white/5')}>
+                  <div className={cn('mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl', ICON_TINT[action.tint])}>
+                    <action.icon className={DS_ICON.md} />
+                  </div>
+                  <p className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary)}>{action.label}</p>
+                </div>
+              </Link>
+            </FadeIn>
+          ))}
+        </FadeInStagger>
+        </>
       ) : (
         <FadeInStagger faster className="grid grid-cols-3 gap-3">
           {statItems.map((item) => {
