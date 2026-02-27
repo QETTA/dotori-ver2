@@ -14,7 +14,7 @@ import { BoltIcon, FunnelIcon, ChatBubbleLeftRightIcon, CheckIcon } from '@heroi
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Heading, Subheading } from '@/components/catalyst/heading'
@@ -46,6 +46,10 @@ const quickLinksBlock: UiBlockType = {
   title: '바로 시작하기',
   subtitle: '원하는 경로로 바로 이동하세요',
   layout: 'grid',
+  variant: 'panel',
+  tone: 'dotori',
+  density: 'compact',
+  accentStyle: 'bar',
   items: quickLinks.map((link) => ({
     id: `onboarding-quick-link-${link.href}`,
     title: link.label,
@@ -71,10 +75,10 @@ export default function OnboardingPage() {
       <FadeIn>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.muted)}>
               {currentStep + 1} / {totalSteps}
             </Text>
-            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.muted)}>
               {progressPct}%
             </Text>
           </div>
@@ -162,15 +166,15 @@ export default function OnboardingPage() {
           <ul className="mt-3 space-y-3">
             <li className="flex items-start gap-3">
               <BoltIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>유보통합·반편성 위험 신호를 먼저 탐지합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>유보통합·반편성 위험 신호를 먼저 탐지합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
               <FunnelIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>이동 사유를 기준으로 후보 시설을 선별합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>이동 사유를 기준으로 후보 시설을 선별합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
               <ChatBubbleLeftRightIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>10분 안내 플로우로 상담/서류를 정렬합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>10분 안내 플로우로 상담/서류를 정렬합니다.</Text>
             </li>
           </ul>
         </div>
@@ -191,7 +195,7 @@ export default function OnboardingPage() {
               <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
                 예상 맞춤도
               </Subheading>
-              <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-dotori-500 dark:text-dotori-400')}>
+              <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>
                 선호 조건을 모두 입력하면 더 정확해져요
               </Text>
             </div>

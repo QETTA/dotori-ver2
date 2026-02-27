@@ -79,6 +79,10 @@ export default function HomePage() {
     title: '바로가기',
     subtitle: '자주 쓰는 기능으로 바로 이동하세요',
     layout: 'grid',
+    variant: 'panel',
+    tone: 'dotori',
+    density: 'compact',
+    accentStyle: 'bar',
     items: quickActions.map((action) => ({
       id: `home-quick-${action.href}`,
       title: action.label,
@@ -93,6 +97,9 @@ export default function HomePage() {
     title: '커뮤니티 인기 글',
     subtitle: '요즘 부모님이 많이 보는 글이에요',
     layout: 'list',
+    variant: 'default',
+    tone: 'forest',
+    accentStyle: 'bar',
     items:
       hotPosts.length > 0
         ? hotPosts.slice(0, 3).map((post) => ({

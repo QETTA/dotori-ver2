@@ -6,6 +6,11 @@ import type {
 	FacilityType,
 	MapMarker,
 	UiBlockItem,
+	UiBlockVariant,
+	UiBlockTone,
+	UiBlockDensity,
+	UiBlockCtaMode,
+	UiBlockAccentStyle,
 } from "@/types/dotori";
 
 type RawRecord = Record<string, unknown>;
@@ -164,6 +169,16 @@ function normalizeChecklistCategories(raw: unknown): ChecklistCategory[] {
 	return categories;
 }
 
+const ALLOWED_VARIANTS: readonly UiBlockVariant[] = ["default", "hero", "panel", "strip"];
+const ALLOWED_TONES: readonly UiBlockTone[] = ["dotori", "forest", "amber", "neutral"];
+const ALLOWED_DENSITIES: readonly UiBlockDensity[] = ["default", "compact", "spacious"];
+const ALLOWED_CTA_MODES: readonly UiBlockCtaMode[] = ["inline", "footer", "hidden"];
+const ALLOWED_ACCENT_STYLES: readonly UiBlockAccentStyle[] = ["bar", "glow", "none"];
+
+function sanitizeEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+	return typeof value === "string" && allowed.includes(value as T) ? (value as T) : fallback;
+}
+
 function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
 	if (!Array.isArray(raw)) {
 		return [];
@@ -188,6 +203,10 @@ function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
 			actionId,
 			actionLabel: asString(record.actionLabel),
 			href,
+			meta: asString(record.meta),
+			tone: typeof record.tone === "string" && ALLOWED_TONES.includes(record.tone as UiBlockTone)
+				? (record.tone as UiBlockTone)
+				: undefined,
 		});
 	}
 
@@ -314,6 +333,11 @@ export function normalizeChatBlocks(rawBlocks: unknown): ChatBlock[] {
 							? record.layout
 							: "grid",
 					items: normalizeUiBlockItems(record.items),
+					variant: sanitizeEnum(record.variant, ALLOWED_VARIANTS, "default"),
+					tone: sanitizeEnum(record.tone, ALLOWED_TONES, "dotori"),
+					density: sanitizeEnum(record.density, ALLOWED_DENSITIES, "default"),
+					ctaMode: sanitizeEnum(record.ctaMode, ALLOWED_CTA_MODES, "inline"),
+					accentStyle: sanitizeEnum(record.accentStyle, ALLOWED_ACCENT_STYLES, "bar"),
 				});
 				break;
 			}

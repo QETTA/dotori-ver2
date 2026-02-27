@@ -335,7 +335,22 @@ export interface UiBlockItem {
 	actionId?: string;
 	actionLabel?: string;
 	href?: string;
+	/** V2: secondary metadata (e.g. "좋아요 24 · 댓글 8") */
+	meta?: string;
+	/** V2: per-item tone override */
+	tone?: UiBlockTone;
 }
+
+/** V2 layout variants */
+export type UiBlockVariant = "default" | "hero" | "panel" | "strip";
+/** V2 color families */
+export type UiBlockTone = "dotori" | "forest" | "amber" | "neutral";
+/** V2 spacing density */
+export type UiBlockDensity = "default" | "compact" | "spacious";
+/** V2 CTA placement */
+export type UiBlockCtaMode = "inline" | "footer" | "hidden";
+/** V2 visual accent */
+export type UiBlockAccentStyle = "bar" | "glow" | "none";
 
 export interface UiBlock {
 	type: "ui_block";
@@ -343,6 +358,12 @@ export interface UiBlock {
 	subtitle?: string;
 	layout?: "grid" | "list";
 	items: UiBlockItem[];
+	/** V2 extensions — all optional, backward-compatible */
+	variant?: UiBlockVariant;
+	tone?: UiBlockTone;
+	density?: UiBlockDensity;
+	ctaMode?: UiBlockCtaMode;
+	accentStyle?: UiBlockAccentStyle;
 }
 
 export type ChatBlock =

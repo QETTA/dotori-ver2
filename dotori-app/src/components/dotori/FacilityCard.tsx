@@ -56,6 +56,17 @@ const CLS = {
 	statLabel: cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary),
 	pill: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-label font-semibold',
 	progressTrack: 'h-1.5 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-900/70',
+	availableSeats: 'mt-1 font-semibold text-forest-700 dark:text-forest-200',
+	statusWrap: cn('font-medium', DS_TEXT.secondary),
+	statBase: cn('font-semibold', DS_TEXT.primary),
+	statMuted: 'font-medium text-dotori-600 dark:text-dotori-300',
+	availableHint: cn(DS_TYPOGRAPHY.caption, 'mt-2', DS_TEXT.secondary),
+	compactArticle: cn(
+		'relative overflow-hidden rounded-2xl',
+		'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.14)] ring-1 ring-dotori-300/50',
+		'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_36px_rgba(176,122,74,0.20)]',
+		'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.4)] dark:ring-dotori-700/60',
+	),
 } as const;
 
 export const FacilityCard = memo(function FacilityCard({
@@ -95,13 +106,7 @@ export const FacilityCard = memo(function FacilityCard({
 				variants={cardReveal}
 				initial="hidden"
 				animate="show"
-				className={cn(
-					'relative overflow-hidden rounded-2xl',
-					'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.14)] ring-1 ring-dotori-300/50',
-					'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_36px_rgba(176,122,74,0.20)]',
-					'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.4)] dark:ring-dotori-700/60',
-					status.border,
-				)}
+				className={cn(CLS.compactArticle, status.border)}
 			>
 				<div
 					className={cn(CLS.inner, 'p-3')}
@@ -190,12 +195,7 @@ export const FacilityCard = memo(function FacilityCard({
 					</section>
 
 					<section>
-						<div className={cn(
-							'grid grid-cols-3 gap-2 rounded-xl p-2.5 text-center',
-							'bg-gradient-to-br from-dotori-50/80 via-dotori-50/40 to-transparent',
-							'ring-1 ring-dotori-100/70',
-							'dark:from-dotori-900/60 dark:via-dotori-900/30 dark:to-transparent dark:ring-dotori-800/60',
-						)}>
+						<div className={CLS.statsGrid}>
 							<div>
 								<p className={CLS.statValue}>{facility.capacity.total}</p>
 								<p className={CLS.statLabel}>정원</p>
@@ -203,10 +203,10 @@ export const FacilityCard = memo(function FacilityCard({
 							<div>
 								<p
 									className={cn(
-										'font-semibold text-dotori-900 dark:text-dotori-50',
+										CLS.statBase,
 										facility.capacity.current >= facility.capacity.total
 											? 'text-danger'
-											: 'font-medium text-dotori-600 dark:text-dotori-300',
+											: CLS.statMuted,
 									)}
 								>
 									{facility.capacity.current}
@@ -216,10 +216,10 @@ export const FacilityCard = memo(function FacilityCard({
 							<div>
 								<p
 									className={cn(
-										'font-semibold text-dotori-900 dark:text-dotori-50',
+										CLS.statBase,
 										facility.capacity.waiting > 0
 											? 'text-warning'
-											: 'font-medium text-dotori-600 dark:text-dotori-300',
+											: CLS.statMuted,
 									)}
 								>
 									{facility.capacity.waiting}
@@ -229,7 +229,7 @@ export const FacilityCard = memo(function FacilityCard({
 						</div>
 
 						{facility.status === "available" ? (
-							<div className={cn(DS_TYPOGRAPHY.caption, 'mt-2 text-dotori-700 dark:text-dotori-100')}>
+							<div className={CLS.availableHint}>
 								빈자리 있음
 							</div>
 						) : null}
@@ -316,7 +316,7 @@ export const FacilityCard = memo(function FacilityCard({
 									)}
 									aria-hidden="true"
 								/>
-								<p className="truncate font-semibold text-dotori-900 dark:text-dotori-50">
+								<p className={cn(DS_TYPOGRAPHY.h3, 'truncate font-semibold', DS_TEXT.primary)}>
 									{facility.name}
 								</p>
 							</div>
@@ -334,12 +334,12 @@ export const FacilityCard = memo(function FacilityCard({
 							</div>
 						</div>
 
-						<div className="font-medium text-dotori-700 dark:text-dotori-200">
+						<div className={CLS.statusWrap}>
 							<span className={cn(CLS.pill, status.pill)}>
 								{availabilityText}
 							</span>
 							{facility.status === "available" ? (
-								<p className="mt-1 text-body-sm font-semibold text-forest-700 dark:text-forest-200">
+								<p className={cn(DS_TYPOGRAPHY.bodySm, CLS.availableSeats)}>
 									빈자리 {availableSeats}석
 								</p>
 							) : null}
@@ -374,10 +374,10 @@ export const FacilityCard = memo(function FacilityCard({
 						<div>
 								<p
 									className={cn(
-										'font-semibold text-dotori-900 dark:text-dotori-50',
+										CLS.statBase,
 										facility.capacity.current >= facility.capacity.total
 											? 'text-danger'
-											: 'font-medium text-dotori-600 dark:text-dotori-300',
+											: CLS.statMuted,
 									)}
 								>
 								{facility.capacity.current}
@@ -387,10 +387,10 @@ export const FacilityCard = memo(function FacilityCard({
 						<div>
 								<p
 									className={cn(
-										'font-semibold text-dotori-900 dark:text-dotori-50',
+										CLS.statBase,
 										facility.capacity.waiting > 0
 											? 'text-warning'
-											: 'font-medium text-dotori-600 dark:text-dotori-300',
+											: CLS.statMuted,
 									)}
 								>
 								{facility.capacity.waiting}

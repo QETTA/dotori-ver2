@@ -24,6 +24,7 @@ import { getSeasonalHero } from '@/lib/seasonal-config'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
@@ -57,6 +58,18 @@ const staggerItem = {
     animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   },
 }
+
+/* ── Shared CTA styles (extracted from 2x inline) ── */
+const CTA_PRIMARY = cn(
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 font-medium transition-all duration-200',
+  'bg-dotori-500 text-sm/7 text-white hover:bg-dotori-600 hover:-translate-y-0.5',
+  'shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)]',
+  'hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]',
+)
+const CTA_SECONDARY = 'inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200'
+
+/* ── Gradient heading ── */
+const GRADIENT_HEADING = cn('font-wordmark text-3xl/10 font-bold tracking-tight text-balance', gradientTextHero)
 
 /* ═══════ Pricing Data — Salient 2-tier ═══════ */
 const PRICING_TIERS = [
@@ -115,7 +128,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn>
-            <h1 className="mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent sm:text-6xl/[1.1]">
+            <h1 className={cn('mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance sm:text-6xl/[1.1]', gradientTextHero)}>
               {seasonalHero.title}
             </h1>
           </FadeIn>
@@ -132,17 +145,11 @@ export default function LandingPage() {
 
           <FadeIn>
             <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/onboarding"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)] transition-all duration-200 hover:bg-dotori-600 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]"
-              >
+              <Link href="/onboarding" className={CTA_PRIMARY}>
                 {seasonalHero.cta}
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
-              <Link
-                href="/chat"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200"
-              >
+              <Link href="/chat" className={CTA_SECONDARY}>
                 <ChatBubbleLeftRightIcon className="h-4 w-4" />
                 토리 톡 시작
               </Link>
@@ -174,7 +181,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent">
+            <h2 className={cn('mt-4', GRADIENT_HEADING)}>
               {copy.landing.funnelTitle}
             </h2>
           </motion.div>
@@ -205,7 +212,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent">
+            <h2 className={cn('mt-4', GRADIENT_HEADING)}>
               이동의 모든 단계를 하나로
             </h2>
           </motion.div>
@@ -258,7 +265,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent">
+            <h2 className={cn('mt-4', GRADIENT_HEADING)}>
               {copy.landing.reviewTitle}
             </h2>
           </motion.div>
@@ -373,7 +380,7 @@ export default function LandingPage() {
             <img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-8 w-auto" />
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent">
+            <h2 className={cn('mt-6', GRADIENT_HEADING)}>
               아이의 공간, 지금 다시 선택하세요
             </h2>
           </motion.div>
@@ -384,17 +391,11 @@ export default function LandingPage() {
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="/onboarding"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)] transition-all duration-200 hover:bg-dotori-600 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]"
-              >
+              <Link href="/onboarding" className={CTA_PRIMARY}>
                 지금 시작하기
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
-              <Link
-                href="/explore"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200"
-              >
+              <Link href="/explore" className={CTA_SECONDARY}>
                 시설 탐색
               </Link>
             </div>

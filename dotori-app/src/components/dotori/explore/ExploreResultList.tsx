@@ -152,12 +152,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 						<div className="flex items-start gap-3 px-4 py-3">
 							<ChatBubbleLeftIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
-								<p className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-300')}>
+								<p className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>
 									{hasSearchInput
 										? `"${debouncedSearch}" 기준으로 이동 가능한 시설부터 정렬했어요.`
 										: "이동 수요 우선순위 기준으로 시설을 정렬했어요."}
 								</p>
-								<p className={cn(DS_TYPOGRAPHY.caption, 'mt-0.5 text-dotori-400 dark:text-dotori-500')}>
+								<p className={cn(DS_TYPOGRAPHY.caption, 'mt-0.5', DS_TEXT.muted)}>
 									토리톡 인사이트
 								</p>
 							</div>
@@ -306,7 +306,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 										'min-h-11 w-full font-medium',
 										DS_TYPOGRAPHY.bodySm,
 										DS_CARD.raised.base, DS_CARD.raised.dark,
-										'text-dotori-600 dark:text-dotori-300',
+										DS_TEXT.secondary,
 										'hover:bg-dotori-50 dark:hover:bg-dotori-800',
 									)}
 								>
