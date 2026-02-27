@@ -137,10 +137,10 @@ export const FacilityCard = memo(function FacilityCard({
 										aria-hidden="true"
 									/>
 									<div className="min-w-0">
-										<p className={cn(DS_TYPOGRAPHY.h3, 'truncate font-semibold text-dotori-900 dark:text-dotori-50')}>
+										<p className={cn(DS_TYPOGRAPHY.h3, 'truncate font-semibold', DS_TEXT.primary)}>
 											{facility.name}
 										</p>
-										<p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2 text-dotori-500 dark:text-dotori-300')}>
+										<p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2', DS_TEXT.muted)}>
 											{facility.address || facility.type}
 										</p>
 									</div>
@@ -148,7 +148,7 @@ export const FacilityCard = memo(function FacilityCard({
 								<div className="mt-2 flex flex-wrap items-center gap-1.5">
 									<Badge color="forest">{facility.type}</Badge>
 									{facility.distance ? (
-										<span className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-700 dark:text-dotori-200')}>
+										<span className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary)}>
 											{facility.distance}
 										</span>
 									) : null}
@@ -167,17 +167,17 @@ export const FacilityCard = memo(function FacilityCard({
 								) : null}
 							</div>
 						</div>
-						<p className={cn(DS_TYPOGRAPHY.caption, 'mt-2 text-dotori-500 dark:text-dotori-300')} suppressHydrationWarning>
+						<p className={cn(DS_TYPOGRAPHY.caption, 'mt-2', DS_TEXT.muted)} suppressHydrationWarning>
 							{formatRelativeTime(facility.lastSyncedAt)}
 						</p>
 					</section>
 
 					<section className={cn(CLS.sectionBorder, 'py-3')}>
 						<div className="mb-1 flex items-center justify-between">
-							<p className={cn(DS_TYPOGRAPHY.label, 'font-semibold uppercase tracking-wide text-dotori-500 dark:text-dotori-300')}>
+							<p className={cn(DS_TYPOGRAPHY.label, 'font-semibold uppercase tracking-wide', DS_TEXT.muted)}>
 								정원 현황
 							</p>
-							<p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-700 dark:text-dotori-100')}>
+							<p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.secondary)}>
 								{occupancyRate}%
 							</p>
 						</div>
@@ -320,13 +320,13 @@ export const FacilityCard = memo(function FacilityCard({
 									{facility.name}
 								</p>
 							</div>
-							<p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2 text-dotori-500 dark:text-dotori-300')}>
+							<p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2', DS_TEXT.muted)}>
 								{facility.address}
 							</p>
 							<div className="mt-2 flex flex-wrap items-center gap-2">
 								<Badge color="forest">{facility.type}</Badge>
 								{facility.distance ? (
-									<span className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-700 dark:text-dotori-200')}>
+									<span className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary)}>
 										{facility.distance}
 									</span>
 								) : null}
@@ -343,7 +343,7 @@ export const FacilityCard = memo(function FacilityCard({
 									빈자리 {availableSeats}석
 								</p>
 							) : null}
-							<p className={cn(DS_TYPOGRAPHY.caption, 'mt-2 text-dotori-500 dark:text-dotori-300')} suppressHydrationWarning>
+							<p className={cn(DS_TYPOGRAPHY.caption, 'mt-2', DS_TEXT.muted)} suppressHydrationWarning>
 								{formatRelativeTime(facility.lastSyncedAt)}
 							</p>
 						</div>
@@ -352,10 +352,10 @@ export const FacilityCard = memo(function FacilityCard({
 
 				<motion.section variants={cardRevealItem} className={cn(CLS.sectionBorder, 'px-4 py-3')}>
 					<div className="mb-1 flex items-center justify-between">
-						<p className={cn(DS_TYPOGRAPHY.label, 'font-semibold uppercase tracking-wide text-dotori-500 dark:text-dotori-300')}>
+						<p className={cn(DS_TYPOGRAPHY.label, 'font-semibold uppercase tracking-wide', DS_TEXT.muted)}>
 							정원 현황
 						</p>
-						<p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-700 dark:text-dotori-100')}>{occupancyRate}%</p>
+						<p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.secondary)}>{occupancyRate}%</p>
 					</div>
 					<DsProgressBar
 						trackClassName={CLS.progressTrack}

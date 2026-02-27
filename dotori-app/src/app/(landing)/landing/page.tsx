@@ -134,7 +134,7 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 href="/onboarding"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_2px_4px_rgba(0,0,0,0.12),0_8px_24px_rgba(176,122,74,0.30)] hover:bg-dotori-600"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)] transition-all duration-200 hover:bg-dotori-600 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]"
               >
                 {seasonalHero.cta}
                 <ArrowRightIcon className="h-4 w-4" />
@@ -160,7 +160,7 @@ export default function LandingPage() {
       </Wallpaper>
 
       {/* ── Section transition ── */}
-      <div className="h-10 bg-gradient-to-b from-dotori-200/60 to-white" />
+      <div className="h-14 bg-gradient-to-b from-dotori-200/60 via-dotori-100/30 to-white" />
 
       {/* ═══════════════════════════════════════════
           FUNNEL — 풀퍼널 플로우
@@ -192,12 +192,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── Section transition ── */}
-      <div className="h-1.5 bg-gradient-to-r from-transparent via-dotori-400/70 to-transparent" />
+      <div className="h-2 bg-gradient-to-r from-dotori-500/0 via-dotori-400/80 to-dotori-500/0" />
 
       {/* ═══════════════════════════════════════════
           FEATURES — FeatureClipCard
           ═══════════════════════════════════════════ */}
-      <section className={cn('relative px-6 py-16 bg-dotori-50', DS_SURFACE.sunken)}>
+      <section className={'relative px-6 py-16 bg-dotori-50/80 dark:bg-dotori-950/20'}>
         <div className="mx-auto max-w-2xl">
           <motion.div {...reveal}>
             <p className={DS_PAGE_HEADER.eyebrow}>
@@ -245,7 +245,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Section transition ── */}
-      <div className="h-1.5 bg-gradient-to-r from-transparent via-dotori-400/70 to-transparent" />
+      <div className="h-2 bg-gradient-to-r from-dotori-500/0 via-dotori-400/80 to-dotori-500/0" />
 
       {/* ═══════════════════════════════════════════
           REVIEWS — ReviewMarquee
@@ -386,7 +386,7 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href="/onboarding"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_2px_4px_rgba(0,0,0,0.12),0_8px_24px_rgba(176,122,74,0.30)] hover:bg-dotori-600"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-500 px-5 py-2.5 text-sm/7 font-medium text-white shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)] transition-all duration-200 hover:bg-dotori-600 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]"
               >
                 지금 시작하기
                 <ArrowRightIcon className="h-4 w-4" />

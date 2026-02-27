@@ -101,7 +101,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 						DS_SURFACE.sunken,
 						'py-3 pl-10 pr-10',
 						'text-dotori-900 placeholder:text-dotori-400',
-						'ring-1 ring-dotori-200/50 outline-none',
+						'ring-1 ring-dotori-200/50 outline-none shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(176,122,74,0.10)]',
 						'transition-all duration-200',
 						'focus:bg-white focus:shadow-sm focus:ring-2 focus:ring-dotori-400/60',
 						'dark:text-dotori-50',
@@ -134,10 +134,10 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 							disabled={isGpsLoading}
 							className={cn(
 								'inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 py-1.5',
-								'font-medium shadow-sm transition-all duration-150',
+								'font-medium transition-all duration-150',
 								DS_TYPOGRAPHY.bodySm,
 								DS_SURFACE.sunken,
-								'text-dotori-700 ring-1 ring-dotori-200/60',
+								'text-dotori-700 ring-1 ring-dotori-200/60 shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_1px_3px_rgba(176,122,74,0.08)]',
 								'hover:bg-dotori-50 hover:ring-dotori-300/60',
 								'dark:text-dotori-200 dark:ring-dotori-700/50',
 								isGpsLoading && 'opacity-60',
@@ -180,7 +180,8 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 											DS_TYPOGRAPHY.bodySm,
 											meta?.bg ?? cn(DS_CARD.flat.base, DS_CARD.flat.dark),
 											'ring-1 ring-dotori-200/40 dark:ring-dotori-700/40',
-											'hover:shadow-sm hover:ring-dotori-300/50',
+											'shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_1px_3px_rgba(176,122,74,0.08)]',
+											'hover:shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_6px_rgba(176,122,74,0.14)] hover:ring-dotori-300/50 hover:-translate-y-0.5',
 											'dark:hover:ring-dotori-600/50',
 										)}
 									>

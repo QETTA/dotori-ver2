@@ -18,7 +18,8 @@ import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
-import { DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { NoiseTexture } from "@/components/dotori/NoiseTexture";
+import { DS_STATUS, DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -35,12 +36,6 @@ interface ExploreResultListProps {
 	interaction: ExploreResultInteraction;
 }
 
-const getStatusColor = (status: string) => {
-	if (status === "available") return DS_STATUS.available.dot;
-	if (status === "waiting") return DS_STATUS.waiting.dot;
-	return DS_STATUS.full.dot;
-};
-
 const getStatusPillClass = (status: string) => {
 	if (status === "available") return DS_STATUS.available.pill;
 	if (status === "waiting") return DS_STATUS.waiting.pill;
@@ -56,6 +51,12 @@ const getStatusLabel = (status: string) => {
 const getAvailableSeats = (total: number, current: number) => Math.max(0, total - current);
 const getOccupancyRate = (total: number, current: number) =>
 	total > 0 ? Math.min(100, Math.round((current / total) * 100)) : 0;
+
+const getStatusBarGradient = (status: string) => {
+	if (status === "available") return "from-forest-500/20 via-forest-500 to-forest-500/20";
+	if (status === "waiting") return "from-amber-500/20 via-amber-500 to-amber-500/20";
+	return "from-red-500/20 via-red-500 to-red-500/20";
+};
 
 export const ExploreResultList = memo(function ExploreResultList({
 	state,
@@ -142,11 +143,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 
 			{/* ── Results ── */}
 			{!isLoading && !error && hasResults ? (
-				<motion.ul {...stagger.fast.container} className="relative space-y-3 pb-4">
+				<motion.ul {...stagger.fast.container} className="relative space-y-4 pb-4">
 					{/* ── Insight banner ── */}
 					<motion.li {...stagger.fast.item}>
-						<div className={cn('overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
-						<div className="h-1 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
+						<div className={cn('relative overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+						<div className="h-1.5 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
+						<NoiseTexture opacity={0.02} />
 						<div className="flex items-start gap-3 px-4 py-3">
 							<ChatBubbleLeftIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
@@ -193,7 +195,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover,
 							)}>
 								{/* Status accent bar */}
-								<div className={cn('h-1.5 bg-gradient-to-r from-transparent via-current to-transparent', getStatusColor(facility.status))} />
+								<div className={cn('h-1.5 bg-gradient-to-r', getStatusBarGradient(facility.status))} />
 
 								<div className="relative z-10">
 									<FacilityCard facility={facility} compact />
@@ -233,23 +235,23 @@ export const ExploreResultList = memo(function ExploreResultList({
 									{/* ── Compact stat row ── */}
 									<div className={cn('mt-3 flex items-center gap-4', DS_TYPOGRAPHY.caption)}>
 										<div>
-											<span className="text-dotori-500">입소률 </span>
-											<span className="font-semibold text-dotori-900 dark:text-white">{occupancyRate}%</span>
+											<span className={DS_TEXT.muted}>입소률 </span>
+											<span className={cn('font-semibold', DS_TEXT.primary)}>{occupancyRate}%</span>
 										</div>
-										<span className="text-dotori-200 dark:text-dotori-700">|</span>
+										<span className={DS_TEXT.disabled}>|</span>
 										<div>
-											<span className="text-dotori-500">가용 </span>
+											<span className={DS_TEXT.muted}>가용 </span>
 											<span className={cn(
 												'font-semibold',
-												isAvailable ? 'text-forest-600 dark:text-forest-400' : 'text-dotori-900 dark:text-white',
+												isAvailable ? 'text-forest-600 dark:text-forest-400' : DS_TEXT.primary,
 											)}>
 												{isAvailable ? `${availableSeats}석` : `대기 ${facility.capacity.waiting}명`}
 											</span>
 										</div>
-										<span className="text-dotori-200 dark:text-dotori-700">|</span>
+										<span className={DS_TEXT.disabled}>|</span>
 										<div>
-											<span className="text-dotori-500">리뷰 </span>
-											<span className="font-semibold text-dotori-900 dark:text-white">{reviewLabel}</span>
+											<span className={DS_TEXT.muted}>리뷰 </span>
+											<span className={cn('font-semibold', DS_TEXT.primary)}>{reviewLabel}</span>
 										</div>
 									</div>
 								</div>

@@ -141,7 +141,7 @@ export default function ChatPage() {
         <Navbar>
           <NavbarSection>
             <NavbarItem current>
-              <span className={cn(DS_TYPOGRAPHY.h3, 'font-wordmark font-bold text-gray-950 dark:text-white')}>
+              <span className={cn(DS_TYPOGRAPHY.h3, 'font-wordmark font-bold text-dotori-900 dark:text-dotori-50')}>
                 토리챗
               </span>
             </NavbarItem>

@@ -27,7 +27,6 @@ import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
-import { gradientTextHero } from '@/lib/motion'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
@@ -107,7 +106,7 @@ export default function MyPage() {
             <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative overflow-hidden p-6 text-center transition hover:bg-dotori-50/30 dark:hover:bg-white/5')}>
               <NoiseTexture />
               <div className="h-1.5 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-500 via-amber-400 to-forest-500" />
-              <h2 className={cn('font-wordmark text-xl/[1.2] font-bold tracking-tight', gradientTextHero)}>
+              <h2 className={cn('font-wordmark text-xl/[1.2] font-bold tracking-tight text-dotori-800 dark:text-dotori-100')}>
                 아직 탐색 중이에요
               </h2>
               <Text className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_TEXT.muted)}>

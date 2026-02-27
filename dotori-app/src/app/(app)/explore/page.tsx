@@ -35,6 +35,9 @@ function ExploreContent() {
         <ExploreMapToggle view={view} onToggle={setView} />
       </FadeIn>
 
+      {/* ── Section accent divider ── */}
+      <div className="h-1 bg-gradient-to-r from-dotori-500/0 via-dotori-400/60 to-dotori-500/0" />
+
       {/* ══════ ToRI FAB ══════ */}
       <ToRiFAB prompt="주변 시설 추천해줘" />
 

@@ -18,8 +18,8 @@ import {
 import { Fieldset } from "@/components/catalyst/fieldset";
 import { Text } from "@/components/catalyst/text";
 import { BRAND_GUIDE } from "@/lib/brand-assets";
-import { DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
-import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_STATUS, DS_TYPOGRAPHY, DS_GLASS } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { stagger, gradientTextHero } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreFilterPanel } from "./ExploreFilterPanel";
@@ -160,10 +160,10 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 			<header
 				className={cn(
 					'sticky top-0 z-20 px-4 py-2.5',
-					DS_SURFACE.primary,
-					'bg-white/90 backdrop-blur-xl backdrop-saturate-150',
-					'border-b border-dotori-200/40 shadow-[0_2px_8px_rgba(176,122,74,0.12)]',
-					'dark:bg-dotori-900/90 dark:border-dotori-800/40 dark:shadow-none',
+					DS_GLASS.nav, DS_GLASS.dark.nav,
+					
+					'border-b border-dotori-200/40','shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(176,122,74,0.12)]',
+					'dark:border-dotori-800/40 dark:shadow-none',
 				)}
 			>
 				<ExploreSearchInput

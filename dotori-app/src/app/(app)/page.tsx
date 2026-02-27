@@ -28,7 +28,7 @@ import { ActionCard } from '@/components/dotori/ActionCard'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import type { UiBlock as UiBlockType } from '@/types/dotori'
@@ -124,7 +124,7 @@ export default function HomePage() {
         <div className="relative pt-2">
           <BrandWatermark className="opacity-20" />
           <FadeIn>
-            <p className={DS_PAGE_HEADER.eyebrow}>
+            <p className={DS_PAGE_HEADER.eyebrow} suppressHydrationWarning>
               {greeting}
             </p>
           </FadeIn>
@@ -176,26 +176,26 @@ export default function HomePage() {
         <FadeInStagger faster className="grid grid-cols-3 gap-3">
           <FadeIn>
             <div className={CARD_SM}>
-              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-gray-950 dark:text-white')}>
+              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums', DS_TEXT.primary)}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
               </div>
-              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-gray-500')}>분석 시설</p>
+              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>분석 시설</p>
             </div>
           </FadeIn>
           <FadeIn>
             <div className={CARD_SM}>
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
-                {dashboard?.interestCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium text-gray-400')}>건</span>
+                {dashboard?.interestCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>
-              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-gray-500')}>관심 시설</p>
+              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>관심 시설</p>
             </div>
           </FadeIn>
           <FadeIn>
             <div className={CARD_SM}>
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-forest-600 dark:text-forest-400')}>
-                {dashboard?.waitlistCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium text-gray-400')}>건</span>
+                {dashboard?.waitlistCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>
-              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-gray-500')}>대기 중</p>
+              <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>대기 중</p>
             </div>
           </FadeIn>
         </FadeInStagger>
@@ -218,8 +218,8 @@ export default function HomePage() {
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden bg-forest-50/80 p-5 dark:bg-forest-950/20 ring-forest-200/40 dark:ring-forest-800/20')}>
             <NoiseTexture opacity={0.025} />
             <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-forest-500 via-forest-400 to-forest-500" />
-            <p className={cn(DS_TYPOGRAPHY.bodySm, 'pt-1 font-semibold text-gray-950 dark:text-white')}>빈자리 알림</p>
-            <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-gray-600 dark:text-gray-400')}>
+            <p className={cn(DS_TYPOGRAPHY.bodySm, 'pt-1 font-semibold', DS_TEXT.primary)}>빈자리 알림</p>
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>
               관심 시설에 빈자리가 나면 바로 알려드려요
             </Text>
             <DsButton tone="forest" href="/explore" className="mt-3">
