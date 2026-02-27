@@ -115,7 +115,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn>
-            <h1 className="mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent sm:text-6xl/[1.1]">
+            <h1 className="mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent sm:text-6xl/[1.1]">
               {seasonalHero.title}
             </h1>
           </FadeIn>
@@ -174,7 +174,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent">
               {copy.landing.funnelTitle}
             </h2>
           </motion.div>
@@ -205,7 +205,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent">
               이동의 모든 단계를 하나로
             </h2>
           </motion.div>
@@ -258,7 +258,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent">
               {copy.landing.reviewTitle}
             </h2>
           </motion.div>
@@ -373,7 +373,7 @@ export default function LandingPage() {
             <img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-8 w-auto" />
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent">
+            <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent">
               아이의 공간, 지금 다시 선택하세요
             </h2>
           </motion.div>

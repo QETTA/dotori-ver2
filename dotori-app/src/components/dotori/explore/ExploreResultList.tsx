@@ -146,7 +146,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 					{/* ── Insight banner ── */}
 					<motion.li {...stagger.fast.item}>
 						<div className={cn('overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
-						<div className="h-0.5 bg-gradient-to-r from-violet-300/60 via-dotori-300/60 to-amber-300/60" />
+						<div className="h-1 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
 						<div className="flex items-start gap-3 px-4 py-3">
 							<ChatBubbleLeftIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
@@ -193,7 +193,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover,
 							)}>
 								{/* Status accent bar */}
-								<div className={cn('h-1', getStatusColor(facility.status))} />
+								<div className={cn('h-1.5 bg-gradient-to-r from-transparent via-current to-transparent', getStatusColor(facility.status))} />
 
 								<div className="relative z-10">
 									<FacilityCard facility={facility} compact />

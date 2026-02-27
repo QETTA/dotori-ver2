@@ -206,10 +206,10 @@ export const DS_TEXT = {
   muted: 'text-dotori-500 dark:text-dotori-400',
   /** Disabled / inactive text */
   disabled: 'text-dotori-300 dark:text-dotori-600',
-  /** Gradient text (hero/CTA) — high contrast on cream */
-  gradient: 'bg-gradient-to-r from-dotori-900 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-300 dark:via-dotori-400 dark:to-amber-400',
-  /** Gradient text — hero variant (maximum contrast) */
-  gradientHero: 'bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300',
+  /** Gradient text (hero/CTA) — visible gradient on cream */
+  gradient: 'bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-300 dark:via-dotori-400 dark:to-amber-400',
+  /** Gradient text — hero variant (wide gradient range) */
+  gradientHero: 'bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300',
   /** Inverse — for dark backgrounds */
   inverse: 'text-white dark:text-dotori-50',
 } as const
