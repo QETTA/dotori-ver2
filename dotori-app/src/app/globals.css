@@ -314,6 +314,76 @@
   animation: marquee var(--marquee-duration, 30s) linear infinite;
 }
 
+/* ── 3D Transform 프리셋 (Tailwind v4 네이티브 보완) ── */
+@utility card-flip {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* ── Fluid Typography (clamp 기반, 뷰포트 반응) ── */
+@utility text-fluid-display {
+  font-size: clamp(1.75rem, 4vw + 0.5rem, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+@utility text-fluid-h1 {
+  font-size: clamp(1.25rem, 2.5vw + 0.5rem, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+@utility text-fluid-body {
+  font-size: clamp(0.875rem, 1.5vw + 0.25rem, 1rem);
+  line-height: 1.6;
+}
+
+/* ── Gradient Mesh (고급 다층 그래디언트) ── */
+@utility gradient-mesh-warm {
+  background:
+    radial-gradient(at 20% 30%, rgb(200 149 106 / 0.15) 0%, transparent 50%),
+    radial-gradient(at 80% 70%, rgb(74 122 66 / 0.08) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgb(253 251 247) 0%, rgb(245 237 224) 100%);
+}
+
+@utility gradient-mesh-cool {
+  background:
+    radial-gradient(at 30% 20%, rgb(74 128 176 / 0.08) 0%, transparent 50%),
+    radial-gradient(at 70% 80%, rgb(200 149 106 / 0.1) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgb(253 251 247) 0%, rgb(240 245 234) 100%);
+}
+
+/* ── Subpixel Border (0.5px 헤어라인) ── */
+@utility hairline-border {
+  box-shadow: inset 0 0 0 0.5px rgb(232 213 190 / 0.6);
+}
+
+@utility hairline-border-top {
+  box-shadow: inset 0 0.5px 0 0 rgb(232 213 190 / 0.6);
+}
+
+@utility hairline-border-bottom {
+  box-shadow: inset 0 -0.5px 0 0 rgb(232 213 190 / 0.6);
+}
+
+/* ── Container Query 프리셋 (Tailwind v4 네이티브) ── */
+@utility container-card {
+  container-type: inline-size;
+  container-name: card;
+}
+
+@utility container-section {
+  container-type: inline-size;
+  container-name: section;
+}
+
+/* ── 미세 그림자 레이어 (0.5px 정밀) ── */
+@utility shadow-micro {
+  box-shadow:
+    0 0.5px 1px rgb(45 36 24 / 0.02),
+    0 1px 2px rgb(45 36 24 / 0.03);
+}
+
 /* ── 베이스 레이어 ── */
 @layer base {
 	html {
