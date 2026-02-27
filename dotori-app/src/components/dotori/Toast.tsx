@@ -5,12 +5,7 @@ import type { ToastData } from "@/types/dotori";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { DS_TOAST } from "@/lib/design-system/tokens";
-import {
-	ArrowUturnLeftIcon,
-	CheckCircleIcon,
-	InformationCircleIcon,
-	XCircleIcon,
-} from "@heroicons/react/24/outline";
+import { CheckCircle, XCircle, Info, RotateCcw } from "lucide-react";
 
 type ToastProps = ToastData & { onDismiss: () => void };
 
@@ -72,14 +67,14 @@ export function Toast({ type, message, action, onDismiss }: ToastProps) {
 				transition={{ duration: 0.2 }}
 			/>
 			{type === "success" && (
-				<CheckCircleIcon className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
+				<CheckCircle className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
 			)}
-			{type === "error" && <XCircleIcon className={cn(DS_TOAST.ICON_BASE, tone.icon)} />}
+			{type === "error" && <XCircle className={cn(DS_TOAST.ICON_BASE, tone.icon)} />}
 			{type === "info" && (
-				<InformationCircleIcon className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
+				<Info className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
 			)}
 			{type === "undo" && (
-				<ArrowUturnLeftIcon className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
+				<RotateCcw className={cn(DS_TOAST.ICON_BASE, tone.icon)} />
 			)}
 			<span className={DS_TOAST.MESSAGE}>{message}</span>
 			{action ? (

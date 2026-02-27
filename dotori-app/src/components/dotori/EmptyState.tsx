@@ -3,7 +3,7 @@
 import { DsButton } from '@/components/ds/DsButton'
 import { BRAND } from '@/lib/brand-assets'
 import { copy } from '@/lib/brand-copy'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { spring, tap } from '@/lib/motion'
@@ -109,7 +109,7 @@ export default function EmptyStateFallback({
       className={DS_EMPTY_STATE.container}
       {...DOTORI_STATE_MOTION}
     >
-      <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden')}>
+      <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden gradient-mesh-cool')}>
         {/* Accent bar */}
         <div className="h-1 w-full bg-gradient-to-r from-dotori-200 via-dotori-400/60 to-dotori-200 dark:from-dotori-700 dark:via-dotori-500/30 dark:to-dotori-700" />
         <div className="flex flex-col items-center gap-4 px-6 pb-6">
@@ -123,7 +123,7 @@ export default function EmptyStateFallback({
             <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest text-dotori-500')}>
               {baseMeta.eyebrow}
             </p>
-            <h3 className={cn(DS_EMPTY_STATE.title)}>
+            <h3 className={cn(DS_TEXT.gradient, 'text-h3 font-bold')}>
               {title}
             </h3>
             <p className={cn(DS_EMPTY_STATE.description)}>
@@ -176,7 +176,7 @@ export function EmptyState({
       className={DS_EMPTY_STATE.container}
       {...DOTORI_STATE_MOTION}
     >
-      <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden')}>
+      <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'mx-auto flex w-full max-w-sm flex-col items-center gap-4 overflow-hidden gradient-mesh-cool')}>
         {/* Accent bar */}
         <div className="h-1 w-full bg-gradient-to-r from-dotori-200 via-dotori-400/60 to-dotori-200 dark:from-dotori-700 dark:via-dotori-500/30 dark:to-dotori-700" />
         <div className="flex flex-col items-center gap-4 px-6 pb-6">
@@ -198,7 +198,7 @@ export function EmptyState({
             <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest text-dotori-500')}>
               {variantMeta.eyebrow}
             </p>
-            <h3 className={cn(DS_EMPTY_STATE.title)}>
+            <h3 className={cn(DS_TEXT.gradient, 'text-h3 font-bold')}>
               {title}
             </h3>
             {resolvedDescription ? (

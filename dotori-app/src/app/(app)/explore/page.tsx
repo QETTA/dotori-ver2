@@ -6,7 +6,7 @@
  * Design: Typography-driven, ring-1 ring-black/5, no ambient glows
  */
 import { Suspense, useState } from 'react'
-import { MapIcon } from '@heroicons/react/24/outline'
+import { Map } from 'lucide-react'
 import { Text } from '@/components/catalyst/text'
 import { cn } from '@/lib/utils'
 import { DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
@@ -54,7 +54,7 @@ function ExploreContent() {
         <FadeIn className="px-4 pb-28">
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'flex h-72 items-center justify-center')}>
             <div className="text-center">
-              <MapIcon className={cn(DS_EMPTY_STATE.illustration, 'mx-auto h-8 w-8 text-gray-400')} />
+              <Map className={cn(DS_EMPTY_STATE.illustration, 'mx-auto h-8 w-8 text-gray-400')} />
               <Text className={cn(DS_EMPTY_STATE.title, 'mt-3')}>카카오맵 준비 중</Text>
               <Text className={DS_EMPTY_STATE.description}>
                 지역을 선택하면 지도에 시설이 표시돼요

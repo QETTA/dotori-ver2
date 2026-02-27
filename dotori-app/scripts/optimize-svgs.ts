@@ -6,10 +6,12 @@
  */
 
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { optimize } from 'svgo'
 
-const BRAND_DIR = join(import.meta.dirname, '..', 'public', 'brand')
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const BRAND_DIR = join(__dirname, '..', 'public', 'brand')
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`

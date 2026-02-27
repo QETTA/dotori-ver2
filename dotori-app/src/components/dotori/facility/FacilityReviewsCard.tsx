@@ -2,6 +2,7 @@ import { memo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { DS_TEXT } from "@/lib/design-system/tokens";
+import { DS_CARD } from "@/lib/design-system/card-tokens";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { CommunityPost } from "@/types/dotori";
 
@@ -42,7 +43,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 		: "/community/write";
 
 	return (
-		<section className={'glass-card rounded-2xl p-5 shadow-sm'}>
+		<section className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-5')}>
 			<div className={'mb-3 flex items-center justify-between'}>
 				<h3 className={'font-semibold'}>이웃 후기</h3>
 				{posts.length > 0 && (
@@ -64,7 +65,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 					{posts.map((post) => (
 						<motion.div
 							key={post.id}
-							className={'rounded-xl bg-dotori-50 p-4'}
+							className={'rounded-xl bg-dotori-50 p-4 hairline-border-b'}
 							variants={reviewItemVariants}
 						>
 							<p className={'text-body leading-relaxed text-dotori-800'}>

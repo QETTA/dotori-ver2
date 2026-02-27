@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="220" viewBox="-40 -60 80 100">
-  <!-- White-only: 영상 로워써드, 어두운 사진 위, 다크 배경용 -->
-  <ellipse cx="0" cy="6" rx="33" ry="31" fill="white"/>
-  <path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="white"/>
-  <path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="white"/>
-  <circle cx="-9" cy="6" r="2.7" fill="#2d2418"/>
-  <circle cx="9" cy="6" r="2.7" fill="#2d2418"/>
-  <path d="M-7,14 Q0,20.5 7,14" stroke="#2d2418" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-</svg>
+<svg viewBox="-40 -60 80 100"><ellipse cy="6" fill="#fff" rx="33" ry="31"/><path fill="#fff" d="M-31-15q0-24 31-26 31 2 31 26Q18-7 0-7t-31-8m28-26q-1.5-9 .5-12.5 2.5-1.5 5 0Q4.5-50 3-41"/><circle cx="-9" cy="6" r="2.7" fill="#2d2418"/><circle cx="9" cy="6" r="2.7" fill="#2d2418"/><path fill="none" stroke="#2d2418" stroke-linecap="round" stroke-width="1.8" d="M-7 14q7 6.5 14 0"/></svg>

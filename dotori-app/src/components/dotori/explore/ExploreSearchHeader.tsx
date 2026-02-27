@@ -164,11 +164,10 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 			{/* ── Sticky: ONLY search bar ── */}
 			<header
 				className={cn(
-					'sticky top-0 z-20 px-4 py-2.5',
+					'sticky top-0 z-20 px-4 py-2.5 glass-header',
 					DS_GLASS.nav, DS_GLASS.dark.nav,
-					
-					'border-b border-dotori-200/40','shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(176,122,74,0.12)]',
-					'dark:border-dotori-800/40 dark:shadow-none',
+					'hairline-border-b',
+					'dark:border-dotori-800/40',
 				)}
 			>
 				<ExploreSearchInput

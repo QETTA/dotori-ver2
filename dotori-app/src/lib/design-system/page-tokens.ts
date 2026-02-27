@@ -27,6 +27,28 @@ export const DS_SURFACE = {
   sunken: 'bg-dotori-950/[0.025] dark:bg-white/5',
 } as const
 
+/** 섹션 리듬 (vertical spacing between sections) */
+export const DS_SECTION_RHYTHM = {
+  /** Compact: 짧은 섹션 간격 */
+  compact: 'space-y-4',
+  /** Normal: 기본 섹션 간격 */
+  normal: 'space-y-6',
+  /** Generous: 넓은 섹션 간격 (랜딩, 홈) */
+  generous: 'space-y-8',
+} as const
+
+/** Hero 영역 토큰 */
+export const DS_HERO = {
+  /** 컨테이너: gradient-mesh + 패딩 */
+  container: 'relative overflow-hidden gradient-mesh-warm px-4 pb-8 pt-12',
+  /** 타이틀: fluid-xl + gradient text */
+  title: 'text-fluid-xl font-extrabold tracking-tight bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent',
+  /** 서브타이틀 */
+  subtitle: 'text-fluid-base text-dotori-700 dark:text-dotori-300',
+  /** Dark mode 컨테이너 */
+  dark: 'dark:bg-dotori-950',
+} as const
+
 /** 빈 상태 / 비어있는 목록 스타일 */
 export const DS_EMPTY_STATE = {
   container: 'flex flex-col items-center justify-center py-16 text-center',

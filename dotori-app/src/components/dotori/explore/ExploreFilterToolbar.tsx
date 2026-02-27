@@ -7,10 +7,10 @@
  * hasBrandSignal:  true  — DS_SURFACE.sunken (toolbar bg), color="dotori"/"forest"
  */
 import {
-	AdjustmentsHorizontalIcon,
-	ListBulletIcon,
-	MapIcon,
-} from "@heroicons/react/24/outline";
+	SlidersHorizontal,
+	List,
+	Map,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { memo } from "react";
 import { Badge } from "@/components/catalyst/badge";
@@ -75,7 +75,7 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 								showFilters ? activeFilterPillClass : inactiveFilterPillClass,
 							)}
 						>
-							<AdjustmentsHorizontalIcon className="h-3.5 w-3.5" />
+							<SlidersHorizontal className="h-3.5 w-3.5" />
 							필터
 							{activeFilterCount > 0 ? (
 								<AnimatePresence initial={false}>
@@ -112,7 +112,7 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 								'dark:hover:bg-dotori-800 dark:disabled:bg-transparent',
 							)}
 						>
-							{showMap ? <ListBulletIcon className="h-3.5 w-3.5" /> : <MapIcon className="h-3.5 w-3.5" />}
+							{showMap ? <List className="h-3.5 w-3.5" /> : <Map className="h-3.5 w-3.5" />}
 							{showMap ? "목록" : "지도"}
 						</DsButton>
 					</motion.div>

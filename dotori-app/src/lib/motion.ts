@@ -287,5 +287,28 @@ export const gradientText =
 export const gradientTextHero =
 	"bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300";
 
+/* ── Liquid Reveal (glass card entrance) ── */
+export const liquidReveal = {
+	initial: { opacity: 0, scale: 0.95, backdropFilter: "blur(0px)" },
+	animate: { opacity: 1, scale: 1, backdropFilter: "blur(20px)" },
+	transition: { duration: 0.4, ease: ease.gentle } satisfies Transition,
+} as const;
+
+/* ── Icon Swap (crossfade via layoutId) ── */
+export const iconSwap = {
+	initial: { opacity: 0, scale: 0.8, rotate: -15 },
+	animate: { opacity: 1, scale: 1, rotate: 0 },
+	exit: { opacity: 0, scale: 0.8, rotate: 15 },
+	transition: { duration: 0.2, ease: ease.snap } satisfies Transition,
+} as const;
+
+/* ── Parallax Fade (scroll-driven opacity + translateY) ── */
+export const parallaxFade = {
+	initial: { opacity: 0, y: 24 },
+	whileInView: { opacity: 1, y: 0 },
+	viewport: { once: true, margin: "-100px" },
+	transition: { duration: 0.6, ease: ease.gentle } satisfies Transition,
+} as const;
+
 /* ── Reduced Motion 유틸 ── */
 export const noMotion = { duration: 0 } satisfies Transition;

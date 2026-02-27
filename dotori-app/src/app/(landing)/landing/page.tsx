@@ -11,13 +11,13 @@
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import {
-  ArrowRightIcon,
-  ChatBubbleLeftRightIcon,
-  MagnifyingGlassIcon,
-  ChartBarIcon,
-  DocumentCheckIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline'
+  ArrowRight,
+  MessageCircle,
+  Search,
+  BarChart3,
+  FileCheck,
+  Check,
+} from 'lucide-react'
 import { BRAND } from '@/lib/brand-assets'
 import { copy } from '@/lib/brand-copy'
 import { getSeasonalHero } from '@/lib/seasonal-config'
@@ -67,21 +67,21 @@ const CTA_PRIMARY = cn(
 const CTA_SECONDARY = 'inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200'
 
 /* ── Gradient heading ── */
-const GRADIENT_HEADING = cn('font-wordmark text-3xl/10 font-bold tracking-tight text-balance', gradientTextHero)
+const GRADIENT_HEADING = cn('font-wordmark text-fluid-xl font-bold tracking-tight text-balance', gradientTextHero)
 
 const HERO_STORY_BEATS = [
   {
-    icon: MagnifyingGlassIcon,
+    icon: Search,
     title: '통합 탐색',
     description: '어린이집·유치원 2만+ 시설을 한 번에 비교',
   },
   {
-    icon: ChartBarIcon,
+    icon: BarChart3,
     title: 'TO 예측',
     description: '졸업·전출 흐름으로 빈자리 가능성을 먼저 확인',
   },
   {
-    icon: DocumentCheckIcon,
+    icon: FileCheck,
     title: '전자서명',
     description: '복잡한 입소 서류를 모바일에서 10분 완결',
   },
@@ -136,7 +136,7 @@ export default function LandingPage() {
           HERO — Wallpaper cream + CircleBackground
           FadeIn OK here (in initial viewport)
           ═══════════════════════════════════════════ */}
-      <Wallpaper color="cream" className="overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-24">
+      <Wallpaper color="cream" className="overflow-hidden gradient-mesh-warm pb-20 pt-12 sm:pt-16 lg:pb-24">
         <CircleBackground
           color="var(--color-dotori-400)"
           className="absolute right-[-12%] top-[-14%] h-[40rem] w-[40rem] opacity-20"
@@ -188,10 +188,10 @@ export default function LandingPage() {
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link href="/onboarding" className={CTA_PRIMARY}>
                     {seasonalHero.cta}
-                    <ArrowRightIcon className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link href="/chat" className={CTA_SECONDARY}>
-                    <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                    <MessageCircle className="h-4 w-4" />
                     토리 톡 시작
                   </Link>
                 </div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
                 eyebrow="통합 검색"
                 title="어린이집·유치원 한 번에"
                 description="2만+ 시설 데이터를 실시간으로 검색하고 비교해요. 유보통합 시대, 어린이집과 유치원을 한 번에."
-                icon={MagnifyingGlassIcon}
+                icon={Search}
               />
             </motion.div>
             <motion.div {...staggerItem}>
@@ -340,7 +340,7 @@ export default function LandingPage() {
                 eyebrow="TO 예측"
                 title="빈자리 가능성 분석"
                 description="졸업·전출 데이터 기반으로 TO 발생 시점을 예측합니다. 이동 대상 시설을 먼저 읽어요."
-                icon={ChartBarIcon}
+                icon={BarChart3}
               />
             </motion.div>
             <motion.div {...staggerItem} className="sm:col-span-2">
@@ -348,7 +348,7 @@ export default function LandingPage() {
                 eyebrow="전자서명"
                 title="서류 10분 완결"
                 description="입소 서류부터 전자서명까지 모바일에서 한 번에. 2~3시간 걸리던 입소 프로세스를 10분으로."
-                icon={DocumentCheckIcon}
+                icon={FileCheck}
               />
             </motion.div>
           </motion.div>
@@ -450,7 +450,7 @@ export default function LandingPage() {
                   <ul className="space-y-3">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <CheckIcon className={cn('mt-0.5 h-4 w-4 shrink-0', tier.featured ? 'text-forest-500' : 'text-dotori-400')} />
+                        <Check className={cn('mt-0.5 h-4 w-4 shrink-0', tier.featured ? 'text-forest-500' : 'text-dotori-400')} />
                         <span className={cn(DS_TYPOGRAPHY.bodySm, tier.featured ? 'text-dotori-700' : 'text-dotori-300')}>
                           {feature}
                         </span>
@@ -497,7 +497,7 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link href="/onboarding" className={CTA_PRIMARY}>
                 지금 시작하기
-                <ArrowRightIcon className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/explore" className={CTA_SECONDARY}>
                 시설 탐색

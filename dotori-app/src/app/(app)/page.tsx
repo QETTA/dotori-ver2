@@ -8,9 +8,7 @@
  */
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'motion/react'
-import {
-  ArrowRightIcon,
-} from '@heroicons/react/24/outline'
+import { ArrowRight } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { Text } from '@/components/catalyst/text'
@@ -28,8 +26,8 @@ import { ActionCard } from '@/components/dotori/ActionCard'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
-import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_SPACING } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER, DS_SECTION_RHYTHM, DS_HERO } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import type { UiBlock as UiBlockType } from '@/types/dotori'
 
@@ -126,11 +124,11 @@ export default function HomePage() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-8" key={refreshKey}>
+      <div className={DS_SECTION_RHYTHM.generous} key={refreshKey}>
         {/* ══════ HERO VIEWPORT ══════ */}
         <section className="space-y-4 pt-1">
           <motion.div {...scrollFadeIn}>
-            <div className="relative overflow-hidden rounded-3xl border border-dotori-200/70 bg-gradient-to-b from-dotori-50 via-white to-white px-5 pb-5 pt-4 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-900/60 dark:from-dotori-950/40 dark:via-gray-950 dark:to-gray-950 dark:ring-dotori-900/40">
+            <div className={cn('relative overflow-hidden rounded-3xl border border-dotori-200/70 gradient-mesh-warm px-5 pb-5 pt-4 ring-1 ring-dotori-100/70', DS_HERO.dark, 'dark:border-dotori-900/60 dark:ring-dotori-900/40')}>
               <NoiseTexture opacity={0.02} />
               <BrandWatermark className="pointer-events-none opacity-25" />
               <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-dotori-500 via-dotori-400 to-amber-400" />
@@ -151,16 +149,16 @@ export default function HomePage() {
               </FadeIn>
               <FadeInStagger faster className="mt-5 grid grid-cols-3 gap-2 border-t border-dotori-100/80 pt-4 dark:border-dotori-900/40">
                 <FadeIn>
-                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
-                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-300')}>분석 시설</p>
+                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                    <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>분석 시설</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
                     </p>
                   </div>
                 </FadeIn>
                 <FadeIn>
-                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
-                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-300')}>관심 시설</p>
+                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                    <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>관심 시설</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       {dashboard?.interestCount ?? 0}
                       <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
@@ -168,7 +166,7 @@ export default function HomePage() {
                   </div>
                 </FadeIn>
                 <FadeIn>
-                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
+                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
                     <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       {dashboard?.waitlistCount ?? 0}
@@ -217,9 +215,9 @@ export default function HomePage() {
         <FadeIn>
           <p className={cn(DS_PAGE_HEADER.eyebrow, 'mb-3')}>실시간 현황</p>
         </FadeIn>
-        <FadeInStagger faster className="grid grid-cols-3 gap-3">
+        <FadeInStagger faster className={cn('grid grid-cols-3', DS_SPACING.md)}>
           <FadeIn>
-            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
+            <div className={cn(CARD_SM, 'relative overflow-hidden shadow-micro')}>
               <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
@@ -271,7 +269,7 @@ export default function HomePage() {
             </Text>
             <DsButton tone="forest" href="/explore" className="mt-3">
               설정하기
-              <ArrowRightIcon className="h-3 w-3" />
+              <ArrowRight className={DS_ICON.xs} />
             </DsButton>
           </div>
         </motion.div>

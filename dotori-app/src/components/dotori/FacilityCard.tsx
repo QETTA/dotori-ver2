@@ -31,7 +31,7 @@ const cardRevealItem = {
 
 const CLS = {
 	article: cn(
-		'relative overflow-hidden rounded-2xl',
+		'group/card relative overflow-hidden rounded-2xl',
 		DS_SHADOW.lg, DS_SHADOW.dark.lg,
 		'ring-1 ring-dotori-300/50',
 		'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_40px_rgba(176,122,74,0.20)]',
@@ -62,7 +62,7 @@ const CLS = {
 	statMuted: 'font-medium text-dotori-600 dark:text-dotori-300',
 	availableHint: cn(DS_TYPOGRAPHY.caption, 'mt-2', DS_TEXT.secondary),
 	compactArticle: cn(
-		'relative overflow-hidden rounded-2xl',
+		'group/card relative overflow-hidden rounded-2xl',
 		'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.14)] ring-1 ring-dotori-300/50',
 		'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_36px_rgba(176,122,74,0.20)]',
 		'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.4)] dark:ring-dotori-700/60',

@@ -7,18 +7,16 @@
  * hasBrandSignal:  true  — DS_SURFACE.sunken, DS_CARD.flat (chips), color="dotori"/"forest"
  */
 import {
-	MagnifyingGlassIcon,
-	XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { MapPinIcon } from "@heroicons/react/24/solid";
-import {
-	ArrowPathIcon,
-	FaceFrownIcon,
-	AcademicCapIcon,
-	HomeModernIcon,
-	SparklesIcon,
-	BoltIcon,
-} from "@heroicons/react/24/outline";
+	Search,
+	X,
+	MapPin,
+	RefreshCw,
+	Frown,
+	GraduationCap,
+	Home,
+	Sparkles,
+	Zap,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { memo, type FormEvent, type RefObject } from "react";
 import { DsButton } from "@/components/ds/DsButton";
@@ -45,13 +43,13 @@ interface ExploreSearchInputProps {
 }
 
 /** Map each scenario to an icon — brand-consistent warm palette (2 tones only) */
-const SCENARIO_META: Record<string, { Icon: typeof FaceFrownIcon; color: string; bg: string }> = {
-	"반편성 불만": { Icon: FaceFrownIcon, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
-	"교사 교체": { Icon: ArrowPathIcon, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
-	"국공립 당첨": { Icon: AcademicCapIcon, color: "text-forest-600 dark:text-forest-400", bg: "bg-forest-50 dark:bg-forest-950/30" },
-	"이사 예정": { Icon: HomeModernIcon, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
-	"설명회 실망": { Icon: SparklesIcon, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
-	"빈자리 급구": { Icon: BoltIcon, color: "text-forest-600 dark:text-forest-400", bg: "bg-forest-50 dark:bg-forest-950/30" },
+const SCENARIO_META: Record<string, { Icon: typeof Frown; color: string; bg: string }> = {
+	"반편성 불만": { Icon: Frown, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
+	"교사 교체": { Icon: RefreshCw, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
+	"국공립 당첨": { Icon: GraduationCap, color: "text-forest-600 dark:text-forest-400", bg: "bg-forest-50 dark:bg-forest-950/30" },
+	"이사 예정": { Icon: Home, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
+	"설명회 실망": { Icon: Sparkles, color: "text-dotori-600 dark:text-dotori-400", bg: "bg-dotori-50 dark:bg-dotori-950/30" },
+	"빈자리 급구": { Icon: Zap, color: "text-forest-600 dark:text-forest-400", bg: "bg-forest-50 dark:bg-forest-950/30" },
 };
 
 const chipVariants = {
@@ -88,7 +86,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 		>
 			{/* ── Search bar ── */}
 			<form onSubmit={onFormSubmit} className="relative">
-				<MagnifyingGlassIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-dotori-400" />
+				<Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-dotori-400" />
 				<Input
 					type="search"
 					value={searchInput}
@@ -119,7 +117,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 						aria-label="검색어 지우기"
 						className="absolute right-2 top-1/2 inline-flex min-h-9 min-w-9 -translate-y-1/2 items-center justify-center rounded-full text-dotori-400 hover:text-dotori-700 dark:hover:text-dotori-200"
 					>
-						<XMarkIcon className="h-4.5 w-4.5" />
+						<X className="h-4.5 w-4.5" />
 					</DsButton>
 				) : null}
 			</form>
@@ -146,7 +144,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 							{isGpsLoading ? (
 								<span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-dotori-300 border-t-dotori-600" />
 							) : (
-								<MapPinIcon className="h-3.5 w-3.5 text-dotori-500" />
+								<MapPin className="h-3.5 w-3.5 text-dotori-500" />
 							)}
 							현재 위치
 						</DsButton>
@@ -166,7 +164,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 					>
 						{MOVE_SCENARIO_CHIPS.map((chip) => {
 							const meta = SCENARIO_META[chip];
-							const ChipIcon = meta?.Icon ?? SparklesIcon;
+							const ChipIcon = meta?.Icon ?? Sparkles;
 							return (
 								<motion.div key={chip} variants={chipVariants}>
 									<motion.button

@@ -8,6 +8,7 @@
  */
 import { useState, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { Sparkles } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { hoverLift, gradientTextHero } from '@/lib/motion'
 import { Subheading } from '@/components/catalyst/heading'
@@ -173,15 +174,16 @@ export default function ChatPage() {
               </FadeIn>
             </div>
 
-            {/* Empty state card — premium elevation */}
+            {/* Empty state card — glass + gradient mesh cool */}
             <FadeIn>
               <motion.div
                 {...hoverLift}
-                className={cn('relative overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}
+                className={cn('relative overflow-hidden gradient-mesh-cool', DS_CARD.glass.base, DS_CARD.glass.dark)}
               >
                 <NoiseTexture />
                 <div className="h-1.5 bg-gradient-to-r from-violet-500 via-dotori-500 to-amber-400" />
-                <div className="p-6 text-center">
+                <div className="flex flex-col items-center gap-3 p-6 text-center">
+                  <Sparkles className="h-8 w-8 text-dotori-400" />
                   <Subheading level={2} className={cn(DS_EMPTY_STATE.title, 'sm:text-sm/6')}>
                     {copy.chat.emptyGuide}
                   </Subheading>

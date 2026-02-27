@@ -8,14 +8,14 @@
  */
 import Link from 'next/link'
 import {
-  ArrowRightIcon,
-  DocumentTextIcon,
-  ClockIcon,
-  HeartIcon,
-  BellIcon,
-  Cog6ToothIcon,
-  ChatBubbleLeftIcon,
-} from '@heroicons/react/24/outline'
+  ArrowRight,
+  FileText,
+  Clock,
+  Heart,
+  Bell,
+  Settings,
+  MessageSquare,
+} from 'lucide-react'
 import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
@@ -27,7 +27,7 @@ import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { gradientTextHero } from '@/lib/motion'
@@ -41,12 +41,12 @@ type MenuItem = {
 }
 
 const menuItems: MenuItem[] = [
-  { href: '/my/documents', label: '서류함', desc: '입소 서류 관리', icon: DocumentTextIcon, tint: 'dotori' },
-  { href: '/my/waitlist', label: '입소 대기', desc: '대기 현황 확인', icon: ClockIcon, tint: 'amber' },
-  { href: '/my/interests', label: '관심 시설', desc: '찜한 시설 목록', icon: HeartIcon, tint: 'dotori' },
-  { href: '/my/notifications', label: '알림', desc: '빈자리·서류 알림', icon: BellIcon, tint: 'forest' },
-  { href: '/my/settings', label: '설정', desc: '계정·알림 관리', icon: Cog6ToothIcon, tint: 'dotori' },
-  { href: '/my/support', label: '고객 지원', desc: 'FAQ·1:1 문의', icon: ChatBubbleLeftIcon, tint: 'forest' },
+  { href: '/my/documents', label: '서류함', desc: '입소 서류 관리', icon: FileText, tint: 'dotori' },
+  { href: '/my/waitlist', label: '입소 대기', desc: '대기 현황 확인', icon: Clock, tint: 'amber' },
+  { href: '/my/interests', label: '관심 시설', desc: '찜한 시설 목록', icon: Heart, tint: 'dotori' },
+  { href: '/my/notifications', label: '알림', desc: '빈자리·서류 알림', icon: Bell, tint: 'forest' },
+  { href: '/my/settings', label: '설정', desc: '계정·알림 관리', icon: Settings, tint: 'dotori' },
+  { href: '/my/support', label: '고객 지원', desc: 'FAQ·1:1 문의', icon: MessageSquare, tint: 'forest' },
 ]
 
 const ICON_TINT: Record<string, string> = {
@@ -85,7 +85,7 @@ export default function MyPage() {
           </h1>
         </FadeIn>
         <FadeIn>
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative mt-5 overflow-hidden')}>
+          <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative mt-5 overflow-hidden')}>
             <NoiseTexture />
             {/* Gradient accent bar */}
             <div className="h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
@@ -120,7 +120,7 @@ export default function MyPage() {
               </Text>
               <div className={cn('mt-4 inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1.5 font-semibold text-dotori-600 transition group-hover:bg-dotori-100 dark:bg-dotori-950/30 dark:text-dotori-400', DS_TYPOGRAPHY.caption)}>
                 시설 탐색하기
-                <ArrowRightIcon className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className={cn(DS_ICON.xs, 'transition-transform group-hover:translate-x-0.5')} />
               </div>
             </div>
           </Link>
@@ -162,13 +162,13 @@ export default function MyPage() {
                 {/* z-10 — content layer (resting ring + shadow for depth in static view) */}
                 <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-dotori-300/50 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.16),0_6px_18px_rgba(176,122,74,0.12)] transition-all duration-200 group-hover/card:-translate-y-1 group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.18),0_14px_32px_rgba(176,122,74,0.18)] group-hover/card:ring-dotori-400/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_18px_rgba(0,0,0,0.4)] dark:group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.4),0_14px_32px_rgba(0,0,0,0.5)]">
                   <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-lg', ICON_TINT[item.tint])}>
-                    <Icon className="h-5 w-5" />
+                    <Icon className={DS_ICON.md} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold', DS_TEXT.primary)}>{item.label}</p>
                     <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>{item.desc}</p>
                   </div>
-                  <ArrowRightIcon className={cn('h-4 w-4 shrink-0 transition-transform duration-200 group-hover/card:translate-x-0.5', DS_TEXT.muted)} />
+                  <ArrowRight className={cn(DS_ICON.sm, 'shrink-0 transition-transform duration-200 group-hover/card:translate-x-0.5', DS_TEXT.muted)} />
                 </div>
                 {/* z-20 — click zone */}
                 <Link href={item.href} className="absolute inset-0 z-20" aria-label={item.label}>

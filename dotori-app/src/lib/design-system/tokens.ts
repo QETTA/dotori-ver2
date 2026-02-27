@@ -248,3 +248,70 @@ export const DS_STATUS_ALIAS = {
   closed: DS_STATUS.full,
   pending: DS_STATUS.waiting,
 } as const
+
+/* ── States (Focus / Disabled / Active) ── */
+export const DS_STATES = {
+  focus: 'ring-2 ring-dotori-500/50 ring-offset-2 ring-offset-white dark:ring-offset-dotori-950',
+  disabled: 'opacity-50 pointer-events-none',
+  active: 'ring-2 ring-dotori-400/40',
+} as const
+
+/* ── Spacing Tokens ── */
+export const DS_SPACING = {
+  xs: 'gap-1',
+  sm: 'gap-2',
+  md: 'gap-3',
+  lg: 'gap-4',
+  xl: 'gap-6',
+  section: 'gap-8',
+} as const
+
+/* ── Icon Size Tokens (lucide-react) ── */
+export const DS_ICON = {
+  xs: 'h-3.5 w-3.5',
+  sm: 'h-4 w-4',
+  md: 'h-5 w-5',
+  lg: 'h-6 w-6',
+  xl: 'h-8 w-8',
+} as const
+
+/* ── Gradient Tokens ── */
+export const DS_GRADIENT = {
+  /** Hero: brown → gold, unmissable */
+  hero: 'bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400',
+  /** CTA: warmer, tighter range */
+  cta: 'bg-gradient-to-r from-dotori-600 via-dotori-500 to-amber-500',
+  /** Subtle: soft background accent */
+  subtle: 'bg-gradient-to-br from-dotori-50 via-white to-amber-50/30',
+  /** Mesh: warm radial overlay (use with gradient-mesh-warm utility) */
+  mesh: 'gradient-mesh-warm',
+} as const
+
+/* ── Interactive Color Pairs ── */
+export const DS_INTERACTIVE = {
+  dotori: {
+    hover: 'hover:bg-dotori-50 dark:hover:bg-dotori-900/30',
+    active: 'active:bg-dotori-100 dark:active:bg-dotori-800/40',
+    focus: 'focus-visible:ring-2 focus-visible:ring-dotori-500/50',
+  },
+  forest: {
+    hover: 'hover:bg-forest-50 dark:hover:bg-forest-900/30',
+    active: 'active:bg-forest-100 dark:active:bg-forest-800/40',
+    focus: 'focus-visible:ring-2 focus-visible:ring-forest-500/50',
+  },
+  amber: {
+    hover: 'hover:bg-amber-50 dark:hover:bg-amber-900/30',
+    active: 'active:bg-amber-100 dark:active:bg-amber-800/40',
+    focus: 'focus-visible:ring-2 focus-visible:ring-amber-500/50',
+  },
+} as const
+
+/* ── Z-Index Scale ── */
+export const DS_ZINDEX = {
+  base: 'z-10',
+  sticky: 'z-20',
+  dropdown: 'z-30',
+  floating: 'z-40',
+  modal: 'z-50',
+  toast: 'z-[60]',
+} as const

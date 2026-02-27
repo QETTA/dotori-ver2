@@ -29,6 +29,12 @@ export const DS_CARD = {
     base: 'rounded-2xl bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.16)] ring-1 ring-dotori-300/60 border-l-4',
     dark: 'dark:bg-dotori-900 dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.45)] dark:ring-dotori-700/60',
   },
+  /** Liquid Glass 2.0 — Apple-inspired warm transparency */
+  glass: {
+    base: 'rounded-2xl bg-white/60 backdrop-blur-2xl border border-white/30 shadow-[0_8px_32px_rgba(176,122,74,0.08)] ring-1 ring-white/20',
+    dark: 'dark:bg-dotori-950/60 dark:backdrop-blur-2xl dark:border-dotori-800/30 dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] dark:ring-dotori-800/20',
+    hover: 'transition-all hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(176,122,74,0.12)] hover:ring-white/40',
+  },
 } as const
 
 export type DsCardVariant = keyof typeof DS_CARD

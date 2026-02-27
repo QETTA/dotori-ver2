@@ -1,4 +1,4 @@
-import { ArrowTopRightOnSquareIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ExternalLink, ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 
@@ -268,7 +268,7 @@ export function FacilityCapacitySection({
 								{occupancyRate}%
 							</span>
 						</div>
-							<ChevronDownIcon
+							<ChevronDown
 								className={cn(
 									'h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200',
 									isExpanded
@@ -437,7 +437,7 @@ export function FacilityAdmissionGuideSection() {
 					className={'mt-3 inline-flex w-full min-h-11 items-center justify-center gap-1.5 rounded-xl bg-dotori-100 px-4 py-2.5 text-body-sm font-semibold text-dotori-700 transition-all hover:bg-dotori-200 active:scale-[0.97] dark:bg-dotori-800 dark:text-dotori-100 dark:hover:bg-dotori-700'}
 				>
 					아이사랑포털에서 확인
-					<ArrowTopRightOnSquareIcon className={'h-4 w-4'} />
+					<ExternalLink className={'h-4 w-4'} />
 				</motion.a>
 		</motion.div>
 	);

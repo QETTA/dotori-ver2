@@ -10,11 +10,11 @@
  */
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { BoltIcon, FunnelIcon, ChatBubbleLeftRightIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { Zap, Filter, MessageCircle, Check } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
 import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Subheading } from '@/components/catalyst/heading'
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
   const progressPct = Math.round(((currentStep + 1) / totalSteps) * 100)
 
   return (
-    <div className="relative space-y-8 pb-8">
+    <div className="container-app relative space-y-8 pb-8">
       <BrandWatermark className="opacity-30" />
       {/* ══════ PROGRESS BAR ══════ */}
       <FadeIn>
@@ -99,10 +99,10 @@ export default function OnboardingPage() {
           <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
             온보딩
           </p>
-          <h1 className={cn('mt-3 font-wordmark text-3xl/10 font-extrabold tracking-tight', gradientTextHero)}>
+          <h1 className={cn('mt-3 font-wordmark text-fluid-xl font-extrabold tracking-tight', gradientTextHero)}>
             {copy.onboarding.welcome}
           </h1>
-          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
+          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-fluid-base')}>
             {copy.onboarding.welcomeSub}
           </Text>
         </div>
@@ -127,7 +127,7 @@ export default function OnboardingPage() {
               )}
               onClick={() => { setSelectedType(type); setCurrentStep(1) }}
             >
-              {selectedType === type && <CheckIcon className="h-4 w-4 text-dotori-500" />}
+              {selectedType === type && <Check className={cn(DS_ICON.sm, 'text-dotori-500')} />}
               {type}
             </button>
           ))}
@@ -165,15 +165,15 @@ export default function OnboardingPage() {
           <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>우선순위 체크</Subheading>
           <ul className="mt-3 space-y-3">
             <li className="flex items-start gap-3">
-              <BoltIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
+              <Zap className={cn('mt-0.5 shrink-0 text-dotori-500', DS_ICON.sm)} />
               <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>유보통합·반편성 위험 신호를 먼저 탐지합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
-              <FunnelIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
+              <Filter className={cn('mt-0.5 shrink-0 text-dotori-500', DS_ICON.sm)} />
               <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>이동 사유를 기준으로 후보 시설을 선별합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
-              <ChatBubbleLeftRightIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
+              <MessageCircle className={cn('mt-0.5 shrink-0 text-dotori-500', DS_ICON.sm)} />
               <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>10분 안내 플로우로 상담/서류를 정렬합니다.</Text>
             </li>
           </ul>

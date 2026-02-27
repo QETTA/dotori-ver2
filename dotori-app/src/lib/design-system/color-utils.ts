@@ -130,3 +130,83 @@ export function isP3Gamut(color: string): boolean {
   const { r = 0, g = 0, b = 0 } = rgb
   return r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1
 }
+
+// ── DS Token Contrast Validation ──
+
+/** DS color hex values for validation */
+const DS_COLORS = {
+  'dotori-50': '#faf5ef',
+  'dotori-100': '#f0e4d5',
+  'dotori-300': '#d4b896',
+  'dotori-400': '#c8956a',
+  'dotori-500': '#b07a4a',
+  'dotori-700': '#7a5232',
+  'dotori-900': '#3d2919',
+  'dotori-950': '#261a10',
+  'forest-500': '#4a7a42',
+  'forest-700': '#355d2f',
+  'amber-400': '#d4a030',
+  'amber-500': '#b8892a',
+  white: '#ffffff',
+  black: '#000000',
+} as const
+
+/** DS_TEXT token pairs to validate */
+const DS_TEXT_PAIRS: Array<{ name: string; fg: string; bg: string; large?: boolean }> = [
+  { name: 'primary/white', fg: DS_COLORS['dotori-900'], bg: DS_COLORS.white },
+  { name: 'secondary/white', fg: DS_COLORS['dotori-700'], bg: DS_COLORS.white },
+  { name: 'muted/white', fg: DS_COLORS['dotori-500'], bg: DS_COLORS.white },
+  { name: 'primary-dark/950', fg: DS_COLORS['dotori-50'], bg: DS_COLORS['dotori-950'] },
+  { name: 'secondary-dark/950', fg: DS_COLORS['dotori-300'], bg: DS_COLORS['dotori-950'] },
+  { name: 'inverse/dotori-500', fg: DS_COLORS.white, bg: DS_COLORS['dotori-500'] },
+  { name: 'forest/white', fg: DS_COLORS['forest-500'], bg: DS_COLORS.white, large: true },
+]
+
+/** Validate all DS_TEXT token combinations for WCAG AA compliance */
+export function validateDsContrast(): Array<{
+  name: string
+  ratio: number
+  passes: boolean
+}> {
+  return DS_TEXT_PAIRS.map(({ name, fg, bg, large }) => {
+    const ratio = contrastRatio(fg, bg)
+    return { name, ratio: Math.round(ratio * 100) / 100, passes: meetsWcagAA(fg, bg, large) }
+  })
+}
+
+/** Auto-fix contrast by adjusting OKLCH lightness until WCAG AA met */
+export function autoFixContrast(
+  fg: string,
+  bg: string,
+  largeText = false,
+): string {
+  if (meetsWcagAA(fg, bg, largeText)) return fg
+  const targetRatio = largeText ? 3 : 4.5
+  const bgOklch = toOklch(bg)
+  const fgOklch = toOklch(fg)
+  if (!bgOklch || !fgOklch) return fg
+
+  const isDarkBg = bgOklch.l < 0.5
+  const step = isDarkBg ? 0.02 : -0.02
+  let current = fgOklch.l
+
+  for (let i = 0; i < 40; i++) {
+    current += step
+    if (current < 0 || current > 1) break
+    const candidate = adjustLightness(fg, current)
+    if (contrastRatio(candidate, bg) >= targetRatio) return candidate
+  }
+  return fg
+}
+
+/** Map a capacity ratio (0–1) to a semantic color: forest → amber → danger */
+export function getCapacityColor(ratio: number): string {
+  if (ratio <= 0.5) return DS_COLORS['forest-500']
+  if (ratio <= 0.8) {
+    return mixColors(DS_COLORS['forest-500'], DS_COLORS['amber-500'], (ratio - 0.5) / 0.3)
+  }
+  if (ratio <= 0.95) {
+    return mixColors(DS_COLORS['amber-500'], '#dc2626', (ratio - 0.8) / 0.15)
+  }
+  return '#dc2626'
+}

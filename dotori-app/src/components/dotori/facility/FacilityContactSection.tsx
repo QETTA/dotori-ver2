@@ -1,14 +1,13 @@
 import {
-  ArrowPathIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ClipboardDocumentIcon,
-  GlobeAltIcon,
-  HeartIcon,
-  MapPinIcon,
-  PhoneIcon,
-} from '@heroicons/react/24/outline'
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid'
+  RefreshCw,
+  CheckCircle,
+  ChevronDown,
+  Clipboard,
+  Globe,
+  Heart,
+  MapPin,
+  Phone,
+} from 'lucide-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -101,7 +100,7 @@ export function FacilityContactSection({
         >
           연락처
         </h2>
-        <ChevronDownIcon
+        <ChevronDown
           className={cn(
             'h-5 w-5 flex-shrink-0 text-dotori-500 transition-transform duration-200',
             isExpanded
@@ -127,7 +126,7 @@ export function FacilityContactSection({
                 transition={tap.button.transition}
                 className={CLS.contactLink}
               >
-                <PhoneIcon className={'h-5 w-5 text-dotori-500'} />
+                <Phone className={'h-5 w-5 text-dotori-500'} />
                 <span>{phone}</span>
               </motion.a>
               <motion.div
@@ -142,7 +141,7 @@ export function FacilityContactSection({
                   disabled={!copyablePhone || copyingPhone}
                   className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-11 min-w-28 px-3')}
                 >
-                  <ClipboardDocumentIcon className={'h-5 w-5'} />
+                  <Clipboard className={'h-5 w-5'} />
                   전화 복사
                 </DsButton>
               </motion.div>
@@ -156,7 +155,7 @@ export function FacilityContactSection({
                 'py-2 text-dotori-500 dark:text-dotori-300',
               )}
             >
-              <PhoneIcon className={'h-5 w-5'} />
+              <Phone className={'h-5 w-5'} />
               <span>전화번호 미제공</span>
             </motion.div>
           )}
@@ -169,7 +168,7 @@ export function FacilityContactSection({
               transition={tap.button.transition}
               className={CLS.contactLink}
             >
-              <MapPinIcon className={'h-5 w-5 text-dotori-500'} />
+              <MapPin className={'h-5 w-5 text-dotori-500'} />
               <span className={'line-clamp-2'}>{address}</span>
             </motion.a>
             <motion.div
@@ -184,7 +183,7 @@ export function FacilityContactSection({
                 disabled={!copyableAddress || copyingAddress}
                 className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-11 min-w-28 px-3')}
               >
-                <ClipboardDocumentIcon className={'h-5 w-5'} />
+                <Clipboard className={'h-5 w-5'} />
                 주소 복사
               </DsButton>
             </motion.div>
@@ -199,7 +198,7 @@ export function FacilityContactSection({
               {...stagger.item}
               className={CLS.contactLink}
             >
-              <GlobeAltIcon className={'h-5 w-5 text-dotori-500'} />
+              <Globe className={'h-5 w-5 text-dotori-500'} />
               <span>홈페이지 열기</span>
             </motion.a>
           )}
@@ -324,9 +323,9 @@ export function FacilityActionBar({
               )}
             >
               {liked ? (
-                <HeartSolid className={'h-5 w-5 text-dotori-500'} />
+                <Heart className={'h-5 w-5 text-dotori-500'} />
               ) : (
-                <HeartIcon className={'h-5 w-5'} />
+                <Heart className={'h-5 w-5'} />
               )}
               {liked ? '관심 추가됨' : '관심 추가'}
             </DsButton>
@@ -335,7 +334,7 @@ export function FacilityActionBar({
             {actionStatus === 'executing' ? (
               <motion.div {...stagger.item} className={'min-h-11 rounded-xl border border-dotori-100 bg-dotori-50 dark:border-dotori-800 dark:bg-dotori-900'}>
                 <div className={'flex h-full items-center justify-center gap-2'}>
-                  <ArrowPathIcon className={'h-5 w-5 animate-spin text-dotori-700 dark:text-dotori-100'} />
+                  <RefreshCw className={'h-5 w-5 animate-spin text-dotori-700 dark:text-dotori-100'} />
                   <span
                     className={cn(
                       DS_TYPOGRAPHY.bodySm,
@@ -348,7 +347,7 @@ export function FacilityActionBar({
               </motion.div>
             ) : actionStatus === 'success' ? (
               <motion.div {...stagger.item} className={'rounded-xl border border-forest-200 bg-forest-50 dark:border-forest-800 dark:bg-forest-950/30'}>
-                <CheckCircleIcon className={'mx-auto h-6 w-6 animate-in text-forest-600 duration-300 zoom-in dark:text-forest-200'} />
+                <CheckCircle className={'mx-auto h-6 w-6 animate-in text-forest-600 duration-300 zoom-in dark:text-forest-200'} />
                 <p
                   className={cn(
                     DS_TYPOGRAPHY.bodySm,

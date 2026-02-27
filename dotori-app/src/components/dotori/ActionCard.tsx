@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { hoverLift, fadeUp, gradientText } from '@/lib/motion'
 import type { FunnelStep } from '@/types/dotori'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 
 interface ActionCardProps {
@@ -63,7 +63,7 @@ export function ActionCard({ step, className = '' }: ActionCardProps) {
       {/* z-10: content */}
       <motion.div
         {...hoverLift}
-        className={cn('relative z-10 overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}
+        className={cn('relative z-10 overflow-hidden shadow-micro', DS_CARD.glass.base, DS_CARD.glass.dark)}
       >
         {/* TP5 Border Accent — gradient top bar */}
         <div className={cn('h-1.5 bg-gradient-to-r', config.gradient)} />
@@ -80,7 +80,7 @@ export function ActionCard({ step, className = '' }: ActionCardProps) {
           </p>
           <div className={cn('mt-4 inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1.5 font-semibold transition group-hover/card:bg-dotori-100 dark:bg-dotori-950/30', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>
             {config.cta}
-            <ArrowRightIcon className="h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
+            <ArrowRight className={cn(DS_ICON.xs, 'transition-transform group-hover/card:translate-x-0.5')} />
           </div>
         </div>
       </motion.div>
