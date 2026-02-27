@@ -20,6 +20,8 @@ import { Text } from "@/components/catalyst/text";
 import { BRAND_GUIDE } from "@/lib/brand-assets";
 import { DS_STATUS, DS_TYPOGRAPHY, DS_GLASS } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { NoiseTexture } from "@/components/dotori/NoiseTexture";
 import { stagger, gradientTextHero } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreFilterPanel } from "./ExploreFilterPanel";
@@ -136,24 +138,27 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 		<>
 			{/* ── Hero (scrolls away) ── */}
 			<div className="px-4 pb-4 pt-2">
-				<motion.div {...stagger.container} className="space-y-3">
-					<motion.div {...stagger.item} className="flex items-center gap-3">
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						<img
-							src={BRAND_GUIDE.header}
-							alt="도토리"
-							className="h-5 w-auto opacity-90"
-						/>
+				<div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden p-5')}>
+					<NoiseTexture opacity={0.02} />
+					<motion.div {...stagger.container} className="space-y-3">
+						<motion.div {...stagger.item} className="flex items-center gap-3">
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img
+								src={BRAND_GUIDE.header}
+								alt="도토리"
+								className="h-5 w-auto opacity-90"
+							/>
+						</motion.div>
+						<motion.div {...stagger.item}>
+							<h1 className={cn("font-wordmark text-3xl/[1.2] font-extrabold tracking-tight", gradientTextHero)}>
+								시설 탐색
+							</h1>
+							<Text className={cn('mt-2', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.body)}>
+								어린이집·유치원 2만+ 시설을 검색하세요
+							</Text>
+						</motion.div>
 					</motion.div>
-					<motion.div {...stagger.item}>
-						<h1 className={cn("font-wordmark text-3xl/[1.2] font-extrabold tracking-tight", gradientTextHero)}>
-							시설 탐색
-						</h1>
-						<Text className={cn('mt-2', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.body)}>
-							어린이집·유치원 2만+ 시설을 검색하세요
-						</Text>
-					</motion.div>
-				</motion.div>
+				</div>
 			</div>
 
 			{/* ── Sticky: ONLY search bar ── */}

@@ -95,7 +95,7 @@ export default function FacilityDetailPage({
       {/* ══════ NAV ══════ */}
       <FadeIn>
         <div className="flex items-center justify-between">
-          <Link href="/explore" className="inline-flex items-center gap-2 text-sm/6 text-dotori-600 hover:text-dotori-950 dark:text-dotori-400 dark:hover:text-white">
+          <Link href="/explore" className={cn('inline-flex items-center gap-2 text-sm/6 hover:text-dotori-950 dark:hover:text-white', DS_TEXT.secondary)}>
             <ArrowLeftIcon className="h-4 w-4" />
             목록으로
           </Link>
@@ -263,7 +263,7 @@ export default function FacilityDetailPage({
             리뷰 쓰기
           </DsButton>
         </div>
-        <div className={cn('mt-3 flex items-center gap-3 p-4', DS_CARD.flat.base, DS_CARD.flat.dark)}>
+        <div className={cn('mt-3 flex items-center gap-3 p-4', DS_CARD.raised.base, DS_CARD.raised.dark)}>
           <div className="flex gap-0.5">
             {Array.from({ length: 5 }, (_, i) => (
               <StarIcon

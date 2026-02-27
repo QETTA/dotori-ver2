@@ -15,7 +15,7 @@ import { FadeIn } from '@/components/dotori/FadeIn'
 import { SparkLine } from '@/components/dotori/charts/SparkLine'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 
 const STORAGE_KEY = 'dotori:recent-facilities'
 
@@ -75,8 +75,8 @@ export function RecentFacilities({ className }: { className?: string }) {
     return (
       <FadeIn className={className}>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex flex-col items-center px-6 py-8 text-center')}>
-          <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-900 dark:text-dotori-50')}>아직 본 시설이 없어요</p>
-          <Text className="mt-1.5 text-sm/6 text-dotori-500 dark:text-dotori-400">탐색에서 시설을 확인해보세요</Text>
+          <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold', DS_TEXT.primary)}>아직 본 시설이 없어요</p>
+          <Text className={cn('mt-1.5 text-sm/6', DS_TEXT.muted)}>탐색에서 시설을 확인해보세요</Text>
         </div>
       </FadeIn>
     )
@@ -102,7 +102,7 @@ export function RecentFacilities({ className }: { className?: string }) {
               <Link
                 href={`/facility/${f.id}`}
                 className={cn(
-                  DS_CARD.flat.base, DS_CARD.flat.dark, DS_CARD.flat.hover,
+                  DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover,
                   'block w-40 p-3',
                 )}
               >
@@ -114,7 +114,7 @@ export function RecentFacilities({ className }: { className?: string }) {
                     </span>
                   )}
                 </div>
-                <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2 truncate font-medium text-dotori-900 dark:text-dotori-50')}>
+                <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2 truncate font-medium', DS_TEXT.primary)}>
                   {f.name}
                 </p>
                 {f.trend && f.trend.length > 1 && (

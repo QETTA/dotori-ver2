@@ -57,8 +57,8 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 			>
 				<Text
 					className={cn(
-						DS_TYPOGRAPHY.bodySm,
-						'mr-auto shrink-0 whitespace-nowrap text-dotori-600 dark:text-dotori-300',
+						DS_TYPOGRAPHY.body,
+						'mr-auto shrink-0 whitespace-nowrap font-semibold text-dotori-700 dark:text-dotori-200',
 					)}
 				>
 					{resultLabel}

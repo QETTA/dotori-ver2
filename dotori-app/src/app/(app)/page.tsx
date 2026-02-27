@@ -185,7 +185,8 @@ export default function HomePage() {
         </FadeIn>
         <FadeInStagger faster className="grid grid-cols-3 gap-3">
           <FadeIn>
-            <div className={CARD_SM}>
+            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
+              <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
               </div>
@@ -193,7 +194,8 @@ export default function HomePage() {
             </div>
           </FadeIn>
           <FadeIn>
-            <div className={CARD_SM}>
+            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
+              <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 {dashboard?.interestCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>
@@ -201,7 +203,8 @@ export default function HomePage() {
             </div>
           </FadeIn>
           <FadeIn>
-            <div className={CARD_SM}>
+            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
+              <div className="absolute left-0 top-0 h-full w-0.5 bg-forest-400/60" />
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-forest-600 dark:text-forest-400')}>
                 {dashboard?.waitlistCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>

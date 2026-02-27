@@ -8,6 +8,8 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 
 interface ActionCardProps {
   step: FunnelStep
@@ -61,10 +63,11 @@ export function ActionCard({ step, className = '' }: ActionCardProps) {
       {/* z-10: content */}
       <motion.div
         {...hoverLift}
-        className={cn('relative z-10 overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}
+        className={cn('relative z-10 overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}
       >
         {/* TP5 Border Accent — gradient top bar */}
-        <div className={cn('h-1 bg-gradient-to-r', config.gradient)} />
+        <div className={cn('h-1.5 bg-gradient-to-r', config.gradient)} />
+        <NoiseTexture opacity={0.02} />
         <div className="p-5">
           <p className={DS_PAGE_HEADER.eyebrow}>
             다음 단계
@@ -72,10 +75,10 @@ export function ActionCard({ step, className = '' }: ActionCardProps) {
           <p className={cn('mt-3 text-base/7 font-bold tracking-tight', gradientText)}>
             {config.title}
           </p>
-          <p className="mt-1 text-sm/6 text-dotori-600 dark:text-dotori-400">
+          <p className={cn('mt-1', DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>
             {config.description}
           </p>
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1.5 text-xs/5 font-semibold text-dotori-600 transition group-hover/card:bg-dotori-100 dark:bg-dotori-950/30 dark:text-dotori-400">
+          <div className={cn('mt-4 inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1.5 font-semibold transition group-hover/card:bg-dotori-100 dark:bg-dotori-950/30', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>
             {config.cta}
             <ArrowRightIcon className="h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
           </div>

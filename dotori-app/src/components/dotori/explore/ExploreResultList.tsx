@@ -147,7 +147,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 				<motion.ul {...stagger.fast.container} className="relative space-y-4 pb-4">
 					{/* ── Insight banner ── */}
 					<motion.li {...stagger.fast.item}>
-						<div className={cn('relative overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+						<div className={cn('relative overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}>
 						<div className="h-1.5 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
 						<NoiseTexture opacity={0.02} />
 						<div className="flex items-start gap-3 px-4 py-3">

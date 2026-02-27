@@ -11,6 +11,8 @@ import { getSeasonalBriefing } from '@/lib/seasonal-config'
 import { cn } from '@/lib/utils'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 
 const subscribe = () => () => {}
 const getSnapshot = () => true
@@ -43,6 +45,7 @@ export function SeasonalBriefing() {
       >
         {/* Warm accent bar */}
         <div className="h-1 bg-gradient-to-r from-amber-400 via-dotori-400 to-dotori-300" />
+        <NoiseTexture opacity={0.02} />
         <div className="p-5">
           <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-amber-600 dark:text-amber-400')}>
             {briefing.eyebrow}
@@ -50,10 +53,10 @@ export function SeasonalBriefing() {
           <Subheading level={3} className="mt-2 text-sm/6 font-semibold text-dotori-900 dark:text-dotori-50 sm:text-sm/6">
             {briefing.title}
           </Subheading>
-          <Text className="mt-1 text-sm/6 text-dotori-600 dark:text-dotori-400">
+          <Text className={cn('mt-1 text-sm/6', DS_TEXT.secondary)}>
             {briefing.description}
           </Text>
-          <div className="mt-3 flex items-center text-xs/5 font-medium text-dotori-500">
+          <div className={cn('mt-3 flex items-center text-xs/5 font-medium', DS_TEXT.muted)}>
             자세히 보기
             <ArrowRightIcon className="ml-1 h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
           </div>

@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { fadeUp, spring } from '@/lib/motion'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DS_TYPOGRAPHY, DS_PROGRESS } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_PROGRESS, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { cn } from '@/lib/utils'
 import type { FunnelStep } from '@/types/dotori'
@@ -58,7 +58,7 @@ export function FunnelProgressWidget({ step, className = '' }: FunnelProgressWid
             <p className={DS_PAGE_HEADER.eyebrow}>
               입소 여정 {step + 1}/4단계
             </p>
-            <p className={cn('mt-1 font-medium text-dotori-900 dark:text-white', DS_TYPOGRAPHY.bodySm)}>
+            <p className={cn('mt-1 font-medium', DS_TYPOGRAPHY.bodySm, DS_TEXT.primary)}>
               {LABELS[step]}
             </p>
 
@@ -71,19 +71,19 @@ export function FunnelProgressWidget({ step, className = '' }: FunnelProgressWid
               />
             </div>
 
-            <div className="mt-2 flex justify-between">
+            <div className="mt-2 flex items-center justify-between">
               {([0, 1, 2, 3] as FunnelStep[]).map((s) => (
-                <span
-                  key={s}
-                  className={cn(
-                    DS_TYPOGRAPHY.caption,
-                    s <= step
-                      ? 'font-semibold text-dotori-600 dark:text-dotori-400'
-                      : 'text-dotori-400 dark:text-dotori-600',
+                <div key={s} className="flex flex-col items-center gap-1">
+                  <div className={cn(
+                    'h-2 w-2 rounded-full transition-colors',
+                    s <= step ? 'bg-dotori-500' : 'bg-dotori-200 dark:bg-dotori-700',
+                  )} />
+                  {s === step && (
+                    <span className={cn(DS_TYPOGRAPHY.caption, 'font-semibold text-dotori-600 dark:text-dotori-400')}>
+                      {LABELS[s]}
+                    </span>
                   )}
-                >
-                  {LABELS[s]}
-                </span>
+                </div>
               ))}
             </div>
           </div>
