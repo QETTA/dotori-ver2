@@ -1,6 +1,6 @@
 "use client";
 
-import { ClockIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Clock, Search } from "lucide-react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/catalyst/badge";
 import { DsButton } from "@/components/ds/DsButton";
@@ -95,7 +95,7 @@ export function ExploreSuggestionPanel({
 									DS_STATUS.available.pill,
 								)}
 							>
-								<ClockIcon className={'h-3.5 w-3.5 text-current'} />
+								<Clock className={'h-3.5 w-3.5 text-current'} />
 							</span>
 							<div className={'min-w-0'}>
 								<div className={'flex items-center gap-2'}>
@@ -135,7 +135,7 @@ export function ExploreSuggestionPanel({
 										)}
 									>
 										<span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} />
-										<ClockIcon className={cn('h-3.5 w-3.5 text-current')} />
+										<Clock className={cn('h-3.5 w-3.5 text-current')} />
 										{term}
 									</DsButton>
 								</motion.div>
@@ -153,7 +153,7 @@ export function ExploreSuggestionPanel({
 							DS_STATUS.waiting.pill,
 						)}
 					>
-						<MagnifyingGlassIcon className={'h-3.5 w-3.5 text-current'} />
+						<Search className={'h-3.5 w-3.5 text-current'} />
 					</span>
 					<div className={'min-w-0'}>
 						<div className={'flex items-center gap-2'}>
@@ -177,7 +177,7 @@ export function ExploreSuggestionPanel({
 									className={cn(chipBtnClass, tone.pill, tone.border)}
 								>
 									<span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} />
-									<MagnifyingGlassIcon className={cn('h-3.5 w-3.5 text-current')} />
+									<Search className={cn('h-3.5 w-3.5 text-current')} />
 									{term}
 								</DsButton>
 							</motion.div>

@@ -6,7 +6,7 @@
  * Automatically attaches UTM params to the shared URL.
  */
 import { useState } from 'react'
-import { ShareIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { Share, Check } from 'lucide-react'
 import { motion } from 'motion/react'
 import { tap } from '@/lib/motion'
 import { shareViaKakao, type ShareParams } from '@/lib/kakao-share'
@@ -66,12 +66,12 @@ export function ShareButton({
     >
       {copied ? (
         <>
-          <CheckIcon className="h-4 w-4 text-forest-500" />
+          <Check className="h-4 w-4 text-forest-500" />
           링크 복사됨
         </>
       ) : (
         <>
-          <ShareIcon className="h-4 w-4" />
+          <Share className="h-4 w-4" />
           공유하기
         </>
       )}

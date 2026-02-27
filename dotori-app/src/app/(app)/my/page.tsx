@@ -7,6 +7,7 @@
  * 3-layer hover menu, icon-led navigation
  */
 import Link from 'next/link'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import {
   ArrowRight,
   FileText,
@@ -64,6 +65,7 @@ const statItems = [
 export default function MyPage() {
   const { dashboard } = useHomeDashboard()
   const funnelStep = dashboard?.funnelStep ?? 0
+  const [menuRef] = useAutoAnimate({ duration: 200 })
 
   return (
     <div className="relative space-y-8">
@@ -131,8 +133,8 @@ export default function MyPage() {
             const count = dashboard?.[item.key] ?? 0
             return (
               <FadeIn key={item.href}>
-                <Link href={item.href} className="group block">
-                  <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 transition hover:bg-dotori-50/50 dark:hover:bg-white/5')}>
+                <Link href={item.href} className="group/card block">
+                  <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 transition group-hover/card:bg-dotori-50/50 dark:group-hover/card:bg-white/5')}>
                     <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums tracking-tight', item.color)}>
                       {count}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.muted)}>건</span>
                     </div>
@@ -148,6 +150,7 @@ export default function MyPage() {
       <Divider soft />
 
       {/* ══════ MENU LIST — 3-layer hover + icon tint ══════ */}
+      <div ref={menuRef}>
       <FadeInStagger faster className="space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon
@@ -179,6 +182,7 @@ export default function MyPage() {
           )
         })}
       </FadeInStagger>
+      </div>
 
       {/* ══════ APP INFO ══════ */}
       <FadeIn>

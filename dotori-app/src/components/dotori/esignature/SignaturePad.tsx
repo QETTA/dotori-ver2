@@ -7,7 +7,7 @@
  */
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { DsButton } from '@/components/ds/DsButton'
-import { ArrowUturnLeftIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { Undo2, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DS_TEXT } from '@/lib/design-system/tokens'
 
@@ -170,11 +170,11 @@ export function SignaturePad({
       </div>
       <div className="flex gap-2">
         <DsButton variant="ghost" onClick={handleUndo} disabled={!hasSignature}>
-          <ArrowUturnLeftIcon className="h-4 w-4" />
+          <Undo2 className="h-4 w-4" />
           되돌리기
         </DsButton>
         <DsButton variant="ghost" onClick={handleClear} disabled={!hasSignature}>
-          <TrashIcon className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
           지우기
         </DsButton>
       </div>

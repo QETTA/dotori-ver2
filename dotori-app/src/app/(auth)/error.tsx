@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { RotateCcw } from 'lucide-react'
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
@@ -35,7 +35,7 @@ export default function AuthError({
         )}
         <div className="mt-6 flex items-center justify-center gap-3">
           <DsButton onClick={reset} className="gap-2">
-            <ArrowPathIcon className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
             다시 시도
           </DsButton>
           <DsButton href="/login" variant="ghost" className="gap-2">

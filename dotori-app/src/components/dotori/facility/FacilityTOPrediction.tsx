@@ -1,6 +1,6 @@
 'use client'
 
-import { ChartBarIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
+import { BarChart3, Info } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -109,7 +109,7 @@ export function FacilityTOPrediction({ facilityId }: { facilityId: string }) {
     return (
       <div className="p-4">
         <div className="flex items-start gap-2.5">
-          <ChartBarIcon className="mt-0.5 h-5 w-5 shrink-0 text-dotori-400" />
+          <BarChart3 className="mt-0.5 h-5 w-5 shrink-0 text-dotori-400" />
           <div>
             <p className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-900 dark:text-dotori-50')}>
               TO 예측
@@ -138,7 +138,7 @@ export function FacilityTOPrediction({ facilityId }: { facilityId: string }) {
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <ChartBarIcon className="h-5 w-5 text-dotori-500" />
+            <BarChart3 className="h-5 w-5 text-dotori-500" />
             <h3 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-900 dark:text-dotori-50')}>
               4주 후 TO 예측
             </h3>
@@ -242,7 +242,7 @@ export function FacilityTOPrediction({ facilityId }: { facilityId: string }) {
 
       {/* Footer info */}
       <motion.div {...stagger.item} className="mt-4 flex items-start gap-2">
-        <InformationCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
         <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>
           {calculatedDate} 기준 · 4주 후 전망
         </p>

@@ -23,9 +23,9 @@ const ShimmerBlock = ({ className, delay = 0 }: { className: string; delay?: num
 		)}
 		aria-hidden="true"
 	>
-		{/* Directional shimmer */}
+		{/* Directional shimmer — brand-tinted warm gradient */}
 		<div
-			className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/10"
+			className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-dotori-200/40 to-transparent dark:via-dotori-700/20"
 			style={{ animation: `shimmer 1.5s ease-in-out ${delay}ms infinite` }}
 		/>
 	</div>

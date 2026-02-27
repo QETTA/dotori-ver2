@@ -1,4 +1,5 @@
 import { ExternalLink, ChevronDown } from "lucide-react";
+import { getCapacityColor } from "@/lib/design-system/color-utils";
 import { motion } from "motion/react";
 import { useState } from "react";
 
@@ -83,7 +84,6 @@ type FacilityCapacitySectionProps = {
 	currentCapacity: number;
 	totalCapacity: number;
 	waitingCapacity: number;
-	occupancyProgressColor: string;
 	keyStats: FacilityKeyStat[];
 };
 
@@ -109,7 +109,6 @@ type FacilityCoreInfoSectionsProps = {
 	currentCapacity: number;
 	totalCapacity: number;
 	waitingCapacity: number;
-	occupancyProgressColor: string;
 	keyStats: FacilityKeyStat[];
 	features: string[];
 };
@@ -222,7 +221,6 @@ export function FacilityCapacitySection({
 	currentCapacity,
 	totalCapacity,
 	waitingCapacity,
-	occupancyProgressColor,
 	keyStats,
 }: FacilityCapacitySectionProps) {
 	const [isExpanded, setIsExpanded] = useState(true);
@@ -234,6 +232,7 @@ export function FacilityCapacitySection({
 		occupancyRate >= 100 || currentCapacity >= totalCapacity ? "full" : "available",
 	);
 	const occupancyToneLabel = occupancyMeta.label;
+	const capacityBarColor = getCapacityColor(occupancyRate / 100);
 
 	return (
 		<>
@@ -296,7 +295,8 @@ export function FacilityCapacitySection({
 							</p>
 							<DsProgressBar
 								trackClassName={'mt-2.5 h-2 w-full overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-800'}
-								fillClassName={cn('h-full rounded-full', occupancyProgressColor)}
+								fillClassName="h-full rounded-full"
+								fillStyle={{ backgroundColor: capacityBarColor }}
 								value={occupancyRate}
 								animated
 							/>
@@ -451,7 +451,6 @@ export function FacilityCoreInfoSections({
 	currentCapacity,
 	totalCapacity,
 	waitingCapacity,
-	occupancyProgressColor,
 	keyStats,
 	features,
 }: FacilityCoreInfoSectionsProps) {
@@ -471,7 +470,6 @@ export function FacilityCoreInfoSections({
 				currentCapacity={currentCapacity}
 				totalCapacity={totalCapacity}
 				waitingCapacity={waitingCapacity}
-				occupancyProgressColor={occupancyProgressColor}
 				keyStats={keyStats}
 			/>
 			<FacilityFeatureSection features={features} />

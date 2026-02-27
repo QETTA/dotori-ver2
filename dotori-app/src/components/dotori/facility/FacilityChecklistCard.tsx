@@ -1,4 +1,4 @@
-import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
+import { ClipboardCheck } from "lucide-react";
 import { ChecklistBlock } from "@/components/dotori/blocks/ChecklistBlock";
 import { DS_TEXT } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ export function FacilityChecklistCard({
 				onClick={onToggle}
 				className={'flex w-full items-center gap-3 p-5 text-left transition-all active:scale-[0.99]'}
 			>
-				<ClipboardDocumentCheckIcon
+				<ClipboardCheck
 					className={'h-6 w-6 shrink-0 text-dotori-500'}
 				/>
 				<div className={'min-w-0 flex-1'}>

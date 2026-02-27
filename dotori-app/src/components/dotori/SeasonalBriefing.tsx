@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { ArrowRight } from 'lucide-react'
 import { Text } from '@/components/catalyst/text'
 import { Subheading } from '@/components/catalyst/heading'
 import { scrollFadeIn, hoverLift } from '@/lib/motion'
@@ -58,7 +58,7 @@ export function SeasonalBriefing() {
           </Text>
           <div className={cn('mt-3 flex items-center text-xs/5 font-medium', DS_TEXT.muted)}>
             자세히 보기
-            <ArrowRightIcon className="ml-1 h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
+            <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover/card:translate-x-0.5" />
           </div>
         </div>
       </motion.div>

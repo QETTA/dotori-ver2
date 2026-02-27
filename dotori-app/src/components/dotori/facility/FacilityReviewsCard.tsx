@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { DS_TEXT } from "@/lib/design-system/tokens";
@@ -38,6 +39,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 	facilityId,
 	facilityName,
 }: FacilityReviewsCardProps) {
+	const [reviewsRef] = useAutoAnimate({ duration: 200 });
 	const writeHref = facilityId
 		? `/community/write?facilityId=${encodeURIComponent(facilityId)}&facilityName=${encodeURIComponent(facilityName || "")}`
 		: "/community/write";
@@ -57,6 +59,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 			</div>
 			{posts.length > 0 ? (
 				<motion.div
+					ref={reviewsRef}
 					className={'space-y-2'}
 					variants={reviewListVariants}
 					initial="hidden"
@@ -65,7 +68,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 					{posts.map((post) => (
 						<motion.div
 							key={post.id}
-							className={'rounded-xl bg-dotori-50 p-4 hairline-border-b'}
+							className={'group/card rounded-xl bg-dotori-50 p-4 hairline-border-b transition-colors hover:bg-dotori-100/60 dark:bg-dotori-950/30 dark:hover:bg-dotori-900/40'}
 							variants={reviewItemVariants}
 						>
 							<p className={'text-body leading-relaxed text-dotori-800'}>

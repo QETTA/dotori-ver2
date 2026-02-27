@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { HeartIcon } from "@heroicons/react/24/outline";
+import { Heart } from "lucide-react";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { ToBadge } from "@/components/dotori/ToBadge";
 import { BRAND } from "@/lib/brand-assets";
@@ -169,7 +169,7 @@ export const FacilityListBlock = memo(function FacilityListBlock({
 									className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-dotori-500 transition-colors hover:bg-dotori-50 hover:text-dotori-700 dark:hover:bg-dotori-900/40 dark:hover:text-dotori-300"
 									aria-label={`${f.name} 관심 등록`}
 								>
-									<HeartIcon className="h-3.5 w-3.5" />
+									<Heart className="h-3.5 w-3.5" />
 									관심
 								</motion.button>
 								<Link

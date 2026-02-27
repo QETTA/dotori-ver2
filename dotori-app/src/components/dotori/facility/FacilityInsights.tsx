@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import Link from "next/link";
-import { SparklesIcon } from "@heroicons/react/24/outline";
+import { Sparkles } from "lucide-react";
 import { DS_TEXT } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import { generateWhyInsights, type WhyInsight } from "@/lib/engine/why-engine";
@@ -24,7 +24,7 @@ export function FacilityInsights({ facility }: FacilityInsightsProps) {
 	return (
 		<section className={'rounded-2xl bg-dotori-50 p-5 motion-safe:animate-in motion-safe:fade-in duration-300'}>
 			<div className={'flex items-center gap-1.5'}>
-				<SparklesIcon className={'h-5 w-5 text-dotori-500'} />
+				<Sparkles className={'h-5 w-5 text-dotori-500'} />
 				<h3 className={'font-semibold'}>AI 인사이트</h3>
 			</div>
 			<ul className={cn('mt-2 space-y-2 text-body', DS_TEXT.secondary)}>
@@ -49,7 +49,7 @@ export function FacilityInsights({ facility }: FacilityInsightsProps) {
 				href={`/chat?prompt=${encodeURIComponent(`${facility.name}에 대해 더 알려줘`)}`}
 				className={'mt-3 inline-flex items-center gap-1.5 py-1 text-body font-semibold text-dotori-600 transition-colors hover:text-dotori-700'}
 			>
-				<SparklesIcon className={'h-4 w-4'} />
+				<Sparkles className={'h-4 w-4'} />
 				토리에게 자세히 물어보기
 			</Link>
 		</section>

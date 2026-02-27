@@ -9,13 +9,14 @@
  * Motion:   scrollFadeIn, hoverLift
  */
 import { useState, useMemo } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import {
-  EllipsisHorizontalIcon,
-  CheckIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline'
+  MoreHorizontal,
+  Check,
+  Trash2,
+} from 'lucide-react'
 import { Badge, BadgeButton } from '@/components/catalyst/badge'
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
@@ -57,6 +58,7 @@ const categoryBadgeColor = {
 export default function NotificationsPage() {
   const [activeCategory, setActiveCategory] = useState('전체')
   const { notifications, isLoading, error, refetch } = useNotifications()
+  const [notifListRef] = useAutoAnimate({ duration: 200 })
 
   // Priority sort: 빈자리 > 서류 > 커뮤니티, unread first
   const sorted = useMemo(() => {
@@ -85,7 +87,7 @@ export default function NotificationsPage() {
         current="알림"
         action={
           <DsButton variant="ghost" className={DS_TYPOGRAPHY.bodySm}>
-            <CheckIcon className="h-4 w-4" />
+            <Check className="h-4 w-4" />
             전체 읽음
           </DsButton>
         }
@@ -143,6 +145,7 @@ export default function NotificationsPage() {
           </div>
         </motion.div>
       ) : (
+        <div ref={notifListRef}>
         <FadeInStagger faster className="space-y-2">
           {filtered.map((notif) => {
             const badgeColor =
@@ -150,7 +153,7 @@ export default function NotificationsPage() {
             return (
               <FadeIn key={notif.id}>
                 <div
-                  className={`flex items-start gap-3 rounded-2xl p-4 transition-colors ring-1 ${
+                  className={`group/card flex items-start gap-3 rounded-2xl p-4 transition-colors ring-1 ${
                     notif.read
                       ? 'bg-white/60 ring-dotori-100/60 dark:bg-white/[0.02] dark:ring-dotori-800/30'
                       : 'bg-dotori-50/60 ring-dotori-200/40 shadow-sm dark:bg-dotori-950/40 dark:ring-dotori-700/30'
@@ -196,15 +199,15 @@ export default function NotificationsPage() {
                       aria-label="알림 메뉴"
                       className="shrink-0"
                     >
-                      <EllipsisHorizontalIcon className="h-5 w-5" />
+                      <MoreHorizontal className="h-5 w-5" />
                     </DropdownButton>
                     <DropdownMenu anchor="bottom end">
                       <DropdownItem>
-                        <CheckIcon className="h-4 w-4" data-slot="icon" />
+                        <Check className="h-4 w-4" data-slot="icon" />
                         <DropdownLabel>읽음 처리</DropdownLabel>
                       </DropdownItem>
                       <DropdownItem>
-                        <TrashIcon className="h-4 w-4" data-slot="icon" />
+                        <Trash2 className="h-4 w-4" data-slot="icon" />
                         <DropdownLabel>삭제</DropdownLabel>
                       </DropdownItem>
                     </DropdownMenu>
@@ -214,6 +217,7 @@ export default function NotificationsPage() {
             )
           })}
         </FadeInStagger>
+        </div>
       )}
 
       {/* ══════ PAGINATION ══════ */}

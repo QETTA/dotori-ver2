@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { pulse, fadeUp } from '@/lib/motion'
-import { DocumentCheckIcon } from '@heroicons/react/24/solid'
+import { FileCheck } from 'lucide-react'
 
 interface BundleSignCTAProps {
   pendingCount: number
@@ -22,7 +22,7 @@ export function BundleSignCTA({ pendingCount, className = '' }: BundleSignCTAPro
         >
           <motion.div {...pulse}>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-dotori-100 dark:bg-dotori-800">
-              <DocumentCheckIcon className="h-5 w-5 text-dotori-600 dark:text-dotori-300" />
+              <FileCheck className="h-5 w-5 text-dotori-600 dark:text-dotori-300" />
             </div>
           </motion.div>
           <div className="min-w-0 flex-1">

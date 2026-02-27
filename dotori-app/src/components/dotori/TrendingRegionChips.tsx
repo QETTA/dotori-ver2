@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { stagger, tap } from '@/lib/motion'
-import { FireIcon } from '@heroicons/react/24/solid'
+import { Flame } from 'lucide-react'
 import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
@@ -23,7 +23,7 @@ export function TrendingRegionChips({ className = '' }: TrendingRegionChipsProps
   return (
     <div className={className}>
       <div className={cn('flex items-center gap-1.5 text-caption font-semibold', DS_TEXT.muted)}>
-        <FireIcon className="h-3.5 w-3.5" />
+        <Flame className="h-3.5 w-3.5" />
         <span>인기 지역</span>
       </div>
       <motion.div

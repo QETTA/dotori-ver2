@@ -5,7 +5,7 @@
  * 로컬스토리지 기반, 최대 5개
  */
 import { useCallback, useSyncExternalStore } from 'react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { X } from 'lucide-react'
 import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { DsButton } from '@/components/ds/DsButton'
@@ -110,7 +110,7 @@ export function SavedFilters({
               onClick={() => handleDelete(filter.id)}
               aria-label={`${filter.name} 삭제`}
             >
-              <XMarkIcon className="h-3 w-3" />
+              <X className="h-3 w-3" />
             </button>
           </div>
         ))}

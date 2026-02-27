@@ -243,7 +243,7 @@ function UiBlockItemCard({
 
 	return (
 		<article className={cn(
-			"group relative overflow-hidden rounded-2xl ring-1 transition-transform duration-200",
+			"group/card relative overflow-hidden rounded-2xl ring-1 transition-transform duration-200",
 			DENSITY_ITEM_PADDING[density],
 			TONE_RING[itemTone],
 			variant === "hero" && "rounded-3xl",

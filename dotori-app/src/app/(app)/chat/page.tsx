@@ -7,6 +7,7 @@
  * glassmorphism navbar, contextual color chips
  */
 import { useState, useCallback, useRef } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Sparkles } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
@@ -36,6 +37,7 @@ export default function ChatPage() {
   const abortRef = useRef<AbortController | null>(null)
 
   const hasMessages = messages.length > 0
+  const [messageListRef] = useAutoAnimate({ duration: 200 })
 
   const sendMessage = useCallback(async (text: string) => {
     const userMsg: StreamMessage = {
@@ -203,7 +205,7 @@ export default function ChatPage() {
             </div>
           </FadeIn>
         ) : (
-          <div key="messages" className="flex-1 py-6">
+          <div key="messages" ref={messageListRef} className="flex-1 py-6">
             <ChatStreamRenderer
               messages={messages}
               isStreaming={isStreaming}

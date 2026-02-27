@@ -217,7 +217,7 @@ export default function HomePage() {
         </FadeIn>
         <FadeInStagger faster className={cn('grid grid-cols-3', DS_SPACING.md)}>
           <FadeIn>
-            <div className={cn(CARD_SM, 'relative overflow-hidden shadow-micro')}>
+            <div className={cn(CARD_SM, 'group/card relative overflow-hidden shadow-micro')}>
               <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
               <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
@@ -260,7 +260,7 @@ export default function HomePage() {
 
         {/* ══════ ALERT BANNER — forest accent ══════ */}
         <motion.div {...scrollFadeIn}>
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden bg-forest-50/80 p-5 dark:bg-forest-950/20 ring-forest-200/40 dark:ring-forest-800/20')}>
+          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'group/card relative overflow-hidden bg-forest-50/80 p-5 dark:bg-forest-950/20 ring-forest-200/40 dark:ring-forest-800/20')}>
             <NoiseTexture opacity={0.025} />
             <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-forest-500 via-forest-400 to-forest-500" />
             <p className={cn(DS_TYPOGRAPHY.bodySm, 'pt-1 font-semibold', DS_TEXT.primary)}>빈자리 알림</p>

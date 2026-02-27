@@ -37,7 +37,7 @@ export function FeatureClipCard({
       initial="idle"
       whileHover={shouldReduceMotion ? undefined : 'active'}
       className={cn(
-        'group relative overflow-hidden',
+        'group/card relative overflow-hidden',
         DS_CARD.raised.base, DS_CARD.raised.dark,
         'transition-all duration-200 hover:-translate-y-1',
         className,

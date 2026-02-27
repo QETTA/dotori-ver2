@@ -10,9 +10,9 @@
  */
 import { motion } from 'motion/react'
 import {
-  DevicePhoneMobileIcon,
-  HeartIcon,
-} from '@heroicons/react/24/outline'
+  Smartphone,
+  Heart,
+} from 'lucide-react'
 import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
@@ -90,7 +90,7 @@ export default function AppInfoPage() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1 ring-1 ring-dotori-100/60 dark:bg-dotori-900/60 dark:ring-dotori-800/40"
             >
-              <DevicePhoneMobileIcon className="h-3.5 w-3.5 text-dotori-400" />
+              <Smartphone className="h-3.5 w-3.5 text-dotori-400" />
               <span className="font-medium text-dotori-700 dark:text-dotori-200">v{APP_VERSION}</span>
             </motion.div>
             <span className="text-dotori-300 dark:text-dotori-700">·</span>
@@ -142,7 +142,7 @@ export default function AppInfoPage() {
               animate={{ scale: [1, 1.25, 1] }}
               transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 2 }}
             >
-              <HeartIcon className="h-4 w-4 text-dotori-400" />
+              <Heart className="h-4 w-4 text-dotori-400" />
             </motion.span>
             <span>in Korea</span>
           </div>

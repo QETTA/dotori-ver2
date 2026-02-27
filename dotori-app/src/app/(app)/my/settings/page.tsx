@@ -10,10 +10,10 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
-  ChevronDownIcon,
-  ArrowRightStartOnRectangleIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline'
+  ChevronDown,
+  LogOut,
+  Trash2,
+} from 'lucide-react'
 import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Avatar } from '@/components/catalyst/avatar'
@@ -62,7 +62,7 @@ function ExpandableSection({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'rounded-2xl ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
+    <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'group/card rounded-2xl ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -75,7 +75,7 @@ function ExpandableSection({
           animate={{ rotate: open ? 180 : 0 }}
           transition={spring.chip}
         >
-          <ChevronDownIcon className="h-4 w-4 text-dotori-400" />
+          <ChevronDown className="h-4 w-4 text-dotori-400" />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>
@@ -162,7 +162,7 @@ export default function SettingsPage() {
                 fullWidth
                 className="justify-start gap-3 rounded-xl"
               >
-                <ArrowRightStartOnRectangleIcon className="h-4 w-4" />
+                <LogOut className="h-4 w-4" />
                 로그아웃
               </DsButton>
             </FadeIn>
@@ -173,7 +173,7 @@ export default function SettingsPage() {
                 className="justify-start gap-3 rounded-xl text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
                 onClick={() => setDeleteAlertOpen(true)}
               >
-                <TrashIcon className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
                 계정 탈퇴
               </DsButton>
             </FadeIn>

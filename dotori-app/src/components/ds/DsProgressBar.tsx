@@ -16,6 +16,7 @@ export interface DsProgressBarProps {
   ariaValueNow?: number
   trackClassName?: string
   fillClassName?: string
+  fillStyle?: React.CSSProperties
   animated?: boolean
 }
 
@@ -29,6 +30,7 @@ export function DsProgressBar({
   ariaValueNow,
   trackClassName,
   fillClassName,
+  fillStyle,
   animated = true,
 }: DsProgressBarProps) {
   const percent = Math.max(0, Math.min(100, Math.round(value)))
@@ -58,7 +60,7 @@ export function DsProgressBar({
           animated && DS_PROGRESS.fillAnimation,
           fillClassName,
         )}
-        style={{ width: `${percent}%` }}
+        style={{ width: `${percent}%`, ...fillStyle }}
       />
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { ArrowPathIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { RotateCcw, Home } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
@@ -36,11 +36,11 @@ export default function AppError({
         )}
         <div className="mt-6 flex items-center justify-center gap-3">
           <DsButton onClick={reset} className="gap-2">
-            <ArrowPathIcon className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
             {copy.global.error.retry}
           </DsButton>
           <DsButton href="/" variant="ghost" className="gap-2">
-            <HomeIcon className="h-4 w-4" />
+            <Home className="h-4 w-4" />
             홈으로
           </DsButton>
         </div>

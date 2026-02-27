@@ -2,7 +2,7 @@
 
 import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
-import { CheckIcon } from '@heroicons/react/24/solid'
+import { Check } from 'lucide-react'
 
 interface StepIndicatorProps {
   steps: string[]
@@ -29,7 +29,7 @@ export function StepIndicator({ steps, currentStep, className }: StepIndicatorPr
                 )}
               >
                 {isCompleted ? (
-                  <CheckIcon className="h-4 w-4" />
+                  <Check className="h-4 w-4" />
                 ) : (
                   <span>{i + 1}</span>
                 )}

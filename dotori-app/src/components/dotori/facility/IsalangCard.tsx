@@ -1,4 +1,4 @@
-import { DevicePhoneMobileIcon } from "@heroicons/react/24/outline";
+import { Smartphone } from "lucide-react";
 import { DS_TEXT } from "@/lib/design-system/tokens";
 import { ISALANG_PORTAL, openIsalangLink, openIsalangApp } from "@/lib/external/isalang-api";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export function IsalangCard() {
 				onClick={() => openIsalangApp(ISALANG_PORTAL.main)}
 				className={'mb-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-dotori-900 px-4 py-3.5 text-body font-semibold text-white shadow-md transition-all active:scale-[0.97] hover:bg-dotori-900/90'}
 			>
-				<DevicePhoneMobileIcon className={'h-5 w-5'} />
+				<Smartphone className={'h-5 w-5'} />
 				아이사랑 앱 열기
 			</button>
 

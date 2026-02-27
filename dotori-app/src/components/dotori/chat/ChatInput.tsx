@@ -6,7 +6,7 @@
  */
 import { useState, useCallback, type KeyboardEvent } from 'react'
 import { motion } from 'motion/react'
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { Send } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { tap } from '@/lib/motion'
 import { Input, InputGroup } from '@/components/catalyst/input'
@@ -70,7 +70,7 @@ export function ChatInput({
           className="grid h-10 w-10 shrink-0 place-items-center rounded-lg p-0"
           aria-label="전송"
         >
-          <PaperAirplaneIcon className="h-4 w-4" />
+          <Send className="h-4 w-4" />
         </DsButton>
       </motion.div>
     </div>

@@ -5,7 +5,7 @@
  * sticky 뒤로가기 헤더, FadeIn, 터치 44px min
  */
 import type React from 'react'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
+import { ChevronLeft } from 'lucide-react'
 import { Link } from '@/components/catalyst/link'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { cn } from '@/lib/utils'
@@ -35,7 +35,7 @@ export function BreadcrumbNav({
           href={parent.href}
           className="inline-flex min-h-11 min-w-11 items-center gap-1 rounded-lg text-sm/6 font-medium text-dotori-600 transition-colors hover:text-dotori-900 dark:text-dotori-400 dark:hover:text-dotori-200"
         >
-          <ChevronLeftIcon className="h-4 w-4 shrink-0" />
+          <ChevronLeft className="h-4 w-4 shrink-0" />
           <span className="sr-only sm:not-sr-only">{parent.label}</span>
         </Link>
 

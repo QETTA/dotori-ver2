@@ -11,10 +11,10 @@
 import { useId, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
-  ChevronDownIcon,
-  ChatBubbleLeftRightIcon,
-  QuestionMarkCircleIcon,
-} from '@heroicons/react/24/outline'
+  ChevronDown,
+  MessagesSquare,
+  HelpCircle,
+} from 'lucide-react'
 import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
@@ -109,7 +109,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           animate={{ rotate: open ? 180 : 0 }}
           transition={spring.chip}
         >
-          <ChevronDownIcon className="h-4 w-4 shrink-0 text-dotori-400" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-dotori-400" />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>
@@ -167,7 +167,7 @@ export default function SupportPage() {
       <motion.div {...scrollFadeIn}>
         <div className="flex items-center gap-2 mb-4">
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-dotori-100/60 dark:bg-dotori-800/30">
-            <QuestionMarkCircleIcon className="h-4 w-4 text-dotori-500" />
+            <HelpCircle className="h-4 w-4 text-dotori-500" />
           </div>
           <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             자주 묻는 질문
@@ -192,7 +192,7 @@ export default function SupportPage() {
             아래 버튼을 눌러 상담을 시작해보세요
           </Text>
           <DsButton href="/chat" className="mt-4">
-            <ChatBubbleLeftRightIcon className="h-4 w-4" />
+            <MessagesSquare className="h-4 w-4" />
             상담 시작하기
           </DsButton>
         </div>

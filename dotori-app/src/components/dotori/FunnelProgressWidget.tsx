@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { fadeUp, spring } from '@/lib/motion'
-import { XMarkIcon } from '@heroicons/react/24/solid'
+import { X } from 'lucide-react'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY, DS_PROGRESS, DS_TEXT } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
@@ -52,7 +52,7 @@ export function FunnelProgressWidget({ step, className = '' }: FunnelProgressWid
               className="absolute right-3 top-3 rounded-full p-1 text-dotori-400 transition-colors hover:text-dotori-600"
               aria-label="닫기"
             >
-              <XMarkIcon className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
 
             <p className={DS_PAGE_HEADER.eyebrow}>

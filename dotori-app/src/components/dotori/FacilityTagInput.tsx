@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { Badge } from '@/components/catalyst/badge'
-import { XMarkIcon } from '@heroicons/react/24/solid'
+import { X } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
@@ -69,7 +69,7 @@ export function FacilityTagInput({ tags, onChange, className = '' }: FacilityTag
             <Badge key={tag.id} color="dotori" className="flex items-center gap-1">
               {tag.name}
               <button onClick={() => removeTag(tag.id)} aria-label={`${tag.name} 제거`}>
-                <XMarkIcon className="h-3 w-3" />
+                <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}

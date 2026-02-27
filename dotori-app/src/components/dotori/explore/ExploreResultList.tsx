@@ -6,11 +6,11 @@
  * hasDesignTokens: true  — DS_STATUS, DS_CARD, DS_TYPOGRAPHY
  * hasBrandSignal:  true  — DS_STATUS (status pills), DS_CARD.raised (facility cards)
  */
-import { HeartIcon } from "@heroicons/react/24/solid";
-import { ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
+import { Heart, MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { memo } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { DsButton } from "@/components/ds/DsButton";
 import { UiBlock } from "@/components/dotori/blocks/UiBlock";
 
@@ -80,6 +80,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 	const { loadingAction, onRegisterInterest, onApplyWaiting } = interaction;
 
 	const hasResults = facilities.length > 0;
+	const [resultListRef] = useAutoAnimate({ duration: 200 });
 
 	const emptyPrimaryAction = hasSearchInput
 		? { label: "검색어 지우고 다시 찾기", onClick: onResetSearch }
@@ -114,7 +115,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 	};
 
 	return (
-		<div className="relative min-h-[50vh] px-4 pt-3 pb-28">
+		<div ref={resultListRef} className="relative min-h-[50vh] px-4 pt-3 pb-28">
 
 			{/* ── Loading state ── */}
 			{isLoading && !isTimeout ? (
@@ -151,7 +152,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 						<div className="h-1.5 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
 						<NoiseTexture opacity={0.02} />
 						<div className="flex items-start gap-3 px-4 py-3">
-							<ChatBubbleLeftIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
+							<MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
 								<p className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>
 									{hasSearchInput
@@ -278,7 +279,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 												'hover:bg-dotori-200 dark:hover:bg-dotori-700',
 											)}
 										>
-											<HeartIcon className="h-3.5 w-3.5" />
+											<Heart className="h-3.5 w-3.5" />
 											관심
 										</DsButton>
 									</motion.div>

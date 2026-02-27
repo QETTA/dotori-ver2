@@ -9,7 +9,7 @@
  */
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { cn } from '@/lib/utils'
@@ -109,7 +109,7 @@ export function PhotoGallery({
               onClick={() => setSelectedIndex(null)}
               aria-label="닫기"
             >
-              <XMarkIcon className="h-5 w-5" />
+              <X className="h-5 w-5" />
             </button>
 
             {/* Prev */}
@@ -120,7 +120,7 @@ export function PhotoGallery({
                 onClick={(e) => { e.stopPropagation(); navigate(-1) }}
                 aria-label="이전 사진"
               >
-                <ChevronLeftIcon className="h-5 w-5" />
+                <ChevronLeft className="h-5 w-5" />
               </button>
             )}
 
@@ -132,7 +132,7 @@ export function PhotoGallery({
                 onClick={(e) => { e.stopPropagation(); navigate(1) }}
                 aria-label="다음 사진"
               >
-                <ChevronRightIcon className="h-5 w-5" />
+                <ChevronRight className="h-5 w-5" />
               </button>
             )}
 

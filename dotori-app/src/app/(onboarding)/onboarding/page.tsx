@@ -9,6 +9,7 @@
  * Wave 6:   SwipeCard
  */
 import { useState } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { motion } from 'motion/react'
 import { Zap, Filter, MessageCircle, Check } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
@@ -64,6 +65,7 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const totalSteps = 3
+  const [stepsRef] = useAutoAnimate({ duration: 250 })
 
   // Progress bar percentage
   const progressPct = Math.round(((currentStep + 1) / totalSteps) * 100)
@@ -135,7 +137,7 @@ export default function OnboardingPage() {
       </motion.div>
 
       {/* ══════ STEPS ══════ */}
-      <section className="grid gap-2">
+      <section ref={stepsRef} className="grid gap-2">
         {steps.map((step, index) => (
           <motion.div
             key={step}

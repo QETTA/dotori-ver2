@@ -2,9 +2,9 @@
 
 /**
  * InlineAlert — 인라인 배너 알림 (vacancy/info/warning)
- * AnimatePresence slide, XMarkIcon dismiss
+ * AnimatePresence slide, X dismiss
  */
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { X } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { DS_TEXT } from '@/lib/design-system/tokens'
@@ -87,7 +87,7 @@ export function InlineAlert({
                 style.icon,
               )}
             >
-              <XMarkIcon className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </motion.div>

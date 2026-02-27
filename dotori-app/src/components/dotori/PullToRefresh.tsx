@@ -8,7 +8,7 @@ import { useState, type ReactNode } from 'react'
 import { motion, useMotionValue, useTransform, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { DS_TEXT } from '@/lib/design-system/tokens'
-import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { RotateCcw } from 'lucide-react'
 
 const THRESHOLD = 60
 const MAX_PULL = 80
@@ -59,7 +59,7 @@ export function PullToRefresh({
             style={shouldReduceMotion ? undefined : { rotate: indicatorRotate }}
             className={refreshing ? 'animate-spin' : undefined}
           >
-            <ArrowPathIcon
+            <RotateCcw
               className={cn(
                 'h-4 w-4',
                 refreshing ? 'text-forest-600' : DS_TEXT.muted,

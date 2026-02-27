@@ -5,7 +5,7 @@
  *
  * Opens Kakao Channel add page with UTM tracking.
  */
-import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/solid'
+import { MessageCircle } from 'lucide-react'
 import { motion } from 'motion/react'
 import { tap } from '@/lib/motion'
 import { buildUTMUrl } from '@/lib/utm'
@@ -38,7 +38,7 @@ export function KakaoChannelButton({
       whileTap={tap.button.whileTap}
       transition={tap.button.transition}
     >
-      <ChatBubbleOvalLeftEllipsisIcon className="h-5 w-5" />
+      <MessageCircle className="h-5 w-5" />
       카카오톡 채널 추가
     </motion.a>
   )

@@ -5,7 +5,7 @@
  */
 import { useState, use } from 'react'
 import { motion } from 'motion/react'
-import { HeartIcon } from '@heroicons/react/24/outline'
+import { Heart } from 'lucide-react'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { Badge } from '@/components/catalyst/badge'
@@ -136,7 +136,7 @@ export default function CommunityDetailPage({
             onClick={handleLikeToggle}
             className="inline-flex min-h-11 items-center gap-1.5 text-sm/6 text-dotori-500 transition-colors hover:text-dotori-700"
           >
-            <HeartIcon className={`h-5 w-5 ${liked ? 'fill-red-400 text-red-400' : ''}`} />
+            <Heart className={`h-5 w-5 ${liked ? 'fill-red-400 text-red-400' : ''}`} />
             <span>{post.likes + (liked ? 1 : 0)}</span>
           </button>
         </div>

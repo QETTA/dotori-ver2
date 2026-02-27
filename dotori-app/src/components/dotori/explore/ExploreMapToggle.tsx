@@ -4,16 +4,16 @@
  * ExploreMapToggle — 리스트↔지도 뷰 토글 (pill + layoutId)
  */
 import { motion } from 'motion/react'
-import { ListBulletIcon, MapIcon } from '@heroicons/react/24/outline'
+import { List, Map } from 'lucide-react'
 import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { spring } from '@/lib/motion'
 
 type ExploreView = 'list' | 'map'
 
-const VIEWS: { key: ExploreView; label: string; Icon: typeof ListBulletIcon }[] = [
-  { key: 'list', label: '목록', Icon: ListBulletIcon },
-  { key: 'map', label: '지도', Icon: MapIcon },
+const VIEWS: { key: ExploreView; label: string; Icon: typeof List }[] = [
+  { key: 'list', label: '목록', Icon: List },
+  { key: 'map', label: '지도', Icon: Map },
 ]
 
 export function ExploreMapToggle({

@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { Text } from '@/components/catalyst/text'
 import { cn } from '@/lib/utils'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { CheckIcon } from '@heroicons/react/24/outline'
+import { Check } from 'lucide-react'
 
 interface Clause {
   id: string
@@ -67,7 +67,7 @@ export function LegalClausesPanel({ clauses, onAllAgreed, className }: LegalClau
               : 'border-dotori-300 dark:border-dotori-600',
           )}
         >
-          {agreed.size === clauses.length && <CheckIcon className="h-4 w-4" />}
+          {agreed.size === clauses.length && <Check className="h-4 w-4" />}
         </div>
         <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
           모두 동의합니다
@@ -90,7 +90,7 @@ export function LegalClausesPanel({ clauses, onAllAgreed, className }: LegalClau
                 : 'border-dotori-300 dark:border-dotori-600',
             )}
           >
-            {agreed.has(clause.id) && <CheckIcon className="h-3 w-3" />}
+            {agreed.has(clause.id) && <Check className="h-3 w-3" />}
           </div>
           <Text className="text-sm/6 text-dotori-700 sm:text-sm/6 dark:text-dotori-300">
             {clause.required && <span className="mr-1 text-red-500">(필수)</span>}

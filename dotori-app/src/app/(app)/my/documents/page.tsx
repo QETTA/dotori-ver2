@@ -16,13 +16,13 @@ import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { ErrorState } from '@/components/dotori/ErrorState'
 import {
-  DocumentTextIcon,
-  ArrowUpTrayIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  ClockIcon,
-  PencilSquareIcon,
-} from '@heroicons/react/24/outline'
+  FileText,
+  Upload,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  PenSquare,
+} from 'lucide-react'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
@@ -36,9 +36,9 @@ import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { DonutGauge } from '@/components/dotori/charts/DonutGauge'
 
 const statusConfig = {
-  submitted: { label: '제출 완료', color: 'green' as const, accent: 'bg-forest-500', Icon: CheckCircleIcon },
-  due_soon: { label: '마감 임박', color: 'amber' as const, accent: 'bg-amber-500', Icon: ExclamationTriangleIcon },
-  pending: { label: '미제출', color: 'zinc' as const, accent: 'bg-dotori-300', Icon: ClockIcon },
+  submitted: { label: '제출 완료', color: 'green' as const, accent: 'bg-forest-500', Icon: CheckCircle },
+  due_soon: { label: '마감 임박', color: 'amber' as const, accent: 'bg-amber-500', Icon: AlertTriangle },
+  pending: { label: '미제출', color: 'zinc' as const, accent: 'bg-dotori-300', Icon: Clock },
 }
 
 export default function DocumentsPage() {
@@ -65,7 +65,7 @@ export default function DocumentsPage() {
             입소에 필요한 서류를 한 곳에서 관리하세요.
           </Text>
           <DsButton href="/my/documents/sign" className="mt-4">
-            <PencilSquareIcon className="h-4 w-4" />
+            <PenSquare className="h-4 w-4" />
             서류 서명하기
           </DsButton>
         </div>
@@ -112,7 +112,7 @@ export default function DocumentsPage() {
               입소 서류를 미리 준비하면 지원이 더 빨라져요
             </Text>
             <DsButton className={DS_EMPTY_STATE.action}>
-              <ArrowUpTrayIcon className="h-4 w-4" />
+              <Upload className="h-4 w-4" />
               서류 등록하기
             </DsButton>
           </div>
@@ -133,7 +133,7 @@ export default function DocumentsPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 min-w-0">
                           <div className={cn('mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg', DS_CARD.flat.base, DS_CARD.flat.dark)}>
-                            <DocumentTextIcon className="h-4 w-4 text-dotori-500" />
+                            <FileText className="h-4 w-4 text-dotori-500" />
                           </div>
                           <div className="min-w-0">
                             <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>

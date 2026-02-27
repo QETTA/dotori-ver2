@@ -4,7 +4,7 @@ import { Text } from '@/components/catalyst/text'
 import { Badge } from '@/components/catalyst/badge'
 import { cn } from '@/lib/utils'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DocumentTextIcon } from '@heroicons/react/24/outline'
+import { FileText } from 'lucide-react'
 
 export interface SelectableDocument {
   id: string
@@ -52,7 +52,7 @@ export function DocumentSelector({ documents, selectedId, onSelect, className }:
             )}
           >
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-dotori-950/[0.025] dark:bg-white/[0.04]">
-              <DocumentTextIcon className="h-5 w-5 text-dotori-500" />
+              <FileText className="h-5 w-5 text-dotori-500" />
             </div>
             <div className="min-w-0 flex-1">
               <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
