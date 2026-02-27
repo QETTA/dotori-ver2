@@ -6,7 +6,7 @@
  * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_SURFACE
  * hasBrandSignal:  true  — DS_SURFACE.sunken (block container)
  */
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { copy as COPY } from "@/lib/brand-copy";
 import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
@@ -46,12 +46,85 @@ const BLOCK_FALLBACK_COPY = {
 	unknown: COPY.emptyState.default.description,
 } as const;
 
+type BlockRenderContext = {
+	key: string;
+	onAction?: (actionId: string) => void;
+};
+
+type BlockRenderFn = (block: ChatBlock, context: BlockRenderContext) => ReactNode;
+
+function defineBlockRenderer<T extends ChatBlock["type"]>(
+	type: T,
+	render: (
+		block: Extract<ChatBlock, { type: T }>,
+		context: BlockRenderContext,
+	) => ReactNode,
+): BlockRenderFn {
+	return (block, context) => {
+		if (block.type !== type) {
+			return renderFallbackText(context.key, BLOCK_FALLBACK_COPY.unknown);
+		}
+		return render(block as Extract<ChatBlock, { type: T }>, context);
+	};
+}
+
 function renderFallbackText(key: string, content: string) {
 	return (
 		<div key={key} className={cn("space-y-0", DS_TYPOGRAPHY.bodySm)}>
 			<TextBlock block={{ type: "text", content }} />
 		</div>
 	);
+}
+
+const BLOCK_RENDERERS: Record<ChatBlock["type"], BlockRenderFn> = {
+	text: defineBlockRenderer("text", (block, { key }) => {
+		const content =
+			block.content.trim().length > 0
+				? block.content
+				: BLOCK_FALLBACK_COPY.text;
+		return <TextBlock key={key} block={{ ...block, content }} />;
+	}),
+	facility_list: defineBlockRenderer("facility_list", (block, { key }) => (
+		<FacilityListBlock key={key} block={block} />
+	)),
+	map: defineBlockRenderer("map", (block, { key }) => (
+		<MapBlock key={key} block={block} />
+	)),
+	compare: defineBlockRenderer("compare", (block, { key }) => (
+		<CompareBlock key={key} block={block} />
+	)),
+	actions: defineBlockRenderer("actions", (block, { key, onAction }) =>
+		block.buttons.length === 0 ? (
+			renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown)
+		) : (
+			<ActionsBlock key={key} block={block} onAction={onAction} />
+		),
+	),
+	checklist: defineBlockRenderer("checklist", (block, { key }) =>
+		block.categories.length === 0 ? (
+			renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown)
+		) : (
+			<ChecklistBlock key={key} block={block} />
+		),
+	),
+	ui_block: defineBlockRenderer("ui_block", (block, { key, onAction }) => (
+		<UiBlock key={key} block={block} onAction={onAction} />
+	)),
+};
+
+function renderBlock(
+	block: ChatBlock,
+	index: number,
+	onAction?: (actionId: string) => void,
+) {
+	const key = `${block.type}-${index}`;
+	const renderer = (BLOCK_RENDERERS as Partial<Record<string, BlockRenderFn>>)[
+		block.type
+	];
+	if (!renderer) {
+		return renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown);
+	}
+	return renderer(block, { key, onAction });
 }
 
 export const BlockRenderer = memo(function BlockRenderer({
@@ -71,40 +144,7 @@ export const BlockRenderer = memo(function BlockRenderer({
 
 	return (
 		<div className={'space-y-4'}>
-			{blocks.map((block, i) => {
-				const key = `${block.type}-${i}`;
-				switch (block.type) {
-					case "text": {
-						const content =
-							block.content.trim().length > 0
-								? block.content
-								: BLOCK_FALLBACK_COPY.text;
-						return <TextBlock key={key} block={{ ...block, content }} />;
-					}
-					case "facility_list":
-						return <FacilityListBlock key={key} block={block} />;
-					case "map":
-						return <MapBlock key={key} block={block} />;
-					case "compare":
-						return <CompareBlock key={key} block={block} />;
-					case "actions":
-						if (block.buttons.length === 0) {
-							return renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown);
-						}
-						return (
-							<ActionsBlock key={key} block={block} onAction={onAction} />
-						);
-					case "checklist":
-						if (block.categories.length === 0) {
-							return renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown);
-						}
-						return <ChecklistBlock key={key} block={block} />;
-					case "ui_block":
-						return <UiBlock key={key} block={block} onAction={onAction} />;
-					default:
-						return renderFallbackText(key, BLOCK_FALLBACK_COPY.unknown);
-				}
-			})}
+			{blocks.map((block, i) => renderBlock(block, i, onAction))}
 		</div>
 	);
 });

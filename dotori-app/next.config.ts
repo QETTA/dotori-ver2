@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['mongoose'],
   experimental: {
-    optimizePackageImports: ['@heroicons/react', '@headlessui/react', 'motion'],
+    optimizePackageImports: ['@heroicons/react', '@headlessui/react', 'motion', 'lucide-react'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -73,6 +73,29 @@ const nextConfig: NextConfig = {
     ];
   },
   poweredByHeader: false,
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+  webpack(config) {
+    // SVGR loader for Webpack bundler
+    const fileLoaderRule = config.module?.rules?.find(
+      (rule: { test?: RegExp }) => rule.test?.test?.('.svg'),
+    )
+    if (fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i
+    }
+    config.module?.rules?.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    })
+    return config
+  },
 }
 
 export default nextConfig

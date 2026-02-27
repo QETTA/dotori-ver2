@@ -7,7 +7,7 @@
 - 작업 루트: `/home/sihu2129/dotori-ver2`
 - 앱 루트: `/home/sihu2129/dotori-ver2/dotori-app`
 - 브랜치 정책: `main` 직접 작업 (feature branch 금지)
-- 이번 문서의 단일 목표: **페이지 셸 + UiBlock V2 + 고부채 컴포넌트 동시 전환으로 체감 UXUI 차이를 즉시 만들기**
+- 이번 문서의 단일 목표: **Tailwind Plus 패턴 + UiBlock V2 + 고부채 컴포넌트 동시 전환으로 체감 UXUI 차이를 즉시 만들기**
 
 ## 1) 절대 위반 금지 (Business + Brand + Repo Rule)
 - 제품 퍼널: `탐색 -> 상세 -> 관심 -> 견학 -> 입소계약 -> 서류 일괄서명 -> 완료`
@@ -21,6 +21,13 @@
   - touch target `min-h-11` 준수
   - `color="dotori"` CTA만, `color="forest"` Badge만, `color="amber"` 카카오만
   - `src/components/catalyst` 수정 금지
+  - UI 구현 기본축은 `Tailwind Plus composition + UiBlock`으로 통일
+  - 단, Tailwind Plus는 "패턴/레이아웃 방식"만 차용하고, 브랜드 토큰/카피는 Dotori 규칙을 우선 적용
+  - 브랜드 계약 import 강제:
+    - `import { BRAND } from "@/lib/brand-assets"`
+    - `import { COPY } from "@/lib/brand-copy"`
+    - `import { DS_STATUS, DS_GLASS } from "@/lib/design-system/tokens"`
+  - 부모 UI 카피는 `COPY` 우선 사용, 브랜드 리소스/문구 하드코딩 금지
 
 ## 2) 베이스라인 캡처 계약 (재현 가능하게)
 - 아래 5개를 반드시 남긴다.
@@ -104,6 +111,8 @@
   - `text-[Npx]` 없음
   - color rule 위반 없음
   - `components/catalyst` 변경 없음
+  - Tailwind Plus 패턴 적용 시 Dotori 색/카피/토큰으로 치환 완료
+  - 변경된 UI 파일(`src/app`, `src/components/dotori`)에 `BRAND/COPY/DS_*` 사용 흔적 존재
 - Gate 6 UX Check:
   - hierarchy / CTA prominence / spacing rhythm / motion consistency / mobile first-fold clarity
 
@@ -138,6 +147,16 @@ npm test
 npm run build
 npm run check:ds-delta
 
+# 1-1) brand assets/copy/token gate (changed UI files only)
+MISSING=0
+for f in $(git diff --name-only | rg '^src/(app|components/dotori)/.*\\.tsx$'); do
+  if ! rg -q 'BRAND|COPY|DS_STATUS|DS_GLASS' "$f"; then
+    echo "MISSING_BRAND_IMPORT_OR_USAGE: $f"
+    MISSING=1
+  fi
+done
+test $MISSING -eq 0
+
 # 2) after report
 DS_REPORT=1 DS_AUDIT_ALL=1 DS_STYLE_NEUTRAL_ENFORCE=0 npx tsx scripts/check-design-system.ts > /tmp/dotori_ds_after.json
 ```
@@ -162,9 +181,91 @@ Dotori UXUI를 멀티에이전트로 공격 전환해.
 목표(1개): 페이지 셸 + UiBlock V2 + 고부채 컴포넌트 동시 개선으로 first viewport부터 변화가 분명하게 보이게 만들 것.
 운영: Orchestrator/A/B/C/D + Merge Captain 체계로 wave 1~4 순서 실행. wave당 파일 3~7개, 목표 1개 고수.
 필수 제약: components/catalyst 수정 금지, motion/react only, text-[Npx] 금지, min-h-11 준수, color 규칙 준수.
+브랜드 규약: BRAND/COPY/DS_STATUS/DS_GLASS를 import해서 사용하고, 부모 UI의 브랜드 카피/에셋 하드코딩 금지.
+필수 import:
+import { BRAND } from "@/lib/brand-assets"
+import { COPY } from "@/lib/brand-copy"
+import { DS_STATUS, DS_GLASS } from "@/lib/design-system/tokens"
 게이트: npx tsc --noEmit, npm test, npm run build, npm run lint, npm run check:ds-delta 모두 통과해야 Go.
 정량: wave 대상 rawClassNameLiterals 30%+ 감축, before/after 근거 파일 포함.
 보고: 파일 목록/시각 변경점/rawClass 전후/검증결과/다음 리스크 2개.
 
 참조: docs/ops/CLAUDE_HANDOFF_AGGRESSIVE_UXUI.md
+```
+
+## 11) 멀티에이전트 킥오프 프롬프트 (복붙)
+### 11.1 Orchestrator
+```text
+너는 Orchestrator다. 목표는 Tailwind Plus 패턴 + UiBlock V2 기반 UXUI 전환 1개를 완주하는 것.
+먼저 wave 목표 1개, 파일 3~7개, 파일 락 소유자(A/B/C)를 선언하고 시작해.
+작업 중 스코프 추가 금지, 통합 전에는 변경 파일 충돌 여부를 보고해.
+최종에는 Go/No-Go 게이트 6개 결과와 리스크 2개를 보고해.
+```
+
+### 11.2 Agent A (Page Shell)
+```text
+너는 Page Shell 담당이다.
+대상 페이지의 first viewport를 Tailwind Plus 컴포지션으로 재배치하되, 실제 스타일 값은 Dotori 토큰/카피 규칙을 따른다.
+필수: motion/react, min-h-11, text 토큰, CTA/Badge color 규칙, BRAND/COPY/DS_* 사용.
+산출: unified diff + 시각 변경점 5줄 + rawClass 전/후.
+```
+
+### 11.3 Agent B (UiBlock V2)
+```text
+너는 UiBlock V2 담당이다.
+UiBlock schema를 확장하고 BlockRenderer를 registry 구조로 정리해 재사용성을 높여라.
+Tailwind Plus 패턴은 block layout 구조에 반영하되, 브랜드 문구/색/배지는 Dotori 규칙으로 강제해.
+산출: 타입 변경 요약 + migration note + unified diff.
+```
+
+### 11.4 Agent C (Debt Burn)
+```text
+너는 고부채 컴포넌트 정리 담당이다.
+반복 class를 줄이고 token primitive 기반으로 통일해 rawClassNameLiterals를 wave 기준 30% 이상 줄여라.
+BRAND/COPY/DS_* import 없는 부모 UI 변경은 실패로 간주한다.
+산출: 파일별 rawClass 전/후 표 + unified diff.
+```
+
+### 11.5 Agent D (QA Gate)
+```text
+너는 QA Gate 담당이다.
+아래를 순서대로 실행해 pass/fail을 표로 보고해:
+- npm run lint
+- npx tsc --noEmit
+- npm test
+- npm run build
+- npm run check:ds-delta
+- brand assets/copy/token gate
+하나라도 실패면 No-Go 선언 후 실패 분류와 복구 제안 2개를 작성해.
+```
+
+## 12) Codex/Claude 분업 모드 (권장 운영)
+### 12.1 책임 분리
+- Codex(멀티에이전트): 구조 리팩토링 본체 수행
+  - Wave 1~4의 타입/렌더러/페이지 셸/컴포넌트 구조 변경
+  - 파일 락 관리, 충돌 방지, Go/No-Go 판정
+  - 품질 게이트 실행 및 수치 보고
+- Claude Vision(미세개선): 시각/인터랙션 polishing만 수행
+  - spacing, 타이포 위계 미세 조정
+  - motion 타이밍/강도 튜닝(`motion/react` 범위 내)
+  - 카피 가독성, CTA 우선순위 시각 강조 미세 보정
+
+### 12.2 작업 순서 (고정)
+1. Codex가 wave 단위 구조 변경 완료 + Gate 1~5 통과
+2. Claude Vision이 같은 wave에서 미세개선만 수행 (신규 구조 변경 금지)
+3. Codex가 최종 Gate 1~6 재검증 후 Go/No-Go 확정
+
+### 12.3 Claude Vision 금지사항
+- 금지: 새로운 상태/타입/데이터 흐름 추가
+- 금지: 파일 범위 확장(해당 wave 파일 외 수정)
+- 금지: 브랜드 규약 우회 하드코딩
+- 허용: class 조합/spacing/motion/copy 배치의 미세 수정
+
+### 12.4 Claude Vision 입력 프롬프트 (복붙)
+```text
+너는 Vision polishing 전담이다.
+현재 wave에서 Codex가 만든 구조를 유지한 채, 시각/인터랙션 미세개선만 수행해.
+금지: 타입/상태/데이터 흐름/스키마 변경, 파일 범위 확장.
+필수 준수: motion/react only, text 토큰, min-h-11, color 규칙, BRAND/COPY/DS_* 규칙.
+출력: 변경 파일 목록, 시각 개선 포인트 5개, 회귀 위험 2개.
 ```

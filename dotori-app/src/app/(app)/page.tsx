@@ -127,28 +127,62 @@ export default function HomePage() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="space-y-8" key={refreshKey}>
-        {/* ══════ HERO ══════ */}
-        <div className="relative pt-2">
-          <BrandWatermark className="opacity-20" />
-          <FadeIn>
-            <p className={DS_PAGE_HEADER.eyebrow} suppressHydrationWarning>
-              {greeting}
-            </p>
-          </FadeIn>
-          <FadeIn>
-            <h1 className={cn('mt-4 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
-              {copy.home.heroSubtitle}
-            </h1>
-          </FadeIn>
-          <FadeIn>
-            <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-3 text-base/7')}>
-              시설 현황과 이동 진행을 한눈에 확인하세요
-            </Text>
-          </FadeIn>
-        </div>
+        {/* ══════ HERO VIEWPORT ══════ */}
+        <section className="space-y-4 pt-1">
+          <motion.div {...scrollFadeIn}>
+            <div className="relative overflow-hidden rounded-3xl border border-dotori-200/70 bg-gradient-to-b from-dotori-50 via-white to-white px-5 pb-5 pt-4 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-900/60 dark:from-dotori-950/40 dark:via-gray-950 dark:to-gray-950 dark:ring-dotori-900/40">
+              <NoiseTexture opacity={0.02} />
+              <BrandWatermark className="pointer-events-none opacity-25" />
+              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-dotori-500 via-dotori-400 to-amber-400" />
+              <FadeIn>
+                <p className={DS_PAGE_HEADER.eyebrow} suppressHydrationWarning>
+                  {greeting}
+                </p>
+              </FadeIn>
+              <FadeIn>
+                <h1 className={cn('mt-3 font-wordmark text-4xl/[1.1] font-extrabold tracking-tight sm:text-5xl/[1.06]', gradientTextHero)}>
+                  {copy.home.heroSubtitle}
+                </h1>
+              </FadeIn>
+              <FadeIn>
+                <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-3 text-base/7')}>
+                  시설 현황과 이동 진행을 한눈에 확인하세요
+                </Text>
+              </FadeIn>
+              <FadeInStagger faster className="mt-5 grid grid-cols-3 gap-2 border-t border-dotori-100/80 pt-4 dark:border-dotori-900/40">
+                <FadeIn>
+                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
+                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-300')}>분석 시설</p>
+                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                      <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
+                    </p>
+                  </div>
+                </FadeIn>
+                <FadeIn>
+                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
+                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-300')}>관심 시설</p>
+                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                      {dashboard?.interestCount ?? 0}
+                      <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
+                    </p>
+                  </div>
+                </FadeIn>
+                <FadeIn>
+                  <div className="rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-dotori-100/80 backdrop-blur dark:bg-gray-950/70 dark:ring-dotori-900/50">
+                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
+                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                      {dashboard?.waitlistCount ?? 0}
+                      <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
+                    </p>
+                  </div>
+                </FadeIn>
+              </FadeInStagger>
+            </div>
+          </motion.div>
 
-        {/* ══════ ACTION CARD ══════ */}
-        <ActionCard step={funnelStep} />
+          {/* ══════ ACTION CARD ══════ */}
+          <ActionCard step={funnelStep} />
+        </section>
 
         {/* ══════ SEASONAL BRIEFING ══════ */}
         <SeasonalBriefing />

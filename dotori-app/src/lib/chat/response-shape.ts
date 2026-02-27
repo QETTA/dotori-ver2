@@ -174,9 +174,104 @@ const ALLOWED_TONES: readonly UiBlockTone[] = ["dotori", "forest", "amber", "neu
 const ALLOWED_DENSITIES: readonly UiBlockDensity[] = ["default", "compact", "spacious"];
 const ALLOWED_CTA_MODES: readonly UiBlockCtaMode[] = ["inline", "footer", "hidden"];
 const ALLOWED_ACCENT_STYLES: readonly UiBlockAccentStyle[] = ["bar", "glow", "none"];
+const ALLOWED_MEDIA_SLOTS = [
+	"none",
+	"top",
+	"bottom",
+	"start",
+	"end",
+	"inline",
+	"background",
+] as const;
+const FORM_LIKE_LAYOUT_ALIASES = new Set(["form-like", "form_like", "formlike", "form"]);
+const MEDIA_SLOT_ALIASES: Record<string, (typeof ALLOWED_MEDIA_SLOTS)[number]> = {
+	left: "start",
+	right: "end",
+	leading: "start",
+	trailing: "end",
+	header: "top",
+	footer: "bottom",
+	bg: "background",
+};
+
+function pickFirstDefined(...values: unknown[]): unknown {
+	for (const value of values) {
+		if (value !== undefined && value !== null) {
+			return value;
+		}
+	}
+
+	return undefined;
+}
 
 function sanitizeEnum<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
 	return typeof value === "string" && allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+function normalizeUiBlockLayout(value: unknown): "grid" | "list" {
+	if (value === "grid" || value === "list") {
+		return value;
+	}
+
+	const raw = asString(value);
+	return raw && FORM_LIKE_LAYOUT_ALIASES.has(raw.toLowerCase()) ? "list" : "grid";
+}
+
+function normalizeLegacyVariantFromLayout(value: unknown): UiBlockVariant | undefined {
+	if (value === "hero" || value === "panel" || value === "strip") {
+		return value;
+	}
+
+	const raw = asString(value);
+	if (!raw) {
+		return undefined;
+	}
+
+	return FORM_LIKE_LAYOUT_ALIASES.has(raw.toLowerCase()) ? "panel" : undefined;
+}
+
+function normalizeUiBlockMediaSlot(value: unknown): (typeof ALLOWED_MEDIA_SLOTS)[number] {
+	const raw = asString(value)?.trim().toLowerCase();
+	if (!raw) {
+		return "none";
+	}
+
+	const canonical = MEDIA_SLOT_ALIASES[raw] ?? raw;
+	return ALLOWED_MEDIA_SLOTS.includes(canonical as (typeof ALLOWED_MEDIA_SLOTS)[number])
+		? (canonical as (typeof ALLOWED_MEDIA_SLOTS)[number])
+		: "none";
+}
+
+function normalizeUiBlockMedia(raw: unknown): RawRecord | undefined {
+	const mediaSrc = asString(raw);
+	if (mediaSrc) {
+		return { src: mediaSrc };
+	}
+
+	const record = asRecord(raw);
+	if (!record) {
+		return undefined;
+	}
+
+	const src = asString(record.src) || asString(record.url);
+	if (!src) {
+		return undefined;
+	}
+
+	const media: RawRecord = { src };
+	const alt = asString(record.alt);
+	const kind = asString(record.kind) || asString(record.type);
+	const fit = asString(record.fit);
+	const width = asNumber(record.width);
+	const height = asNumber(record.height);
+
+	if (alt) media.alt = alt;
+	if (kind) media.kind = kind;
+	if (fit) media.fit = fit;
+	if (width > 0) media.width = width;
+	if (height > 0) media.height = height;
+
+	return media;
 }
 
 function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
@@ -195,7 +290,7 @@ function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
 		const actionId = asString(record.actionId);
 		const href = asString(record.href);
 
-		items.push({
+		const normalizedItem: UiBlockItem & RawRecord = {
 			id: asString(record.id) || `ui-item-${index}`,
 			title,
 			description: asString(record.description),
@@ -207,7 +302,16 @@ function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
 			tone: typeof record.tone === "string" && ALLOWED_TONES.includes(record.tone as UiBlockTone)
 				? (record.tone as UiBlockTone)
 				: undefined,
-		});
+		};
+
+		const media = normalizeUiBlockMedia(
+			pickFirstDefined(record.media, record.mediaAsset, record.image, record.thumbnail),
+		);
+		if (media) {
+			normalizedItem.media = media;
+		}
+
+		items.push(normalizedItem);
 	}
 
 	return items;
@@ -324,21 +428,44 @@ export function normalizeChatBlocks(rawBlocks: unknown): ChatBlock[] {
 				break;
 			}
 			case "ui_block": {
-				blocks.push({
+				const layout = pickFirstDefined(record.layout, record.layoutType, record.layout_type);
+				const uiBlock = {
 					type: "ui_block",
 					title: asString(record.title) || "추천 UI 블록",
 					subtitle: asString(record.subtitle),
-					layout:
-						record.layout === "grid" || record.layout === "list"
-							? record.layout
-							: "grid",
+					layout: normalizeUiBlockLayout(layout),
 					items: normalizeUiBlockItems(record.items),
-					variant: sanitizeEnum(record.variant, ALLOWED_VARIANTS, "default"),
+					variant: sanitizeEnum(
+						pickFirstDefined(record.variant, normalizeLegacyVariantFromLayout(layout)),
+						ALLOWED_VARIANTS,
+						"default",
+					),
 					tone: sanitizeEnum(record.tone, ALLOWED_TONES, "dotori"),
 					density: sanitizeEnum(record.density, ALLOWED_DENSITIES, "default"),
-					ctaMode: sanitizeEnum(record.ctaMode, ALLOWED_CTA_MODES, "inline"),
-					accentStyle: sanitizeEnum(record.accentStyle, ALLOWED_ACCENT_STYLES, "bar"),
-				});
+					ctaMode: sanitizeEnum(
+						pickFirstDefined(record.ctaMode, record.cta_mode),
+						ALLOWED_CTA_MODES,
+						"inline",
+					),
+					accentStyle: sanitizeEnum(
+						pickFirstDefined(record.accentStyle, record.accent_style),
+						ALLOWED_ACCENT_STYLES,
+						"bar",
+					),
+				} as Extract<ChatBlock, { type: "ui_block" }> & RawRecord;
+
+				uiBlock.mediaSlot = normalizeUiBlockMediaSlot(
+					pickFirstDefined(record.mediaSlot, record.media_slot, asRecord(record.media)?.slot),
+				);
+
+				const media = normalizeUiBlockMedia(
+					pickFirstDefined(record.media, record.mediaAsset, record.heroMedia),
+				);
+				if (media) {
+					uiBlock.media = media;
+				}
+
+				blocks.push(uiBlock as Extract<ChatBlock, { type: "ui_block" }>);
 				break;
 			}
 			default:

@@ -1,20 +1,31 @@
 # 도토리 (Dotori) 프로젝트 개요
 
-## 현재 상태 (2026-02-27, R51 완료)
+## 현재 상태 (2026-02-27, R59 완료)
 
 - **20 pages**, 0 TypeScript errors, **804 tests** (vitest, 70 test files), 빌드 성공
-- **21 models**, **54 API routes**, **139 components**
+- **21 models**, **54 API routes**, **139+ components**
 - **MongoDB**: 20,027 시설 (17개 시도), Atlas `dotori` DB
 - **DO 배포**: DigitalOcean App Platform (sgp 리전) — Source Build (Dockerfile)
   - URL: https://dotori-app-pwyc9.ondigitalocean.app
   - App ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
   - 배포: 수동 전용 (deploy.yml workflow_dispatch), 자동 트리거 없음
-- **완료 라운드**: R1~R51, 160+ 에이전트
+  - ⚠️ DO API 토큰 만료 — doctl/API 401, 콘솔 수동 배포 필요
+- **완료 라운드**: R1~R59, 180+ 에이전트
 - **보안**: P0~P1 이슈 0건
-- **UX**: dark mode, glass morphism, motion/react, BrandWatermark 18/18, DS_CARD 100%
+- **UX**: dark mode, glass morphism, motion/react, BrandWatermark 18/18, DS_CARD 100%, DS_TEXT 100%
 - **파이프라인 v8**: 디자인 품질 게이트 + Sonnet QA(10점) + TP5 필수 패턴
-- **R50**: Visual Impact — brand-tinted shadows, directional shimmer, 3-layer hover, premium glassmorphism cards, Sonnet QA 5.93→6.68
-- **R51**: Design Polish — gradient text 6곳, 3-layer hover 3곳 추가, Landing 라이트 테마 통일, DS_CARD.flat shadow 추가
+- **Sonnet QA**: 평균 6.6/10 (Home 5.8, Explore 6.7, Facility 6.8, Chat 6.7, My 6.7, Landing 6.8)
+- **DS 패턴**: DS_CARD.premium 6개, NoiseTexture 31참조, gradientText 11파일, group/card 5파일
+
+### R52~R59 요약
+- **R52**: Landing 전면 오버홀 (Wallpaper, pricing, FeatureClipCard), ReviewMarquee, SocialProofBadge
+- **R53**: DS 토큰 100% — DS_GLASS, DS_SHADOW, DS_TEXT, DS_SENTIMENT, DS_STATUS_ALIAS 5종
+- **R54**: QA 6.1→7.0 — ErrorState 프리미엄, NoiseTexture, gradient 가시성 강화
+- **R55**: Triple shadow + gradient text max hue shift, Explore card depth
+- **R56**: DS_TEXT 토큰 전면 적용 + 브랜드 shadow 강화 + hydration fix
+- **R57**: UiBlock V2 + 4-wave DS 토큰 극대화 (rawClassName 1573→939, −40%)
+- **R58**: TP5 패턴 100% 전파 — gradientText 11파일, group/card 5파일, snap-mandatory 4파일
+- **R59**: "7.0 Breakthrough" — Explore elevated, premium 승격 3곳, stat accent bars, FunnelProgressWidget dot indicator
 
 ## CI/CD — Source Build Deployment (2026-02-27)
 

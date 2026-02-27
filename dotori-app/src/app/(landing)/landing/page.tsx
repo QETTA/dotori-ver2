@@ -23,13 +23,11 @@ import { copy } from '@/lib/brand-copy'
 import { getSeasonalHero } from '@/lib/seasonal-config'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_GLASS } from '@/lib/design-system/tokens'
 import { gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
-import { FadeIn } from '@/components/dotori/FadeIn'
-import { StatList, StatListItem } from '@/components/dotori/StatList'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
 import { CircleBackground } from '@/components/dotori/CircleBackground'
 import { FunnelSteps } from '@/components/dotori/FunnelSteps'
@@ -61,15 +59,39 @@ const staggerItem = {
 
 /* ── Shared CTA styles (extracted from 2x inline) ── */
 const CTA_PRIMARY = cn(
-  'inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 font-medium transition-all duration-200',
+  'inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 font-medium transition-all duration-200',
   'bg-dotori-500 text-sm/7 text-white hover:bg-dotori-600 hover:-translate-y-0.5',
   'shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.14),0_8px_24px_rgba(176,122,74,0.30)]',
   'hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_8px_rgba(0,0,0,0.18),0_16px_40px_rgba(176,122,74,0.35)]',
 )
-const CTA_SECONDARY = 'inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200'
+const CTA_SECONDARY = 'inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-dotori-100 px-5 py-2.5 text-sm/7 font-medium text-dotori-700 hover:bg-dotori-200'
 
 /* ── Gradient heading ── */
 const GRADIENT_HEADING = cn('font-wordmark text-3xl/10 font-bold tracking-tight text-balance', gradientTextHero)
+
+const HERO_STORY_BEATS = [
+  {
+    icon: MagnifyingGlassIcon,
+    title: '통합 탐색',
+    description: '어린이집·유치원 2만+ 시설을 한 번에 비교',
+  },
+  {
+    icon: ChartBarIcon,
+    title: 'TO 예측',
+    description: '졸업·전출 흐름으로 빈자리 가능성을 먼저 확인',
+  },
+  {
+    icon: DocumentCheckIcon,
+    title: '전자서명',
+    description: '복잡한 입소 서류를 모바일에서 10분 완결',
+  },
+] as const
+
+const HERO_METRICS = [
+  { value: '20,000+개', label: '어린이집·유치원 연동' },
+  { value: '17개 시도', label: '전국 분석 범위' },
+  { value: '10분', label: '풀퍼널 완결' },
+] as const
 
 /* ═══════ Pricing Data — Salient 2-tier ═══════ */
 const PRICING_TIERS = [
@@ -114,87 +136,169 @@ export default function LandingPage() {
           HERO — Wallpaper cream + CircleBackground
           FadeIn OK here (in initial viewport)
           ═══════════════════════════════════════════ */}
-      <Wallpaper color="cream" className="pb-24 pt-16">
+      <Wallpaper color="cream" className="overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-24">
         <CircleBackground
           color="var(--color-dotori-400)"
-          className="absolute right-[-20%] top-[-10%] h-[36rem] w-[36rem] opacity-15"
+          className="absolute right-[-12%] top-[-14%] h-[40rem] w-[40rem] opacity-20"
         />
+        <CircleBackground
+          color="var(--color-dotori-300)"
+          className="absolute left-[-16%] top-[22%] h-[26rem] w-[26rem] opacity-20"
+        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-dotori-100/80 via-dotori-50/30 to-transparent" />
 
-        <div className="relative mx-auto max-w-2xl px-6">
-          <FadeIn>
-            <p className={DS_PAGE_HEADER.eyebrow}>
-              {copy.landing.badge} · {copy.landing.badgeSub}
-            </p>
-          </FadeIn>
+        <div className="relative mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={staggerContainer}
+            className="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end"
+          >
+            <div>
+              <motion.div variants={staggerItem}>
+                <p
+                  className={cn(
+                    DS_PAGE_HEADER.eyebrow,
+                    DS_GLASS.card,
+                    DS_GLASS.dark.card,
+                    'inline-flex rounded-full border border-dotori-200/80 px-4 py-1.5 shadow-sm ring-1 ring-dotori-100/70',
+                  )}
+                >
+                  {copy.landing.badge} · {copy.landing.badgeSub}
+                </p>
+              </motion.div>
 
-          <FadeIn>
-            <h1 className={cn('mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance sm:text-6xl/[1.1]', gradientTextHero)}>
-              {seasonalHero.title}
-            </h1>
-          </FadeIn>
+              <motion.div variants={staggerItem}>
+                <h1 className={cn('mt-6 whitespace-pre-line font-wordmark text-5xl/[1.08] font-bold tracking-tight text-balance sm:text-6xl/[1.04] lg:text-7xl/[1.02]', gradientTextHero)}>
+                  {seasonalHero.title}
+                </h1>
+              </motion.div>
 
-          <FadeIn>
-            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-6 max-w-lg text-lg/8 text-pretty')}>
-              {seasonalHero.subtitle}
-            </p>
-          </FadeIn>
+              <motion.div variants={staggerItem}>
+                <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-6 max-w-xl text-base/8 text-pretty sm:text-lg/8')}>
+                  {seasonalHero.subtitle}
+                </p>
+              </motion.div>
 
-          <FadeIn>
-            <SocialProofBadge count={20000} className="mt-4" />
-          </FadeIn>
+              <motion.div variants={staggerItem}>
+                <SocialProofBadge count={20000} className="mt-6 w-fit" />
+              </motion.div>
 
-          <FadeIn>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link href="/onboarding" className={CTA_PRIMARY}>
-                {seasonalHero.cta}
-                <ArrowRightIcon className="h-4 w-4" />
-              </Link>
-              <Link href="/chat" className={CTA_SECONDARY}>
-                <ChatBubbleLeftRightIcon className="h-4 w-4" />
-                토리 톡 시작
-              </Link>
+              <motion.div variants={staggerItem}>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href="/onboarding" className={CTA_PRIMARY}>
+                    {seasonalHero.cta}
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </Link>
+                  <Link href="/chat" className={CTA_SECONDARY}>
+                    <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                    토리 톡 시작
+                  </Link>
+                </div>
+              </motion.div>
             </div>
-          </FadeIn>
 
-          <div className="mt-16">
-            <StatList>
-              <StatListItem value="20,000+개" label="어린이집·유치원 연동" />
-              <StatListItem value="17개 시도" label="전국 분석 범위" />
-              <StatListItem value="10분" label="풀퍼널 완결" />
-            </StatList>
-          </div>
+            <motion.div variants={staggerItem} className="lg:pb-2">
+              <div
+                className={cn(
+                  'relative overflow-hidden rounded-3xl border border-dotori-200/80 p-6 ring-1 ring-dotori-100/70 sm:p-7',
+                  DS_GLASS.card,
+                  DS_GLASS.dark.card,
+                  'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(0,0,0,0.12),0_18px_44px_rgba(176,122,74,0.18)]',
+                )}
+              >
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/80 to-transparent dark:from-dotori-900/80" />
+                <p className="relative font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+                  10분 완결 루트
+                </p>
+                <h2 className="relative mt-3 font-wordmark text-2xl/9 font-bold text-dotori-900 dark:text-dotori-50">
+                  탐색부터 서류까지<br />지금 바로 시작
+                </h2>
+                <div className="relative mt-6 space-y-4">
+                  {HERO_STORY_BEATS.map((beat) => (
+                    <div key={beat.title} className="flex items-start gap-3 rounded-2xl border border-dotori-200/70 bg-white/75 p-3.5 ring-1 ring-dotori-100/60 dark:border-dotori-700/50 dark:bg-dotori-900/70 dark:ring-dotori-700/40">
+                      <beat.icon className="mt-0.5 h-5 w-5 shrink-0 text-dotori-500" />
+                      <div>
+                        <p className="text-sm/6 font-semibold text-dotori-900 dark:text-dotori-50">
+                          {beat.title}
+                        </p>
+                        <p className="mt-0.5 text-sm/6 text-dotori-700 dark:text-dotori-300">
+                          {beat.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div
+            {...reveal}
+            transition={{ ...reveal.transition, delay: 0.25 }}
+            className="mt-10 rounded-3xl border border-dotori-200/80 bg-white/90 p-5 shadow-sm ring-1 ring-dotori-100/70 backdrop-blur-sm sm:p-6"
+          >
+            <dl className="grid gap-4 sm:grid-cols-3">
+              {HERO_METRICS.map((metric) => (
+                <div key={metric.label} className="rounded-2xl border border-dotori-200/70 bg-dotori-50/70 px-4 py-3 text-left">
+                  <dt className="text-xs/5 font-semibold tracking-wide text-dotori-500">
+                    {metric.label}
+                  </dt>
+                  <dd className="mt-1 font-wordmark text-xl/8 font-bold text-dotori-900">
+                    {metric.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </motion.div>
         </div>
       </Wallpaper>
 
       {/* ── Section transition ── */}
-      <div className="h-14 bg-gradient-to-b from-dotori-200/60 via-dotori-100/30 to-white" />
+      <div className="relative h-20 bg-gradient-to-b from-dotori-200/70 via-dotori-50/50 to-white">
+        <div className="absolute inset-x-0 bottom-0 h-px bg-dotori-200/80" />
+      </div>
 
       {/* ═══════════════════════════════════════════
           FUNNEL — 풀퍼널 플로우
           ★ motion.div animate (NOT whileInView)
           ═══════════════════════════════════════════ */}
-      <section className={cn('relative px-6 py-16', DS_SURFACE.primary)}>
-        <div className="mx-auto max-w-2xl">
-          <motion.div {...reveal}>
-            <p className={DS_PAGE_HEADER.eyebrow}>
-              풀퍼널 플로우
-            </p>
-          </motion.div>
-          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className={cn('mt-4', GRADIENT_HEADING)}>
-              {copy.landing.funnelTitle}
-            </h2>
-          </motion.div>
-          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
-            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
-              {copy.landing.funnelSub} — 2026 유보통합 시대, 어린이집·유치원 통합 플랫폼
-            </p>
-          </motion.div>
-          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
-            <div className="mt-10">
-              <FunnelSteps currentStep={0} />
+      <section className={cn('relative border-b border-dotori-100/80 px-6 pb-16 pt-14', DS_SURFACE.primary)}>
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+            <div>
+              <motion.div {...reveal}>
+                <p className={DS_PAGE_HEADER.eyebrow}>
+                  풀퍼널 플로우
+                </p>
+              </motion.div>
+              <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+                <h2 className={cn('mt-4', GRADIENT_HEADING)}>
+                  {copy.landing.funnelTitle}
+                </h2>
+              </motion.div>
+              <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+                <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
+                  {copy.landing.funnelSub} — 2026 유보통합 시대, 어린이집·유치원 통합 플랫폼
+                </p>
+              </motion.div>
+              <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
+                <p className="mt-6 border-l-2 border-dotori-300/70 pl-4 text-sm/6 text-dotori-600 dark:text-dotori-300">
+                  관심 등록 → TO 예측 확인 → 견학 신청 → 전자서명까지
+                  <br />
+                  하나의 흐름으로 끊김 없이 연결됩니다.
+                </p>
+              </motion.div>
             </div>
-          </motion.div>
+
+            <motion.div
+              {...reveal}
+              transition={{ ...reveal.transition, delay: 0.25 }}
+              className="rounded-3xl border border-dotori-200/80 bg-dotori-50/55 p-4 shadow-sm ring-1 ring-dotori-100/70 sm:p-6"
+            >
+              <FunnelSteps currentStep={0} />
+            </motion.div>
+          </div>
         </div>
       </section>
 

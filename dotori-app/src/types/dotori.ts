@@ -339,8 +339,16 @@ export interface UiBlockItem {
 	meta?: string;
 	/** V2: per-item tone override */
 	tone?: UiBlockTone;
+	/** V2: optional media slot for impactful item layouts */
+	media?: UiBlockMediaSlot;
 }
 
+/** V2 media slot */
+export interface UiBlockMediaSlot {
+	src?: string;
+	alt?: string;
+	kind?: "image" | "icon" | "illustration";
+}
 /** V2 layout variants */
 export type UiBlockVariant = "default" | "hero" | "panel" | "strip";
 /** V2 color families */
@@ -351,6 +359,8 @@ export type UiBlockDensity = "default" | "compact" | "spacious";
 export type UiBlockCtaMode = "inline" | "footer" | "hidden";
 /** V2 visual accent */
 export type UiBlockAccentStyle = "bar" | "glow" | "none";
+/** V2 form-like variant (separate to preserve existing `variant` mapping) */
+export type UiBlockFormVariant = "form";
 
 export interface UiBlock {
 	type: "ui_block";
@@ -364,6 +374,8 @@ export interface UiBlock {
 	density?: UiBlockDensity;
 	ctaMode?: UiBlockCtaMode;
 	accentStyle?: UiBlockAccentStyle;
+	media?: UiBlockMediaSlot;
+	formVariant?: UiBlockFormVariant;
 }
 
 export type ChatBlock =

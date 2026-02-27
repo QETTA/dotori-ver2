@@ -314,6 +314,62 @@
   animation: marquee var(--marquee-duration, 30s) linear infinite;
 }
 
+/* ── 디자인 전문가 유틸리티 (R60) ── */
+
+/* Card flip animation (3D perspective) */
+@utility card-flip {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Fluid typography (clamp-based responsive) */
+@utility text-fluid-sm {
+  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+}
+@utility text-fluid-base {
+  font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+}
+@utility text-fluid-lg {
+  font-size: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+}
+@utility text-fluid-xl {
+  font-size: clamp(1.5rem, 1.25rem + 1.25vw, 2.25rem);
+}
+
+/* Gradient mesh backgrounds */
+@utility gradient-mesh-warm {
+  background-image:
+    radial-gradient(at 20% 30%, rgb(200 149 106 / 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 70%, rgb(74 122 66 / 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgb(212 160 48 / 0.06) 0px, transparent 50%);
+}
+@utility gradient-mesh-cool {
+  background-image:
+    radial-gradient(at 30% 20%, rgb(74 128 176 / 0.1) 0px, transparent 50%),
+    radial-gradient(at 70% 80%, rgb(200 149 106 / 0.08) 0px, transparent 50%);
+}
+
+/* Hairline border (sub-pixel rendering) */
+@utility hairline-border-b {
+  border-bottom: 0.5px solid rgb(232 213 190 / 0.5);
+}
+@utility hairline-border-t {
+  border-top: 0.5px solid rgb(232 213 190 / 0.5);
+}
+
+/* Content container (consistent max-width + padding) */
+@utility container-app {
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Micro shadow (subtle depth for small elements) */
+@utility shadow-micro {
+  box-shadow: 0 1px 2px rgb(45 36 24 / 0.04), 0 0.5px 1px rgb(45 36 24 / 0.03);
+}
+
 /* ── 베이스 레이어 ── */
 @layer base {
 	html {
