@@ -7,11 +7,12 @@
  * Primer:   ExpandableSection (AnimatePresence height toggle)
  * Motion:   FadeIn + spring
  */
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ChevronDown,
   LogOut,
+  Save,
   Trash2,
 } from 'lucide-react'
 import { Heading, Subheading } from '@/components/catalyst/heading'
@@ -29,11 +30,14 @@ import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
 import { NotificationSettingsCard } from '@/components/dotori/NotificationSettingsCard'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { useToast } from '@/components/dotori/ToastProvider'
 import { Field, Label } from '@/components/catalyst/fieldset'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { apiFetch } from '@/lib/api'
 import { spring, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
+import type { NotificationSettings, UserProfile } from '@/types/dotori'
 
 const SIDO_LIST = [
   '서울특별시', '부산광역시', '대구광역시', '인천광역시',
@@ -95,9 +99,74 @@ function ExpandableSection({
   )
 }
 
+const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  vacancy: true,
+  document: true,
+  community: false,
+  marketing: false,
+}
+
 export default function SettingsPage() {
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const isAuthenticated = user !== null
+  const { addToast } = useToast()
   const [region, setRegion] = useState<string>(SIDO_LIST[0])
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS)
+  const [isSaving, setIsSaving] = useState(false)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const initializedRef = useRef(false)
+
+  // Load profile on mount (client-only)
+  useEffect(() => {
+    if (initializedRef.current) return
+    let cancelled = false
+    apiFetch<{ data: UserProfile }>('/api/users/me')
+      .then((res) => {
+        if (cancelled) return
+        initializedRef.current = true
+        const profile = res.data
+        setUser(profile)
+        if (profile.region?.sido) setRegion(profile.region.sido)
+        if (profile.notificationSettings) setNotifSettings(profile.notificationSettings)
+      })
+      .catch(() => {
+        // Not authenticated or network error — stay as guest
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const handleNotifChange = useCallback((values: Record<string, boolean>) => {
+    setNotifSettings({
+      vacancy: values.vacancy ?? DEFAULT_NOTIFICATION_SETTINGS.vacancy,
+      document: values.document ?? DEFAULT_NOTIFICATION_SETTINGS.document,
+      community: values.community ?? DEFAULT_NOTIFICATION_SETTINGS.community,
+      marketing: values.marketing ?? DEFAULT_NOTIFICATION_SETTINGS.marketing,
+    })
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    if (!isAuthenticated) {
+      addToast({ type: 'info', message: '로그인 후 설정을 저장할 수 있어요' })
+      return
+    }
+    setIsSaving(true)
+    try {
+      const res = await apiFetch<{ data: UserProfile }>('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          region: { sido: region, sigungu: '', dong: '' },
+          notificationSettings: notifSettings,
+        }),
+      })
+      setUser(res.data)
+      addToast({ type: 'success', message: '설정이 저장되었어요' })
+    } catch {
+      addToast({ type: 'error', message: '저장에 실패했어요. 다시 시도해주세요' })
+    } finally {
+      setIsSaving(false)
+    }
+  }, [isAuthenticated, region, notifSettings, addToast])
 
   return (
     <div className="relative space-y-5">
@@ -111,16 +180,17 @@ export default function SettingsPage() {
       <FadeIn>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex items-center gap-4 rounded-2xl p-5 ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
           <Avatar
-            initials="도"
+            initials={user?.nickname?.charAt(0) || '도'}
+            src={user?.image}
             className="h-14 w-14 bg-dotori-100 text-dotori-700 dark:bg-dotori-900 dark:text-dotori-300"
             square
           />
           <div>
             <Heading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>
-              게스트
+              {user?.nickname || '게스트'}
             </Heading>
             <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
-              로그인하면 맞춤 서비스를 받아요
+              {isAuthenticated ? '프로필 설정을 관리하세요' : '로그인하면 맞춤 서비스를 받아요'}
             </Text>
           </div>
         </div>
@@ -130,8 +200,13 @@ export default function SettingsPage() {
       <FadeIn>
         <ExpandableSection title="알림 설정" defaultOpen>
           <NotificationSettingsCard
+            key={user ? 'loaded' : 'default'}
             title="알림 종류"
-            settings={NOTIFICATION_SETTINGS}
+            settings={NOTIFICATION_SETTINGS.map((s) => ({
+              ...s,
+              defaultChecked: notifSettings[s.id as keyof NotificationSettings] ?? s.defaultChecked,
+            }))}
+            onChange={handleNotifChange}
           />
         </ExpandableSection>
       </FadeIn>
@@ -151,6 +226,19 @@ export default function SettingsPage() {
           </Field>
         </ExpandableSection>
       </motion.div>
+
+      {/* ══════ SAVE BUTTON ══════ */}
+      <FadeIn>
+        <DsButton
+          onClick={handleSave}
+          disabled={isSaving}
+          fullWidth
+          className="gap-2"
+        >
+          <Save className="h-4 w-4" />
+          {isSaving ? '저장 중...' : '설정 저장'}
+        </DsButton>
+      </FadeIn>
 
       {/* ══════ ACCOUNT ══════ */}
       <motion.div {...scrollFadeIn}>

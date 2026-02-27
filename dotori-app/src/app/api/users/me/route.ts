@@ -54,6 +54,9 @@ export const PATCH = withApiHandler<UserUpdatePayload>(async (_req, { userId, bo
 	if (body.alimtalkOptIn !== undefined) {
 		update.alimtalkOptIn = body.alimtalkOptIn;
 	}
+	if (body.notificationSettings !== undefined) {
+		update.notificationSettings = body.notificationSettings;
+	}
 
 	const user = await User.findByIdAndUpdate(
 		userId,

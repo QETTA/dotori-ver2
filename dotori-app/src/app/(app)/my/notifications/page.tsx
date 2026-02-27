@@ -142,6 +142,14 @@ export default function NotificationsPage() {
             <Text className={cn('mt-1.5', DS_EMPTY_STATE.description)}>
               새로운 알림이 오면 여기에 표시됩니다
             </Text>
+            <div className="mt-5 flex gap-2">
+              <DsButton href="/my/settings" variant="secondary">
+                알림 설정하기
+              </DsButton>
+              <DsButton href="/explore" variant="ghost">
+                시설 탐색하기
+              </DsButton>
+            </div>
           </div>
         </motion.div>
       ) : (

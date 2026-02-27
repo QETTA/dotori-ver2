@@ -119,6 +119,13 @@ export type UserInterests = string[];
 export type UserChildren = ChildProfile[];
 export type UserPlan = "free" | "premium";
 
+export interface NotificationSettings {
+	vacancy: boolean;
+	document: boolean;
+	community: boolean;
+	marketing: boolean;
+}
+
 /* ===== 사용자 ===== */
 export interface UserProfile {
 	id: string;
@@ -130,6 +137,7 @@ export interface UserProfile {
 	gpsVerified: boolean;
 	plan: UserPlan;
 	onboardingCompleted: boolean;
+	notificationSettings?: NotificationSettings;
 }
 
 export interface ApiPagination {

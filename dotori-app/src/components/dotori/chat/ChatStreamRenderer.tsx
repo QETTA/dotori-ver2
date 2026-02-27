@@ -7,10 +7,19 @@
 import { useRef, useEffect } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { ChatMessage } from './ChatMessage'
+import { DateDivider } from './DateDivider'
 import { ActionBlockRenderer } from './ActionBlockRenderer'
 import type { ChatBlock } from '@/types/dotori'
 import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { cn } from '@/lib/utils'
+
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
 
 export interface StreamMessage {
   id: string
@@ -38,16 +47,23 @@ export function ChatStreamRenderer({
   return (
     <div className={cn(DS_SURFACE.primary, 'flex-1 space-y-1 overflow-y-auto')}>
       <AnimatePresence initial={false}>
-        {messages.map((msg) => (
-          <div key={msg.id} className="space-y-2">
-            <ChatMessage role={msg.role} content={msg.content} timestamp={msg.timestamp} />
-            {msg.role === 'assistant' && msg.blocks && msg.blocks.length > 0 ? (
-              <div className="ml-10">
-                <ActionBlockRenderer blocks={msg.blocks} />
-              </div>
-            ) : null}
-          </div>
-        ))}
+        {messages.map((msg, idx) => {
+          const prevMsg = idx > 0 ? messages[idx - 1] : null
+          const showDateDivider =
+            !prevMsg || !isSameDay(new Date(msg.timestamp), new Date(prevMsg.timestamp))
+
+          return (
+            <div key={msg.id} className="space-y-2">
+              {showDateDivider && <DateDivider date={new Date(msg.timestamp)} />}
+              <ChatMessage role={msg.role} content={msg.content} timestamp={msg.timestamp} />
+              {msg.role === 'assistant' && msg.blocks && msg.blocks.length > 0 ? (
+                <div className="ml-10">
+                  <ActionBlockRenderer blocks={msg.blocks} />
+                </div>
+              ) : null}
+            </div>
+          )
+        })}
       </AnimatePresence>
 
       {/* Active streaming message */}

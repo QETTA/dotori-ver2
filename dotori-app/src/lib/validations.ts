@@ -208,6 +208,13 @@ const preferencesSchema = z.object({
   features: z.array(z.string().max(100)).max(50).default([]),
 })
 
+const notificationSettingsSchema = z.object({
+  vacancy: z.boolean(),
+  document: z.boolean(),
+  community: z.boolean(),
+  marketing: z.boolean(),
+})
+
 export const userUpdateSchema = z
   .object({
     nickname: z.string().max(50).optional(),
@@ -215,6 +222,7 @@ export const userUpdateSchema = z
     children: z.array(childSchema).max(10).optional(),
     region: regionSchema.optional(),
     preferences: preferencesSchema.optional(),
+    notificationSettings: notificationSettingsSchema.optional(),
     gpsVerified: z.boolean().optional(),
     onboardingCompleted: z.boolean().optional(),
     alimtalkOptIn: z.boolean().optional(),

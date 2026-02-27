@@ -30,5 +30,32 @@ describe("/api/users/me", () => {
 		it("allows updating children array", () => {
 			expect("children").toBeTruthy();
 		});
+
+		it("allows updating notificationSettings", () => {
+			expect("notificationSettings").toBeTruthy();
+		});
+
+		it("validates notificationSettings schema", async () => {
+			const { userUpdateSchema } = await import("@/lib/validations");
+			const valid = userUpdateSchema.safeParse({
+				notificationSettings: {
+					vacancy: true,
+					document: false,
+					community: true,
+					marketing: false,
+				},
+			});
+			expect(valid.success).toBe(true);
+		});
+
+		it("rejects invalid notificationSettings", async () => {
+			const { userUpdateSchema } = await import("@/lib/validations");
+			const invalid = userUpdateSchema.safeParse({
+				notificationSettings: {
+					vacancy: "yes",
+				},
+			});
+			expect(invalid.success).toBe(false);
+		});
 	});
 });

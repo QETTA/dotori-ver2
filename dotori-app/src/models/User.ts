@@ -23,6 +23,12 @@ export interface IUser extends Document {
 		facilityTypes: string[];
 		features: string[];
 	};
+	notificationSettings: {
+		vacancy: boolean;
+		document: boolean;
+		community: boolean;
+		marketing: boolean;
+	};
 	interests: mongoose.Types.ObjectId[];
 	gpsVerified: boolean;
 	plan: "free" | "premium";
@@ -80,6 +86,15 @@ const UserSchema = new Schema<IUser>(
 				features: { type: [String], default: [] },
 			},
 			default: () => ({ facilityTypes: [], features: [] }),
+		},
+		notificationSettings: {
+			type: {
+				vacancy: { type: Boolean, default: true },
+				document: { type: Boolean, default: true },
+				community: { type: Boolean, default: false },
+				marketing: { type: Boolean, default: false },
+			},
+			default: () => ({ vacancy: true, document: true, community: false, marketing: false }),
 		},
 		interests: [{ type: Schema.Types.ObjectId, ref: "Facility" }],
 		gpsVerified: { type: Boolean, default: false },
