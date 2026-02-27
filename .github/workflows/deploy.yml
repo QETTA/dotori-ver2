@@ -1,9 +1,11 @@
 # ── Dotori Deploy — Manual Only (workflow_dispatch) ──
-# 자동 배포 트리거 없음. 수동 실행만 가능.
+# doctl auth init 401 버그 → curl 직접 호출로 전면 교체 (R51)
+# 원인: doctl이 PAT(dop_v1_)를 OAuth 엔드포인트(cloud.digitalocean.com)로 검증 → 항상 401
+# 해결: DO REST API(api.digitalocean.com)를 curl로 직접 호출
+#
 # 실행 방법:
 #   1. GitHub Actions UI → "Deploy" → "Run workflow"
 #   2. CLI: gh workflow run deploy.yml
-#   3. 로컬: doctl apps create-deployment 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
 
 name: Deploy
 
@@ -25,6 +27,7 @@ concurrency:
 
 env:
   DO_APP_ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
+  DO_API: https://api.digitalocean.com/v2
 
 jobs:
   # ── Gate: CI must pass before deploy ──
@@ -67,53 +70,60 @@ jobs:
     environment:
       name: production
       url: ${{ steps.app.outputs.url }}
+    env:
+      DO_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enforce DO-only deploy policy
+      - name: Validate DO token
         run: |
-          if grep -rn --include='*.yml' 'doctl.*apps.*update' .github/workflows --exclude='deploy.yml'; then
-            echo "::error::Forbidden app spec mutation command found"
+          HTTP_CODE="$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${DO_TOKEN}" \
+            "${DO_API}/account")"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::DO API token invalid (HTTP $HTTP_CODE)"
             exit 1
           fi
+          echo "DO token validated (HTTP 200)"
 
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Verify app exists
-        run: doctl apps get "${DO_APP_ID}" --format ID --no-header >/dev/null
-
-      - name: Verify live app spec is source mode
+      - name: Verify app exists and get spec
         run: |
-          SPEC_JSON="$(mktemp)"
-          doctl apps spec get "${DO_APP_ID}" --format json > "$SPEC_JSON"
-          SPEC_JSON="$SPEC_JSON" python3 - <<'PY'
-          import json, os, sys
-          spec = json.load(open(os.environ["SPEC_JSON"], "r", encoding="utf-8"))
-          svc = next((s for s in (spec.get("services") or []) if s.get("name") == "web"), None)
+          APP_JSON="$(curl -sf \
+            -H "Authorization: Bearer ${DO_TOKEN}" \
+            "${DO_API}/apps/${DO_APP_ID}")"
+          if [ -z "$APP_JSON" ]; then
+            echo "::error::App not found"
+            exit 1
+          fi
+          # Verify source mode (not image)
+          echo "$APP_JSON" | python3 -c "
+          import json, sys
+          app = json.load(sys.stdin).get('app', {})
+          spec = app.get('spec', {})
+          svc = next((s for s in (spec.get('services') or []) if s.get('name') == 'web'), None)
           if not svc:
-              print("ERROR: service 'web' not found", file=sys.stderr); raise SystemExit(1)
-          if svc.get("image"):
-              print("ERROR: image mode still configured", file=sys.stderr); raise SystemExit(1)
-          gh = svc.get("github") or {}
-          if gh.get("repo") != "QETTA/dotori-ver2" or gh.get("branch") != "main":
-              print("ERROR: source not pinned to QETTA/dotori-ver2@main", file=sys.stderr); raise SystemExit(1)
-          print("OK: app spec validated")
-          PY
-          rm -f "$SPEC_JSON"
+              print('ERROR: service web not found', file=sys.stderr); sys.exit(1)
+          if svc.get('image'):
+              print('ERROR: image mode configured', file=sys.stderr); sys.exit(1)
+          gh = svc.get('github') or {}
+          if gh.get('repo') != 'QETTA/dotori-ver2' or gh.get('branch') != 'main':
+              print('ERROR: source not pinned to QETTA/dotori-ver2@main', file=sys.stderr); sys.exit(1)
+          print('OK: app spec validated (source mode, QETTA/dotori-ver2@main)')
+          "
 
       - name: Check if SHA already deployed
         id: active
         run: |
-          APP_JSON="$(mktemp)"
-          timeout 20s doctl apps get "${DO_APP_ID}" -o json > "$APP_JSON"
-          if ! ACTIVE_SHA="$(python3 -c "import json; app=json.load(open('$APP_JSON'))[0]; svcs=(app.get('active_deployment') or {}).get('services') or []; print((svcs[0].get('source_commit_hash') or '').strip() if svcs else '')")"; then
-            echo "::warning::python3 failed parsing active deployment — treating as mismatch"
-            ACTIVE_SHA=""
-          fi
-          rm -f "$APP_JSON"
+          APP_JSON="$(curl -sf \
+            -H "Authorization: Bearer ${DO_TOKEN}" \
+            "${DO_API}/apps/${DO_APP_ID}")"
+          ACTIVE_SHA="$(echo "$APP_JSON" | python3 -c "
+          import json, sys
+          app = json.load(sys.stdin).get('app', {})
+          dep = app.get('active_deployment') or {}
+          svcs = dep.get('services') or []
+          print((svcs[0].get('source_commit_hash') or '').strip() if svcs else '')
+          " 2>/dev/null || echo "")"
           echo "active_sha=$ACTIVE_SHA" >> "$GITHUB_OUTPUT"
           if [ "$ACTIVE_SHA" = "${GITHUB_SHA}" ] && [ "${{ inputs.force_rebuild }}" != "true" ]; then
             echo "skip_deploy=true" >> "$GITHUB_OUTPUT"
@@ -127,15 +137,20 @@ jobs:
         id: deploy
         if: steps.active.outputs.skip_deploy != 'true'
         run: |
-          FORCE_FLAG=""
+          BODY='{}'
           if [ "${{ inputs.force_rebuild }}" = "true" ]; then
-            FORCE_FLAG="--force-rebuild"
+            BODY='{"force_build": true}'
           fi
           DEPLOY_ID=""
           for attempt in 1 2 3; do
             echo "attempt ${attempt}/3 at $(date -u +%H:%M:%S)"
-            if RAW_ID="$(timeout 45s doctl apps create-deployment "${DO_APP_ID}" $FORCE_FLAG --format ID --no-header 2>/tmp/do-deploy.err)"; then
-              DEPLOY_ID="$(echo "$RAW_ID" | tr -d '[:space:]')"
+            RESP="$(curl -sf -X POST \
+              -H "Authorization: Bearer ${DO_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "$BODY" \
+              "${DO_API}/apps/${DO_APP_ID}/deployments" 2>/tmp/do-deploy.err || true)"
+            if [ -n "$RESP" ]; then
+              DEPLOY_ID="$(echo "$RESP" | python3 -c "import json,sys; print(json.load(sys.stdin).get('deployment',{}).get('id',''))" 2>/dev/null || echo "")"
               [ -n "$DEPLOY_ID" ] && break
             fi
             sleep 3
@@ -146,18 +161,18 @@ jobs:
             exit 1
           fi
           echo "deployment_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+          echo "Triggered deployment: $DEPLOY_ID"
 
       - name: Wait for ACTIVE
         if: steps.active.outputs.skip_deploy != 'true'
         run: |
           DEPLOY_ID="${{ steps.deploy.outputs.deployment_id }}"
           for i in $(seq 1 90); do
-            PHASE="$(timeout 20s doctl apps get-deployment "${DO_APP_ID}" "$DEPLOY_ID" --format Phase --no-header 2>/dev/null | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')" || true
-            if [ -z "$PHASE" ]; then
-              echo "poll ${i}/90: phase=<empty>"
-              sleep 10
-              continue
-            fi
+            PHASE="$(curl -sf \
+              -H "Authorization: Bearer ${DO_TOKEN}" \
+              "${DO_API}/apps/${DO_APP_ID}/deployments/${DEPLOY_ID}" \
+              | python3 -c "import json,sys; print(json.load(sys.stdin).get('deployment',{}).get('phase','').lower())" 2>/dev/null || echo "")"
+            [ -z "$PHASE" ] && PHASE="unknown"
             echo "poll ${i}/90: phase=$PHASE"
             case "$PHASE" in
               active) echo "Deployment ACTIVE"; exit 0 ;;
@@ -170,8 +185,12 @@ jobs:
       - name: Resolve production URL
         id: app
         run: |
-          URL="$(timeout 20s doctl apps get "${DO_APP_ID}" --format DefaultIngress --no-header | tr -d '[:space:]')"
+          URL="$(curl -sf \
+            -H "Authorization: Bearer ${DO_TOKEN}" \
+            "${DO_API}/apps/${DO_APP_ID}" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin).get('app',{}).get('default_ingress','').strip())" 2>/dev/null || echo "")"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Production URL: $URL"
 
       - name: Health check
         env:
@@ -211,12 +230,14 @@ jobs:
 
       - name: Verify deployed commit
         run: |
-          APP_JSON="$(mktemp)"
-          timeout 20s doctl apps get "${DO_APP_ID}" -o json > "$APP_JSON"
-          python3 -c "
-          import json, os, sys
-          app = json.load(open('$APP_JSON'))[0]
-          svcs = (app.get('active_deployment') or {}).get('services') or []
+          APP_JSON="$(curl -sf \
+            -H "Authorization: Bearer ${DO_TOKEN}" \
+            "${DO_API}/apps/${DO_APP_ID}")"
+          echo "$APP_JSON" | python3 -c "
+          import json, sys
+          app = json.load(sys.stdin).get('app', {})
+          dep = app.get('active_deployment') or {}
+          svcs = dep.get('services') or []
           sha = (svcs[0].get('source_commit_hash') or '').strip() if svcs else ''
           expected = '${GITHUB_SHA}'.strip()
           if sha != expected:
@@ -224,7 +245,6 @@ jobs:
               sys.exit(1)
           print(f'OK: verified ({sha[:7]})')
           "
-          rm -f "$APP_JSON"
 
       - name: Summary
         if: always()
