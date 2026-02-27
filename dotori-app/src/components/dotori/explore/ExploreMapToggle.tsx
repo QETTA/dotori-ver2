@@ -5,6 +5,7 @@
  */
 import { motion } from 'motion/react'
 import { ListBulletIcon, MapIcon } from '@heroicons/react/24/outline'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { spring } from '@/lib/motion'
 
@@ -43,7 +44,7 @@ export function ExploreMapToggle({
             'relative flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
             view === key
               ? 'text-dotori-950 dark:text-white'
-              : 'text-dotori-500 hover:text-dotori-700 dark:text-dotori-400 dark:hover:text-dotori-200',
+              : cn(DS_TEXT.muted, 'hover:text-dotori-700 dark:hover:text-dotori-200'),
           )}
           onClick={() => onToggle(key)}
         >

@@ -9,7 +9,7 @@ import { motion } from 'motion/react'
 import { BRAND } from '@/lib/brand-assets'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import { fadeUp } from '@/lib/motion'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TEXT, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 
 const USER_BUBBLE = cn(
   'rounded-2xl rounded-br-sm px-4 py-3 max-w-[85%] shadow-md shadow-dotori-300/30 dark:shadow-dotori-950/50',
@@ -82,7 +82,7 @@ export const ChatMessage = memo(function ChatMessage({
           )}
         </div>
         {timeStr && (
-          <span className={cn(DS_TYPOGRAPHY.caption, 'px-1 text-dotori-600 dark:text-dotori-300')} suppressHydrationWarning>
+          <span className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.secondary, 'px-1')} suppressHydrationWarning>
             {timeStr}
           </span>
         )}

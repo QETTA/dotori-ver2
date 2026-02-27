@@ -1,7 +1,8 @@
 import { memo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { formatRelativeTime } from "@/lib/utils";
+import { DS_TEXT } from "@/lib/design-system/tokens";
+import { cn, formatRelativeTime } from "@/lib/utils";
 import type { CommunityPost } from "@/types/dotori";
 
 interface FacilityReviewsCardProps {
@@ -47,7 +48,7 @@ export const FacilityReviewsCard = memo(function FacilityReviewsCard({
 				{posts.length > 0 && (
 					<Link
 						href="/community"
-						className={'text-body text-dotori-500 hover:text-dotori-600'}
+						className={cn('text-body hover:text-dotori-600', DS_TEXT.muted)}
 					>
 						더보기
 					</Link>

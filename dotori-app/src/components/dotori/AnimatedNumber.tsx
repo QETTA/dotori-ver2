@@ -8,6 +8,8 @@ import {
   useTransform,
 } from 'motion/react'
 import { useEffect, useRef } from 'react'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 /**
  * AnimatedNumber — Radiant 패턴 포팅 (motion/react)
@@ -42,7 +44,7 @@ export function AnimatedNumber({
   }, [start, end, isInView, value])
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={cn(DS_TEXT.primary, className)}>
       <motion.span>{display}</motion.span>
       {suffix}
     </span>

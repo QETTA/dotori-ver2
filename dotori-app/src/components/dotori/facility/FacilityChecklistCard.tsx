@@ -1,5 +1,6 @@
 import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
 import { ChecklistBlock } from "@/components/dotori/blocks/ChecklistBlock";
+import { DS_TEXT } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import type { ChecklistBlock as ChecklistBlockType } from "@/types/dotori";
 
@@ -29,7 +30,7 @@ export function FacilityChecklistCard({
 					<h3 className={'font-semibold'}>
 						입소 준비 체크리스트
 					</h3>
-					<p className={'mt-0.5 text-body text-dotori-500'}>
+					<p className={cn('mt-0.5 text-body', DS_TEXT.muted)}>
 						{facilityType} 기준 필요 서류를 미리 확인하세요
 					</p>
 				</div>

@@ -8,7 +8,7 @@ import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { BRAND } from '@/lib/brand-assets'
 import { copy } from '@/lib/brand-copy'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TEXT, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { fadeUp, stagger, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { motion } from 'motion/react'
@@ -92,7 +92,7 @@ export function ChatPromptPanel({
 						>
 							{chatCopy.panelTitle}
 						</Heading>
-						<Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1.5 block text-center text-dotori-500 dark:text-dotori-300')}>
+						<Text className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.muted, 'mt-1.5 block text-center')}>
 							{chatCopy.panelDescription}
 						</Text>
 						</div>

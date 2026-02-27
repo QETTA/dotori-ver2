@@ -6,6 +6,7 @@ import { DsButton } from '@/components/ds/DsButton'
 import { motion } from 'motion/react'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { FadeIn } from '@/components/dotori/FadeIn'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { gradientText } from '@/lib/motion'
 
@@ -33,7 +34,7 @@ export function SuccessPanel({
         <Heading className={`mt-6 font-wordmark text-2xl/9 font-bold tracking-tight sm:text-2xl/9 ${gradientText}`}>
           {title}
         </Heading>
-        <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+        <Text className={cn('mt-2 text-base/7', DS_TEXT.muted)}>
           {description}
         </Text>
         <div className="mt-8 flex gap-3">

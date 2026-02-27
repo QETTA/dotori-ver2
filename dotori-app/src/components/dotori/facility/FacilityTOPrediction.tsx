@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Badge } from '@/components/catalyst/badge'
 import { DsButton } from '@/components/ds/DsButton'
 import { apiFetch } from '@/lib/api'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TEXT, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { scrollFadeIn, stagger } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { TOConfidenceLevel, TOPredictionResult } from '@/types/dotori'
@@ -243,7 +243,7 @@ export function FacilityTOPrediction({ facilityId }: { facilityId: string }) {
       {/* Footer info */}
       <motion.div {...stagger.item} className="mt-4 flex items-start gap-2">
         <InformationCircleIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
-        <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>
           {calculatedDate} 기준 · 4주 후 전망
         </p>
       </motion.div>

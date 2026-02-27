@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { SparklesIcon } from "@heroicons/react/24/outline";
+import { DS_TEXT } from "@/lib/design-system/tokens";
 import { cn } from "@/lib/utils";
 import { generateWhyInsights, type WhyInsight } from "@/lib/engine/why-engine";
 import type { Facility } from "@/types/dotori";
@@ -26,7 +27,7 @@ export function FacilityInsights({ facility }: FacilityInsightsProps) {
 				<SparklesIcon className={'h-5 w-5 text-dotori-500'} />
 				<h3 className={'font-semibold'}>AI 인사이트</h3>
 			</div>
-			<ul className={'mt-2 space-y-2 text-body text-dotori-700'}>
+			<ul className={cn('mt-2 space-y-2 text-body', DS_TEXT.secondary)}>
 				{insights.map((insight, i) => (
 					<li key={i} className={'flex items-start gap-1.5'}>
 						<span

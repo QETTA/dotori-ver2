@@ -6,6 +6,7 @@
  */
 import { useCallback, useSyncExternalStore } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn } from '@/components/dotori/FadeIn'
@@ -98,7 +99,7 @@ export function SavedFilters({
           >
             <button
               type="button"
-              className="text-xs font-medium text-dotori-700 hover:text-dotori-950 dark:text-dotori-300 dark:hover:text-white"
+              className={cn('text-xs font-medium hover:text-dotori-950 dark:hover:text-white', DS_TEXT.secondary)}
               onClick={() => onApply(filter)}
             >
               {filter.name}

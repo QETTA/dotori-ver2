@@ -1,5 +1,6 @@
 'use client'
 
+import { DS_SHADOW } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 type WallpaperVariant = 'warm' | 'forest'
@@ -20,7 +21,7 @@ export function WallpaperBg({
     <div
       aria-hidden="true"
       className={cn(
-        'pointer-events-none absolute inset-0 noise-overlay',
+        'pointer-events-none absolute inset-0 noise-overlay', DS_SHADOW.sm,
         VARIANT_GRADIENT[variant],
         className,
       )}

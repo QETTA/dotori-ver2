@@ -1,5 +1,6 @@
 'use client'
 
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@heroicons/react/24/solid'
 
@@ -38,7 +39,7 @@ export function StepIndicator({ steps, currentStep, className }: StepIndicatorPr
                   'text-center text-xs/4 font-medium',
                   isCompleted && 'text-forest-600 dark:text-forest-400',
                   isActive && 'text-dotori-700 dark:text-dotori-300',
-                  isPending && 'text-dotori-400 dark:text-dotori-500',
+                  isPending && DS_TEXT.muted,
                 )}
               >
                 {label}

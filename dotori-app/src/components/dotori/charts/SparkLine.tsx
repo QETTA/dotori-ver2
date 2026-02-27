@@ -8,6 +8,7 @@
  */
 import { motion, useReducedMotion, useInView } from 'motion/react'
 import { useRef, useMemo, useId } from 'react'
+import { DS_SHADOW } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 export function SparkLine({
@@ -61,7 +62,7 @@ export function SparkLine({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className={cn('block', className)}
+      className={cn('block', DS_SHADOW.sm, className)}
       aria-hidden="true"
     >
       <defs>

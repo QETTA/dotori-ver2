@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { memo } from "react";
 import { DsButton } from "@/components/ds/DsButton";
+import { DS_TEXT } from "@/lib/design-system/tokens";
 import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,7 @@ export const ExploreToOnlyToggle = memo(function ExploreToOnlyToggle({
 					'text-body-sm font-medium transition-all duration-200',
 					toOnly
 						? 'bg-dotori-900 text-white shadow-md ring-1 ring-dotori-700/50 dark:bg-dotori-800 dark:ring-dotori-600/60'
-						: 'bg-dotori-950/[0.025] text-dotori-600 ring-1 ring-dotori-200/50 hover:bg-dotori-50 dark:bg-white/[0.03] dark:text-dotori-300 dark:ring-dotori-700/40 dark:hover:bg-dotori-800/40',
+						: cn('bg-dotori-950/[0.025] ring-1 ring-dotori-200/50 hover:bg-dotori-50 dark:bg-white/[0.03] dark:ring-dotori-700/40 dark:hover:bg-dotori-800/40', DS_TEXT.secondary),
 				)}
 			>
 				<AnimatePresence mode="wait" initial={false}>

@@ -2,7 +2,7 @@
 
 import { DsButton } from "@/components/ds/DsButton";
 import { BRAND } from "@/lib/brand-assets";
-import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_TEXT, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { fadeUp, tap } from "@/lib/motion";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ActionButton, ChatBlock, ChatRole, SourceInfo } from "@/types/dotori";
@@ -232,7 +232,7 @@ export const ChatBubble = memo(function ChatBubble({
 					</div>
 				) : null}
 				<span
-					className={cn(DS_TYPOGRAPHY.caption, 'px-1 text-dotori-600 dark:text-dotori-300')}
+					className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.secondary, 'px-1')}
 					suppressHydrationWarning
 				>
 					{relativeTime}

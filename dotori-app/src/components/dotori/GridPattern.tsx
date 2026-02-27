@@ -1,6 +1,7 @@
 'use client'
 
 import { useId } from 'react'
+import { DS_SHADOW } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 /**
@@ -31,7 +32,7 @@ export function GridPattern({
   return (
     <svg
       aria-hidden="true"
-      className={cn('pointer-events-none absolute inset-0 h-full w-full', className)}
+      className={cn('pointer-events-none absolute inset-0 h-full w-full', DS_SHADOW.sm, className)}
       {...props}
     >
       <defs>

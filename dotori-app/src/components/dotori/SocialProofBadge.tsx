@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { motion, useInView } from 'motion/react'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { spring } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 interface SocialProofBadgeProps {
   count: number
@@ -38,7 +40,7 @@ export function SocialProofBadge({ count, suffix = '시설', className = '' }: S
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={spring.chip}
-      className={`inline-flex items-center gap-1 rounded-full bg-dotori-100/80 px-3 py-1 text-caption font-semibold text-dotori-700 dark:bg-dotori-800/40 dark:text-dotori-200 ${className}`}
+      className={cn('inline-flex items-center gap-1 rounded-full bg-dotori-100/80 px-3 py-1 text-caption font-semibold dark:bg-dotori-800/40', DS_TEXT.secondary, className)}
     >
       <AnimatedNumber value={count} />+ {suffix}
     </motion.span>

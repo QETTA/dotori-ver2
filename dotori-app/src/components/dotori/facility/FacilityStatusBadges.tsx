@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
 
 import { Badge } from "@/components/catalyst/badge";
+import { DS_TEXT } from "@/lib/design-system/tokens";
 import { fadeUp } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 import {
 	getFacilityStatusBadge,
@@ -39,7 +41,7 @@ export function FacilityStatusBadges({
 					: `데이터 품질 점수 ${qualityScore}점`}
 			</Badge>
 			{!isPremiumFacility ? (
-				<span className={'text-body text-dotori-500 dark:text-dotori-300'}>
+				<span className={cn('text-body', DS_TEXT.muted)}>
 					{UNVERIFIED_FACILITY_HINT}
 				</span>
 			) : null}

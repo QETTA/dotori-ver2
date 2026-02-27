@@ -7,6 +7,7 @@
  */
 import { useRef, useEffect, useCallback } from 'react'
 import { useReducedMotion } from 'motion/react'
+import { DS_SHADOW } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 interface Star {
@@ -113,7 +114,7 @@ export function StarFieldBg({
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className={cn('pointer-events-none absolute inset-0', className)}
+      className={cn('pointer-events-none absolute inset-0', DS_SHADOW.sm, className)}
     />
   )
 }

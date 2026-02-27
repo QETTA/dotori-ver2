@@ -1,5 +1,7 @@
 import { DevicePhoneMobileIcon } from "@heroicons/react/24/outline";
+import { DS_TEXT } from "@/lib/design-system/tokens";
 import { ISALANG_PORTAL, openIsalangLink, openIsalangApp } from "@/lib/external/isalang-api";
+import { cn } from "@/lib/utils";
 
 export function IsalangCard() {
 	return (
@@ -7,7 +9,7 @@ export function IsalangCard() {
 			<h3 className={'mb-1 font-semibold'}>
 				아이사랑 앱으로 바로가기
 			</h3>
-			<p className={'mb-3 text-body text-dotori-500'}>
+			<p className={cn('mb-3 text-body', DS_TEXT.muted)}>
 				공식 입소대기·서류제출은 아이사랑 앱에서 진행해요
 			</p>
 

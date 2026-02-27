@@ -5,6 +5,7 @@
  * 원본: tailwind plus/components/elements/wallpaper.tsx
  * 변경: olive 팔레트 → dotori/forest, 4색 유지
  */
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import type { ComponentProps } from 'react'
 
@@ -64,7 +65,7 @@ export function Wallpaper({
           backgroundImage: noisePattern,
         }}
       />
-      <div className="relative">{children}</div>
+      <div className={cn('relative', DS_TEXT.primary)}>{children}</div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { BRAND } from '@/lib/brand-assets'
+import { DS_SHADOW } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 type IllustrationVariant = 'empty' | 'error'
@@ -34,7 +35,7 @@ export function BrandEmptyIllustration({
       alt=""
       width={size}
       height={size}
-      className={cn('mx-auto', className)}
+      className={cn('mx-auto', DS_SHADOW.sm, className)}
       aria-hidden="true"
     />
   )
