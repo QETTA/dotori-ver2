@@ -34,15 +34,15 @@ const CLS = {
 		'relative overflow-hidden rounded-2xl',
 		DS_SHADOW.lg, DS_SHADOW.dark.lg,
 		'ring-1 ring-dotori-300/50',
-		'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(176,122,74,0.26)]',
+		'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_40px_rgba(176,122,74,0.20)]',
 		'dark:ring-dotori-700/60',
 	),
 	inner: cn(
 		'relative overflow-hidden rounded-2xl',
 		'border border-dotori-200/60 bg-white ring-1 ring-dotori-200/70',
-		'shadow-[0_2px_8px_rgba(176,122,74,0.10)]',
+		'shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_1px_2px_rgba(0,0,0,0.08)]',
 		'before:pointer-events-none before:absolute before:inset-px before:rounded-[15px] before:ring-1 before:ring-inset before:ring-white/60',
-		'dark:bg-dotori-900 dark:border-dotori-700/60 dark:ring-dotori-700/50 dark:shadow-[0_2px_8px_rgba(0,0,0,0.3)]',
+		'dark:bg-dotori-900 dark:border-dotori-700/60 dark:ring-dotori-700/50 dark:shadow-[0_0_0_1px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.3)]',
 		'dark:before:ring-white/[0.04]',
 	),
 	sectionBorder: 'border-b border-dotori-100/70 dark:border-dotori-800/50',
@@ -97,9 +97,9 @@ export const FacilityCard = memo(function FacilityCard({
 				animate="show"
 				className={cn(
 					'relative overflow-hidden rounded-2xl',
-					'shadow-[0_4px_18px_rgba(176,122,74,0.18)] ring-1 ring-dotori-300/50',
-					'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(176,122,74,0.26)]',
-					'dark:shadow-[0_4px_18px_rgba(0,0,0,0.4)] dark:ring-dotori-700/60',
+					'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.14)] ring-1 ring-dotori-300/50',
+					'transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.20),0_16px_36px_rgba(176,122,74,0.20)]',
+					'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.4)] dark:ring-dotori-700/60',
 					status.border,
 				)}
 			>

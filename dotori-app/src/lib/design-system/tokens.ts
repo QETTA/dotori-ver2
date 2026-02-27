@@ -178,21 +178,21 @@ export const DS_GLASS = {
   },
 } as const
 
-/* ── Shadow (Brand-tinted elevation — aggressive visibility) ── */
+/* ── Shadow (Triple: outline + dark edge + warm glow) ── */
 export const DS_SHADOW = {
   /** Subtle — chips, inputs */
-  sm: 'shadow-[0_2px_6px_rgba(176,122,74,0.14)]',
+  sm: 'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.12),0_2px_8px_rgba(176,122,74,0.10)]',
   /** Default — cards */
-  md: 'shadow-[0_4px_18px_rgba(176,122,74,0.22)]',
+  md: 'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.18),0_6px_20px_rgba(176,122,74,0.14)]',
   /** Elevated — modals, dropdowns */
-  lg: 'shadow-[0_10px_40px_rgba(176,122,74,0.18)]',
+  lg: 'shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_6px_rgba(0,0,0,0.18),0_12px_40px_rgba(176,122,74,0.16)]',
   /** Hero — featured cards, CTAs */
-  xl: 'shadow-[0_20px_56px_rgba(176,122,74,0.24)]',
+  xl: 'shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_3px_8px_rgba(0,0,0,0.20),0_24px_56px_rgba(176,122,74,0.20)]',
   dark: {
-    sm: 'dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)]',
-    md: 'dark:shadow-[0_4px_18px_rgba(0,0,0,0.5)]',
-    lg: 'dark:shadow-[0_10px_40px_rgba(0,0,0,0.6)]',
-    xl: 'dark:shadow-[0_20px_56px_rgba(0,0,0,0.7)]',
+    sm: 'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.25),0_2px_8px_rgba(0,0,0,0.3)]',
+    md: 'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_20px_rgba(0,0,0,0.5)]',
+    lg: 'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_2px_6px_rgba(0,0,0,0.4),0_12px_40px_rgba(0,0,0,0.6)]',
+    xl: 'dark:shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_3px_8px_rgba(0,0,0,0.4),0_24px_56px_rgba(0,0,0,0.7)]',
   },
 } as const
 
@@ -206,10 +206,10 @@ export const DS_TEXT = {
   muted: 'text-dotori-500 dark:text-dotori-400',
   /** Disabled / inactive text */
   disabled: 'text-dotori-300 dark:text-dotori-600',
-  /** Gradient text (hero/CTA) — visible gradient on cream */
-  gradient: 'bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-300 dark:via-dotori-400 dark:to-amber-400',
-  /** Gradient text — hero variant (wide gradient range) */
-  gradientHero: 'bg-gradient-to-r from-dotori-700 via-amber-600 to-amber-400 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300',
+  /** Gradient text (hero/CTA) — max hue shift brown→gold */
+  gradient: 'bg-gradient-to-r from-dotori-700 via-dotori-400 to-amber-400 bg-clip-text text-transparent dark:from-dotori-300 dark:via-dotori-400 dark:to-amber-400',
+  /** Gradient text — hero: dark brown → bright gold, unmissable */
+  gradientHero: 'bg-gradient-to-r from-dotori-800 via-amber-500 to-amber-300 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300',
   /** Inverse — for dark backgrounds */
   inverse: 'text-white dark:text-dotori-50',
 } as const

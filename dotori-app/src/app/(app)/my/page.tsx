@@ -155,7 +155,7 @@ export default function MyPage() {
                   DS_SURFACE.sunken,
                 )} />
                 {/* z-10 — content layer (resting ring + shadow for depth in static view) */}
-                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-dotori-300/50 shadow-[0_4px_16px_rgba(176,122,74,0.18)] transition-all duration-200 group-hover/card:-translate-y-1 group-hover/card:shadow-[0_10px_28px_rgba(176,122,74,0.26)] group-hover/card:ring-dotori-400/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] dark:group-hover/card:shadow-[0_10px_28px_rgba(0,0,0,0.5)]">
+                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-dotori-300/50 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.16),0_6px_18px_rgba(176,122,74,0.12)] transition-all duration-200 group-hover/card:-translate-y-1 group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.18),0_14px_32px_rgba(176,122,74,0.18)] group-hover/card:ring-dotori-400/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_18px_rgba(0,0,0,0.4)] dark:group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.4),0_14px_32px_rgba(0,0,0,0.5)]">
                   <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-lg', ICON_TINT[item.tint])}>
                     <Icon className="h-5 w-5" />
                   </div>
