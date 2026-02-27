@@ -123,11 +123,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 
 			{/* ── Error state ── */}
 			{(!isLoading && error) || isTimeout ? (
-				<motion.div {...fadeUp}>
+				<motion.div {...fadeUp} className="flex min-h-[40vh] flex-col items-center justify-center">
 					<ErrorState
 						variant="network"
 						message={isTimeout ? "시설 목록을 불러오지 못했어요" : "시설 목록을 불러올 수 없습니다"}
 						action={{ label: "다시 시도", onClick: onRetry }}
+						secondaryAction={{ label: '홈으로 이동', href: '/' }}
 					/>
 				</motion.div>
 			) : null}

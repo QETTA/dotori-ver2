@@ -161,9 +161,9 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 				className={cn(
 					'sticky top-0 z-20 px-4 py-2.5',
 					DS_SURFACE.primary,
-					'bg-white/90 backdrop-blur-xl',
-					'border-b border-dotori-200/40',
-					'dark:bg-dotori-900/90 dark:border-dotori-800/40',
+					'bg-white/90 backdrop-blur-xl backdrop-saturate-150',
+					'border-b border-dotori-200/40 shadow-[0_1px_3px_rgba(176,122,74,0.04)]',
+					'dark:bg-dotori-900/90 dark:border-dotori-800/40 dark:shadow-none',
 				)}
 			>
 				<ExploreSearchInput

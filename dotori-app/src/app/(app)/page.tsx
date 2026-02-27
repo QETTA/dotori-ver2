@@ -25,6 +25,7 @@ import { RecentFacilities } from '@/components/dotori/RecentFacilities'
 import { SeasonalBriefing } from '@/components/dotori/SeasonalBriefing'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { ActionCard } from '@/components/dotori/ActionCard'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
@@ -34,7 +35,7 @@ import type { UiBlock as UiBlockType } from '@/types/dotori'
 
 /* ── Premium elevation tokens (DS_CARD) ── */
 const PREMIUM = cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'p-5')
-const CARD_SM = cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')
+const CARD_SM = cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.08)] dark:ring-dotori-700/30 dark:shadow-none')
 
 const quickActions = [
   { href: '/explore', label: '시설 탐색', desc: '어린이집·유치원 통합 검색' },
@@ -128,7 +129,7 @@ export default function HomePage() {
             </p>
           </FadeIn>
           <FadeIn>
-            <h1 className={cn(DS_PAGE_HEADER.title, 'mt-4 font-wordmark text-3xl/[1.2]', gradientTextHero)}>
+            <h1 className={cn('mt-4 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
               {copy.home.heroSubtitle}
             </h1>
           </FadeIn>
@@ -148,6 +149,7 @@ export default function HomePage() {
         {/* ══════ FUNNEL + DONUT — glassmorphism ══════ */}
         <motion.div {...scrollFadeIn}>
           <div className={cn(PREMIUM, 'relative overflow-hidden')}>
+            <NoiseTexture />
             {/* Subtle gradient accent bar */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-dotori-400 via-dotori-300 to-amber-300" />
             <div className="flex items-center gap-5 pt-1">
@@ -214,6 +216,7 @@ export default function HomePage() {
         {/* ══════ ALERT BANNER — forest accent ══════ */}
         <motion.div {...scrollFadeIn}>
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden bg-forest-50/80 p-5 dark:bg-forest-950/20 ring-forest-200/40 dark:ring-forest-800/20')}>
+            <NoiseTexture opacity={0.025} />
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-forest-400 via-forest-500 to-forest-300" />
             <p className={cn(DS_TYPOGRAPHY.bodySm, 'pt-1 font-semibold text-gray-950 dark:text-white')}>빈자리 알림</p>
             <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-gray-600 dark:text-gray-400')}>

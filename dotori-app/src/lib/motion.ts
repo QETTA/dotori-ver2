@@ -281,11 +281,11 @@ export const stickyReveal = {
 
 /* ── Gradient Text (className utility) ── */
 export const gradientText =
-	"bg-gradient-to-r from-dotori-600 via-dotori-500 to-amber-500 bg-clip-text text-transparent";
+	"bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-400 bg-clip-text text-transparent dark:from-dotori-400 dark:via-dotori-300 dark:to-amber-300";
 
 /** Gradient text with stronger range for hero sections */
 export const gradientTextHero =
-	"bg-gradient-to-r from-dotori-600 via-dotori-400 to-amber-500 bg-clip-text text-transparent";
+	"bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent dark:from-dotori-400 dark:via-dotori-300 dark:to-amber-300";
 
 /* ── Reduced Motion 유틸 ── */
 export const noMotion = { duration: 0 } satisfies Transition;

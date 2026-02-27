@@ -12,6 +12,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { cn } from '@/lib/utils'
 
 export function FeatureClipCard({
@@ -41,6 +42,7 @@ export function FeatureClipCard({
         className,
       )}
     >
+      <NoiseTexture opacity={0.02} />
       {/* Gradient accent bar */}
       <div className="h-1 bg-gradient-to-r from-dotori-400/80 via-dotori-300/60 to-amber-300/80" />
 

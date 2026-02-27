@@ -26,6 +26,7 @@ import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { StatList, StatListItem } from '@/components/dotori/StatList'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
@@ -114,7 +115,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn>
-            <h1 className="mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent sm:text-6xl/[1.1]">
+            <h1 className="mt-6 whitespace-pre-line font-wordmark text-5xl/[1.15] font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent sm:text-6xl/[1.1]">
               {seasonalHero.title}
             </h1>
           </FadeIn>
@@ -173,7 +174,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-600 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent">
               {copy.landing.funnelTitle}
             </h2>
           </motion.div>
@@ -204,7 +205,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent">
               이동의 모든 단계를 하나로
             </h2>
           </motion.div>
@@ -257,7 +258,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent">
               {copy.landing.reviewTitle}
             </h2>
           </motion.div>
@@ -279,12 +280,13 @@ export default function LandingPage() {
           ═══════════════════════════════════════════ */}
       <section className="px-3 py-16 sm:px-4">
         <div
-          className="mx-auto max-w-2xl rounded-3xl bg-dotori-950 px-6 py-16 sm:px-10"
+          className="relative mx-auto max-w-2xl overflow-hidden rounded-3xl bg-dotori-950 px-6 py-16 sm:px-10"
           style={{
             backgroundImage:
               'radial-gradient(ellipse at 70% 20%, rgba(200,149,106,0.07) 0%, transparent 60%)',
           }}
         >
+          <NoiseTexture opacity={0.04} />
           <motion.div {...reveal}>
             <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-dotori-400')}>
               요금제
@@ -357,7 +359,7 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </motion.div>
-        </div>
+        </div>{/* close pricing panel */}
       </section>
 
       {/* ═══════════════════════════════════════════
@@ -371,7 +373,7 @@ export default function LandingPage() {
             <img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-8 w-auto" />
           </motion.div>
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
-            <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
+            <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-800 via-dotori-500 to-amber-400 bg-clip-text text-transparent">
               아이의 공간, 지금 다시 선택하세요
             </h2>
           </motion.div>

@@ -23,6 +23,7 @@ import { Avatar } from '@/components/catalyst/avatar'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
@@ -49,9 +50,9 @@ const menuItems: MenuItem[] = [
 ]
 
 const ICON_TINT: Record<string, string> = {
-  dotori: 'bg-dotori-50 text-dotori-600 dark:bg-dotori-950/30 dark:text-dotori-400',
-  amber: 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400',
-  forest: 'bg-forest-50 text-forest-600 dark:bg-forest-950/30 dark:text-forest-400',
+  dotori: 'bg-dotori-100 text-dotori-700 ring-1 ring-dotori-200/40 dark:bg-dotori-950/40 dark:text-dotori-400 dark:ring-dotori-800/30',
+  amber: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200/40 dark:bg-amber-950/40 dark:text-amber-400 dark:ring-amber-800/30',
+  forest: 'bg-forest-100 text-forest-700 ring-1 ring-forest-200/40 dark:bg-forest-950/40 dark:text-forest-400 dark:ring-forest-800/30',
 }
 
 const statItems = [
@@ -79,7 +80,8 @@ export default function MyPage() {
           </p>
         </FadeIn>
         <FadeIn>
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'mt-5 overflow-hidden')}>
+          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative mt-5 overflow-hidden')}>
+            <NoiseTexture />
             {/* Gradient accent bar */}
             <div className="h-1 bg-gradient-to-r from-dotori-400 via-dotori-300 to-amber-300" />
             <div className="p-5">
@@ -102,11 +104,12 @@ export default function MyPage() {
       {(dashboard?.interestCount ?? 0) + (dashboard?.waitlistCount ?? 0) + (dashboard?.alertCount ?? 0) === 0 ? (
         <FadeIn>
           <Link href="/explore" className="group block">
-            <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden p-6 text-center transition hover:bg-dotori-50/30 dark:hover:bg-white/5')}>
+            <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden p-6 text-center shadow-[0_4px_16px_rgba(176,122,74,0.1)] ring-1 ring-dotori-200/40 transition hover:bg-dotori-50/30 hover:shadow-[0_8px_24px_rgba(176,122,74,0.14)] dark:ring-dotori-700/30 dark:shadow-none dark:hover:bg-white/5')}>
+              <NoiseTexture />
               <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-400/60 via-transparent to-forest-400/60" />
-              <p className={cn(DS_TYPOGRAPHY.body, 'font-bold tracking-tight', gradientTextHero)}>
+              <h2 className={cn('font-wordmark text-xl/[1.2] font-bold tracking-tight', gradientTextHero)}>
                 아직 탐색 중이에요
-              </p>
+              </h2>
               <Text className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_TEXT.muted)}>
                 관심 시설을 등록하면 대기 현황과 알림을 한눈에 볼 수 있어요
               </Text>
@@ -124,7 +127,7 @@ export default function MyPage() {
             return (
               <FadeIn key={item.href}>
                 <Link href={item.href} className="group block">
-                  <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4 transition hover:bg-dotori-50/50 dark:hover:bg-white/5')}>
+                  <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.08)] transition hover:bg-dotori-50/50 hover:shadow-[0_4px_12px_rgba(176,122,74,0.12)] dark:ring-dotori-700/30 dark:shadow-none dark:hover:bg-white/5')}>
                     <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums tracking-tight', item.color)}>
                       {count}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.muted)}>건</span>
                     </div>
@@ -151,8 +154,8 @@ export default function MyPage() {
                   'absolute inset-0 rounded-xl opacity-0 transition-opacity duration-200 group-hover/card:opacity-100',
                   DS_SURFACE.sunken,
                 )} />
-                {/* z-10 — content layer */}
-                <div className="relative z-10 flex items-center gap-3.5 rounded-xl px-3 py-3 transition-transform duration-200 group-hover/card:-translate-y-px">
+                {/* z-10 — content layer (resting ring + shadow for depth in static view) */}
+                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3 py-3 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.08)] transition-all duration-200 group-hover/card:-translate-y-px group-hover/card:shadow-[0_6px_16px_rgba(176,122,74,0.14)] group-hover/card:ring-dotori-300/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-none dark:group-hover/card:shadow-none">
                   <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-lg', ICON_TINT[item.tint])}>
                     <Icon className="h-5 w-5" />
                   </div>

@@ -66,11 +66,15 @@ export default function FacilityDetailPage({
 
   if (error || !facility) {
     return (
-      <ErrorState
-        message="시설 정보를 불러오지 못했어요"
-        variant="network"
-        action={{ label: '다시 시도', onClick: refetch }}
-      />
+      <div className="relative min-h-[60vh] flex flex-col items-center justify-center">
+        <BrandWatermark className="opacity-20" />
+        <ErrorState
+          message="시설 정보를 불러오지 못했어요"
+          variant="network"
+          action={{ label: '다시 시도', onClick: refetch }}
+          secondaryAction={{ label: '시설 탐색으로 이동', href: '/explore' }}
+        />
+      </div>
     )
   }
 

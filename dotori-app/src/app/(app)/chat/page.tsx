@@ -15,6 +15,7 @@ import { Text } from '@/components/catalyst/text'
 import { Navbar, NavbarSection, NavbarItem, NavbarSpacer } from '@/components/catalyst/navbar'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { ChatStreamRenderer, type StreamMessage } from '@/components/dotori/chat/ChatStreamRenderer'
 import { ChatInput } from '@/components/dotori/chat/ChatInput'
 import { QuickActionChips } from '@/components/dotori/chat/QuickActionChips'
@@ -161,7 +162,7 @@ export default function ChatPage() {
                 </p>
               </FadeIn>
               <FadeIn>
-                <h1 className={cn(DS_PAGE_HEADER.title, 'mt-4 font-wordmark text-3xl/[1.2]', gradientTextHero)}>
+                <h1 className={cn('mt-4 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
                   {copy.chat.panelDescription}
                 </h1>
               </FadeIn>
@@ -178,6 +179,7 @@ export default function ChatPage() {
                 {...hoverLift}
                 className={cn('relative overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}
               >
+                <NoiseTexture />
                 <div className="h-1 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-300" />
                 <div className="p-6 text-center">
                   <Subheading level={2} className={cn(DS_EMPTY_STATE.title, 'sm:text-sm/6')}>
