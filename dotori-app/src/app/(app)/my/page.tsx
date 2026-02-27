@@ -83,7 +83,7 @@ export default function MyPage() {
           <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative mt-5 overflow-hidden')}>
             <NoiseTexture />
             {/* Gradient accent bar */}
-            <div className="h-1 bg-gradient-to-r from-dotori-400 via-dotori-300 to-amber-300" />
+            <div className="h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
             <div className="p-5">
               <div className="flex items-center gap-4">
                 <Avatar initials="도" className="h-14 w-14 bg-dotori-50 text-dotori-600 ring-2 ring-dotori-200/50 dark:bg-dotori-950/30 dark:text-dotori-400 dark:ring-dotori-800/30" square />
@@ -104,9 +104,9 @@ export default function MyPage() {
       {(dashboard?.interestCount ?? 0) + (dashboard?.waitlistCount ?? 0) + (dashboard?.alertCount ?? 0) === 0 ? (
         <FadeIn>
           <Link href="/explore" className="group block">
-            <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden p-6 text-center shadow-[0_4px_16px_rgba(176,122,74,0.1)] ring-1 ring-dotori-200/40 transition hover:bg-dotori-50/30 hover:shadow-[0_8px_24px_rgba(176,122,74,0.14)] dark:ring-dotori-700/30 dark:shadow-none dark:hover:bg-white/5')}>
+            <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative overflow-hidden p-6 text-center transition hover:bg-dotori-50/30 dark:hover:bg-white/5')}>
               <NoiseTexture />
-              <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-400/60 via-transparent to-forest-400/60" />
+              <div className="h-1.5 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-500 via-amber-400 to-forest-500" />
               <h2 className={cn('font-wordmark text-xl/[1.2] font-bold tracking-tight', gradientTextHero)}>
                 아직 탐색 중이에요
               </h2>
@@ -127,7 +127,7 @@ export default function MyPage() {
             return (
               <FadeIn key={item.href}>
                 <Link href={item.href} className="group block">
-                  <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.08)] transition hover:bg-dotori-50/50 hover:shadow-[0_4px_12px_rgba(176,122,74,0.12)] dark:ring-dotori-700/30 dark:shadow-none dark:hover:bg-white/5')}>
+                  <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 transition hover:bg-dotori-50/50 dark:hover:bg-white/5')}>
                     <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums tracking-tight', item.color)}>
                       {count}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.muted)}>건</span>
                     </div>
@@ -155,7 +155,7 @@ export default function MyPage() {
                   DS_SURFACE.sunken,
                 )} />
                 {/* z-10 — content layer (resting ring + shadow for depth in static view) */}
-                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3 py-3 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.08)] transition-all duration-200 group-hover/card:-translate-y-px group-hover/card:shadow-[0_6px_16px_rgba(176,122,74,0.14)] group-hover/card:ring-dotori-300/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-none dark:group-hover/card:shadow-none">
+                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-dotori-300/50 shadow-[0_4px_16px_rgba(176,122,74,0.18)] transition-all duration-200 group-hover/card:-translate-y-1 group-hover/card:shadow-[0_10px_28px_rgba(176,122,74,0.26)] group-hover/card:ring-dotori-400/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] dark:group-hover/card:shadow-[0_10px_28px_rgba(0,0,0,0.5)]">
                   <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-lg', ICON_TINT[item.tint])}>
                     <Icon className="h-5 w-5" />
                   </div>

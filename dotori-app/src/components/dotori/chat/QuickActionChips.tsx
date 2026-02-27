@@ -46,12 +46,12 @@ export function QuickActionChips({
               onClick={() => handleSelect(chip)}
               whileTap={{ scale: 0.97 }}
               className={cn(
-                'rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200',
-                'bg-dotori-50 ring-1 ring-dotori-200/50',
-                DS_SHADOW.sm,
-                DS_TEXT.secondary,
-                'hover:bg-dotori-100 hover:ring-dotori-300/60',
-                'dark:bg-dotori-900/30 dark:ring-dotori-800/40 dark:hover:bg-dotori-800/50 dark:hover:ring-dotori-700/50',
+                'rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200',
+                'bg-white ring-1 ring-dotori-300/60',
+                DS_SHADOW.md,
+                DS_TEXT.primary,
+                'hover:bg-dotori-50 hover:ring-dotori-400/70 hover:-translate-y-0.5',
+                'dark:bg-dotori-900/50 dark:ring-dotori-700/50 dark:hover:bg-dotori-800/60 dark:hover:ring-dotori-600/60',
               )}
             >
               {chip}

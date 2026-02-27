@@ -180,7 +180,7 @@ export default function ChatPage() {
                 className={cn('relative overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}
               >
                 <NoiseTexture />
-                <div className="h-1 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-300" />
+                <div className="h-1.5 bg-gradient-to-r from-violet-500 via-dotori-500 to-amber-400" />
                 <div className="p-6 text-center">
                   <Subheading level={2} className={cn(DS_EMPTY_STATE.title, 'sm:text-sm/6')}>
                     {copy.chat.emptyGuide}

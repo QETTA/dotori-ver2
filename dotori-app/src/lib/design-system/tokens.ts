@@ -178,21 +178,21 @@ export const DS_GLASS = {
   },
 } as const
 
-/* ── Shadow (Brand-tinted elevation) ── */
+/* ── Shadow (Brand-tinted elevation — aggressive visibility) ── */
 export const DS_SHADOW = {
   /** Subtle — chips, inputs */
-  sm: 'shadow-[0_1px_3px_rgba(176,122,74,0.06)]',
+  sm: 'shadow-[0_2px_6px_rgba(176,122,74,0.14)]',
   /** Default — cards */
-  md: 'shadow-[0_2px_12px_rgba(176,122,74,0.12)]',
+  md: 'shadow-[0_4px_18px_rgba(176,122,74,0.22)]',
   /** Elevated — modals, dropdowns */
-  lg: 'shadow-[0_8px_32px_rgba(176,122,74,0.08)]',
+  lg: 'shadow-[0_10px_40px_rgba(176,122,74,0.18)]',
   /** Hero — featured cards, CTAs */
-  xl: 'shadow-[0_16px_48px_rgba(176,122,74,0.14)]',
+  xl: 'shadow-[0_20px_56px_rgba(176,122,74,0.24)]',
   dark: {
-    sm: 'dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)]',
-    md: 'dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]',
-    lg: 'dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]',
-    xl: 'dark:shadow-[0_16px_48px_rgba(0,0,0,0.6)]',
+    sm: 'dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)]',
+    md: 'dark:shadow-[0_4px_18px_rgba(0,0,0,0.5)]',
+    lg: 'dark:shadow-[0_10px_40px_rgba(0,0,0,0.6)]',
+    xl: 'dark:shadow-[0_20px_56px_rgba(0,0,0,0.7)]',
   },
 } as const
 
@@ -206,10 +206,10 @@ export const DS_TEXT = {
   muted: 'text-dotori-500 dark:text-dotori-400',
   /** Disabled / inactive text */
   disabled: 'text-dotori-300 dark:text-dotori-600',
-  /** Gradient text (hero/CTA) */
-  gradient: 'bg-gradient-to-r from-dotori-600 via-dotori-400 to-amber-500 bg-clip-text text-transparent',
-  /** Gradient text — hero variant (stronger) */
-  gradientHero: 'bg-gradient-to-r from-dotori-600 via-dotori-400 to-amber-500 bg-clip-text text-transparent',
+  /** Gradient text (hero/CTA) — high contrast on cream */
+  gradient: 'bg-gradient-to-r from-dotori-900 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-300 dark:via-dotori-400 dark:to-amber-400',
+  /** Gradient text — hero variant (maximum contrast) */
+  gradientHero: 'bg-gradient-to-r from-dotori-950 via-amber-700 to-amber-400 bg-clip-text text-transparent dark:from-dotori-200 dark:via-amber-400 dark:to-amber-300',
   /** Inverse — for dark backgrounds */
   inverse: 'text-white dark:text-dotori-50',
 } as const

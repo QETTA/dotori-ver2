@@ -94,3 +94,4 @@ output/
 .claude/settings.local.json
 .claude/hooks/
 src/.frontend-legacy/
+screenshots-prod/

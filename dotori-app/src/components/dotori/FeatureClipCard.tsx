@@ -44,7 +44,7 @@ export function FeatureClipCard({
     >
       <NoiseTexture opacity={0.02} />
       {/* Gradient accent bar */}
-      <div className="h-1 bg-gradient-to-r from-dotori-400/80 via-dotori-300/60 to-amber-300/80" />
+      <div className="h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
 
       {/* Hover background — Spotlight pattern */}
       <motion.div
@@ -59,8 +59,8 @@ export function FeatureClipCard({
 
       <div className="p-6">
         {/* Icon */}
-        <div className="relative mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-dotori-50 dark:bg-dotori-950/30">
-          <Icon className="h-5 w-5 text-dotori-600 dark:text-dotori-400" />
+        <div className="relative mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-dotori-100 ring-1 ring-dotori-200/50 shadow-[0_2px_8px_rgba(176,122,74,0.12)] dark:bg-dotori-950/40 dark:ring-dotori-700/40">
+          <Icon className="h-5 w-5 text-dotori-700 dark:text-dotori-300" />
         </div>
 
         {/* Eyebrow */}

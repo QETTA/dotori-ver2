@@ -45,7 +45,7 @@ export function ErrorState({
       <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, DS_SHADOW.lg, 'relative mx-auto flex w-full max-w-sm flex-col items-center gap-0 overflow-hidden')}>
         <NoiseTexture opacity={0.025} />
         {/* Gradient accent bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-dotori-400 via-amber-400/60 to-dotori-400 dark:from-dotori-700 dark:via-amber-500/40 dark:to-dotori-700" />
+        <div className="h-2 w-full bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-500 dark:from-dotori-600 dark:via-amber-500/60 dark:to-dotori-600" />
 
         {/* Gradient background header area */}
         <div className="w-full bg-gradient-to-b from-dotori-50/80 via-dotori-50/30 to-transparent px-6 pt-8 pb-2 dark:from-dotori-900/40 dark:via-dotori-900/20 dark:to-transparent">
