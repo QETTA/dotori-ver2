@@ -1,4 +1,27 @@
-# DS Token Allowlist — 기존 위반 파일 면제 목록
+# DS Token Allowlist — 구조적 파일 면제 목록
+# layout/error/loading/not-found는 DS 토큰 불필요 (스타일 최소, 프레임워크 구조용)
 # 파일 터치 시 DS 토큰 주입 후 이 목록에서 제거할 것
-# 목표: 0건 (전체 DS 토큰 채택 100%)
-# R52: 28→0건 달성 ✓
+
+# Root layout/error
+src/app/layout.tsx
+src/app/error.tsx
+src/app/global-error.tsx
+src/app/not-found.tsx
+
+# (app) route group
+src/app/(app)/layout.tsx
+src/app/(app)/error.tsx
+src/app/(app)/chat/loading.tsx
+src/app/(app)/explore/loading.tsx
+
+# (auth) route group
+src/app/(auth)/layout.tsx
+src/app/(auth)/error.tsx
+
+# (landing) route group
+src/app/(landing)/layout.tsx
+src/app/(landing)/error.tsx
+
+# (onboarding) route group
+src/app/(onboarding)/layout.tsx
+src/app/(onboarding)/error.tsx
