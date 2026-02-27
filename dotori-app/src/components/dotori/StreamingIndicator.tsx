@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { BRAND } from "@/lib/brand-assets";
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 const STREAMING_DOT_PHASES = [0, 0.12, 0.24];
 
@@ -28,7 +29,7 @@ export function StreamingIndicator({ text }: { text?: string }) {
 					/>
 				))}
 			</div>
-			<span className={'text-body font-medium text-forest-700 dark:text-forest-200'}>{message}</span>
+			<span className={cn('text-body font-medium', DS_TEXT.secondary, 'text-forest-700 dark:text-forest-200')}>{message}</span>
 		</div>
 	);
 }

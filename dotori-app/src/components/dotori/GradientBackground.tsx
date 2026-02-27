@@ -6,6 +6,7 @@
  * 변경: 컬러를 도토리 팔레트로 변환 (warm brown → forest green)
  */
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 export function Gradient({
   className,
@@ -25,7 +26,7 @@ export function Gradient({
 
 export function GradientBackground() {
   return (
-    <div className="relative mx-auto max-w-7xl">
+    <div className={cn('relative mx-auto max-w-7xl', DS_TEXT.primary)}>
       <div
         className={cn(
           'absolute -top-44 -right-60 h-60 w-[36rem] transform-gpu md:right-0',

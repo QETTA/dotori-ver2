@@ -1,7 +1,9 @@
 "use client";
 
 import { Badge } from "@/components/catalyst/badge";
-import { cn, facilityStatusLabel, facilityTypeBadgeColor } from "@/lib/utils";
+import { DS_TYPOGRAPHY, DS_STATUS } from "@/lib/design-system/tokens";
+import { DS_CARD } from "@/lib/design-system/card-tokens";
+import { cn, facilityTypeBadgeColor } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
 
 interface CompareTableProps {
@@ -19,8 +21,8 @@ export function CompareTable({ facilities, highlightBest }: CompareTableProps) {
 	const bestFacilityId = best?.id ?? "";
 
 	return (
-		<div className={'overflow-x-auto -mx-2'}>
-			<table className={'w-full text-body-sm text-dotori-700 dark:text-dotori-100'}>
+		<div className={cn('overflow-x-auto -mx-2', DS_CARD.flat.base, DS_CARD.flat.dark, 'p-2')}>
+			<table className={cn('w-full text-dotori-700 dark:text-dotori-100', DS_TYPOGRAPHY.bodySm)}>
 				<thead>
 					<tr className={'border-b border-dotori-200/60 dark:border-dotori-700/60'}>
 						<th className={'py-2 px-2 text-left font-medium text-dotori-600 dark:text-dotori-300'}>항목</th>
@@ -48,11 +50,17 @@ export function CompareTable({ facilities, highlightBest }: CompareTableProps) {
 					</tr>
 					<tr>
 						<td className={'py-1.5 px-2 text-dotori-500 dark:text-dotori-300'}>상태</td>
-						{facilities.map((f) => (
-							<td key={f.id} className={'py-1.5 px-2 text-center'}>
-								{facilityStatusLabel(f.status)}
-							</td>
-						))}
+						{facilities.map((f) => {
+							const statusToken = DS_STATUS[f.status as keyof typeof DS_STATUS];
+							return (
+								<td key={f.id} className={'py-1.5 px-2 text-center'}>
+									<span className={cn('inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium', statusToken?.pill)}>
+										<span className={cn('h-1.5 w-1.5 rounded-full', statusToken?.dot)} />
+										{statusToken?.label ?? f.status}
+									</span>
+								</td>
+							);
+						})}
 					</tr>
 					<tr>
 						<td className={'py-1.5 px-2 text-dotori-500 dark:text-dotori-300'}>정원</td>

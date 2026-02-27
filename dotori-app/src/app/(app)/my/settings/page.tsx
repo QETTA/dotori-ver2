@@ -31,6 +31,7 @@ import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { Field, Label } from '@/components/catalyst/fieldset'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { spring, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
@@ -67,7 +68,7 @@ function ExpandableSection({
         onClick={() => setOpen(!open)}
         className="flex w-full min-h-12 items-center justify-between rounded-2xl px-5 py-4 text-left transition-colors hover:bg-dotori-950/[0.03] dark:hover:bg-white/[0.03]"
       >
-        <Subheading level={2} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+        <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
           {title}
         </Subheading>
         <motion.span
@@ -115,10 +116,10 @@ export default function SettingsPage() {
             square
           />
           <div>
-            <Heading level={2} className="text-base/7 font-semibold text-dotori-950 sm:text-base/7">
+            <Heading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>
               게스트
             </Heading>
-            <Text className="text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
               로그인하면 맞춤 서비스를 받아요
             </Text>
           </div>

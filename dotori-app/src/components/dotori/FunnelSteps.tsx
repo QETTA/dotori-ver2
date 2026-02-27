@@ -1,6 +1,14 @@
 'use client'
 
+/**
+ * FunnelSteps — 입소 퍼널 단계 시각화
+ *
+ * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_PROGRESS, DS_SURFACE
+ * hasBrandSignal:  true  — DS_SURFACE.sunken (inactive step bg), DS_PROGRESS.dotori, color="dotori"
+ */
 import { cn } from '@/lib/utils'
+import { DS_TYPOGRAPHY, DS_PROGRESS } from '@/lib/design-system/tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 import {
   MagnifyingGlassIcon,
   ChartBarIcon,
@@ -46,7 +54,8 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
               </div>
               <span
                 className={cn(
-                  'text-label font-semibold',
+                  'font-semibold',
+                  DS_TYPOGRAPHY.label,
                   isCurrent
                     ? 'text-dotori-900 dark:text-dotori-50'
                     : 'text-dotori-500 dark:text-dotori-400',
@@ -57,10 +66,10 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
               {/* Progress bar segment */}
               <div
                 className={cn(
-                  'h-1 w-full rounded-full',
+                  'w-full', DS_PROGRESS.base, DS_PROGRESS.size.sm,
                   isActive
-                    ? 'bg-dotori-400 dark:bg-dotori-500'
-                    : 'bg-dotori-100 dark:bg-dotori-800',
+                    ? DS_PROGRESS.fillTone.dotori
+                    : DS_PROGRESS.trackTone.dotori,
                 )}
               />
             </div>
@@ -84,7 +93,7 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
                 'flex flex-col items-center rounded-xl px-2 py-3 text-center transition-colors',
                 isCurrent
                   ? 'bg-dotori-100 ring-1 ring-dotori-300/50 dark:bg-dotori-800 dark:ring-dotori-600/40'
-                  : 'bg-transparent',
+                  : DS_SURFACE.sunken,
               )}
             >
               <div
@@ -101,7 +110,8 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
               </div>
               <span
                 className={cn(
-                  'mt-2 text-caption font-bold',
+                  'mt-2 font-bold',
+                  DS_TYPOGRAPHY.caption,
                   isCurrent
                     ? 'text-dotori-900 dark:text-dotori-50'
                     : isActive
@@ -111,7 +121,7 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
               >
                 {step.label}
               </span>
-              <span className="mt-0.5 text-label text-dotori-500 dark:text-dotori-400">
+              <span className={cn('mt-0.5 text-dotori-500 dark:text-dotori-400', DS_TYPOGRAPHY.label)}>
                 {step.description}
               </span>
             </div>
@@ -126,10 +136,10 @@ export function FunnelSteps({ currentStep, compact = false, className }: FunnelS
             <div
               key={step.label}
               className={cn(
-                'h-1.5 flex-1 rounded-full transition-colors',
+                'flex-1 transition-colors', DS_PROGRESS.base, DS_PROGRESS.size.sm,
                 isActive
-                  ? 'bg-dotori-400 dark:bg-dotori-500'
-                  : 'bg-dotori-100 dark:bg-dotori-800',
+                  ? DS_PROGRESS.fillTone.dotori
+                  : DS_PROGRESS.trackTone.dotori,
               )}
             />
           )

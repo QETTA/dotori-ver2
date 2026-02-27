@@ -10,10 +10,11 @@
 import { motion } from 'motion/react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { BRAND } from '@/lib/brand-assets'
 import { AuthLayout } from '@/components/catalyst/auth-layout'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { DsButton } from '@/components/ds/DsButton'
@@ -28,7 +29,7 @@ export default function LoginPage() {
       <section className="relative w-full max-w-md space-y-5">
         <BrandWatermark className="opacity-30" />
         <FadeIn>
-          <div className="rounded-3xl bg-white p-7 shadow-md ring-1 ring-dotori-100/60 dark:bg-dotori-950 dark:ring-dotori-800/40 dark:shadow-lg">
+          <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'rounded-3xl p-7')}>
             {/* Warm ambient glow */}
             <div className="relative">
               <span
@@ -39,13 +40,13 @@ export default function LoginPage() {
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={BRAND.symbol} alt="도토리" className="relative h-10 w-10" />
-            <p className="relative mt-3 font-mono text-xs/5 font-semibold uppercase tracking-widest text-forest-600">
+            <p className={cn('relative mt-3', DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
               로그인
             </p>
-            <Heading className={`relative mt-3 font-wordmark text-3xl/10 font-bold tracking-tight sm:text-3xl/10 ${gradientText}`}>
+            <h1 className={cn('relative mt-3 font-wordmark text-3xl/10', DS_PAGE_HEADER.title, gradientText)}>
               {copy.auth.login.titleMain}
-            </Heading>
-            <Text className="relative mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+            </h1>
+            <Text className={cn('relative mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
               {copy.auth.login.subtitle}
             </Text>
 
@@ -68,7 +69,7 @@ export default function LoginPage() {
               <DsButton variant="ghost" fullWidth href="/" className="rounded-2xl">
                 {copy.auth.login.guestBrowse}
               </DsButton>
-              <Text className="pt-1 text-center text-xs/5 text-dotori-400 sm:text-xs/5">
+              <Text className={cn('pt-1 text-center', DS_TYPOGRAPHY.caption)}>
                 {copy.auth.login.quickHint}
               </Text>
             </div>
@@ -77,7 +78,7 @@ export default function LoginPage() {
 
         <motion.div {...scrollFadeIn}>
           <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'rounded-2xl p-4 ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
-            <Text className="text-xs/5 text-dotori-500 sm:text-xs/5 dark:text-dotori-400">
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'dark:text-dotori-400')}>
               {copy.auth.login.termsPrefix} {copy.auth.login.termsService} · {copy.auth.login.termsPrivacy} {copy.auth.login.termsSuffix}
             </Text>
           </div>

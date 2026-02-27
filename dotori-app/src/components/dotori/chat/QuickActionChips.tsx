@@ -1,13 +1,15 @@
 'use client'
 
 /**
- * QuickActionChips — Fast action chips (extracted from chat/page.tsx)
- * Horizontal scroll, spring exit on select
+ * QuickActionChips — Branded action chips with tinted fill + ring + subtle shadow
+ * Horizontal wrap, spring exit on select
  */
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { tap } from '@/lib/motion'
-import { DsButton } from '@/components/ds/DsButton'
+import { cn } from '@/lib/utils'
+import { DS_SHADOW, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 
 export function QuickActionChips({
   chips,
@@ -27,7 +29,7 @@ export function QuickActionChips({
 
   return (
     <div
-      className={`flex flex-wrap gap-2 ${className ?? ''}`}
+      className={cn(DS_SURFACE.primary, 'flex flex-wrap gap-2', className)}
     >
       <AnimatePresence>
         {visible.map((chip) => (
@@ -39,13 +41,21 @@ export function QuickActionChips({
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
             {...tap.chip}
           >
-            <DsButton
-              variant="ghost"
+            <motion.button
+              type="button"
               onClick={() => handleSelect(chip)}
-              className="rounded-full bg-dotori-950/[0.025] px-3.5 py-1.5 text-sm font-medium text-dotori-700 hover:bg-dotori-950/[0.05] dark:bg-white/5 dark:text-dotori-300 dark:hover:bg-white/10"
+              whileTap={{ scale: 0.97 }}
+              className={cn(
+                'rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200',
+                'bg-dotori-50 ring-1 ring-dotori-200/50',
+                DS_SHADOW.sm,
+                DS_TEXT.secondary,
+                'hover:bg-dotori-100 hover:ring-dotori-300/60',
+                'dark:bg-dotori-900/30 dark:ring-dotori-800/40 dark:hover:bg-dotori-800/50 dark:hover:ring-dotori-700/50',
+              )}
             >
               {chip}
-            </DsButton>
+            </motion.button>
           </motion.div>
         ))}
       </AnimatePresence>

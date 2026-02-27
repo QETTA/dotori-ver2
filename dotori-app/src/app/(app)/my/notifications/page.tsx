@@ -37,6 +37,8 @@ import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { ErrorState } from '@/components/dotori/ErrorState'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
 import { scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
@@ -82,7 +84,7 @@ export default function NotificationsPage() {
         parent={{ label: '마이페이지', href: '/my' }}
         current="알림"
         action={
-          <DsButton variant="ghost" className="text-sm/6">
+          <DsButton variant="ghost" className={DS_TYPOGRAPHY.bodySm}>
             <CheckIcon className="h-4 w-4" />
             전체 읽음
           </DsButton>
@@ -92,13 +94,13 @@ export default function NotificationsPage() {
       {/* ══════ INTRO ══════ */}
       <FadeIn>
         <div>
-          <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+          <p className={DS_PAGE_HEADER.eyebrow}>
             알림
           </p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <Heading className={cn('mt-3 font-wordmark font-bold', DS_PAGE_HEADER.title)}>
             알림 센터
           </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
             빈자리 발생, 서류 마감 등 중요 소식을 확인하세요.
           </Text>
         </div>
@@ -132,10 +134,10 @@ export default function NotificationsPage() {
         <motion.div {...scrollFadeIn}>
           <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex flex-col items-center rounded-2xl py-14 text-center')}>
             <BrandEmptyIllustration variant="empty" size={96} className="mb-2" />
-            <Text className="mt-5 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+            <Text className={cn('mt-5', DS_EMPTY_STATE.title)}>
               알림이 없어요
             </Text>
-            <Text className="mt-1.5 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={cn('mt-1.5', DS_EMPTY_STATE.description)}>
               새로운 알림이 오면 여기에 표시됩니다
             </Text>
           </div>
@@ -164,23 +166,23 @@ export default function NotificationsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Badge color={badgeColor}>{notif.category}</Badge>
-                      <Text className="text-xs/5 text-dotori-400 sm:text-xs/5" suppressHydrationWarning>
+                      <Text className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-400')} suppressHydrationWarning>
                         {notif.time}
                       </Text>
                     </div>
-                    <p className="mt-1 text-sm/6 font-semibold text-dotori-950 dark:text-dotori-50">
+                    <p className={cn('mt-1 font-semibold text-dotori-950 dark:text-dotori-50', DS_TYPOGRAPHY.bodySm)}>
                       {notif.title}
                       {notif.category === '빈자리' && (
                         <ToBadge status="available" compact className="ml-2" />
                       )}
                     </p>
-                    <Text className="mt-0.5 text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400">
+                    <Text className={cn('mt-0.5', DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-400')}>
                       {notif.body}
                     </Text>
                     {notif.category === '빈자리' && notif.facilityId && (
                       <Link
                         href={`/facility/${notif.facilityId}`}
-                        className="mt-1.5 inline-block text-caption font-semibold text-dotori-500 hover:text-dotori-700"
+                        className={cn('mt-1.5 inline-block font-semibold text-dotori-500 hover:text-dotori-700', DS_TYPOGRAPHY.caption)}
                       >
                         시설 상세보기 &rarr;
                       </Link>

@@ -13,6 +13,8 @@ import { motion } from 'motion/react'
 import { BoltIcon, FunnelIcon, ChatBubbleLeftRightIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Heading, Subheading } from '@/components/catalyst/heading'
@@ -22,7 +24,9 @@ import { Badge } from '@/components/catalyst/badge'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { DonutGauge } from '@/components/dotori/charts/DonutGauge'
+import type { UiBlock as UiBlockType } from '@/types/dotori'
 
 const steps = [
   '아이 연령 + 시설 형태',
@@ -36,6 +40,19 @@ const quickLinks = [
   { href: '/community', label: '실제 고민 보기' },
   { href: '/my', label: '개인 대시보드 만들기' },
 ]
+
+const quickLinksBlock: UiBlockType = {
+  type: 'ui_block',
+  title: '바로 시작하기',
+  subtitle: '원하는 경로로 바로 이동하세요',
+  layout: 'grid',
+  items: quickLinks.map((link) => ({
+    id: `onboarding-quick-link-${link.href}`,
+    title: link.label,
+    href: link.href,
+    actionLabel: '이동하기',
+  })),
+}
 
 const facilityTypes = ['어린이집', '유치원', '둘 다'] as const
 
@@ -54,10 +71,10 @@ export default function OnboardingPage() {
       <FadeIn>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Text className="text-xs/5 font-medium text-dotori-500 sm:text-xs/5">
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>
               {currentStep + 1} / {totalSteps}
             </Text>
-            <Text className="text-xs/5 font-medium text-dotori-500 sm:text-xs/5">
+            <Text className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>
               {progressPct}%
             </Text>
           </div>
@@ -74,14 +91,14 @@ export default function OnboardingPage() {
 
       {/* ══════ WELCOME ══════ */}
       <FadeIn>
-        <div className="rounded-3xl bg-white p-7 shadow-md ring-1 ring-dotori-100/60 dark:bg-dotori-950 dark:ring-dotori-800/40 dark:shadow-lg">
-          <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-forest-600">
+        <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'rounded-3xl p-7')}>
+          <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
             온보딩
           </p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
             {copy.onboarding.welcome}
           </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-700 dark:text-dotori-400">
+          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
             {copy.onboarding.welcomeSub}
           </Text>
         </div>
@@ -89,7 +106,7 @@ export default function OnboardingPage() {
 
       {/* ══════ FACILITY TYPE SELECTION ══════ */}
       <motion.div {...scrollFadeIn}>
-        <Subheading level={2} className="mb-3 text-base/7 font-semibold text-dotori-950 sm:text-base/7">
+        <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'mb-3 font-semibold text-dotori-950')}>
           {copy.onboarding.categoryPrompt}
         </Subheading>
         <div className="grid grid-cols-3 gap-2">
@@ -97,11 +114,13 @@ export default function OnboardingPage() {
             <button
               key={type}
               type="button"
-              className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-sm/6 font-medium ring-2 transition-all ${
+              className={cn(
+                DS_TYPOGRAPHY.bodySm,
+                'flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 font-medium ring-2 transition-all',
                 selectedType === type
                   ? 'ring-dotori-500 bg-dotori-50 text-dotori-700 dark:bg-dotori-900/30 dark:text-dotori-200'
                   : 'ring-dotori-100/70 bg-white text-dotori-600 hover:ring-dotori-200 dark:ring-dotori-800/50 dark:bg-dotori-950 dark:text-dotori-400'
-              }`}
+              )}
               onClick={() => { setSelectedType(type); setCurrentStep(1) }}
             >
               {selectedType === type && <CheckIcon className="h-4 w-4 text-dotori-500" />}
@@ -119,15 +138,16 @@ export default function OnboardingPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`rounded-2xl p-4 ring-1 ${
+            className={cn(
+              'rounded-2xl p-4 ring-1',
               index <= currentStep
-                ? 'bg-white ring-dotori-200/30 shadow-sm dark:bg-dotori-950 dark:ring-dotori-700/30'
-                : 'bg-dotori-950/[0.015] ring-dotori-100/40 opacity-60 dark:bg-white/[0.01] dark:ring-dotori-800/20'
-            }`}
+                ? cn(DS_CARD.flat.base, DS_CARD.flat.dark)
+                : cn(DS_SURFACE.sunken, 'ring-dotori-100/40 opacity-60 dark:ring-dotori-800/20')
+            )}
           >
             <div className="flex items-center gap-3">
               <Badge color={index <= currentStep ? 'forest' : 'zinc'}>{index + 1}</Badge>
-              <Subheading level={2} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">{step}</Subheading>
+              <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>{step}</Subheading>
             </div>
           </motion.div>
         ))}
@@ -138,19 +158,19 @@ export default function OnboardingPage() {
       {/* ══════ PRIORITY CHECK ══════ */}
       <FadeIn>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'rounded-2xl p-5 ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
-          <Subheading level={2} className="text-base/7 font-semibold text-dotori-950 sm:text-base/7">우선순위 체크</Subheading>
+          <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>우선순위 체크</Subheading>
           <ul className="mt-3 space-y-3">
             <li className="flex items-start gap-3">
               <BoltIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className="text-sm/6 text-dotori-700 sm:text-sm/6 dark:text-dotori-400">유보통합·반편성 위험 신호를 먼저 탐지합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>유보통합·반편성 위험 신호를 먼저 탐지합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
               <FunnelIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className="text-sm/6 text-dotori-700 sm:text-sm/6 dark:text-dotori-400">이동 사유를 기준으로 후보 시설을 선별합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>이동 사유를 기준으로 후보 시설을 선별합니다.</Text>
             </li>
             <li className="flex items-start gap-3">
               <ChatBubbleLeftRightIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-500" />
-              <Text className="text-sm/6 text-dotori-700 sm:text-sm/6 dark:text-dotori-400">10분 안내 플로우로 상담/서류를 정렬합니다.</Text>
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-700 dark:text-dotori-400')}>10분 안내 플로우로 상담/서류를 정렬합니다.</Text>
             </li>
           </ul>
         </div>
@@ -168,10 +188,10 @@ export default function OnboardingPage() {
               label="맞춤 매칭률"
             />
             <div className="flex-1">
-              <Subheading level={3} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+              <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
                 예상 맞춤도
               </Subheading>
-              <Text className="mt-1 text-xs/5 text-dotori-500 sm:text-xs/5 dark:text-dotori-400">
+              <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-dotori-500 dark:text-dotori-400')}>
                 선호 조건을 모두 입력하면 더 정확해져요
               </Text>
             </div>
@@ -189,13 +209,9 @@ export default function OnboardingPage() {
       </FadeIn>
 
       {/* ══════ QUICK LINKS ══════ */}
-      <section className="grid gap-2 sm:grid-cols-2">
-        {quickLinks.map((link) => (
-          <DsButton key={link.href} variant="secondary" fullWidth href={link.href} className="rounded-2xl">
-            {link.label}
-          </DsButton>
-        ))}
-      </section>
+      <FadeIn>
+        <UiBlockCard block={quickLinksBlock} />
+      </FadeIn>
     </div>
   )
 }

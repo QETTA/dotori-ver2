@@ -7,7 +7,7 @@ import { DsButton } from "@/components/ds/DsButton";
 import { DsProgressBar } from "@/components/ds/DsProgressBar";
 import { BRAND } from "@/lib/brand-assets";
 import { spring, tap } from "@/lib/motion";
-import { DS_STATUS, DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_STATUS, DS_TYPOGRAPHY, DS_TEXT, DS_SHADOW } from "@/lib/design-system/tokens";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import type { ActionType, Facility, SourceInfo } from "@/types/dotori";
 import { SourceChip } from "./SourceChip";
@@ -32,9 +32,10 @@ const cardRevealItem = {
 const CLS = {
 	article: cn(
 		'relative overflow-hidden rounded-2xl',
-		'shadow-sm shadow-dotori-200/8 ring-1 ring-dotori-100/70',
+		DS_SHADOW.md, DS_SHADOW.dark.md,
+		'ring-1 ring-dotori-100/70',
 		'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-dotori-300/12',
-		'dark:shadow-dotori-950/15 dark:ring-dotori-800/60',
+		'dark:ring-dotori-800/60',
 	),
 	inner: cn(
 		'relative overflow-hidden rounded-2xl',
@@ -50,8 +51,8 @@ const CLS = {
 		'ring-1 ring-dotori-100/70',
 		'dark:from-dotori-900/60 dark:via-dotori-900/30 dark:to-transparent dark:ring-dotori-800/60',
 	),
-	statValue: cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-900 dark:text-dotori-50'),
-	statLabel: cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-600 dark:text-dotori-300'),
+	statValue: cn(DS_TYPOGRAPHY.h3, 'font-semibold', DS_TEXT.primary),
+	statLabel: cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary),
 	pill: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-label font-semibold',
 	progressTrack: 'h-1.5 overflow-hidden rounded-full bg-dotori-100 dark:bg-dotori-900/70',
 } as const;

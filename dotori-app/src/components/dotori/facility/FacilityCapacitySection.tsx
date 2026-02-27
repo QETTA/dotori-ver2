@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/catalyst/badge";
 import { BRAND } from "@/lib/brand-assets";
 import { DsProgressBar } from "@/components/ds/DsProgressBar";
-import { DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_STATUS, DS_TYPOGRAPHY, DS_GLASS, DS_TEXT, DS_SHADOW } from '@/lib/design-system/tokens'
 import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Facility } from "@/types/dotori";
@@ -55,22 +55,22 @@ const getRateValueToneClass = (occupancyTone: keyof typeof DS_STATUS) =>
 
 const CLS = {
 	sectionInsight: cn(
-		'glass-card',
-		'relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100 bg-dotori-50/80 p-3 shadow-sm ring-1 ring-dotori-100/70',
-		'dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70',
+		'relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100 p-3 ring-1 ring-dotori-100/70',
+		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
+		'dark:border-dotori-800 dark:ring-dotori-800/70',
 	),
 	section: cn(
-		'glass-card',
-		'mb-4 rounded-2xl border-b border-dotori-100 bg-dotori-50/80 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70',
-		'dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70',
+		'mb-4 rounded-2xl border-b border-dotori-100 px-3 py-3 ring-1 ring-dotori-100/70',
+		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
+		'dark:border-dotori-800 dark:ring-dotori-800/70',
 	),
 	sectionLg: cn(
-		'glass-card',
-		'mb-5 rounded-2xl border-b border-dotori-100 bg-dotori-50/80 p-4 pb-5 shadow-sm ring-1 ring-dotori-100/70',
-		'dark:border-dotori-800 dark:bg-dotori-900/55 dark:shadow-none dark:ring-dotori-800/70',
+		'mb-5 rounded-2xl border-b border-dotori-100 p-4 pb-5 ring-1 ring-dotori-100/70',
+		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
+		'dark:border-dotori-800 dark:ring-dotori-800/70',
 	),
 	metricCell: 'rounded-xl border border-dotori-100 bg-white/80 px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950',
-	sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-900 dark:text-dotori-50'),
+	sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary),
 } as const;
 
 export type FacilityKeyStat = {

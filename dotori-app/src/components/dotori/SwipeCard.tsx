@@ -7,6 +7,7 @@
 import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { spring } from '@/lib/motion'
 
 export function SwipeCard({
@@ -66,7 +67,7 @@ export function SwipeCard({
             className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl border-2 border-danger/40 bg-danger/5"
             style={{ opacity: leftOpacity }}
           >
-            <span className="text-lg font-bold text-danger/60">별로</span>
+            <span className={cn('text-lg font-bold', DS_TEXT.secondary, 'text-danger/60')}>별로</span>
           </motion.div>
           <motion.div
             className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl border-2 border-forest-400/40 bg-forest-50/30"

@@ -99,14 +99,20 @@ export function useExploreFacilities({
 		[debouncedSearch],
 	);
 
-	// Render-time reset: clear timeout flag when load completes or data arrives
-	if (isTimeout && (!isLoading || facilities.length > 0 || error)) {
-		setIsTimeout(false);
-	}
-
-	// Timeout detection for long-running loads
 	useEffect(() => {
 		if (!isLoading || facilities.length > 0 || error) {
+			if (!isTimeout) {
+				return;
+			}
+
+			const resetId = window.setTimeout(() => {
+				setIsTimeout(false);
+			}, 0);
+
+			return () => window.clearTimeout(resetId);
+		}
+
+		if (isTimeout) {
 			return;
 		}
 
@@ -115,7 +121,7 @@ export function useExploreFacilities({
 		}, FACILITY_LOAD_TIMEOUT_MS);
 
 		return () => window.clearTimeout(timeoutId);
-	}, [error, facilities.length, isLoading]);
+	}, [error, facilities.length, isLoading, isTimeout]);
 
 	const retry = useCallback(() => {
 		setIsTimeout(false);

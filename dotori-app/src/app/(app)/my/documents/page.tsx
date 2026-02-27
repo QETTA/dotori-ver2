@@ -9,7 +9,6 @@
  */
 import { motion } from 'motion/react'
 import { Badge } from '@/components/catalyst/badge'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
@@ -27,6 +26,8 @@ import {
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { hoverLift, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useDocuments } from '@/hooks/use-documents'
@@ -54,13 +55,13 @@ export default function DocumentsPage() {
       {/* ══════ INTRO ══════ */}
       <FadeIn>
         <div>
-          <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+          <p className={DS_PAGE_HEADER.eyebrow}>
             서류 관리
           </p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <h1 className={cn('mt-3 font-wordmark text-3xl/10', DS_PAGE_HEADER.title)}>
             서류함
-          </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          </h1>
+          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
             입소에 필요한 서류를 한 곳에서 관리하세요.
           </Text>
           <DsButton href="/my/documents/sign" className="mt-4">
@@ -102,15 +103,15 @@ export default function DocumentsPage() {
         />
       ) : documents.length === 0 ? (
         <motion.div {...scrollFadeIn}>
-          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex flex-col items-center rounded-2xl py-14 text-center')}>
-            <BrandEmptyIllustration variant="empty" size={96} className="mb-2" />
-            <Text className="mt-5 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, DS_EMPTY_STATE.container, 'rounded-2xl')}>
+            <BrandEmptyIllustration variant="empty" size={96} className={DS_EMPTY_STATE.illustration} />
+            <Text className={DS_EMPTY_STATE.title}>
               아직 등록한 서류가 없어요
             </Text>
-            <Text className="mt-1.5 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={DS_EMPTY_STATE.description}>
               입소 서류를 미리 준비하면 지원이 더 빨라져요
             </Text>
-            <DsButton className="mt-5">
+            <DsButton className={DS_EMPTY_STATE.action}>
               <ArrowUpTrayIcon className="h-4 w-4" />
               서류 등록하기
             </DsButton>
@@ -123,7 +124,7 @@ export default function DocumentsPage() {
             return (
               <FadeIn key={doc.id}>
                 <motion.div {...hoverLift}>
-                  <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-dotori-100/80 transition-shadow hover:shadow-md dark:bg-dotori-900/80 dark:ring-dotori-800/60">
+                  <div className={cn('overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark, 'transition-shadow hover:shadow-md')}>
                     {/* Status accent bar */}
                     <div className={cn('h-1', config.accent)} />
 
@@ -135,10 +136,10 @@ export default function DocumentsPage() {
                             <DocumentTextIcon className="h-4 w-4 text-dotori-500" />
                           </div>
                           <div className="min-w-0">
-                            <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+                            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                               {doc.name}
                             </Text>
-                            <Text className="mt-0.5 text-caption text-dotori-500 dark:text-dotori-400">
+                            <Text className={cn('mt-0.5', DS_TYPOGRAPHY.caption)}>
                               {doc.description}
                             </Text>
                           </div>

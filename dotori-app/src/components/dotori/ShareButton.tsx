@@ -11,6 +11,8 @@ import { motion } from 'motion/react'
 import { tap } from '@/lib/motion'
 import { shareViaKakao, type ShareParams } from '@/lib/kakao-share'
 import { buildUTMUrl } from '@/lib/utm'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 export function ShareButton({
   title,
@@ -58,7 +60,7 @@ export function ShareButton({
       type="button"
       onClick={handleShare}
       aria-label="공유하기"
-      className={`inline-flex min-h-11 items-center gap-2 rounded-full bg-dotori-950/[0.025] px-4 py-2.5 text-sm font-medium text-dotori-700 transition-colors hover:bg-dotori-950/[0.05] active:scale-[0.97] dark:bg-white/5 dark:text-dotori-300 dark:hover:bg-white/10 ${className ?? ''}`}
+      className={cn('inline-flex min-h-11 items-center gap-2 rounded-full bg-dotori-950/[0.025] px-4 py-2.5 text-sm font-medium transition-colors hover:bg-dotori-950/[0.05] active:scale-[0.97] dark:bg-white/5 dark:hover:bg-white/10', DS_TEXT.secondary, className)}
       whileTap={tap.button.whileTap}
       transition={tap.button.transition}
     >

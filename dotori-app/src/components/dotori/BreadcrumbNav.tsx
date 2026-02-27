@@ -9,6 +9,7 @@ import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { Link } from '@/components/catalyst/link'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 export function BreadcrumbNav({
   parent,
@@ -38,7 +39,7 @@ export function BreadcrumbNav({
           <span className="sr-only sm:not-sr-only">{parent.label}</span>
         </Link>
 
-        <span className="truncate text-sm/6 font-semibold text-dotori-950 dark:text-white">
+        <span className={cn('truncate text-sm/6 font-semibold', DS_TEXT.primary)}>
           {current}
         </span>
 

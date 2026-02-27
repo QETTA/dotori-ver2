@@ -121,8 +121,23 @@
   --gradient-main-to:   #1a2a15;
 }
 
-/* ── noise-overlay: 비활성 (Radiant 패턴 전환) ── */
-@utility noise-overlay { --_noop: ; }
+/* ── noise-overlay: SVG feTurbulence grain texture (TP5 Pattern 5) ── */
+@utility noise-overlay {
+  position: relative;
+  isolation: isolate;
+}
+
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 1;
+}
 
 /* ── 글래스 모피즘 유틸리티 (2026 Liquid Glass) ── */
 @utility glass-header {
@@ -150,8 +165,14 @@
   border-radius: 24px 24px 0 0;
 }
 
-/* ── glass-card: 비활성 (Radiant 패턴 전환) ── */
-@utility glass-card { --_noop: ; }
+/* ── glass-card: Glassmorphism 2.0 surface (premium cards, empty states) ── */
+@utility glass-card {
+  background-color: rgb(255 250 242 / 0.88);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 2px 12px rgb(176 122 74 / 0.08), 0 1px 4px rgb(176 122 74 / 0.06);
+  border: 1px solid rgb(232 213 190 / 0.5);
+}
 
 @utility glass-overlay {
   background-color: rgb(45 36 24 / 0.4);
@@ -175,8 +196,13 @@
   margin-inline: auto;
 }
 
-/* ── app-card-soft: 비활성 (Radiant 패턴 전환) ── */
-@utility app-card-soft { --_noop: ; }
+/* ── app-card-soft: Warm tinted card surface ── */
+@utility app-card-soft {
+  background-color: rgb(250 247 242 / 0.7);
+  box-shadow: 0 1px 6px rgb(176 122 74 / 0.06);
+  border: 1px solid rgb(232 213 190 / 0.35);
+  border-radius: 16px;
+}
 
 /* ── Safe-area 유틸리티 (DS_LAYOUT) ── */
 @utility safe-area-bottom {
@@ -222,7 +248,13 @@
   -webkit-backdrop-filter: blur(22px) saturate(1.42);
 }
 
-/* .dark .glass-card — 비활성 (Radiant 전환) */
+.dark .glass-card {
+  background-color: rgb(45 36 24 / 0.82);
+  backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.3), 0 1px 4px rgb(0 0 0 / 0.2);
+  border-color: rgb(90 58 36 / 0.4);
+}
 
 .dark .glass-overlay {
   background-color: rgb(0 0 0 / 0.55);

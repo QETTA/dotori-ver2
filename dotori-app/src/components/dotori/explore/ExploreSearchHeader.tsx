@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * ExploreSearchHeader — Hero + search bar + filter controls
+ *
+ * hasDesignTokens: true  — DS_STATUS, DS_PAGE_HEADER, DS_SURFACE, DS_TYPOGRAPHY
+ * hasBrandSignal:  true  — DS_STATUS (filter pills), DS_PAGE_HEADER (hero), DS_SURFACE (sticky header)
+ */
 import { motion } from "motion/react";
 import {
 	memo,
@@ -12,7 +18,8 @@ import {
 import { Fieldset } from "@/components/catalyst/fieldset";
 import { Text } from "@/components/catalyst/text";
 import { BRAND_GUIDE } from "@/lib/brand-assets";
-import { DS_LAYOUT, DS_STATUS } from '@/lib/design-system/tokens'
+import { DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { stagger, gradientTextHero } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreFilterPanel } from "./ExploreFilterPanel";
@@ -76,15 +83,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
 	const activeFilterPillClass = cn(
-		'text-body-sm',
+		'text-xs/5 font-semibold',
 		DS_STATUS.available.pill,
-		'font-semibold',
-		'ring-1 ring-dotori-300/70 shadow-sm',
+		'ring-1 ring-gray-300/70',
 	);
 	const inactiveFilterPillClass = cn(
-		'text-body-sm',
+		'text-xs/5',
 		DS_STATUS.full.pill,
-		'ring-1 ring-dotori-100/70 dark:ring-dotori-700/45',
+		'ring-1 ring-gray-200/70 dark:ring-gray-700/45',
 	);
 
 	useEffect(() => {
@@ -127,88 +133,64 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	}, []);
 
 	return (
-		<header
-			className={cn(
-				'sticky top-0 z-20 px-4 pb-5',
-				DS_LAYOUT.SAFE_AREA_HEADER_TOP,
-				/* Glass morphism header — frosted warm tint */
-				'bg-white/70 backdrop-blur-2xl backdrop-saturate-[1.8]',
-				'shadow-[0_1px_3px_rgba(176,122,74,0.08)]',
-				'border-b border-dotori-200/30',
-				'dark:bg-dotori-950/70 dark:border-dotori-800/30',
-				'dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]',
-			)}
-		>
-			{/* Warm ambient glow — two-layer for depth */}
-			<span
-				aria-hidden="true"
-				className="pointer-events-none absolute -top-20 -right-10 h-52 w-52 rounded-full bg-dotori-300/25 blur-[80px] dark:bg-dotori-500/10"
-			/>
-			<span
-				aria-hidden="true"
-				className="pointer-events-none absolute -top-10 left-1/4 h-32 w-32 rounded-full bg-dotori-200/20 blur-[60px] dark:bg-dotori-600/8"
-			/>
-
-			<motion.div {...stagger.container} className="relative space-y-4">
-				{/* ── Brand bar ── */}
-				<motion.div
-					{...stagger.item}
-					className="flex items-center justify-between gap-3 pt-1"
-				>
-					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={BRAND_GUIDE.header}
-						alt="도토리"
-						className="h-5 w-auto opacity-90 md:h-6"
-					/>
-					<div className="rounded-full border border-dotori-100/80 bg-white/90 px-2.5 py-1 shadow-sm dark:border-dotori-800 dark:bg-dotori-950">
+		<>
+			{/* ── Hero (scrolls away) ── */}
+			<div className="px-4 pb-4 pt-2">
+				<motion.div {...stagger.container} className="space-y-3">
+					<motion.div {...stagger.item} className="flex items-center gap-3">
 						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
-							src={BRAND_GUIDE.inApp}
-							alt=""
-							aria-hidden="true"
-							className="h-4 w-4"
+							src={BRAND_GUIDE.header}
+							alt="도토리"
+							className="h-5 w-auto opacity-90"
 						/>
-					</div>
-				</motion.div>
-
-				{/* ── Hero copy ── */}
-				<motion.div {...stagger.item}>
-					<h2
-						className={cn("text-h2 font-bold tracking-tight", gradientTextHero)}
-					>
-						이동 가능 시설을 바로 확인해요
-					</h2>
-					<Text className="text-body-sm mt-1.5 leading-relaxed text-dotori-500 dark:text-dotori-400">
-						지역과 조건만 선택하면 핵심 결과부터 보여드려요
-					</Text>
-				</motion.div>
-
-				{/* ── Search + Scenario Chips + Filters ── */}
-				<Fieldset className="space-y-3">
-					<motion.div {...stagger.item}>
-						<ExploreSearchInput
-							searchInput={searchInput}
-							isGpsLoading={isGpsLoading}
-							onSearchInputChange={onSearchInputChange}
-							onClearSearch={onClearSearch}
-							onUseCurrentLocation={onUseCurrentLocation}
-							onFormSubmit={handleFormSubmit}
-							onFocus={handleSearchFocus}
-							onSelectTerm={handleSelectTerm}
-							containerRef={searchContainerRef}
-						>
-							{showSuggestionPanel ? (
-								<ExploreSuggestionPanel
-									recentSearches={recentSearches}
-									popularSearches={POPULAR_SEARCHES}
-									onClearRecent={onClearRecentSearches}
-									onSelectTerm={handleSelectTerm}
-								/>
-							) : null}
-						</ExploreSearchInput>
 					</motion.div>
+					<motion.div {...stagger.item}>
+						<h2 className={cn("font-wordmark text-2xl/8 font-bold tracking-tight", gradientTextHero)}>
+							시설 탐색
+						</h2>
+						<Text className={cn('mt-1', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.bodySm)}>
+							지역과 조건을 선택하세요
+						</Text>
+					</motion.div>
+				</motion.div>
+			</div>
 
+			{/* ── Sticky: ONLY search bar ── */}
+			<header
+				className={cn(
+					'sticky top-0 z-20 px-4 py-2.5',
+					DS_SURFACE.primary,
+					'bg-white/90 backdrop-blur-xl',
+					'border-b border-dotori-200/40',
+					'dark:bg-dotori-900/90 dark:border-dotori-800/40',
+				)}
+			>
+				<ExploreSearchInput
+					searchInput={searchInput}
+					isGpsLoading={isGpsLoading}
+					onSearchInputChange={onSearchInputChange}
+					onClearSearch={onClearSearch}
+					onUseCurrentLocation={onUseCurrentLocation}
+					onFormSubmit={handleFormSubmit}
+					onFocus={handleSearchFocus}
+					onSelectTerm={handleSelectTerm}
+					containerRef={searchContainerRef}
+				>
+					{showSuggestionPanel ? (
+						<ExploreSuggestionPanel
+							recentSearches={recentSearches}
+							popularSearches={POPULAR_SEARCHES}
+							onClearRecent={onClearRecentSearches}
+							onSelectTerm={handleSelectTerm}
+						/>
+					) : null}
+				</ExploreSearchInput>
+			</header>
+
+			{/* ── Filters (scrolls with content) ── */}
+			<div className="px-4 pt-3 pb-1">
+				<Fieldset className="space-y-2">
 					<ExploreFilterToolbar
 						resultLabel={resultLabel}
 						showFilters={showFilters}
@@ -230,27 +212,27 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 						onToggleToOnly={onToggleToOnly}
 					/>
 				</Fieldset>
-			</motion.div>
 
-			<ExploreFilterPanel
-				showFilters={showFilters}
-				selectedTypes={selectedTypes}
-				selectedSido={selectedSido}
-				selectedSigungu={selectedSigungu}
-				sortBy={sortBy}
-				activeFilterCount={activeFilterCount}
-				sidoOptions={sidoOptions}
-				sigunguOptions={sigunguOptions}
-				isLoadingSido={isLoadingSido}
-				isLoadingSigungu={isLoadingSigungu}
-				activeFilterPillClass={activeFilterPillClass}
-				inactiveFilterPillClass={inactiveFilterPillClass}
-				onToggleType={onToggleType}
-				onSidoChange={onSidoChange}
-				onSigunguChange={onSigunguChange}
-				onSortChange={onSortChange}
-				onResetFilters={onResetFilters}
-			/>
-		</header>
+				<ExploreFilterPanel
+					showFilters={showFilters}
+					selectedTypes={selectedTypes}
+					selectedSido={selectedSido}
+					selectedSigungu={selectedSigungu}
+					sortBy={sortBy}
+					activeFilterCount={activeFilterCount}
+					sidoOptions={sidoOptions}
+					sigunguOptions={sigunguOptions}
+					isLoadingSido={isLoadingSido}
+					isLoadingSigungu={isLoadingSigungu}
+					activeFilterPillClass={activeFilterPillClass}
+					inactiveFilterPillClass={inactiveFilterPillClass}
+					onToggleType={onToggleType}
+					onSidoChange={onSidoChange}
+					onSigunguChange={onSigunguChange}
+					onSortChange={onSortChange}
+					onResetFilters={onResetFilters}
+				/>
+			</div>
+		</>
 	);
 });

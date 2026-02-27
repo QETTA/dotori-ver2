@@ -33,18 +33,17 @@ const TARGET_FILES = [
 	"src/components/dotori/CompareTable.tsx",
 ];
 const STYLE_NEUTRAL_TARGETS = [
-	"src/app/(app)/facility/[id]/page.tsx",
 	"src/components/dotori/WaitlistProgressBar.tsx",
 ] as const;
 
 const TOKENS_IMPORT_PATTERN = /@\/lib\/design-system\/tokens/;
 const TOKENS_USAGE_PATTERN =
-	/\bDS_(?:TYPOGRAPHY|TEXT|GLASS|LAYOUT|SURFACE|STATUS|STATUS_ALIAS|SENTIMENT|FRESHNESS|PROGRESS|TOAST|SHADOW)\b/;
+	/\bDS_(?:TYPOGRAPHY|TEXT|GLASS|LAYOUT|SURFACE|STATUS|STATUS_ALIAS|SENTIMENT|FRESHNESS|PROGRESS|TOAST|SHADOW|CARD|PAGE_HEADER|EMPTY_STATE|FAB|STICKY_BAR)\b/;
 const BRAND_ASSET_PATTERN = /@\/lib\/brand-assets|BRAND\./;
 const BRAND_COPY_PATTERN = /@\/lib\/brand-copy|COPY\./;
 const SEMANTIC_COLOR_PATTERN = /color\s*=\s*["'](?:dotori|forest|amber)["']/;
 const BRAND_ARCH_PATTERN =
-	/\bDS_(?:GLASS|SURFACE|STATUS|STATUS_ALIAS|SENTIMENT|FRESHNESS|PROGRESS|TOAST)\b|color\s*=\s*["'](?:dotori|forest|amber)["']/;
+	/\bDS_(?:GLASS|SURFACE|STATUS|STATUS_ALIAS|SENTIMENT|FRESHNESS|PROGRESS|TOAST|CARD|PAGE_HEADER|EMPTY_STATE|SHADOW|TEXT)\b|color\s*=\s*["'](?:dotori|forest|amber)["']/;
 const QUOTED_LITERAL_PATTERN = /(["'`])((?:\\.|(?!\1)[\s\S])*)\1/g;
 const UTILITY_EXACT = new Set([
 	"absolute",

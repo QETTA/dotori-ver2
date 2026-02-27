@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react'
 import { Badge } from '@/components/catalyst/badge'
 import { XMarkIcon } from '@heroicons/react/24/solid'
 import { apiFetch } from '@/lib/api'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 interface FacilityTag {
   id: string
@@ -94,7 +96,7 @@ export function FacilityTagInput({ tags, onChange, className = '' }: FacilityTag
                   onClick={() => addTag(r)}
                   className="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-dotori-50 dark:hover:bg-dotori-800"
                 >
-                  <span className="text-body-sm font-medium text-dotori-900 dark:text-dotori-100">
+                  <span className={cn('text-body-sm font-medium', DS_TEXT.primary)}>
                     {r.name}
                   </span>
                   <span className="truncate text-caption text-dotori-500">{r.address}</span>

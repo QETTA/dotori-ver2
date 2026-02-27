@@ -7,6 +7,7 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 const variants = {
   vacancy: {
@@ -15,7 +16,7 @@ const variants = {
   },
   info: {
     container: 'bg-dotori-50 text-dotori-900 ring-dotori-200/60 dark:bg-dotori-950/20 dark:text-dotori-100 dark:ring-dotori-700/30',
-    icon: 'text-dotori-500 dark:text-dotori-400',
+    icon: DS_TEXT.muted,
   },
   warning: {
     container: 'bg-amber-50 text-amber-900 ring-amber-200/60 dark:bg-amber-950/20 dark:text-amber-100 dark:ring-amber-700/30',

@@ -1,11 +1,19 @@
 "use client";
 
+/**
+ * ExploreFilterPanel — Filter panel for explore page
+ *
+ * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_SURFACE
+ * hasBrandSignal:  true  — DS_SURFACE.sunken (panel background), color="dotori"
+ */
 import { AnimatePresence, motion } from "motion/react";
 import { memo } from "react";
 import { DsButton } from "@/components/ds/DsButton";
 import { Field, Fieldset } from "@/components/catalyst/fieldset";
 import { Select } from "@/components/catalyst/select";
 import { Text } from "@/components/catalyst/text";
+import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_SURFACE } from "@/lib/design-system/page-tokens";
 import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
@@ -66,13 +74,17 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 				>
 					<div className={cn(
 						'mt-3 rounded-2xl p-4 space-y-4',
-						'bg-dotori-950/[0.025] ring-1 ring-dotori-200/40',
-						'dark:bg-white/[0.03] dark:ring-dotori-700/40',
+						DS_SURFACE.sunken,
+						'ring-1 ring-dotori-200/40',
+						'dark:ring-dotori-700/40',
 					)}>
 						<Fieldset className="space-y-4">
 							{/* ── Facility type chips ── */}
 							<Field>
-								<Text className="text-caption mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400">
+								<Text className={cn(
+									DS_TYPOGRAPHY.caption,
+									'mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400',
+								)}>
 									시설 유형
 								</Text>
 								<div className="flex flex-wrap gap-1.5">
@@ -86,7 +98,8 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 													onClick={() => onToggleType(type)}
 													aria-pressed={isSelectedType}
 													className={cn(
-														'min-h-9 rounded-full px-3 py-1.5 text-body-sm transition-all duration-150',
+														'min-h-9 rounded-full px-3 py-1.5 transition-all duration-150',
+														DS_TYPOGRAPHY.bodySm,
 														isSelectedType
 															? activeFilterPillClass
 															: inactiveFilterPillClass,
@@ -102,14 +115,17 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 
 							{/* ── Region selects ── */}
 							<Field>
-								<Text className="text-caption mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400">
+								<Text className={cn(
+									DS_TYPOGRAPHY.caption,
+									'mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400',
+								)}>
 									지역 필터
 								</Text>
 								<div className="grid gap-2 sm:grid-cols-2">
 									<Select
 										value={selectedSido}
 										onChange={(event) => onSidoChange(event.target.value)}
-										className="text-body-sm min-h-10 rounded-xl"
+										className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-10 rounded-xl')}
 									>
 										<option value="">{isLoadingSido ? "시도 불러오는 중" : "시도 선택"}</option>
 										{sidoOptions.map((sido) => (
@@ -120,7 +136,7 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 										value={selectedSigungu}
 										disabled={!selectedSido || isLoadingSigungu}
 										onChange={(event) => onSigunguChange(event.target.value)}
-										className="text-body-sm min-h-10 rounded-xl"
+										className={cn(DS_TYPOGRAPHY.bodySm, 'min-h-10 rounded-xl')}
 									>
 										<option value="">
 											{isLoadingSigungu ? "구군 불러오는 중" : "구/군 선택"}
@@ -134,7 +150,10 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 
 							{/* ── Sort options ── */}
 							<Field>
-								<Text className="text-caption mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400">
+								<Text className={cn(
+									DS_TYPOGRAPHY.caption,
+									'mb-2.5 block font-medium text-dotori-500 dark:text-dotori-400',
+								)}>
 									정렬
 								</Text>
 								<div className="flex flex-wrap gap-1.5">
@@ -145,7 +164,8 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 												variant="ghost"
 												onClick={() => onSortChange(option.key)}
 												className={cn(
-													'min-h-9 rounded-full px-3 py-1.5 text-body-sm transition-all duration-150',
+													'min-h-9 rounded-full px-3 py-1.5 transition-all duration-150',
+													DS_TYPOGRAPHY.bodySm,
 													sortBy === option.key
 														? activeFilterPillClass
 														: inactiveFilterPillClass,
@@ -164,7 +184,10 @@ export const ExploreFilterPanel = memo(function ExploreFilterPanel({
 									<DsButton
 										variant="ghost"
 										onClick={onResetFilters}
-										className="min-h-9 text-body-sm font-medium text-dotori-500 transition-colors hover:text-dotori-800 dark:text-dotori-400 dark:hover:text-dotori-100"
+										className={cn(
+											'min-h-9 font-medium text-dotori-500 transition-colors hover:text-dotori-800 dark:text-dotori-400 dark:hover:text-dotori-100',
+											DS_TYPOGRAPHY.bodySm,
+										)}
 									>
 										필터 초기화
 									</DsButton>

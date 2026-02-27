@@ -162,3 +162,89 @@ export const DS_STICKY_BAR = {
   light: 'border-dotori-100/60 bg-white/90 backdrop-blur-xl backdrop-saturate-150',
   dark: 'dark:border-dotori-800/40 dark:bg-dotori-950/90',
 } as const
+
+/* ── Glass (Glassmorphism 2.0) ── */
+export const DS_GLASS = {
+  /** Navigation bar — blur + saturate */
+  nav: 'bg-white/85 backdrop-blur-xl backdrop-saturate-150',
+  /** Card overlay — softer blur for content areas */
+  card: 'bg-white/80 backdrop-blur-lg backdrop-saturate-[1.2]',
+  /** Floating overlay — stronger blur for modals/sheets */
+  overlay: 'bg-white/70 backdrop-blur-2xl backdrop-saturate-150',
+  dark: {
+    nav: 'dark:bg-dotori-950/85',
+    card: 'dark:bg-dotori-900/80',
+    overlay: 'dark:bg-dotori-950/70',
+  },
+} as const
+
+/* ── Shadow (Brand-tinted elevation) ── */
+export const DS_SHADOW = {
+  /** Subtle — chips, inputs */
+  sm: 'shadow-[0_1px_3px_rgba(176,122,74,0.06)]',
+  /** Default — cards */
+  md: 'shadow-[0_2px_12px_rgba(176,122,74,0.12)]',
+  /** Elevated — modals, dropdowns */
+  lg: 'shadow-[0_8px_32px_rgba(176,122,74,0.08)]',
+  /** Hero — featured cards, CTAs */
+  xl: 'shadow-[0_16px_48px_rgba(176,122,74,0.14)]',
+  dark: {
+    sm: 'dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)]',
+    md: 'dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]',
+    lg: 'dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]',
+    xl: 'dark:shadow-[0_16px_48px_rgba(0,0,0,0.6)]',
+  },
+} as const
+
+/* ── Text Color Compounds ── */
+export const DS_TEXT = {
+  /** Primary body text */
+  primary: 'text-dotori-900 dark:text-dotori-50',
+  /** Secondary / supporting text */
+  secondary: 'text-dotori-700 dark:text-dotori-300',
+  /** Muted / placeholder text */
+  muted: 'text-dotori-500 dark:text-dotori-400',
+  /** Disabled / inactive text */
+  disabled: 'text-dotori-300 dark:text-dotori-600',
+  /** Gradient text (hero/CTA) */
+  gradient: 'bg-gradient-to-r from-dotori-600 via-dotori-400 to-amber-500 bg-clip-text text-transparent',
+  /** Gradient text — hero variant (stronger) */
+  gradientHero: 'bg-gradient-to-r from-dotori-600 via-dotori-400 to-amber-500 bg-clip-text text-transparent',
+  /** Inverse — for dark backgrounds */
+  inverse: 'text-white dark:text-dotori-50',
+} as const
+
+/* ── Sentiment / Feedback tones ── */
+export const DS_SENTIMENT = {
+  positive: {
+    text: 'text-forest-700 dark:text-forest-300',
+    bg: 'bg-forest-50 dark:bg-forest-900/20',
+    border: 'border-forest-200 dark:border-forest-800/40',
+    icon: 'text-forest-500 dark:text-forest-400',
+  },
+  warning: {
+    text: 'text-amber-700 dark:text-amber-300',
+    bg: 'bg-amber-50 dark:bg-amber-900/20',
+    border: 'border-amber-200 dark:border-amber-800/40',
+    icon: 'text-amber-500 dark:text-amber-400',
+  },
+  negative: {
+    text: 'text-red-700 dark:text-red-300',
+    bg: 'bg-red-50 dark:bg-red-900/20',
+    border: 'border-red-200 dark:border-red-800/40',
+    icon: 'text-red-500 dark:text-red-400',
+  },
+  info: {
+    text: 'text-dotori-700 dark:text-dotori-300',
+    bg: 'bg-dotori-50 dark:bg-dotori-900/20',
+    border: 'border-dotori-200 dark:border-dotori-800/40',
+    icon: 'text-dotori-500 dark:text-dotori-400',
+  },
+} as const
+
+/* ── Status Aliases (DS_STATUS shorthand) ── */
+export const DS_STATUS_ALIAS = {
+  open: DS_STATUS.available,
+  closed: DS_STATUS.full,
+  pending: DS_STATUS.waiting,
+} as const

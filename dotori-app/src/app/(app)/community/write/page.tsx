@@ -15,7 +15,6 @@ import { Input } from '@/components/catalyst/input'
 import { Textarea } from '@/components/catalyst/textarea'
 import { RadioGroup, RadioField, Radio } from '@/components/catalyst/radio'
 import { SwitchField, Switch } from '@/components/catalyst/switch'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { DsButton } from '@/components/ds/DsButton'
@@ -26,6 +25,7 @@ import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { FacilityTagInput } from '@/components/dotori/FacilityTagInput'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { tap, scrollFadeIn } from '@/lib/motion'
 import { apiFetch } from '@/lib/api'
@@ -99,10 +99,10 @@ export default function CommunityWritePage() {
         <BrandWatermark className="opacity-50" />
         <FadeIn>
           <p className={DS_PAGE_HEADER.eyebrow}>글쓰기</p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <h1 className={cn('mt-3 font-wordmark text-3xl/10', DS_PAGE_HEADER.title)}>
             이야기 나누기
-          </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          </h1>
+          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
             이동 경험, 시설 정보 등 자유롭게 공유해주세요.
           </Text>
         </FadeIn>
@@ -111,7 +111,7 @@ export default function CommunityWritePage() {
       {/* ══════ CATEGORY PILLS (motion tap) ══════ */}
       <FadeIn>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-5')}>
-          <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">카테고리</Text>
+          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>카테고리</Text>
           <RadioGroup
             value={category}
             onChange={setCategory}
@@ -166,10 +166,10 @@ export default function CommunityWritePage() {
                   />
                   <div className="mt-2 flex justify-end">
                     <Text className={cn(
-                      'text-xs/5',
+                      DS_TYPOGRAPHY.caption,
                       content.length > MAX_CONTENT_LENGTH * 0.9
                         ? 'text-red-500'
-                        : 'text-dotori-400 dark:text-dotori-500',
+                        : '',
                     )}>
                       {content.length}/{MAX_CONTENT_LENGTH}
                     </Text>

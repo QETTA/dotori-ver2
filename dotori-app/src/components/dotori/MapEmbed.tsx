@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { DS_TEXT } from '@/lib/design-system/tokens';
 import { BRAND } from "@/lib/brand-assets";
 import type { FacilityStatus } from "@/types/dotori";
 
@@ -310,7 +311,7 @@ export function MapEmbed({
 					height || 'h-48',
 				)}
 			>
-					<span className="text-body text-dotori-500 dark:text-dotori-200">
+					<span className={cn('text-body', DS_TEXT.muted)}>
 						지도를 불러올 수 없어요. 주소로 검색해보세요
 					</span>
 			</div>

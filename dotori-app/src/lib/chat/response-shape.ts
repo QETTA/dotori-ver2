@@ -5,6 +5,7 @@ import type {
 	Facility,
 	FacilityType,
 	MapMarker,
+	UiBlockItem,
 } from "@/types/dotori";
 
 type RawRecord = Record<string, unknown>;
@@ -163,6 +164,36 @@ function normalizeChecklistCategories(raw: unknown): ChecklistCategory[] {
 	return categories;
 }
 
+function normalizeUiBlockItems(raw: unknown): UiBlockItem[] {
+	if (!Array.isArray(raw)) {
+		return [];
+	}
+
+	const items: UiBlockItem[] = [];
+
+	for (const [index, item] of raw.entries()) {
+		const record = asRecord(item);
+		if (!record) continue;
+		const title = asString(record.title);
+		if (!title) continue;
+
+		const actionId = asString(record.actionId);
+		const href = asString(record.href);
+
+		items.push({
+			id: asString(record.id) || `ui-item-${index}`,
+			title,
+			description: asString(record.description),
+			badge: asString(record.badge),
+			actionId,
+			actionLabel: asString(record.actionLabel),
+			href,
+		});
+	}
+
+	return items;
+}
+
 export function normalizeQuickReplies(value: unknown): string[] {
 	if (!Array.isArray(value)) {
 		return [];
@@ -270,6 +301,19 @@ export function normalizeChatBlocks(rawBlocks: unknown): ChatBlock[] {
 					type: "checklist",
 					title: asString(record.title) || "체크리스트",
 					categories: normalizeChecklistCategories(record.categories),
+				});
+				break;
+			}
+			case "ui_block": {
+				blocks.push({
+					type: "ui_block",
+					title: asString(record.title) || "추천 UI 블록",
+					subtitle: asString(record.subtitle),
+					layout:
+						record.layout === "grid" || record.layout === "list"
+							? record.layout
+							: "grid",
+					items: normalizeUiBlockItems(record.items),
 				});
 				break;
 			}

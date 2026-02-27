@@ -3,10 +3,15 @@
 /**
  * PhotoGallery — Horizontal snap scroll + fullscreen Dialog
  * Pattern: Radiant testimonials snap + Studio GrayscaleTransitionImage
+ *
+ * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_CARD
+ * hasBrandSignal:  true  — DS_CARD.flat (thumbnails), color="dotori" (overlay/badges)
  */
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { cn } from '@/lib/utils'
 import { ease } from '@/lib/motion'
 
@@ -55,7 +60,8 @@ export function PhotoGallery({
             key={img.src}
             type="button"
             className={cn(
-              'relative shrink-0 snap-start overflow-hidden rounded-xl',
+              'relative shrink-0 snap-start overflow-hidden',
+              DS_CARD.flat.base, DS_CARD.flat.dark,
               i === 0 ? 'h-44 w-full' : 'h-28 w-36',
             )}
             whileTap={{ scale: 0.97 }}
@@ -70,7 +76,12 @@ export function PhotoGallery({
               loading={i === 0 ? 'eager' : 'lazy'}
             />
             {i === 0 && images.length > 1 && (
-              <span className="absolute bottom-2 right-2 rounded-full bg-dotori-900/60 px-2.5 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+              <span
+                className={cn(
+                  'absolute bottom-2 right-2 rounded-full bg-dotori-900/60 px-2.5 py-0.5 font-medium text-white backdrop-blur-sm',
+                  DS_TYPOGRAPHY.caption,
+                )}
+              >
                 1/{images.length}
               </span>
             )}
@@ -146,7 +157,12 @@ export function PhotoGallery({
             </AnimatePresence>
 
             {/* Counter */}
-            <span className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-dotori-900/60 px-3 py-1 text-sm text-white backdrop-blur-sm">
+            <span
+              className={cn(
+                'absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-dotori-900/60 px-3 py-1 text-white backdrop-blur-sm',
+                DS_TYPOGRAPHY.bodySm,
+              )}
+            >
               {selectedIndex + 1} / {images.length}
             </span>
           </motion.div>

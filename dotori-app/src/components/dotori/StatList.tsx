@@ -6,6 +6,8 @@
  * 변경: framer-motion → motion/react, Border 인라인, neutral → dotori
  */
 import { FadeIn, FadeInStagger } from './FadeIn'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 export function StatList({
   children,
@@ -31,7 +33,7 @@ export function StatListItem({
 }) {
   return (
     <FadeIn className="flex flex-col-reverse border-l border-dotori-300 pl-8 dark:border-dotori-600">
-      <dt className="mt-2 text-base text-dotori-600 dark:text-dotori-400">{label}</dt>
+      <dt className={cn('mt-2 text-base', DS_TEXT.muted)}>{label}</dt>
       <dd className="font-wordmark text-3xl font-semibold text-dotori-950 sm:text-4xl dark:text-white">
         {value}
       </dd>

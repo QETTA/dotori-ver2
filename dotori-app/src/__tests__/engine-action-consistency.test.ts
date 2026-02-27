@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { isKnownBlockAction } from '@/app/(app)/chat/page'
+import { isKnownBlockAction } from '@/lib/chat/block-actions'
 
 const ENGINE_RESPONSE_BUILDER_FILES = [
   'src/lib/engine/response-builder/blocks.ts',

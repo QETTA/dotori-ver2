@@ -9,6 +9,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { DsButton } from '@/components/ds/DsButton'
 import { ArrowUturnLeftIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 interface Point {
   x: number
@@ -162,7 +163,7 @@ export function SignaturePad({
           onTouchEnd={handleEnd}
         />
         {!hasSignature && (
-          <p className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-dotori-400">
+          <p className={cn('pointer-events-none absolute inset-0 flex items-center justify-center text-sm', DS_TEXT.muted)}>
             여기에 서명해주세요
           </p>
         )}

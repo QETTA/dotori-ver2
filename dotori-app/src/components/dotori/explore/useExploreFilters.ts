@@ -77,7 +77,9 @@ export function useExploreFilters(
 	const [isLoadingSido, setIsLoadingSido] = useState(false);
 	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
 
-	const [recentSearches, setRecentSearches] = useState<string[]>(() => getRecentSearches());
+	const [recentSearches, setRecentSearches] = useState<string[]>(() =>
+		getRecentSearches(),
+	);
 	const hasAutoFilterOpenTrackedRef = useRef(false);
 
 	// Use a ref for total so callbacks always read the latest value

@@ -2,6 +2,7 @@
 
 import { BRAND } from '@/lib/brand-assets'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 interface BrandWatermarkProps {
   className?: string
@@ -14,7 +15,7 @@ interface BrandWatermarkProps {
 export function BrandWatermark({ className }: BrandWatermarkProps) {
   return (
     <div
-      className={cn('pointer-events-none absolute inset-0 overflow-hidden', className)}
+      className={cn('pointer-events-none absolute inset-0 overflow-hidden', DS_TEXT.muted, className)}
       aria-hidden="true"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

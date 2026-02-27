@@ -6,6 +6,8 @@
  * 변경: olive → dotori, DS_CARD.flat 토큰 사용
  */
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import type { ComponentProps, ReactNode } from 'react'
 
@@ -17,13 +19,13 @@ export function Stat({
 }: { stat: ReactNode; text: ReactNode } & ComponentProps<'div'>) {
   return (
     <div
-      className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6', className)}
+      className={cn(DS_SURFACE.primary, DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6', className)}
       {...props}
     >
-      <div className="text-2xl/10 tracking-tight text-dotori-950 dark:text-white">
+      <div className={cn(DS_TYPOGRAPHY.h2, 'tabular-nums tracking-tight text-dotori-950 dark:text-white')}>
         {stat}
       </div>
-      <p className="mt-2 text-sm/7 text-dotori-700 dark:text-dotori-400">
+      <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1.5 text-dotori-700 dark:text-dotori-400')}>
         {text}
       </p>
     </div>

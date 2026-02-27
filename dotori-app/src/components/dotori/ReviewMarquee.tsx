@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 
 interface Review {
   title: string
@@ -104,7 +105,7 @@ function ReviewCard({
     >
       <blockquote>
         <StarRating rating={rating} />
-        <p className="mt-2 text-body-sm font-semibold text-dotori-900 dark:text-dotori-50">
+        <p className={cn('mt-2 text-body-sm font-semibold', DS_TEXT.primary)}>
           {title}
         </p>
         <p className="mt-1.5 text-caption leading-relaxed text-dotori-600 dark:text-dotori-300">

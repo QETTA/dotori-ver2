@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * ExploreFilterToolbar — Result count + filter/map toggle bar
+ *
+ * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_SURFACE
+ * hasBrandSignal:  true  — DS_SURFACE.sunken (toolbar bg), color="dotori"/"forest"
+ */
 import {
 	AdjustmentsHorizontalIcon,
 	ListBulletIcon,
@@ -10,6 +16,8 @@ import { memo } from "react";
 import { Badge } from "@/components/catalyst/badge";
 import { DsButton } from "@/components/ds/DsButton";
 import { Text } from "@/components/catalyst/text";
+import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_SURFACE } from "@/lib/design-system/page-tokens";
 import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -43,12 +51,16 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 			<motion.div
 				{...tap.chip}
 				className={cn(
-					'mt-1 flex items-center gap-2 rounded-xl',
-					'bg-dotori-950/[0.02] px-3 py-2',
-					'dark:bg-white/[0.03]',
+					'mt-1 flex items-center gap-2 rounded-xl px-3 py-2',
+					DS_SURFACE.sunken,
 				)}
 			>
-				<Text className="text-body-sm mr-auto shrink-0 whitespace-nowrap text-dotori-600 dark:text-dotori-300">
+				<Text
+					className={cn(
+						DS_TYPOGRAPHY.bodySm,
+						'mr-auto shrink-0 whitespace-nowrap text-dotori-600 dark:text-dotori-300',
+					)}
+				>
 					{resultLabel}
 				</Text>
 				<div className="flex items-center gap-1.5">
@@ -58,7 +70,8 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 							variant="ghost"
 							onClick={onToggleFilters}
 							className={cn(
-								'relative inline-flex min-h-9 items-center gap-1 rounded-full px-3 py-1.5 text-body-sm transition-all duration-150',
+								'relative inline-flex min-h-9 items-center gap-1 rounded-full px-3 py-1.5 transition-all duration-150',
+								DS_TYPOGRAPHY.bodySm,
 								showFilters ? activeFilterPillClass : inactiveFilterPillClass,
 							)}
 						>
@@ -74,7 +87,7 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 										exit={{ scale: 0.7, opacity: 0 }}
 										transition={spring.chip}
 									>
-										<Badge color="forest" className="text-caption px-1.5 py-0.5">
+										<Badge color="forest" className={cn(DS_TYPOGRAPHY.caption, 'px-1.5 py-0.5')}>
 											{activeFilterCount}
 										</Badge>
 									</motion.span>
@@ -90,7 +103,8 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 							disabled={!showMap && !isMapAvailable}
 							className={cn(
 								'inline-flex min-h-9 items-center gap-1 rounded-full px-3 py-1.5',
-								'text-body-sm text-dotori-600 transition-all duration-150',
+								DS_TYPOGRAPHY.bodySm,
+								'text-dotori-600 transition-all duration-150',
 								'ring-1 ring-dotori-200/50',
 								'hover:bg-dotori-50 hover:ring-dotori-300/50',
 								'disabled:cursor-not-allowed disabled:opacity-50',
@@ -105,7 +119,7 @@ export const ExploreFilterToolbar = memo(function ExploreFilterToolbar({
 				</div>
 			</motion.div>
 			{!isMapAvailable && mapDisabledReason ? (
-				<Text className="text-caption mt-1 text-dotori-500 dark:text-dotori-400">
+				<Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1 text-dotori-500 dark:text-dotori-400')}>
 					{mapDisabledReason}
 				</Text>
 			) : null}

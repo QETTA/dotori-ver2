@@ -9,6 +9,7 @@
 import { motion, useReducedMotion, useInView } from 'motion/react'
 import { useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { AnimatedNumber } from '@/components/dotori/AnimatedNumber'
 
 const COLOR_MAP = {
@@ -115,7 +116,7 @@ export function DonutGauge({
         </span>
       )}
       {sublabel && (
-        <span className="text-xs text-dotori-500 dark:text-dotori-400">
+        <span className={cn('text-xs', DS_TEXT.muted)}>
           {sublabel}
         </span>
       )}

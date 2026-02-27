@@ -8,12 +8,11 @@
  * Motion:   spring, hoverLift, scrollFadeIn, tap
  * DS:       DS_CARD, DS_PAGE_HEADER, BrandWatermark
  */
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ChevronDownIcon,
   ChatBubbleLeftRightIcon,
-  EnvelopeIcon,
   QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline'
 import { Heading, Subheading } from '@/components/catalyst/heading'
@@ -22,11 +21,15 @@ import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { cn } from '@/lib/utils'
-import { spring, hoverLift, scrollFadeIn } from '@/lib/motion'
+import { spring, scrollFadeIn } from '@/lib/motion'
+import { KAKAO_CHANNEL_CHAT_URL } from '@/lib/kakao-constants'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
+import type { UiBlock as UiBlockType } from '@/types/dotori'
 
 const FAQ_ITEMS = [
   {
@@ -53,21 +56,36 @@ const FAQ_ITEMS = [
 
 const CONTACT_OPTIONS = [
   {
-    Icon: ChatBubbleLeftRightIcon,
     label: '1:1 채팅',
     sub: '평일 09:00~18:00',
-    accent: 'bg-dotori-100/80 dark:bg-dotori-800/40',
+    href: '/chat',
   },
   {
-    Icon: EnvelopeIcon,
-    label: '이메일 문의',
-    sub: '24시간 접수',
-    accent: 'bg-forest-50/80 dark:bg-forest-900/30',
+    label: '카카오톡 채널',
+    sub: '채널 채팅으로 빠르게 문의',
+    href: KAKAO_CHANNEL_CHAT_URL,
+    badge: '카카오',
   },
 ]
+const contactOptionsBlock: UiBlockType = {
+  type: 'ui_block',
+  title: '문의 채널',
+  subtitle: '가장 편한 방법으로 바로 문의하세요',
+  layout: 'grid',
+  items: CONTACT_OPTIONS.map((opt) => ({
+    id: `support-contact-${opt.label}`,
+    title: opt.label,
+    description: opt.sub,
+    badge: opt.badge,
+    href: opt.href,
+    actionLabel: `${opt.label} 열기`,
+  })),
+}
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false)
+  const triggerId = useId()
+  const panelId = useId()
 
   return (
     <div className={cn(
@@ -77,13 +95,16 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         : 'bg-dotori-950/[0.02] ring-1 ring-dotori-200/30 dark:bg-white/[0.02] dark:ring-dotori-800/30',
     )}>
       <button
+        id={triggerId}
         type="button"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={panelId}
         className="flex w-full min-h-12 items-center justify-between rounded-2xl px-5 py-4 text-left transition-colors hover:bg-dotori-950/[0.03] dark:hover:bg-white/[0.03]"
       >
-        <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50 pr-4">
+        <span className={cn('pr-4 font-semibold text-dotori-950 dark:text-dotori-50', DS_TYPOGRAPHY.bodySm)}>
           {question}
-        </Text>
+        </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={spring.chip}
@@ -94,6 +115,9 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
+            id={panelId}
+            role="region"
+            aria-labelledby={triggerId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -101,7 +125,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             className="overflow-hidden"
           >
             <div className="px-5 pb-5">
-              <Text className="text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400 leading-relaxed">
+              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-400 leading-relaxed')}>
                 {answer}
               </Text>
             </div>
@@ -125,34 +149,18 @@ export default function SupportPage() {
         <BrandWatermark className="opacity-50" />
         <FadeIn>
           <p className={DS_PAGE_HEADER.eyebrow}>고객 지원</p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <Heading className={cn('mt-3 font-wordmark font-bold', DS_PAGE_HEADER.title)}>
             도움이 필요하세요?
           </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
             자주 묻는 질문을 확인하거나 직접 문의해주세요.
           </Text>
         </FadeIn>
       </div>
 
-      {/* ══════ CONTACT OPTIONS (hoverLift) ══════ */}
+      {/* ══════ CONTACT OPTIONS ══════ */}
       <FadeIn>
-        <div className="grid grid-cols-2 gap-3">
-          {CONTACT_OPTIONS.map((opt) => (
-            <motion.div key={opt.label} {...hoverLift}>
-              <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'flex flex-col items-center gap-2.5 p-5')}>
-                <div className={cn('grid h-10 w-10 place-items-center rounded-xl', opt.accent)}>
-                  <opt.Icon className="h-5 w-5 text-dotori-500" />
-                </div>
-                <Subheading level={3} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
-                  {opt.label}
-                </Subheading>
-                <Text className="text-center text-caption text-dotori-500 dark:text-dotori-400">
-                  {opt.sub}
-                </Text>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <UiBlockCard block={contactOptionsBlock} />
       </FadeIn>
 
       {/* ══════ FAQ ══════ */}
@@ -161,7 +169,7 @@ export default function SupportPage() {
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-dotori-100/60 dark:bg-dotori-800/30">
             <QuestionMarkCircleIcon className="h-4 w-4 text-dotori-500" />
           </div>
-          <Subheading level={2} className="text-base/7 font-semibold text-dotori-950 sm:text-base/7">
+          <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             자주 묻는 질문
           </Subheading>
         </div>
@@ -177,13 +185,13 @@ export default function SupportPage() {
       {/* ══════ STILL NEED HELP ══════ */}
       <motion.div {...scrollFadeIn}>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6 text-center')}>
-          <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             원하는 답을 찾지 못하셨나요?
           </Text>
-          <Text className="mt-1 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+          <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
             아래 버튼을 눌러 상담을 시작해보세요
           </Text>
-          <DsButton className="mt-4">
+          <DsButton href="/chat" className="mt-4">
             <ChatBubbleLeftRightIcon className="h-4 w-4" />
             상담 시작하기
           </DsButton>

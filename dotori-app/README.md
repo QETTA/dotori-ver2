@@ -6,11 +6,17 @@
 # install
 npm ci
 
-# one-shot quality gate (format:check -> lint -> typecheck -> test -> build:ci)
+# one-shot quality gate (format:check -> lint -> style-guard -> ds-delta -> typecheck -> test -> build:ci)
 npm run ci
 
-# fast validation (no build, 배포 전 사전 검증용)
+# fast validation (no build, 배포 전 사전 검증용 / ds-delta 포함)
 npm run ci:preflight
+
+# ds-delta guard (strong gate)
+npm run check:ds-delta
+
+# optional: changed files 직접 전달 (space/comma/newline 구분)
+DS_CHANGED_FILES="dotori-app/src/app/(app)/page.tsx dotori-app/src/components/dotori/BottomTabBar.tsx" npm run check:ds-delta
 
 # split commands
 npm run format

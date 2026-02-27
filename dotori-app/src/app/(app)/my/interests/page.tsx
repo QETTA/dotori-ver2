@@ -24,6 +24,8 @@ import {
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { hoverLift, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useInterests } from '@/hooks/use-interests'
@@ -48,14 +50,14 @@ export default function InterestsPage() {
 
       {/* ══════ INTRO ══════ */}
       <FadeIn>
-        <div>
-          <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+        <div className={DS_PAGE_HEADER.spacing}>
+          <p className={DS_PAGE_HEADER.eyebrow}>
             관심 시설
           </p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
             찜한 시설
           </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
             관심 시설의 빈자리 현황을 한눈에 확인하세요.
           </Text>
         </div>
@@ -75,15 +77,15 @@ export default function InterestsPage() {
         />
       ) : interests.length === 0 ? (
         <motion.div {...scrollFadeIn}>
-          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex flex-col items-center rounded-2xl py-14 text-center')}>
-            <BrandEmptyIllustration variant="empty" size={96} className="mb-2" />
-            <Text className="mt-5 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, DS_EMPTY_STATE.container, 'rounded-2xl')}>
+            <BrandEmptyIllustration variant="empty" size={96} className={DS_EMPTY_STATE.illustration} />
+            <Text className={DS_EMPTY_STATE.title}>
               아직 관심 시설이 없어요
             </Text>
-            <Text className="mt-1.5 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={DS_EMPTY_STATE.description}>
               시설을 탐색하고 하트를 눌러 관심 등록해보세요
             </Text>
-            <DsButton href="/explore" className="mt-5">
+            <DsButton href="/explore" className={DS_EMPTY_STATE.action}>
               <MagnifyingGlassIcon className="h-4 w-4" />
               시설 탐색하기
             </DsButton>
@@ -102,7 +104,7 @@ export default function InterestsPage() {
                 <motion.div {...hoverLift}>
                   <Link
                     href={`/facility/${facility.id}`}
-                    className="block overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-dotori-100/80 transition-shadow hover:shadow-md dark:bg-dotori-900/80 dark:ring-dotori-800/60"
+                    className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover, 'block overflow-hidden')}
                   >
                     {/* Status accent bar */}
                     <div className={cn('h-1', config.accent)} />
@@ -112,12 +114,12 @@ export default function InterestsPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+                            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                               {facility.name}
                             </Text>
                             <ToBadge status={facility.status} vacancy={available} compact />
                           </div>
-                          <Text className="mt-0.5 text-caption text-dotori-500 dark:text-dotori-400">
+                          <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-0.5 text-dotori-500 dark:text-dotori-400')}>
                             {facility.type} · {facility.address}
                           </Text>
                         </div>
@@ -125,7 +127,7 @@ export default function InterestsPage() {
                       </div>
 
                       {/* Stats row */}
-                      <div className="mt-3 flex items-center gap-4 text-caption">
+                      <div className={cn('mt-3 flex items-center gap-4', DS_TYPOGRAPHY.caption)}>
                         <div>
                           <span className="text-dotori-500">입소률 </span>
                           <span className="font-semibold text-dotori-900 dark:text-dotori-50">{occupancyPct}%</span>

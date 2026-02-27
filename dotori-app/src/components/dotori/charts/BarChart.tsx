@@ -9,6 +9,7 @@
 import { motion, useReducedMotion, useInView } from 'motion/react'
 import { useRef } from 'react'
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { Subheading } from '@/components/catalyst/heading'
 
 export interface BarData {
@@ -53,7 +54,7 @@ export function BarChart({
           const barColor = bar.color ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
           return (
             <div key={bar.label} className="flex flex-1 flex-col items-center gap-1.5">
-              <span className="font-wordmark text-xs font-semibold text-dotori-700 dark:text-dotori-300">
+              <span className={cn('font-wordmark text-xs font-semibold', DS_TEXT.secondary)}>
                 {bar.value}
               </span>
               <div className="relative h-24 w-full overflow-hidden rounded-t-lg bg-dotori-100/60 dark:bg-dotori-800/40">

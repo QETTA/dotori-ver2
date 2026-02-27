@@ -257,7 +257,8 @@ export type ChatBlockType =
 	| "map"
 	| "compare"
 	| "actions"
-	| "checklist";
+	| "checklist"
+	| "ui_block";
 
 export interface TextBlock {
 	type: "text";
@@ -326,13 +327,32 @@ export interface ChecklistBlock {
 	}[];
 }
 
+export interface UiBlockItem {
+	id: string;
+	title: string;
+	description?: string;
+	badge?: string;
+	actionId?: string;
+	actionLabel?: string;
+	href?: string;
+}
+
+export interface UiBlock {
+	type: "ui_block";
+	title: string;
+	subtitle?: string;
+	layout?: "grid" | "list";
+	items: UiBlockItem[];
+}
+
 export type ChatBlock =
 	| TextBlock
 	| FacilityBlock
 	| MapBlock
 	| ActionsBlock
 	| ChecklistBlock
-	| CompareBlock;
+	| CompareBlock
+	| UiBlock;
 
 /* ===== TO 예측 ===== */
 export type TOConfidenceLevel = "low" | "medium" | "high";

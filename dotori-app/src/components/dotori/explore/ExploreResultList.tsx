@@ -1,20 +1,28 @@
 "use client";
 
+/**
+ * ExploreResultList — Facility search result list
+ *
+ * hasDesignTokens: true  — DS_STATUS, DS_CARD, DS_TYPOGRAPHY
+ * hasBrandSignal:  true  — DS_STATUS (status pills), DS_CARD.raised (facility cards)
+ */
 import { HeartIcon } from "@heroicons/react/24/solid";
 import { ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { memo } from "react";
 import { DsButton } from "@/components/ds/DsButton";
+import { UiBlock } from "@/components/dotori/blocks/UiBlock";
 
 import { EmptyState } from "@/components/dotori/EmptyState";
 import { ErrorState } from "@/components/dotori/ErrorState";
 import { FacilityCard } from "@/components/dotori/FacilityCard";
 import { Skeleton } from "@/components/dotori/Skeleton";
-import { BRAND } from "@/lib/brand-assets";
 import { DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { fadeUp, stagger, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import type { UiBlock as UiBlockType } from "@/types/dotori";
 import type {
 	ExploreResultActions,
 	ExploreResultInteraction,
@@ -28,9 +36,9 @@ interface ExploreResultListProps {
 }
 
 const getStatusColor = (status: string) => {
-	if (status === "available") return "bg-forest-500";
-	if (status === "waiting") return "bg-amber-500";
-	return "bg-dotori-300";
+	if (status === "available") return DS_STATUS.available.dot;
+	if (status === "waiting") return DS_STATUS.waiting.dot;
+	return DS_STATUS.full.dot;
 };
 
 const getStatusPillClass = (status: string) => {
@@ -76,22 +84,35 @@ export const ExploreResultList = memo(function ExploreResultList({
 		: hasFilterApplied
 			? { label: "필터 풀고 다시 찾기", onClick: onResetFilters }
 			: { label: "조건 다시 설정", onClick: onResetSearch };
+	const emptyCtaBlock: UiBlockType = {
+		type: "ui_block",
+		title: "다음으로 해볼 수 있어요",
+		subtitle: "조건을 조정하거나 토리에게 바로 물어보세요",
+		layout: "list",
+		items: [
+			{
+				id: "explore-empty-primary",
+				title: emptyPrimaryAction.label,
+				description: hasSearchInput
+					? "검색어를 지우고 다시 탐색합니다."
+					: hasFilterApplied
+						? "적용한 필터를 해제하고 다시 탐색합니다."
+						: "조건을 초기화하고 다시 탐색합니다.",
+				actionId: "explore_empty_primary",
+				actionLabel: "다시 찾기",
+			},
+			{
+				id: "explore-empty-chat",
+				title: "토리에게 물어보기",
+				description: "이동 조건을 입력하면 후보를 정리해드려요.",
+				href: chatPromptHref,
+				actionLabel: "토리에게 물어보기",
+			},
+		],
+	};
 
 	return (
-		<div className={cn(
-			'relative min-h-[50vh] px-4 pt-3 pb-28',
-			/* Warm organic gradient — layered depth */
-			'bg-gradient-to-b from-dotori-50/60 via-white via-60% to-forest-50/30',
-			'dark:from-dotori-950 dark:via-dotori-950 dark:to-forest-950/20',
-		)}>
-			{/* Subtle watermark */}
-			{/* eslint-disable-next-line @next/next/no-img-element */}
-			<img
-				src={BRAND.watermark}
-				alt=""
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-0 top-8 mx-auto h-28 w-28 opacity-[0.02]"
-			/>
+		<div className="relative min-h-[50vh] px-4 pt-3 pb-28">
 
 			{/* ── Loading state ── */}
 			{isLoading && !isTimeout ? (
@@ -123,7 +144,9 @@ export const ExploreResultList = memo(function ExploreResultList({
 				<motion.ul {...stagger.fast.container} className="relative space-y-3 pb-4">
 					{/* ── Insight banner ── */}
 					<motion.li {...stagger.fast.item}>
-						<div className="flex items-start gap-3 rounded-2xl bg-dotori-950/[0.025] px-4 py-3 dark:bg-white/[0.03]">
+						<div className={cn('overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+						<div className="h-0.5 bg-gradient-to-r from-violet-300/60 via-dotori-300/60 to-amber-300/60" />
+						<div className="flex items-start gap-3 px-4 py-3">
 							<ChatBubbleLeftIcon className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
 								<p className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-300')}>
@@ -136,6 +159,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								</p>
 							</div>
 						</div>
+					</div>
 					</motion.li>
 
 					{/* ── Facility cards ── */}
@@ -163,20 +187,22 @@ export const ExploreResultList = memo(function ExploreResultList({
 								{...stagger.fast.item}
 								className="group/card relative"
 							>
-								<div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-dotori-100/80 transition-all duration-200 group-hover/card:-translate-y-0.5 group-hover/card:shadow-[0_8px_32px_rgba(176,122,74,0.12)] dark:bg-dotori-900/80 dark:ring-dotori-800/60">
-								{/* Status accent bar — strongest visual signal */}
+								<div className={cn(
+								'overflow-hidden',
+								DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover,
+							)}>
+								{/* Status accent bar */}
 								<div className={cn('h-1', getStatusColor(facility.status))} />
-								{/* Gradient top bar — visible on hover (TP5 Pattern 5) */}
-								<div className="absolute inset-x-0 top-0 z-10 h-0.5 rounded-t-2xl bg-gradient-to-r from-dotori-400 via-amber-400 to-dotori-500 opacity-0 transition-opacity group-hover/card:opacity-100" />
 
 								<div className="relative z-10">
 									<FacilityCard facility={facility} compact />
 
 								{/* ── Status + Stats inline row ── */}
-								<div className="border-t border-dotori-100/60 px-4 py-3 dark:border-dotori-800/40">
+								<div className="border-t border-dotori-200/40 px-4 py-3 dark:border-dotori-800/40">
 									<div className="flex flex-wrap items-center gap-1.5">
 										<span className={cn(
-											'inline-flex items-center rounded-full px-2.5 py-1 text-caption font-semibold',
+											'inline-flex items-center rounded-full px-2.5 py-1 font-semibold',
+											DS_TYPOGRAPHY.caption,
 											getStatusPillClass(facility.status),
 										)}>
 											{facility.status === "available"
@@ -185,49 +211,62 @@ export const ExploreResultList = memo(function ExploreResultList({
 													? `${getStatusLabel(facility.status)} ${facility.capacity.waiting}명`
 													: getStatusLabel(facility.status)}
 										</span>
-										<span className="inline-flex items-center rounded-full bg-dotori-950/[0.04] px-2.5 py-1 text-caption font-medium text-dotori-700 dark:bg-white/[0.06] dark:text-dotori-200">
+										<span className={cn(
+											'inline-flex items-center rounded-full px-2.5 py-1 font-medium',
+											DS_TYPOGRAPHY.caption,
+											DS_STATUS.full.pill,
+										)}>
 											{facility.type}
 										</span>
 										{facility.distance ? (
-											<span className="inline-flex items-center rounded-full bg-dotori-950/[0.04] px-2.5 py-1 text-caption text-dotori-500 dark:bg-white/[0.06] dark:text-dotori-400">
+											<span className={cn(
+												'inline-flex items-center rounded-full px-2.5 py-1',
+												DS_TYPOGRAPHY.caption,
+												DS_STATUS.full.pill,
+											)}>
 												{facility.distance}
 											</span>
 										) : null}
 									</div>
 
 									{/* ── Compact stat row ── */}
-									<div className="mt-3 flex items-center gap-4 text-caption">
+									<div className={cn('mt-3 flex items-center gap-4', DS_TYPOGRAPHY.caption)}>
 										<div>
-											<span className="text-dotori-500 dark:text-dotori-400">입소률 </span>
-											<span className="font-semibold text-dotori-900 dark:text-dotori-50">{occupancyRate}%</span>
+											<span className="text-dotori-500">입소률 </span>
+											<span className="font-semibold text-dotori-900 dark:text-white">{occupancyRate}%</span>
 										</div>
 										<span className="text-dotori-200 dark:text-dotori-700">|</span>
 										<div>
-											<span className="text-dotori-500 dark:text-dotori-400">가용 </span>
+											<span className="text-dotori-500">가용 </span>
 											<span className={cn(
 												'font-semibold',
-												isAvailable ? 'text-forest-600 dark:text-forest-400' : 'text-dotori-900 dark:text-dotori-50',
+												isAvailable ? 'text-forest-600 dark:text-forest-400' : 'text-dotori-900 dark:text-white',
 											)}>
 												{isAvailable ? `${availableSeats}석` : `대기 ${facility.capacity.waiting}명`}
 											</span>
 										</div>
 										<span className="text-dotori-200 dark:text-dotori-700">|</span>
 										<div>
-											<span className="text-dotori-500 dark:text-dotori-400">리뷰 </span>
-											<span className="font-semibold text-dotori-900 dark:text-dotori-50">{reviewLabel}</span>
+											<span className="text-dotori-500">리뷰 </span>
+											<span className="font-semibold text-dotori-900 dark:text-white">{reviewLabel}</span>
 										</div>
 									</div>
 								</div>
 
 								{/* ── Actions — z-30 above click zone ── */}
-								<div className="relative z-30 flex items-center justify-end gap-2 border-t border-dotori-100/40 px-4 py-2.5 dark:border-dotori-800/30">
+								<div className="relative z-30 flex items-center justify-end gap-2 border-t border-dotori-200/40 px-4 py-2.5 dark:border-dotori-800/40">
 									<motion.div {...tap.chip}>
 										<DsButton
 											variant="ghost"
 											type="button"
 											disabled={isActionLoading}
 											onClick={() => onRegisterInterest(facility.id)}
-											className="inline-flex min-h-9 items-center gap-1 rounded-full bg-dotori-950/[0.04] px-3 text-caption font-medium text-dotori-600 transition-colors hover:bg-dotori-100 dark:bg-white/[0.05] dark:text-dotori-300 dark:hover:bg-dotori-800"
+											className={cn(
+												'inline-flex min-h-9 items-center gap-1 rounded-full px-3 font-medium transition-colors',
+												DS_TYPOGRAPHY.caption,
+												DS_STATUS.full.pill,
+												'hover:bg-dotori-200 dark:hover:bg-dotori-700',
+											)}
 										>
 											<HeartIcon className="h-3.5 w-3.5" />
 											관심
@@ -261,10 +300,11 @@ export const ExploreResultList = memo(function ExploreResultList({
 									disabled={isLoadingMore}
 									variant="ghost"
 									className={cn(
-										'min-h-11 w-full rounded-2xl text-body-sm font-medium',
-										'bg-white text-dotori-600 ring-1 ring-dotori-200/50',
-										'hover:bg-dotori-50 hover:ring-dotori-300/50',
-										'dark:bg-dotori-900/60 dark:text-dotori-300 dark:ring-dotori-700/40',
+										'min-h-11 w-full font-medium',
+										DS_TYPOGRAPHY.bodySm,
+										DS_CARD.raised.base, DS_CARD.raised.dark,
+										'text-dotori-600 dark:text-dotori-300',
+										'hover:bg-dotori-50 dark:hover:bg-dotori-800',
 									)}
 								>
 									{isLoadingMore ? "불러오는 중..." : "더 보기"}
@@ -276,44 +316,27 @@ export const ExploreResultList = memo(function ExploreResultList({
 			) : null}
 
 			{/* ── Empty state ── */}
-			{!isLoading && !error && !isTimeout && !hasResults ? (
-				<motion.div {...fadeUp} className="space-y-4 pb-4">
-					<EmptyState
-						variant="transfer"
-						title={hasSearchInput ? `"${debouncedSearch}"로는 결과가 없어요` : "이 조건에 맞는 시설이 없어요"}
+				{!isLoading && !error && !isTimeout && !hasResults ? (
+					<motion.div {...fadeUp} className="space-y-4 pb-4">
+						<EmptyState
+							variant="transfer"
+							title={hasSearchInput ? `"${debouncedSearch}"로는 결과가 없어요` : "이 조건에 맞는 시설이 없어요"}
 						description={
 							!hasSearchInput && !hasFilterApplied
 								? "현재 지역 기준으로 바로 이동 가능한 시설을 찾지 못했어요. '이동 가능 시설만 보기'를 켜거나 지역을 넓혀보세요."
 								: "지역·시설 유형·정렬을 조금만 바꾸면 결과가 나올 수 있어요."
 						}
 					/>
-					<div className="space-y-2">
-						<motion.div {...tap.chip}>
-							<DsButton
-								type="button"
-								onClick={emptyPrimaryAction.onClick}
-								className="min-h-11 w-full text-body-sm"
-							>
-								{emptyPrimaryAction.label}
-							</DsButton>
-						</motion.div>
-						<motion.div {...tap.chip}>
-							<DsButton
-								variant="ghost"
-								href={chatPromptHref}
-								className={cn(
-									'min-h-11 w-full justify-center rounded-2xl text-body-sm',
-									'bg-dotori-950/[0.025] text-dotori-600 ring-1 ring-dotori-200/40',
-									'hover:bg-dotori-50',
-									'dark:bg-white/[0.03] dark:text-dotori-300 dark:ring-dotori-700/40',
-								)}
-							>
-								토리에게 물어보기
-							</DsButton>
-						</motion.div>
-					</div>
-				</motion.div>
-			) : null}
+						<UiBlock
+							block={emptyCtaBlock}
+							onAction={(actionId) => {
+								if (actionId === "explore_empty_primary") {
+									emptyPrimaryAction.onClick();
+								}
+							}}
+						/>
+					</motion.div>
+				) : null}
 		</div>
 	);
 });

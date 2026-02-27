@@ -2,8 +2,10 @@ import { motion } from "motion/react";
 
 import { Badge } from "@/components/catalyst/badge";
 import { BRAND } from "@/lib/brand-assets";
+import { DS_TYPOGRAPHY, DS_GLASS, DS_TEXT, DS_SHADOW } from "@/lib/design-system/tokens";
 import { fadeUp } from "@/lib/motion";
 import { sanitizeImageUrls } from "@/lib/safe-image";
+import { cn } from "@/lib/utils";
 import {
 	VERIFIED_FACILITY_DATE_LABEL,
 	VERIFIED_FACILITY_INFO_LABEL,
@@ -35,24 +37,24 @@ export function FacilityPremiumSection({
 	return (
 		<motion.section
 			{...fadeUp}
-			className={'glass-card rounded-2xl p-5 shadow-sm dark:bg-dotori-950 dark:shadow-none'}
+			className={cn('rounded-2xl p-5', DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.md, DS_SHADOW.dark.md)}
 		>
 			<div className={'flex items-center justify-between gap-2'}>
-				<h2 className={'text-body font-semibold text-dotori-900 dark:text-dotori-50'}>
+				<h2 className={cn(DS_TYPOGRAPHY.body, 'font-semibold', DS_TEXT.primary)}>
 					{VERIFIED_FACILITY_INFO_LABEL}
 				</h2>
 				{premiumVerifiedAt ? (
-					<p className={'text-body font-medium text-forest-700 dark:text-forest-200'}>
+					<p className={cn(DS_TYPOGRAPHY.body, 'font-medium text-forest-700 dark:text-forest-200')}>
 						{VERIFIED_FACILITY_DATE_LABEL}: {premiumVerifiedAt}
 					</p>
 				) : null}
 			</div>
 			{premiumDirectorMessage ? (
 				<div className={'mt-3 rounded-2xl bg-dotori-50 p-4 dark:bg-dotori-900'}>
-					<h3 className={'mb-1 text-body font-medium text-dotori-700 dark:text-dotori-200'}>
+					<h3 className={cn(DS_TYPOGRAPHY.body, 'mb-1 font-medium', DS_TEXT.secondary)}>
 						원장 한마디
 					</h3>
-					<p className={'text-body leading-6 text-dotori-800 dark:text-dotori-100'}>
+					<p className={cn(DS_TYPOGRAPHY.body, 'leading-6', DS_TEXT.primary)}>
 						{premiumDirectorMessage}
 					</p>
 				</div>
@@ -60,7 +62,7 @@ export function FacilityPremiumSection({
 
 			{premiumPrograms && premiumPrograms.length > 0 ? (
 				<div className={'mt-3'}>
-					<h3 className={'mb-2 text-body font-medium text-dotori-700 dark:text-dotori-200'}>
+					<h3 className={cn(DS_TYPOGRAPHY.body, 'mb-2 font-medium', DS_TEXT.secondary)}>
 						프로그램
 					</h3>
 					<div className={'mt-2 flex flex-wrap gap-2'}>
@@ -75,14 +77,14 @@ export function FacilityPremiumSection({
 
 			{premiumHighlights && premiumHighlights.length > 0 ? (
 				<div className={'mt-3'}>
-					<h3 className={'mb-2 text-body font-medium text-dotori-700 dark:text-dotori-200'}>
+					<h3 className={cn(DS_TYPOGRAPHY.body, 'mb-2 font-medium', DS_TEXT.secondary)}>
 						하이라이트
 					</h3>
 					<ul className={'space-y-1.5'}>
 						{premiumHighlights.map((highlight) => (
 							<li
 								key={highlight}
-								className={'text-body text-dotori-700 dark:text-dotori-200'}
+								className={cn(DS_TYPOGRAPHY.body, DS_TEXT.secondary)}
 							>
 								<span className={'mr-2 inline-block text-forest-500'}>✓</span>
 								{highlight}
@@ -94,7 +96,7 @@ export function FacilityPremiumSection({
 
 			{safePremiumPhotos.length > 0 ? (
 				<div className={'mt-3'}>
-					<h3 className={'mb-2 text-body font-medium text-dotori-700 dark:text-dotori-200'}>
+					<h3 className={cn(DS_TYPOGRAPHY.body, 'mb-2 font-medium', DS_TEXT.secondary)}>
 						추가 사진
 					</h3>
 					<div className={'grid grid-cols-2 gap-2'}>

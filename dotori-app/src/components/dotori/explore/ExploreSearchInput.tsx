@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * ExploreSearchInput — Search bar + GPS + scenario chips
+ *
+ * hasDesignTokens: true  — DS_TYPOGRAPHY, DS_SURFACE, DS_CARD
+ * hasBrandSignal:  true  — DS_SURFACE.sunken, DS_CARD.flat (chips), color="dotori"/"forest"
+ */
 import {
 	MagnifyingGlassIcon,
 	XMarkIcon,
@@ -18,6 +24,9 @@ import { memo, type FormEvent, type RefObject } from "react";
 import { DsButton } from "@/components/ds/DsButton";
 import { Input } from "@/components/catalyst/input";
 import { Text } from "@/components/catalyst/text";
+import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
+import { DS_CARD } from "@/lib/design-system/card-tokens";
+import { DS_SURFACE } from "@/lib/design-system/page-tokens";
 import { tap, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { MOVE_SCENARIO_CHIPS } from "./explore-constants";
@@ -87,13 +96,15 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 					onFocus={onFocus}
 					placeholder="시설명·지역으로 빠르게 검색"
 					className={cn(
-						'text-body min-h-12 w-full rounded-2xl',
-						'bg-dotori-950/[0.025] py-3 pl-10 pr-10',
+						'min-h-12 w-full rounded-2xl',
+						DS_TYPOGRAPHY.body,
+						DS_SURFACE.sunken,
+						'py-3 pl-10 pr-10',
 						'text-dotori-900 placeholder:text-dotori-400',
 						'ring-1 ring-dotori-200/50 outline-none',
 						'transition-all duration-200',
 						'focus:bg-white focus:shadow-sm focus:ring-2 focus:ring-dotori-400/60',
-						'dark:bg-white/5 dark:text-dotori-50',
+						'dark:text-dotori-50',
 						'dark:ring-dotori-700/50 dark:placeholder:text-dotori-500',
 						'dark:focus:bg-dotori-950 dark:focus:ring-dotori-500/60',
 					)}
@@ -123,10 +134,12 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 							disabled={isGpsLoading}
 							className={cn(
 								'inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 py-1.5',
-								'text-body-sm font-medium shadow-sm transition-all duration-150',
-								'bg-dotori-950/[0.025] text-dotori-700 ring-1 ring-dotori-200/60',
+								'font-medium shadow-sm transition-all duration-150',
+								DS_TYPOGRAPHY.bodySm,
+								DS_SURFACE.sunken,
+								'text-dotori-700 ring-1 ring-dotori-200/60',
 								'hover:bg-dotori-50 hover:ring-dotori-300/60',
-								'dark:bg-white/5 dark:text-dotori-200 dark:ring-dotori-700/50',
+								'dark:text-dotori-200 dark:ring-dotori-700/50',
 								isGpsLoading && 'opacity-60',
 							)}
 						>
@@ -142,7 +155,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 
 				{/* ── Scenario chips — empathy-first discovery ── */}
 				<div>
-					<Text className="text-caption mb-2 text-dotori-500 dark:text-dotori-400">
+					<Text className={cn(DS_TYPOGRAPHY.caption, 'mb-2 text-dotori-500 dark:text-dotori-400')}>
 						이동 수요 시나리오
 					</Text>
 					<motion.div
@@ -163,8 +176,9 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 										transition={spring.chip}
 										className={cn(
 											'inline-flex items-center gap-1.5 rounded-xl px-3 py-2',
-											'text-body-sm font-medium transition-all duration-150',
-											meta?.bg ?? 'bg-dotori-50 dark:bg-dotori-900',
+											'font-medium transition-all duration-150',
+											DS_TYPOGRAPHY.bodySm,
+											meta?.bg ?? cn(DS_CARD.flat.base, DS_CARD.flat.dark),
 											'ring-1 ring-dotori-200/40 dark:ring-dotori-700/40',
 											'hover:shadow-sm hover:ring-dotori-300/50',
 											'dark:hover:ring-dotori-600/50',

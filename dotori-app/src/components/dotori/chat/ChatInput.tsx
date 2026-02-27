@@ -11,6 +11,9 @@ import { copy } from '@/lib/brand-copy'
 import { tap } from '@/lib/motion'
 import { Input, InputGroup } from '@/components/catalyst/input'
 import { DsButton } from '@/components/ds/DsButton'
+import { cn } from '@/lib/utils'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 
 export function ChatInput({
   onSend,
@@ -42,7 +45,10 @@ export function ChatInput({
   )
 
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-white p-2 shadow-lg ring-1 ring-black/5 dark:bg-dotori-900 dark:ring-white/10">
+    <div className={cn(
+      DS_SURFACE.primary, DS_CARD.raised.base, DS_CARD.raised.dark,
+      'flex items-center gap-2 p-2',
+    )}>
       <div className="flex-1">
         <InputGroup>
           <Input

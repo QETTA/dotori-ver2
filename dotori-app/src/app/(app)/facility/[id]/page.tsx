@@ -21,9 +21,10 @@ import {
 } from '@heroicons/react/24/outline'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/catalyst/description-list'
@@ -114,25 +115,25 @@ export default function FacilityDetailPage({
         <FadeIn>
           <div className="flex items-center gap-2">
             <ToBadge status={facility.status} vacancy={vacancies} />
-            <Text className="font-mono text-xs/5 text-dotori-500 sm:text-xs/5">{facility.type}</Text>
+            <Text className={DS_PAGE_HEADER.eyebrow}>{facility.type}</Text>
           </div>
         </FadeIn>
         <FadeIn>
-          <Heading className="mt-4 font-wordmark text-4xl/[1.15] font-bold tracking-tight text-dotori-950 sm:text-4xl/[1.15]">
+          <h1 className={cn('mt-4 font-wordmark text-4xl/[1.15]', DS_PAGE_HEADER.title)}>
             {facility.name}
-          </Heading>
+          </h1>
         </FadeIn>
         <FadeIn>
           <div className="mt-3 flex items-center gap-2">
             <MapPinIcon className="h-4 w-4 shrink-0 text-dotori-600 dark:text-dotori-400" />
-            <Text className="text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400">{facility.address}</Text>
+            <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>{facility.address}</Text>
           </div>
         </FadeIn>
       </div>
 
       {/* ══════ TO SCORE — DonutGauge (상단 배치) ══════ */}
       <motion.div {...scrollFadeIn}>
-        <div className="rounded-xl bg-forest-50 p-6 dark:bg-forest-950/20">
+        <div className="rounded-xl bg-forest-50 p-6 dark:bg-forest-950/20 ring-1 ring-forest-200/40 dark:ring-forest-800/40">
           <div className="flex items-center gap-6">
             <DonutGauge
               value={toScore}
@@ -143,9 +144,9 @@ export default function FacilityDetailPage({
               sublabel="TO 예측 엔진"
             />
             <div className="flex-1 space-y-2">
-              <Subheading level={2} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+              <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                 빈자리 {vacancies}석
-              </Subheading>
+              </h3>
               <Text className="text-caption text-dotori-600 dark:text-dotori-400">
                 정원 {facility.capacity.total}명 중 {facility.capacity.current}명 재원
               </Text>
@@ -162,9 +163,9 @@ export default function FacilityDetailPage({
       {/* ══════ CAPACITY BarChart ══════ */}
       <motion.div {...scrollFadeIn}>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6')}>
-          <Subheading level={3} className="mb-4 text-sm/6 font-medium text-dotori-950 sm:text-sm/6">
+          <h3 className={cn(DS_TYPOGRAPHY.bodySm, 'mb-4 font-medium text-dotori-950 dark:text-dotori-50')}>
             정원 현황
-          </Subheading>
+          </h3>
           <BarChart
             bars={[
               { label: '정원', value: facility.capacity.total, color: 'bg-dotori-300 dark:bg-dotori-600' },
@@ -180,7 +181,7 @@ export default function FacilityDetailPage({
 
       {/* ══════ DESCRIPTION LIST ══════ */}
       <motion.div {...scrollFadeIn}>
-        <Subheading level={2} className="mb-4 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">시설 정보</Subheading>
+        <h2 className={cn(DS_TYPOGRAPHY.h3, 'mb-4')}>시설 정보</h2>
         <DescriptionList>
           {facility.establishmentYear && (
             <>
@@ -208,9 +209,9 @@ export default function FacilityDetailPage({
       {/* ══════ FEATURES / AMENITIES ══════ */}
       {features.length > 0 && (
         <motion.div {...scrollFadeIn}>
-          <Subheading level={2} className="mb-3 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'mb-3')}>
             편의시설
-          </Subheading>
+          </h2>
           <div className="flex flex-wrap gap-2">
             {features.map((feat) => {
               const Icon = amenityIcons[feat]
@@ -220,7 +221,7 @@ export default function FacilityDetailPage({
                   className={cn('flex items-center gap-1.5 rounded-lg px-3 py-1.5', DS_CARD.flat.base, DS_CARD.flat.dark)}
                 >
                   {Icon && <Icon className="h-4 w-4 text-forest-600 dark:text-forest-400" />}
-                  <span className="text-xs font-medium text-dotori-700 dark:text-dotori-300">{feat}</span>
+                  <span className={cn(DS_TYPOGRAPHY.caption, 'font-medium')}>{feat}</span>
                 </div>
               )
             })}
@@ -230,13 +231,13 @@ export default function FacilityDetailPage({
 
       {/* ══════ LOCATION ══════ */}
       <motion.div {...scrollFadeIn}>
-        <Subheading level={2} className="mb-3 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+        <h2 className={cn(DS_TYPOGRAPHY.h3, 'mb-3')}>
           위치
-        </Subheading>
-        <div className="flex h-36 items-center justify-center overflow-hidden rounded-xl bg-dotori-100/60 dark:bg-dotori-800/30">
+        </h2>
+        <div className={cn('flex h-36 items-center justify-center overflow-hidden rounded-xl', DS_SURFACE.sunken)}>
           <div className="text-center">
             <MapPinIcon className="mx-auto h-8 w-8 text-dotori-400" />
-            <Text className="mt-2 text-xs text-dotori-500">지도 준비 중</Text>
+            <Text className={cn('mt-2', DS_TYPOGRAPHY.caption)}>지도 준비 중</Text>
           </div>
         </div>
       </motion.div>
@@ -244,9 +245,9 @@ export default function FacilityDetailPage({
       {/* ══════ REVIEWS ══════ */}
       <motion.div {...scrollFadeIn}>
         <div className="flex items-center justify-between">
-          <Subheading level={2} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <h2 className={DS_TYPOGRAPHY.h3}>
             리뷰
-          </Subheading>
+          </h2>
           <DsButton variant="ghost" className="text-xs text-dotori-500">
             리뷰 쓰기
           </DsButton>
@@ -260,19 +261,19 @@ export default function FacilityDetailPage({
               />
             ))}
           </div>
-          <Text className="text-sm font-medium text-dotori-700 dark:text-dotori-300">
+          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium')}>
             {facility.rating.toFixed(1)}
           </Text>
-          <Text className="text-xs text-dotori-500">(리뷰 {facility.reviewCount}개)</Text>
+          <Text className={DS_TYPOGRAPHY.caption}>(리뷰 {facility.reviewCount}개)</Text>
         </div>
       </motion.div>
 
       {/* ══════ FUNNEL STEPS ══════ */}
       <motion.div {...scrollFadeIn}>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6')}>
-          <Subheading level={2} className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500 sm:text-xs/5">
+          <p className={DS_PAGE_HEADER.eyebrow}>
             {copy.facility.funnelLabel}
-          </Subheading>
+          </p>
           <div className="mt-4">
             <FunnelSteps currentStep={0} />
           </div>

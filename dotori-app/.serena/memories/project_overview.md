@@ -1,6 +1,6 @@
 # 도토리 (Dotori) 프로젝트 개요
 
-## 현재 상태 (2026-02-27, R50 완료)
+## 현재 상태 (2026-02-27, R51 완료)
 
 - **20 pages**, 0 TypeScript errors, **804 tests** (vitest, 70 test files), 빌드 성공
 - **21 models**, **54 API routes**, **139 components**

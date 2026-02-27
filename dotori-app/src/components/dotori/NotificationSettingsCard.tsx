@@ -9,6 +9,8 @@ import { Switch, SwitchField, SwitchGroup } from '@/components/catalyst/switch'
 import { Label, Description } from '@/components/catalyst/fieldset'
 import { Subheading } from '@/components/catalyst/heading'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 interface SettingItem {
   id: string
@@ -44,7 +46,7 @@ export function NotificationSettingsCard({
 
   return (
     <div>
-      <Subheading level={3} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+      <Subheading level={3} className={cn('text-sm/6 font-semibold sm:text-sm/6', DS_TEXT.primary)}>
         {title}
       </Subheading>
       <SwitchGroup className="mt-4">

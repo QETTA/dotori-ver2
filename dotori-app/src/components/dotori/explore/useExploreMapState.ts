@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/dotori/ToastProvider";
 import type { Facility } from "@/types/dotori";
 import {
@@ -83,14 +83,21 @@ export function useExploreMapState({
 		});
 	}, [addToast, checkMapAvailability, mapDisabledReason, showMap]);
 
-	// Disable map when availability changes
-	if (showMap && !isMapAvailable) {
-		setShowMap(false);
-		addToast({
-			type: "error",
-			message: mapDisabledReason || "지도 기능이 비활성화되어 있어요. 운영 설정을 확인해주세요.",
-		});
-	}
+	useEffect(() => {
+		if (!showMap || isMapAvailable) {
+			return;
+		}
+
+		const closeMapTimer = window.setTimeout(() => {
+			setShowMap(false);
+			addToast({
+				type: "error",
+				message: mapDisabledReason || "지도 기능이 비활성화되어 있어요. 운영 설정을 확인해주세요.",
+			});
+		}, 0);
+
+		return () => window.clearTimeout(closeMapTimer);
+	}, [addToast, isMapAvailable, mapDisabledReason, showMap]);
 
 	return {
 		showMap,

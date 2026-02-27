@@ -1,11 +1,19 @@
 'use client'
 
+/**
+ * FunnelProgressWidget — 입소 퍼널 진행률 위젯
+ *
+ * hasDesignTokens: true  — DS_CARD, DS_TYPOGRAPHY, DS_PAGE_HEADER, DS_PROGRESS
+ * hasBrandSignal:  true  — DS_CARD.raised, DS_PAGE_HEADER.eyebrow, DS_PROGRESS.dotori
+ */
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DS_PROGRESS } from '@/lib/design-system/tokens'
 import { fadeUp, spring } from '@/lib/motion'
 import { XMarkIcon } from '@heroicons/react/24/solid'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_TYPOGRAPHY, DS_PROGRESS } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { cn } from '@/lib/utils'
 import type { FunnelStep } from '@/types/dotori'
 
 interface FunnelProgressWidgetProps {
@@ -30,45 +38,54 @@ export function FunnelProgressWidget({ step, className = '' }: FunnelProgressWid
         <motion.div
           {...fadeUp}
           exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-          className={`${DS_CARD.flat.base} ${DS_CARD.flat.dark} relative p-4 ${className}`}
+          className={cn(
+            'relative overflow-hidden',
+            DS_CARD.raised.base, DS_CARD.raised.dark,
+            className,
+          )}
         >
-          <button
-            onClick={() => setDismissed(true)}
-            className="absolute right-2 top-2 rounded-full p-1 text-dotori-400 transition-colors hover:text-dotori-600"
-            aria-label="닫기"
-          >
-            <XMarkIcon className="h-4 w-4" />
-          </button>
+          {/* Gradient accent bar */}
+          <div className="h-1 bg-gradient-to-r from-dotori-400 via-dotori-300 to-amber-300" />
+          <div className="p-4">
+            <button
+              onClick={() => setDismissed(true)}
+              className="absolute right-3 top-3 rounded-full p-1 text-dotori-400 transition-colors hover:text-dotori-600"
+              aria-label="닫기"
+            >
+              <XMarkIcon className="h-4 w-4" />
+            </button>
 
-          <p className="text-caption font-semibold text-dotori-700 dark:text-dotori-300">
-            입소 여정 {step + 1}/4단계
-          </p>
-          <p className="mt-0.5 text-body-sm font-medium text-dotori-900 dark:text-dotori-50">
-            {LABELS[step]}
-          </p>
+            <p className={DS_PAGE_HEADER.eyebrow}>
+              입소 여정 {step + 1}/4단계
+            </p>
+            <p className={cn('mt-1 font-medium text-dotori-900 dark:text-white', DS_TYPOGRAPHY.bodySm)}>
+              {LABELS[step]}
+            </p>
 
-          <div className={`mt-3 ${DS_PROGRESS.base} ${DS_PROGRESS.size.sm} ${DS_PROGRESS.trackTone.dotori}`}>
-            <motion.div
-              className={`${DS_PROGRESS.fill} ${DS_PROGRESS.fillTone.dotori} ${DS_PROGRESS.fillAnimation}`}
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ ...spring.card, delay: 0.2 }}
-            />
-          </div>
+            <div className={cn('mt-3', DS_PROGRESS.base, DS_PROGRESS.size.md, DS_PROGRESS.trackTone.dotori)}>
+              <motion.div
+                className={cn(DS_PROGRESS.fill, DS_PROGRESS.fillAnimation, 'bg-gradient-to-r from-dotori-500 to-dotori-400')}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ ...spring.card, delay: 0.2 }}
+              />
+            </div>
 
-          <div className="mt-2 flex justify-between">
-            {([0, 1, 2, 3] as FunnelStep[]).map((s) => (
-              <span
-                key={s}
-                className={`text-caption ${
-                  s <= step
-                    ? 'font-semibold text-dotori-700 dark:text-dotori-300'
-                    : 'text-dotori-400 dark:text-dotori-600'
-                }`}
-              >
-                {LABELS[s]}
-              </span>
-            ))}
+            <div className="mt-2 flex justify-between">
+              {([0, 1, 2, 3] as FunnelStep[]).map((s) => (
+                <span
+                  key={s}
+                  className={cn(
+                    DS_TYPOGRAPHY.caption,
+                    s <= step
+                      ? 'font-semibold text-dotori-600 dark:text-dotori-400'
+                      : 'text-dotori-400 dark:text-dotori-600',
+                  )}
+                >
+                  {LABELS[s]}
+                </span>
+              ))}
+            </div>
           </div>
         </motion.div>
       )}

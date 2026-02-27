@@ -1,19 +1,17 @@
 'use client'
 
 /**
- * Explore Page — Premium redesign (Wave 10)
+ * Explore Page — TP Studio editorial pattern
  *
- * Design: Warm organic + confident efficiency
- * Header: Glass morphism with ambient glow
- * Results: Status-first cards with accent bars
- * Motion: scrollFadeIn, stagger, hoverLift presets
+ * Design: Typography-driven, ring-1 ring-black/5, no ambient glows
  */
 import { Suspense, useState } from 'react'
 import { MapIcon } from '@heroicons/react/24/outline'
 import { Text } from '@/components/catalyst/text'
-import { FadeIn } from '@/components/dotori/FadeIn'
-import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { cn } from '@/lib/utils'
+import { DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
 import { ExploreSearchHeader } from '@/components/dotori/explore/ExploreSearchHeader'
@@ -27,8 +25,8 @@ function ExploreContent() {
   const [view, setView] = useState<'list' | 'map'>('list')
 
   return (
-    <div className="relative min-h-screen">
-      <BrandWatermark className="opacity-30" />
+    <div className={cn(DS_SURFACE.primary, 'relative min-h-screen')}>
+      <BrandWatermark className="opacity-20" />
       {/* ══════ SEARCH HEADER ══════ */}
       <ExploreSearchHeader state={headerState} actions={headerActions} />
 
@@ -49,11 +47,11 @@ function ExploreContent() {
         />
       ) : (
         <FadeIn className="px-4 pb-28">
-          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex h-72 items-center justify-center overflow-hidden rounded-2xl ring-1 ring-dotori-200/40 dark:ring-dotori-700/40')}>
+          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'flex h-72 items-center justify-center')}>
             <div className="text-center">
-              <MapIcon className="mx-auto h-8 w-8 text-dotori-300 dark:text-dotori-600" />
-              <Text className="mt-3 text-sm text-dotori-500">카카오맵 준비 중</Text>
-              <Text className="mt-1 text-xs text-dotori-400">
+              <MapIcon className={cn(DS_EMPTY_STATE.illustration, 'mx-auto h-8 w-8 text-gray-400')} />
+              <Text className={cn(DS_EMPTY_STATE.title, 'mt-3')}>카카오맵 준비 중</Text>
+              <Text className={DS_EMPTY_STATE.description}>
                 지역을 선택하면 지도에 시설이 표시돼요
               </Text>
             </div>

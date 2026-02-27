@@ -20,6 +20,8 @@ import { ErrorState } from '@/components/dotori/ErrorState'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { hoverLift, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useWaitlist } from '@/hooks/use-waitlist'
@@ -45,14 +47,14 @@ export default function WaitlistPage() {
 
       {/* ══════ INTRO ══════ */}
       <FadeIn>
-        <div>
-          <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+        <div className={DS_PAGE_HEADER.spacing}>
+          <p className={DS_PAGE_HEADER.eyebrow}>
             대기 현황
           </p>
-          <Heading className="mt-3 font-wordmark text-3xl/10 font-bold tracking-tight text-dotori-950 sm:text-3xl/10">
+          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
             입소 대기 목록
           </Heading>
-          <Text className="mt-2 text-base/7 text-dotori-600 dark:text-dotori-400">
+          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
             신청한 시설의 대기 순위와 진행 상태를 확인하세요.
           </Text>
         </div>
@@ -69,15 +71,15 @@ export default function WaitlistPage() {
         />
       ) : waitlist.length === 0 ? (
         <motion.div {...scrollFadeIn}>
-          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'flex flex-col items-center rounded-2xl py-14 text-center')}>
-            <BrandEmptyIllustration variant="empty" size={96} className="mb-2" />
-            <Text className="mt-5 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, DS_EMPTY_STATE.container, 'rounded-2xl')}>
+            <BrandEmptyIllustration variant="empty" size={96} className={DS_EMPTY_STATE.illustration} />
+            <Text className={DS_EMPTY_STATE.title}>
               아직 대기 중인 시설이 없어요
             </Text>
-            <Text className="mt-1.5 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={DS_EMPTY_STATE.description}>
               시설을 탐색하고 빈자리 알림을 신청해보세요
             </Text>
-            <DsButton href="/explore" className="mt-5">
+            <DsButton href="/explore" className={DS_EMPTY_STATE.action}>
               시설 탐색하기
             </DsButton>
           </div>
@@ -91,7 +93,7 @@ export default function WaitlistPage() {
                 <motion.div {...hoverLift}>
                   <Link
                     href={`/facility/${item.id}`}
-                    className="block overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-dotori-100/80 transition-shadow hover:shadow-md dark:bg-dotori-900/80 dark:ring-dotori-800/60"
+                    className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover, 'block overflow-hidden')}
                   >
                     {/* Status accent bar */}
                     <div className={cn('h-1', config.accent)} />
@@ -100,10 +102,10 @@ export default function WaitlistPage() {
                       {/* Header row */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+                          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                             {item.facilityName}
                           </Text>
-                          <Text className="mt-0.5 text-caption text-dotori-500 dark:text-dotori-400">
+                          <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-0.5 text-dotori-500 dark:text-dotori-400')}>
                             {item.type}
                           </Text>
                         </div>
@@ -111,7 +113,7 @@ export default function WaitlistPage() {
                       </div>
 
                       {/* Stats row */}
-                      <div className="mt-3 flex items-center gap-4 text-caption">
+                      <div className={cn('mt-3 flex items-center gap-4', DS_TYPOGRAPHY.caption)}>
                         <div className={item.rank <= 3 ? 'motion-safe:animate-pulse' : ''}>
                           <span className="text-dotori-500">순위 </span>
                           <span className="font-semibold text-dotori-900 dark:text-dotori-50">

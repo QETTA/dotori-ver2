@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { motion } from 'motion/react'
 import { stagger, tap } from '@/lib/motion'
 import { FireIcon } from '@heroicons/react/24/solid'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 interface TrendingRegionChipsProps {
   className?: string
@@ -20,7 +22,7 @@ const TRENDING_REGIONS = [
 export function TrendingRegionChips({ className = '' }: TrendingRegionChipsProps) {
   return (
     <div className={className}>
-      <div className="flex items-center gap-1.5 text-caption font-semibold text-dotori-500">
+      <div className={cn('flex items-center gap-1.5 text-caption font-semibold', DS_TEXT.muted)}>
         <FireIcon className="h-3.5 w-3.5" />
         <span>인기 지역</span>
       </div>

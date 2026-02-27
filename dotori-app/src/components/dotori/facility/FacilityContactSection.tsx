@@ -16,15 +16,15 @@ import { useState } from 'react'
 import { MapEmbed } from '@/components/dotori/MapEmbed'
 import { DsButton } from '@/components/ds/DsButton'
 import { BRAND } from '@/lib/brand-assets'
-import { DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_LAYOUT, DS_STATUS, DS_TYPOGRAPHY, DS_GLASS, DS_TEXT, DS_SHADOW } from '@/lib/design-system/tokens'
 import { fadeUp, stagger, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { ActionStatus, Facility } from '@/types/dotori'
 
 const CLS = {
-  sectionCard: cn('glass-card', 'relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100/80 bg-dotori-50/45 px-3 py-3 shadow-sm ring-1 ring-dotori-100/70 dark:border-dotori-800 dark:bg-dotori-950/70'),
-  contactLink: cn('glass-card', 'flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900'),
-  sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-900 dark:text-dotori-50'),
+  sectionCard: cn('relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100/80 px-3 py-3 ring-1 ring-dotori-100/70 dark:border-dotori-800', DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm),
+  contactLink: cn('flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900'),
+  sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary),
 } as const
 
 type FacilityContactSectionProps = {

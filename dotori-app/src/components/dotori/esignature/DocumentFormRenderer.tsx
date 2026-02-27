@@ -5,6 +5,8 @@ import { Fieldset, Field, Label } from '@/components/catalyst/fieldset'
 import { Input } from '@/components/catalyst/input'
 import { Select } from '@/components/catalyst/select'
 import { Checkbox, CheckboxField } from '@/components/catalyst/checkbox'
+import { DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 
 interface DocumentFormRendererProps {
   fields: TemplateField[]
@@ -25,7 +27,7 @@ export function DocumentFormRenderer({ fields, values, onChange }: DocumentFormR
               />
               <Label>
                 {field.label}
-                {field.required && <span className="text-red-500"> *</span>}
+                {field.required && <span className={cn(DS_TEXT.muted, 'text-red-500')}> *</span>}
               </Label>
             </CheckboxField>
           )

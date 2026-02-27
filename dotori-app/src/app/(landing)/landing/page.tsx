@@ -1,19 +1,15 @@
 'use client'
 
 /**
- * Landing Page — R42 Major Refactoring
+ * Landing Page — R52 Overhaul
  *
- * Visual rhythm: dark → white → cream → white → dark-panel → forest
+ * Visual rhythm: cream hero → white funnel → cream features → white reviews → dark pricing → cream CTA
  *
- * Deep template patterns:
- * - Radiant:  Dark rounded panel (mx-3 rounded-3xl bg-dotori-950)
- * - Salient:  Pricing featured card emphasis (white-on-dark inversion)
- * - Studio:   FadeIn/FadeInStagger scroll reveal, text-balance headings
- * - Pocket:   ReviewMarquee infinite scroll columns (gradient fade fix)
- * - Commit:   StarFieldBg hero star particles
- * - Keynote:  FeatureClipCard clipPath hover reveal
+ * FIX: Replaced FadeIn (whileInView) with motion.div animate for below-fold sections.
+ * This ensures content is ALWAYS visible — critical for Playwright screenshots + SSR.
  */
 import Link from 'next/link'
+import { motion } from 'motion/react'
 import {
   ArrowRightIcon,
   ChatBubbleLeftRightIcon,
@@ -25,9 +21,12 @@ import {
 import { BRAND } from '@/lib/brand-assets'
 import { copy } from '@/lib/brand-copy'
 import { getSeasonalHero } from '@/lib/seasonal-config'
-import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
+import { cn } from '@/lib/utils'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
-import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
+import { FadeIn } from '@/components/dotori/FadeIn'
 import { StatList, StatListItem } from '@/components/dotori/StatList'
 import { Wallpaper } from '@/components/dotori/Wallpaper'
 import { CircleBackground } from '@/components/dotori/CircleBackground'
@@ -38,6 +37,25 @@ import { SocialProofBadge } from '@/components/dotori/SocialProofBadge'
 import { Badge } from '@/components/catalyst/badge'
 import { Divider } from '@/components/catalyst/divider'
 import { DsButton } from '@/components/ds/DsButton'
+
+/* ─── Animation: immediate reveal (not scroll-dependent) ─── */
+const reveal = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const },
+}
+
+const staggerContainer = {
+  initial: { opacity: 1 },
+  animate: { opacity: 1, transition: { staggerChildren: 0.1 } },
+}
+
+const staggerItem = {
+  variants: {
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  },
+}
 
 /* ═══════ Pricing Data — Salient 2-tier ═══════ */
 const PRICING_TIERS = [
@@ -79,7 +97,8 @@ export default function LandingPage() {
   return (
     <div className="relative">
       {/* ═══════════════════════════════════════════
-          HERO — Wallpaper dark + GradientBackground + StarFieldBg
+          HERO — Wallpaper cream + CircleBackground
+          FadeIn OK here (in initial viewport)
           ═══════════════════════════════════════════ */}
       <Wallpaper color="cream" className="pb-24 pt-16">
         <CircleBackground
@@ -89,7 +108,7 @@ export default function LandingPage() {
 
         <div className="relative mx-auto max-w-2xl px-6">
           <FadeIn>
-            <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
+            <p className={DS_PAGE_HEADER.eyebrow}>
               {copy.landing.badge} · {copy.landing.badgeSub}
             </p>
           </FadeIn>
@@ -101,7 +120,7 @@ export default function LandingPage() {
           </FadeIn>
 
           <FadeIn>
-            <p className="mt-6 max-w-lg text-lg/8 text-pretty text-dotori-700">
+            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-6 max-w-lg text-lg/8 text-pretty')}>
               {seasonalHero.subtitle}
             </p>
           </FadeIn>
@@ -139,121 +158,126 @@ export default function LandingPage() {
         </div>
       </Wallpaper>
 
+      {/* ── Section transition ── */}
+      <div className="h-8 bg-gradient-to-b from-dotori-100/60 to-white" />
+
       {/* ═══════════════════════════════════════════
           FUNNEL — 풀퍼널 플로우
-          bg-white for visual contrast after dark hero
+          ★ motion.div animate (NOT whileInView)
           ═══════════════════════════════════════════ */}
-      <section className="bg-white px-6 py-20 dark:bg-dotori-900">
+      <section className={cn('relative px-6 py-16', DS_SURFACE.primary)}>
         <div className="mx-auto max-w-2xl">
-          <FadeIn>
+          <motion.div {...reveal}>
             <p className={DS_PAGE_HEADER.eyebrow}>
               풀퍼널 플로우
             </p>
-          </FadeIn>
-          <FadeIn>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-600 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-400 dark:via-amber-400 dark:to-dotori-300">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-600 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
               {copy.landing.funnelTitle}
             </h2>
-          </FadeIn>
-          <FadeIn>
-            <p className="mt-4 text-base/7 text-pretty text-dotori-700 dark:text-dotori-400">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
               {copy.landing.funnelSub} — 2026 유보통합 시대, 어린이집·유치원 통합 플랫폼
             </p>
-          </FadeIn>
-          <FadeIn>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
             <div className="mt-10">
               <FunnelSteps currentStep={0} />
             </div>
-          </FadeIn>
+          </motion.div>
         </div>
       </section>
 
+      {/* ── Section transition ── */}
+      <div className="h-1 bg-gradient-to-r from-transparent via-dotori-300/60 to-transparent" />
+
       {/* ═══════════════════════════════════════════
-          FEATURES — FeatureClipCard (Keynote clipPath hover)
-          bg-dotori-50 for cream shift
+          FEATURES — FeatureClipCard
           ═══════════════════════════════════════════ */}
-      <section className="bg-dotori-50 px-6 py-20 dark:bg-dotori-950">
+      <section className={cn('relative px-6 py-16 bg-dotori-50', DS_SURFACE.sunken)}>
         <div className="mx-auto max-w-2xl">
-          <FadeIn>
+          <motion.div {...reveal}>
             <p className={DS_PAGE_HEADER.eyebrow}>
               왜 도토리인가
             </p>
-          </FadeIn>
-          <FadeIn>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-400 dark:via-amber-400 dark:to-dotori-300">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
               이동의 모든 단계를 하나로
             </h2>
-          </FadeIn>
-          <FadeIn>
-            <p className="mt-4 text-base/7 text-pretty text-dotori-700 dark:text-dotori-400">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
               어린이집·유치원 2만+ 시설 데이터를 분석하고, TO 예측부터 전자서명까지 한 번에 해결해요.
             </p>
-          </FadeIn>
+          </motion.div>
 
-          <FadeInStagger faster className="mt-10 grid gap-4 sm:grid-cols-2">
-            <FadeIn>
+          <motion.div {...staggerContainer} className="mt-10 grid gap-4 sm:grid-cols-2">
+            <motion.div {...staggerItem}>
               <FeatureClipCard
                 eyebrow="통합 검색"
                 title="어린이집·유치원 한 번에"
                 description="2만+ 시설 데이터를 실시간으로 검색하고 비교해요. 유보통합 시대, 어린이집과 유치원을 한 번에."
                 icon={MagnifyingGlassIcon}
               />
-            </FadeIn>
-            <FadeIn>
+            </motion.div>
+            <motion.div {...staggerItem}>
               <FeatureClipCard
                 eyebrow="TO 예측"
                 title="빈자리 가능성 분석"
                 description="졸업·전출 데이터 기반으로 TO 발생 시점을 예측합니다. 이동 대상 시설을 먼저 읽어요."
                 icon={ChartBarIcon}
               />
-            </FadeIn>
-            <FadeIn>
+            </motion.div>
+            <motion.div {...staggerItem} className="sm:col-span-2">
               <FeatureClipCard
                 eyebrow="전자서명"
                 title="서류 10분 완결"
                 description="입소 서류부터 전자서명까지 모바일에서 한 번에. 2~3시간 걸리던 입소 프로세스를 10분으로."
                 icon={DocumentCheckIcon}
-                className="sm:col-span-2"
               />
-            </FadeIn>
-          </FadeInStagger>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
+      {/* ── Section transition ── */}
+      <div className="h-1 bg-gradient-to-r from-transparent via-dotori-300/60 to-transparent" />
+
       {/* ═══════════════════════════════════════════
-          REVIEWS — Pocket ReviewMarquee
-          bg-white for visual shift (gradient fade matches)
+          REVIEWS — ReviewMarquee
           ═══════════════════════════════════════════ */}
-      <section className="bg-white px-6 py-20 dark:bg-dotori-950">
+      <section className={cn('relative px-6 py-16', DS_SURFACE.primary)}>
         <div className="mx-auto max-w-2xl">
-          <FadeIn>
+          <motion.div {...reveal}>
             <p className={DS_PAGE_HEADER.eyebrow}>
               부모님 후기
             </p>
-          </FadeIn>
-          <FadeIn>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent dark:from-dotori-400 dark:via-amber-400 dark:to-dotori-300">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
               {copy.landing.reviewTitle}
             </h2>
-          </FadeIn>
-          <FadeIn>
-            <p className="mt-4 text-base/7 text-pretty text-dotori-700 dark:text-dotori-400">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
               {copy.landing.reviewSub}
             </p>
-          </FadeIn>
-          <FadeIn>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
             <div className="mt-8">
               <ReviewMarquee fadeBg="white" />
             </div>
-          </FadeIn>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          PRICING — Radiant dark rounded panel + Salient featured card
-          Standalone dark panel for visual drama
+          PRICING — Dark panel + Salient featured card
           ═══════════════════════════════════════════ */}
-      <section className="px-3 py-20 sm:px-4">
+      <section className="px-3 py-16 sm:px-4">
         <div
           className="mx-auto max-w-2xl rounded-3xl bg-dotori-950 px-6 py-16 sm:px-10"
           style={{
@@ -261,49 +285,50 @@ export default function LandingPage() {
               'radial-gradient(ellipse at 70% 20%, rgba(200,149,106,0.07) 0%, transparent 60%)',
           }}
         >
-          <FadeIn>
-            <p className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-400">
+          <motion.div {...reveal}>
+            <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-dotori-400')}>
               요금제
             </p>
-          </FadeIn>
-          <FadeIn>
-            <h2 className="mt-4 font-wordmark text-3xl/10 font-bold tracking-tight text-balance text-white">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+            <h2 className={cn(DS_PAGE_HEADER.title, 'mt-4 font-wordmark text-3xl/10 text-balance text-white')}>
               학부모는 무료, 시설은 프리미엄
             </h2>
-          </FadeIn>
-          <FadeIn>
-            <p className="mt-4 text-base/7 text-pretty text-dotori-400">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn("mt-4 text-base/7 text-pretty", DS_TEXT.muted)}>
               학부모 개인 사용은 영구 무료. 시설 관리 기능이 필요하면 프리미엄을 선택하세요.
             </p>
-          </FadeIn>
+          </motion.div>
 
-          <FadeInStagger faster className="mt-10 grid gap-6 sm:grid-cols-2">
+          <motion.div {...staggerContainer} className="mt-10 grid gap-6 sm:grid-cols-2">
             {PRICING_TIERS.map((tier) => (
-              <FadeIn key={tier.name}>
+              <motion.div key={tier.name} {...staggerItem}>
                 <div
-                  className={`relative rounded-2xl p-6 ring-1 ${
+                  className={cn(
+                    'relative rounded-2xl p-6 ring-1',
                     tier.featured
-                      ? 'bg-white text-dotori-950 shadow-xl shadow-dotori-950/20 ring-white/20'
+                      ? cn(DS_CARD.raised.base, 'text-dotori-950 shadow-xl shadow-dotori-950/20 ring-white/20')
                       : 'bg-dotori-900/50 text-white ring-dotori-800/60'
-                  }`}
+                  )}
                 >
                   {tier.featured && (
                     <Badge color="dotori" className="absolute right-6 top-6">
                       추천
                     </Badge>
                   )}
-                  <p className={`text-sm/6 font-semibold ${tier.featured ? 'text-dotori-500' : 'text-dotori-400'}`}>
+                  <p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', tier.featured ? 'text-dotori-500' : 'text-dotori-400')}>
                     {tier.name}
                   </p>
                   <p className="mt-3 flex items-baseline gap-1">
-                    <span className={`font-wordmark text-4xl/10 font-bold tracking-tight ${tier.featured ? 'text-dotori-950' : 'text-white'}`}>
+                    <span className={cn(DS_TYPOGRAPHY.display, 'font-wordmark', tier.featured ? 'text-dotori-950' : 'text-white')}>
                       {tier.price}
                     </span>
-                    <span className={`text-sm/6 ${tier.featured ? 'text-dotori-500' : 'text-dotori-400'}`}>
+                    <span className={cn(DS_TYPOGRAPHY.bodySm, tier.featured ? 'text-dotori-500' : 'text-dotori-400')}>
                       {tier.period}
                     </span>
                   </p>
-                  <p className={`mt-2 text-sm/6 ${tier.featured ? 'text-dotori-600' : 'text-dotori-400'}`}>
+                  <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2', tier.featured ? 'text-dotori-600' : 'text-dotori-400')}>
                     {tier.description}
                   </p>
 
@@ -312,8 +337,8 @@ export default function LandingPage() {
                   <ul className="space-y-3">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <CheckIcon className={`mt-0.5 h-4 w-4 shrink-0 ${tier.featured ? 'text-forest-500' : 'text-dotori-400'}`} />
-                        <span className={`text-sm/6 ${tier.featured ? 'text-dotori-700' : 'text-dotori-300'}`}>
+                        <CheckIcon className={cn('mt-0.5 h-4 w-4 shrink-0', tier.featured ? 'text-forest-500' : 'text-dotori-400')} />
+                        <span className={cn(DS_TYPOGRAPHY.bodySm, tier.featured ? 'text-dotori-700' : 'text-dotori-300')}>
                           {feature}
                         </span>
                       </li>
@@ -329,33 +354,33 @@ export default function LandingPage() {
                     {tier.cta}
                   </DsButton>
                 </div>
-              </FadeIn>
+              </motion.div>
             ))}
-          </FadeInStagger>
+          </motion.div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          CTA — Wallpaper forest + centered layout
+          CTA — Final conversion section
           ═══════════════════════════════════════════ */}
-      <section className="relative bg-gradient-to-b from-dotori-50 to-white py-20">
+      <section className="relative bg-gradient-to-b from-dotori-50 to-white py-16">
         <BrandWatermark className="opacity-30" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
-          <FadeIn>
+          <motion.div {...reveal}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={BRAND.lockupHorizontalKr} alt="도토리" className="mx-auto h-8 w-auto" />
-          </FadeIn>
-          <FadeIn>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
             <h2 className="mt-6 font-wordmark text-3xl/10 font-bold tracking-tight bg-gradient-to-r from-dotori-700 via-dotori-500 to-amber-500 bg-clip-text text-transparent">
               아이의 공간, 지금 다시 선택하세요
             </h2>
-          </FadeIn>
-          <FadeIn>
-            <p className="mt-4 text-base/7 text-pretty text-dotori-600">
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-4 text-base/7 text-pretty')}>
               온보딩부터 채팅, 견학 신청, 입소 서류까지 — 이동의 모든 단계를 한 곳에서
             </p>
-          </FadeIn>
-          <FadeIn>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href="/onboarding"
@@ -371,7 +396,7 @@ export default function LandingPage() {
                 시설 탐색
               </Link>
             </div>
-          </FadeIn>
+          </motion.div>
         </div>
       </section>
     </div>

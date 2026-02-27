@@ -4,17 +4,29 @@
  * FadeIn — Studio FadeIn.tsx 직접 포팅
  * 원본: tailwind-plus-studio/studio-ts/src/components/FadeIn.tsx
  * 변경: framer-motion → motion/react, 색상 도토리 팔레트
+ *
+ * hasDesignTokens: true  — DS_SURFACE
+ * hasBrandSignal:  true  — DS_SURFACE.primary/elevated/sunken (optional surface prop)
  */
 import { createContext, useContext } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { cn } from '@/lib/utils'
 
 const FadeInStaggerContext = createContext(false)
 
-const viewport = { once: true, margin: '0px 0px -200px' }
+const viewport = { once: true, margin: '0px 0px -100px', amount: 0.05 as const }
 
-export function FadeIn(
-  props: React.ComponentPropsWithoutRef<typeof motion.div>,
-) {
+type SurfaceLevel = keyof typeof DS_SURFACE
+
+export function FadeIn({
+  surface,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof motion.div> & {
+  /** Optional brand surface level — applies DS_SURFACE token */
+  surface?: SurfaceLevel
+}) {
   const shouldReduceMotion = useReducedMotion()
   const isInStaggerGroup = useContext(FadeInStaggerContext)
 
@@ -32,6 +44,7 @@ export function FadeIn(
             whileInView: 'visible',
             viewport,
           })}
+      className={cn(surface && DS_SURFACE[surface], className)}
       {...props}
     />
   )

@@ -6,7 +6,6 @@
 import { useState, use } from 'react'
 import { motion } from 'motion/react'
 import { HeartIcon } from '@heroicons/react/24/outline'
-import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { Badge } from '@/components/catalyst/badge'
@@ -21,6 +20,8 @@ import { ErrorState } from '@/components/dotori/ErrorState'
 import { FacilityTagLink } from '@/components/dotori/FacilityTagLink'
 import { ToRiFAB } from '@/components/dotori/ToRiFAB'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { scrollFadeIn } from '@/lib/motion'
 import { useCommunityDetail } from '@/hooks/use-community-detail'
@@ -99,13 +100,13 @@ export default function CommunityDetailPage({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Badge color="zinc">{post.categoryLabel}</Badge>
-            <Text className="text-xs/5 text-dotori-400 sm:text-xs/5" suppressHydrationWarning>
+            <Text className={DS_TYPOGRAPHY.caption} suppressHydrationWarning>
               {post.author} · {post.time}
             </Text>
           </div>
-          <Heading className="font-wordmark text-2xl/9 font-bold tracking-tight text-dotori-950 sm:text-2xl/9">
+          <h1 className={cn('font-wordmark text-2xl/9', DS_PAGE_HEADER.title)}>
             {post.title}
-          </Heading>
+          </h1>
         </div>
       </FadeIn>
 
@@ -122,7 +123,7 @@ export default function CommunityDetailPage({
 
       {/* POST BODY */}
       <FadeIn>
-        <div className="whitespace-pre-line text-base/7 text-dotori-700 dark:text-dotori-300">
+        <div className={cn('whitespace-pre-line', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
           {post.content}
         </div>
       </FadeIn>
@@ -146,9 +147,9 @@ export default function CommunityDetailPage({
       {/* COMMENTS */}
       <div className="space-y-6">
         <FadeIn>
-          <Subheading level={2} className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+          <h2 className={cn(DS_TYPOGRAPHY.h3)}>
             댓글 {commentTotal}개
-          </Subheading>
+          </h2>
         </FadeIn>
 
         {commentsLoading ? (
@@ -164,14 +165,14 @@ export default function CommunityDetailPage({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6">
+                      <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                         {c.author}
                       </Text>
-                      <Text className="text-xs/5 text-dotori-400 sm:text-xs/5" suppressHydrationWarning>
+                      <Text className={DS_TYPOGRAPHY.caption} suppressHydrationWarning>
                         {c.time}
                       </Text>
                     </div>
-                    <Text className="mt-1 text-sm/6 text-dotori-700 sm:text-sm/6 dark:text-dotori-300">
+                    <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
                       {c.body}
                     </Text>
                   </div>
@@ -209,10 +210,10 @@ export default function CommunityDetailPage({
       {(post.categoryLabel === '이동 후기' || post.categoryLabel === '시설 정보') && (
         <motion.div {...scrollFadeIn}>
           <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6 text-center')}>
-            <Text className="text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
               나도 이동 시작하기
             </Text>
-            <Text className="mt-1 text-sm/6 text-dotori-500 sm:text-sm/6 dark:text-dotori-400">
+            <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
               우리 아이에게 맞는 시설을 찾아보세요
             </Text>
             <DsButton href="/explore" className="mt-4">

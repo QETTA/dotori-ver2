@@ -6,6 +6,7 @@
  * 변경: framer-motion → motion/react, gray → dotori, Subheading inline
  */
 import { cn } from '@/lib/utils'
+import { DS_TEXT } from '@/lib/design-system/tokens'
 import { motion } from 'motion/react'
 
 export function BentoCard({
@@ -50,7 +51,7 @@ export function BentoCard({
         </div>
       )}
       <div className="relative p-10">
-        <h3 className="font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500 group-data-[dark]:text-dotori-400">
+        <h3 className={cn('font-mono text-xs/5 font-semibold uppercase tracking-widest group-data-[dark]:text-dotori-400', DS_TEXT.muted)}>
           {eyebrow}
         </h3>
         <p className="mt-1 text-2xl/8 font-medium tracking-tight text-dotori-950 group-data-[dark]:text-white">

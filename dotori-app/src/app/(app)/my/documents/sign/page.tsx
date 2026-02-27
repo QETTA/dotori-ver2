@@ -11,7 +11,6 @@
 import { useSearchParams } from 'next/navigation'
 import { useRef, useMemo, Suspense } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Heading, Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Input } from '@/components/catalyst/input'
 import { Fieldset, Field, Label } from '@/components/catalyst/fieldset'
@@ -38,6 +37,7 @@ import { apiFetch } from '@/lib/api'
 import { getTemplate } from '@/lib/esignature-templates'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 
 const LEGAL_CLAUSES = [
@@ -160,9 +160,9 @@ function SignFlowContent() {
               <div className="relative space-y-4">
                 <div>
                   <p className={cn(DS_PAGE_HEADER.eyebrow, 'sm:text-xs/5')}>1단계</p>
-                  <Heading className="mt-2 font-wordmark text-xl/8 font-bold tracking-tight text-dotori-950 sm:text-xl/8">
+                  <h2 className={cn('mt-2 font-wordmark text-xl/8', DS_PAGE_HEADER.title)}>
                     서명할 서류를 선택하세요
-                  </Heading>
+                  </h2>
                 </div>
                 <DocumentSelector
                   documents={selectableDocs}
@@ -180,9 +180,9 @@ function SignFlowContent() {
               <div className="space-y-4">
                 <div>
                   <p className={cn(DS_PAGE_HEADER.eyebrow, 'sm:text-xs/5')}>2단계</p>
-                  <Heading className="mt-2 font-wordmark text-xl/8 font-bold tracking-tight text-dotori-950 sm:text-xl/8">
+                  <h2 className={cn('mt-2 font-wordmark text-xl/8', DS_PAGE_HEADER.title)}>
                     서류 정보를 입력하세요
-                  </Heading>
+                  </h2>
                 </div>
 
                 {template && (
@@ -195,7 +195,7 @@ function SignFlowContent() {
 
                 {template && <Divider className="my-6" />}
 
-                <Subheading>서명자 정보</Subheading>
+                <h3 className={DS_TYPOGRAPHY.h3}>서명자 정보</h3>
                 <Fieldset>
                   <Field>
                     <Label>이름</Label>
@@ -223,11 +223,11 @@ function SignFlowContent() {
               <div className="space-y-4">
                 <div>
                   <p className={cn(DS_PAGE_HEADER.eyebrow, 'sm:text-xs/5')}>3단계</p>
-                  <Heading className="mt-2 font-wordmark text-xl/8 font-bold tracking-tight text-dotori-950 sm:text-xl/8">
+                  <h2 className={cn('mt-2 font-wordmark text-xl/8', DS_PAGE_HEADER.title)}>
                     법적 동의
-                  </Heading>
+                  </h2>
                 </div>
-                <Text className="text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400">
+                <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
                   서명을 진행하려면 아래 항목에 동의해주세요.
                 </Text>
                 <LegalClausesPanel
@@ -248,11 +248,11 @@ function SignFlowContent() {
               <div className="space-y-4">
                 <div>
                   <p className={cn(DS_PAGE_HEADER.eyebrow, 'sm:text-xs/5')}>4단계</p>
-                  <Heading className="mt-2 font-wordmark text-xl/8 font-bold tracking-tight text-dotori-950 sm:text-xl/8">
+                  <h2 className={cn('mt-2 font-wordmark text-xl/8', DS_PAGE_HEADER.title)}>
                     서명하세요
-                  </Heading>
+                  </h2>
                 </div>
-                <Text className="text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400">
+                <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
                   아래 영역에 서명을 그려주세요. 되돌리기와 지우기가 가능합니다.
                 </Text>
                 <div ref={padWrapperRef}>
@@ -265,29 +265,29 @@ function SignFlowContent() {
               <div className="space-y-4">
                 <div>
                   <p className={cn(DS_PAGE_HEADER.eyebrow, 'sm:text-xs/5')}>5단계</p>
-                  <Heading className="mt-2 font-wordmark text-xl/8 font-bold tracking-tight text-dotori-950 sm:text-xl/8">
+                  <h2 className={cn('mt-2 font-wordmark text-xl/8', DS_PAGE_HEADER.title)}>
                     서명 확인
-                  </Heading>
+                  </h2>
                 </div>
-                <Text className="text-sm/6 text-dotori-600 sm:text-sm/6 dark:text-dotori-400">
+                <Text className={cn(DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
                   서명 내용을 확인하고 제출하세요.
                 </Text>
                 <div className="space-y-3">
                   <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')}>
-                    <Text className="text-xs/5 text-dotori-500 sm:text-xs/5">서명자</Text>
-                    <Text className="mt-1 text-sm/6 font-semibold text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+                    <Text className={DS_TYPOGRAPHY.caption}>서명자</Text>
+                    <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                       {flow.signerName} · {flow.signerPhone}
                     </Text>
                   </div>
                   {template && Object.keys(flow.formValues).length > 0 && (
                     <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')}>
-                      <Text className="text-xs/5 text-dotori-500 sm:text-xs/5">{template.title}</Text>
+                      <Text className={DS_TYPOGRAPHY.caption}>{template.title}</Text>
                       <div className="mt-2 space-y-1">
                         {template.fields.map(f => {
                           const v = flow.formValues[f.key]
                           if (v === undefined || v === '' || v === false) return null
                           return (
-                            <Text key={f.key} className="text-sm/6 text-dotori-950 sm:text-sm/6 dark:text-dotori-50">
+                            <Text key={f.key} className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-950 dark:text-dotori-50')}>
                               <span className="text-dotori-500">{f.label}:</span>{' '}
                               {typeof v === 'boolean' ? '동의' : v}
                             </Text>
