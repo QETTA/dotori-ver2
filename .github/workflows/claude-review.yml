@@ -1,0 +1,66 @@
+# ── Dotori Claude Code Review ──
+# AI-powered code review on PRs
+# Trigger: PR open/update or @claude comment
+# GitHub Pro: Copilot Pro 무료 포함, Claude 리뷰는 별도 (ANTHROPIC_API_KEY)
+# Ref: https://github.com/anthropics/claude-code-action
+
+name: Claude Code Review
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'brand/**'
+      - 'reference/**'
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  review:
+    if: |
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issue_comment' &&
+       contains(github.event.comment.body, '@claude'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Claude credentials
+        id: claude-auth
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ] || [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Claude credentials are missing. Skipping automated review."
+          fi
+
+      - name: Run Claude Code Review
+        if: steps.claude-auth.outputs.enabled == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this PR for the Dotori project (Korean childcare facility finder).
+            Tech stack: Next.js 16.1, React 19, TypeScript 5.8, Tailwind CSS 4, Mongoose 8, MongoDB Atlas M10+.
+            Focus on:
+            - TypeScript type safety (no `any`)
+            - Security issues (XSS, injection, exposed secrets)
+            - Korean UI text correctness
+            - Mobile-first responsive design (375x812 viewport)
+            - Performance implications (MongoDB M10 connection pool awareness)
+            - Brand design system compliance (dotori-* colors, motion/react animations)
+            - Mongoose query efficiency (20K+ documents in facilities collection)

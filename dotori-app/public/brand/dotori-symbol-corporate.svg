@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="220" viewBox="-40 -60 80 100">
+  <defs>
+    <radialGradient id="dsc-body" cx="0.40" cy="0.32" r="0.60">
+      <stop offset="0%" stop-color="#dab080"/>
+      <stop offset="55%" stop-color="#c8956a"/>
+      <stop offset="100%" stop-color="#a87848"/>
+    </radialGradient>
+    <linearGradient id="dsc-cap" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+      <stop offset="0%" stop-color="#aa8462"/>
+      <stop offset="100%" stop-color="#7a5438"/>
+    </linearGradient>
+  </defs>
+  <!-- Body -->
+  <ellipse cx="0" cy="6" rx="33" ry="31" fill="url(#dsc-body)"/>
+  <!-- Subtle highlight -->
+  <ellipse cx="-10" cy="-4" rx="10" ry="14" fill="white" opacity="0.06" transform="rotate(-10 -10 -4)"/>
+  <!-- Cap -->
+  <path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="url(#dsc-cap)"/>
+  <!-- Cap texture -->
+  <path d="M-23,-22 Q-10,-18 0,-18 Q10,-18 23,-22" stroke="#8a6440" stroke-width="0.55" fill="none" opacity="0.25"/>
+  <path d="M-26,-27 Q-12,-22 0,-22 Q12,-22 26,-27" stroke="#8a6440" stroke-width="0.4" fill="none" opacity="0.15"/>
+  <!-- Stem -->
+  <path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/>
+  <path d="M-0.5,-50 Q0,-47 0.5,-43" stroke="#96704a" stroke-width="0.4" fill="none" opacity="0.25"/>
+  <!-- NO FACE -->
+</svg>

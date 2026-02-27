@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Empty State: 데이터 없음, 검색 결과 없음 화면용 잠자는 도토리 -->
+  <defs>
+    <radialGradient id="dee-body" cx="0.40" cy="0.32" r="0.60">
+      <stop offset="0%" stop-color="#dab080"/>
+      <stop offset="55%" stop-color="#c8956a"/>
+      <stop offset="100%" stop-color="#a87848"/>
+    </radialGradient>
+    <linearGradient id="dee-cap" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+      <stop offset="0%" stop-color="#aa8462"/>
+      <stop offset="100%" stop-color="#7a5438"/>
+    </linearGradient>
+  </defs>
+  <!-- Shadow/ground -->
+  <ellipse cx="120" cy="192" rx="48" ry="6" fill="#2d2418" opacity="0.04"/>
+  <!-- Dotori body -->
+  <g transform="translate(120,130)">
+    <ellipse cx="0" cy="6" rx="46" ry="43" fill="url(#dee-body)"/>
+    <ellipse cx="-14" cy="-6" rx="14" ry="20" fill="white" opacity="0.06" transform="rotate(-10 -14 -6)"/>
+    <!-- Cap -->
+    <path d="M-43,-21 Q-43,-56 0,-58 Q43,-56 43,-21 Q25,-10 0,-10 Q-25,-10 -43,-21Z" fill="url(#dee-cap)"/>
+    <path d="M-32,-32 Q-14,-25 0,-25 Q14,-25 32,-32" stroke="#8a6440" stroke-width="0.8" fill="none" opacity="0.25"/>
+    <!-- Stem -->
+    <path d="M-4,-58 Q-6.5,-70 -3.5,-76 Q0,-78 3.5,-76 Q6.5,-70 4,-58" fill="#7a5438"/>
+    <!-- Sleeping eyes (closed, curved lines) -->
+    <path d="M-16,8 Q-12.5,4 -9,8" stroke="#4a3018" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <path d="M9,8 Q12.5,4 16,8" stroke="#4a3018" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <!-- Gentle closed mouth -->
+    <path d="M-5,22 Q0,25 5,22" stroke="#4a3018" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Blush -->
+    <ellipse cx="-22" cy="15" rx="7.5" ry="3.8" fill="#d4907a" opacity="0.12"/>
+    <ellipse cx="22" cy="15" rx="7.5" ry="3.8" fill="#d4907a" opacity="0.12"/>
+  </g>
+  <!-- Zzz -->
+  <text x="168" y="85" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="12" fill="#c8956a" opacity="0.2">z</text>
+  <text x="180" y="72" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="16" fill="#c8956a" opacity="0.3">z</text>
+  <text x="195" y="56" font-family="'Plus Jakarta Sans',sans-serif" font-weight="800" font-size="20" fill="#c8956a" opacity="0.4">z</text>
+</svg>

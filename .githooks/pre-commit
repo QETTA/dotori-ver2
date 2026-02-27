@@ -1,0 +1,49 @@
+#!/bin/bash
+# ── Pre-commit: ESLint + Style Guard on staged ts/tsx files ──
+# Blocks commit if lint or style errors exist. Prevents CI failures.
+
+APP_DIR="dotori-app"
+
+# Get staged ts/tsx files in dotori-app/
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^${APP_DIR}/src/.*\.(ts|tsx)$" || true)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+COUNT=$(echo "$STAGED" | wc -l | tr -d ' ')
+
+# Convert to relative paths for ESLint (run from app dir)
+FILES=""
+for f in $STAGED; do
+  FILES="$FILES ${f#${APP_DIR}/}"
+done
+
+cd "$APP_DIR"
+
+# ── 1. ESLint ──
+echo "Pre-commit: ESLint ($COUNT files)..."
+if ! npx eslint --no-warn-ignored $FILES 2>&1; then
+  echo ""
+  echo "BLOCKED: ESLint errors. Fix: cd dotori-app && npx eslint $FILES"
+  exit 1
+fi
+
+# ── 2. Style Guard (raw className literals) ──
+echo "Pre-commit: Style guard..."
+if ! npm run lint:style-guard --silent 2>&1; then
+  echo ""
+  echo "BLOCKED: Raw className literal detected. Use DS_* tokens."
+  exit 1
+fi
+
+# ── 3. TypeScript (fast, no emit) ──
+echo "Pre-commit: TypeScript..."
+if ! npx tsc --noEmit 2>&1; then
+  echo ""
+  echo "BLOCKED: TypeScript errors."
+  exit 1
+fi
+
+echo "Pre-commit: All checks passed"
+exit 0

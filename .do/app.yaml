@@ -1,0 +1,127 @@
+# ── Dotori App — DigitalOcean App Platform Spec (v4 Optimized) ──
+# DO App Platform이 GitHub 소스를 직접 빌드/배포
+#
+# ── 운영 정책 ──
+# CI/CD에서는 절대 `doctl apps update --spec`를 실행하지 않는다.
+# (SECRET 값 초기화 사고 방지: 배포는 create-deployment 경로만 사용)
+# 이 파일은 수동 구조 변경(컴포넌트/도메인/사이즈 변경) 시에만 사용한다.
+#
+# Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+
+name: dotori-app
+region: sgp
+
+services:
+  - name: web
+    dockerfile_path: dotori-app/Dockerfile
+    github:
+      repo: QETTA/dotori-ver2
+      branch: main
+      deploy_on_push: false
+
+    instance_size_slug: apps-s-1vcpu-2gb
+    instance_count: 1
+    http_port: 3000
+
+    routes:
+      - path: /
+
+    envs:
+      # ── Auth ──
+      - key: AUTH_SECRET
+        type: SECRET
+        scope: RUN_TIME
+      - key: NEXTAUTH_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── Kakao OAuth ──
+      - key: AUTH_KAKAO_ID
+        type: SECRET
+        scope: RUN_TIME
+      - key: AUTH_KAKAO_SECRET
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── Kakao SDK (서버사이드) ──
+      - key: KAKAO_REST_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── MongoDB Atlas ──
+      - key: MONGODB_URI
+        type: SECRET
+        scope: RUN_TIME
+      - key: MONGODB_DB_NAME
+        value: dotori
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── AI ──
+      - key: ANTHROPIC_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+      - key: AI_MODEL
+        value: claude-sonnet-4-6
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── Public Data APIs ──
+      - key: PUBLIC_DATA_API_KEY
+        type: SECRET
+        scope: RUN_TIME
+      - key: CHILDCARE_PORTAL_KEY
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── App ──
+      - key: NODE_ENV
+        value: production
+        type: GENERAL
+        scope: RUN_TIME
+
+      # ── Cron ──
+      - key: CRON_SECRET
+        type: SECRET
+        scope: RUN_TIME
+
+      # ── NEXT_PUBLIC_* 빌드타임 주입 (RUN_AND_BUILD_TIME) ──
+      # Dockerfile ARG와 일치해야 함 — 빌드 시 Next.js가 인라인 치환
+      - key: NEXT_PUBLIC_KAKAO_JS_KEY
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_KEY
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_MAP_KEY
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_KAKAO_CHANNEL_ID
+        value: _dotori
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_APP_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_SITE_URL
+        value: ${APP_URL}
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_GA_ID
+        type: GENERAL
+        scope: RUN_AND_BUILD_TIME
+
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 15
+      timeout_seconds: 10
+      failure_threshold: 3
+      success_threshold: 1
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DOMAIN_FAILED

@@ -1,0 +1,21 @@
+{
+  "name": "도토리 — 우리 아이 어린이집 찾기",
+  "short_name": "도토리",
+  "description": "AI가 분석한 어린이집 추천, 실시간 빈자리 알림, 입소 전략",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFBF5",
+  "theme_color": "#c8956a",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/brand/dotori-app-icon-warm.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="220" viewBox="-40 -60 80 100" opacity="0.06">
+  <!-- Watermark: 문서 배경, 인증서 배경용. opacity 0.06 -->
+  <ellipse cx="0" cy="6" rx="33" ry="31" fill="#c8956a"/>
+  <path d="M-31,-15 Q-31,-39 0,-41 Q31,-39 31,-15 Q18,-7 0,-7 Q-18,-7 -31,-15Z" fill="#7a5438"/>
+  <path d="M-3,-41 Q-4.5,-50 -2.5,-53.5 Q0,-55 2.5,-53.5 Q4.5,-50 3,-41" fill="#7a5438"/>
+  <circle cx="-9" cy="6" r="2.7" fill="#4a3018"/>
+  <circle cx="9" cy="6" r="2.7" fill="#4a3018"/>
+  <path d="M-7,14 Q0,20.5 7,14" stroke="#4a3018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+</svg>

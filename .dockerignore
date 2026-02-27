@@ -1,0 +1,51 @@
+# ── Repo root .dockerignore ──
+# 빌드 컨텍스트 = repo root
+# 목표: 최소한의 파일만 Docker에 전달 → 빌드 컨텍스트 전송 시간 단축
+
+# ── Dependencies ──
+**/node_modules
+npm-debug.log*
+
+# ── Build output (CI 잔여물) ──
+**/.next
+**/out
+
+# ── Secrets ──
+**/.env*
+!**/.env.example
+
+# ── VCS / IDE / OS ──
+.git
+**/.gitignore
+.vscode
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# ── 빌드에 불필요한 워크스페이스 디렉토리 ──
+brand/
+docs/
+reference/
+.claude/
+.serena/
+.worktrees/
+.codex/
+.do/
+.github/
+
+# ── 테스트/개발 전용 (프로덕션 이미지에 불필요) ──
+dotori-app/scripts/
+dotori-app/vitest.config.*
+dotori-app/playwright.config.*
+dotori-app/eslint.config.*
+dotori-app/prettier.config.*
+dotori-app/map-test.*
+dotori-app/src/**/*.test.*
+dotori-app/src/**/*.spec.*
+dotori-app/src/**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/coverage
+**/tmp
+*.png.bak

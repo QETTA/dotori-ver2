@@ -1,0 +1,39 @@
+# ── Release Audit — monitoring only, NO auto-deploy ──
+# SHA 불일치 감지 시 경고만 출력. 수동 배포: deploy.yml
+
+name: Release Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 9 * * *"  # 매일 09:15 UTC (KST 18:15)
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: dotori-release-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Run release audit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DOCTL_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          DO_APP_ID: 29a6e4f6-b8ae-48b7-9ae3-3e3275b274c2
+          APP_URL: https://dotori-app-pwyc9.ondigitalocean.app
+          CI_WORKFLOW: CI
+          GITHUB_REPO: QETTA/dotori-ver2
+          REQUIRE_CLEAN: "0"
+        run: bash scripts/release-audit.sh
