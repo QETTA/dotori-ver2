@@ -36,7 +36,7 @@ jobs:
       name: staging
       url: ${{ steps.url.outputs.preview_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Deploy PR preview
         id: deploy
