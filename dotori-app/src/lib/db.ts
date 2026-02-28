@@ -84,5 +84,16 @@ export default async function dbConnect(): Promise<typeof mongoose> {
 	}
 
 	cached.conn = await cached.promise;
+
+	// Register all models to ensure they're available for populate/ref
+	await Promise.all([
+		import("@/models/Partner"),
+		import("@/models/ApiUsageLog"),
+		import("@/models/BillingSubscription"),
+		import("@/models/Invoice"),
+		import("@/models/Campaign"),
+		import("@/models/CampaignEvent"),
+	]);
+
 	return cached.conn;
 }

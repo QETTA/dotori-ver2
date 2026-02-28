@@ -514,3 +514,119 @@ export interface CommunityPost {
 	createdAt: string;
 	category: "question" | "review" | "info" | "feedback";
 }
+
+/* ===== B2B Partner ===== */
+export type PartnerTier = "free" | "basic" | "pro" | "enterprise";
+
+export interface Partner {
+	id: string;
+	name: string;
+	contactEmail: string;
+	contactPhone?: string;
+	tier: PartnerTier;
+	apiKeyHash: string;
+	apiKeyPrefix: string;
+	rateLimit: number;
+	cpaConfig: {
+		enabled: boolean;
+		rate: number;
+		events: string[];
+	};
+	isActive: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ApiUsageLogEntry {
+	id: string;
+	partnerId: string;
+	endpoint: string;
+	method: string;
+	statusCode: number;
+	responseMs: number;
+	timestamp: string;
+}
+
+/* ===== Billing/Subscription ===== */
+export type BillingPlanId = "starter" | "growth" | "enterprise";
+export type BillingCycle = "monthly" | "yearly";
+export type BillingSubscriptionStatus = "trialing" | "active" | "past_due" | "cancelled" | "expired";
+export type InvoiceStatus = "draft" | "issued" | "paid" | "void";
+
+export interface BillingSubscriptionRecord {
+	id: string;
+	partnerId: string;
+	planId: BillingPlanId;
+	status: BillingSubscriptionStatus;
+	billingCycle: BillingCycle;
+	amount: number;
+	trialEnd?: string;
+	currentPeriodStart: string;
+	currentPeriodEnd: string;
+	cancelledAt?: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface InvoiceRecord {
+	id: string;
+	subscriptionId: string;
+	partnerId: string;
+	amount: number;
+	currency: string;
+	status: InvoiceStatus;
+	items: { description: string; amount: number; quantity: number }[];
+	issuedAt?: string;
+	paidAt?: string;
+	dueDate: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+/* ===== Campaign/Trigger ===== */
+export type CampaignTriggerType =
+	| "graduation"
+	| "relocation"
+	| "vacancy"
+	| "evaluation_change"
+	| "policy_change"
+	| "seasonal_admission"
+	| "sibling_priority";
+
+export type CampaignStatus = "draft" | "active" | "paused" | "completed" | "archived";
+
+export interface CampaignRecord {
+	id: string;
+	name: string;
+	triggerId: CampaignTriggerType;
+	audience: {
+		regions?: string[];
+		childAgeRange?: { min: number; max: number };
+		facilityTypes?: string[];
+	};
+	schedule: {
+		startDate: string;
+		endDate?: string;
+		cronExpression?: string;
+	};
+	status: CampaignStatus;
+	messageTemplate: string;
+	kpi: {
+		reach: number;
+		clicks: number;
+		conversions: number;
+	};
+	createdAt: string;
+	updatedAt: string;
+}
+
+export type CampaignEventAction = "sent" | "delivered" | "clicked" | "converted" | "failed";
+
+export interface CampaignEventRecord {
+	id: string;
+	campaignId: string;
+	userId: string;
+	action: CampaignEventAction;
+	metadata?: Record<string, unknown>;
+	timestamp: string;
+}

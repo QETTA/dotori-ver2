@@ -101,6 +101,46 @@ export const API_CONFIG = {
 		/** 최대 조회 기간 (일) */
 		maxDays: 365,
 	},
+	PARTNER: {
+		/** API 키 바이트 길이 */
+		apiKeyBytes: 32,
+		/** API 키 프리픽스 길이 */
+		apiKeyPrefixLength: 8,
+		/** 사용량 로그 보관 기간 (일) */
+		usageLogRetentionDays: 90,
+	},
+	BILLING: {
+		/** 무료 체험 기간 (일) */
+		trialDays: 14,
+		/** 기본 통화 */
+		defaultCurrency: "KRW",
+		/** 청구서 납부 기한 (일) */
+		invoiceDueDays: 30,
+	},
+	CAMPAIGN: {
+		/** 최대 활성 캠페인 수 */
+		maxActiveCampaigns: 50,
+		/** 캠페인 이벤트 보관 기간 (일) */
+		eventRetentionDays: 365,
+	},
+	DOCUMENT: {
+		/** 지원 서류 종류 */
+		documentTypes: [
+			"입소신청서",
+			"예방접종증명서",
+			"건강검진결과서",
+			"보육교육정보동의서",
+			"이용계약서",
+			"긴급연락처귀가동의서",
+			"알레르기특이사항고지서",
+		] as const,
+	},
+	REGIONAL_ANALYTICS: {
+		/** 기본 조회 기간 (월) */
+		defaultMonths: 6,
+		/** 포화도 임계값 */
+		saturationThreshold: 0.9,
+	},
 } as const;
 
 export type PostCategory = (typeof API_CONFIG.COMMUNITY.postCategories)[number];
