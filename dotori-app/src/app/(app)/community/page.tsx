@@ -26,8 +26,8 @@ import { ErrorState } from '@/components/dotori/ErrorState'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { hoverLift, scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_CHIP } from '@/lib/design-system/tokens'
-import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY, DS_CHIP, DS_TEXT } from '@/lib/design-system/tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { useCommunityPosts } from '@/hooks/use-community-posts'
@@ -149,25 +149,25 @@ export default function CommunityPage() {
               <FadeIn key={post.id}>
                 <div className="group/card relative">
                   {/* z-0: hover background (Spotlight pattern) */}
-                  <div className="absolute -inset-px rounded-2xl bg-gray-50 opacity-0 transition duration-200 group-hover/card:opacity-100 dark:bg-white/5" />
+                  <div className={cn("absolute -inset-px rounded-2xl opacity-0 transition duration-200 group-hover/card:opacity-100", DS_SURFACE.sunken)} />
                   {/* z-10: content */}
                   <motion.article {...hoverLift} className={cn('relative z-10 overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
                     {/* Brand-tinted accent line */}
                     <div className="h-1 bg-gradient-to-r from-dotori-200/60 via-dotori-400/80 to-dotori-200/60 dark:from-dotori-700/40 dark:via-dotori-600/60 dark:to-dotori-700/40" />
                     <div className="p-5">
                       <div className="flex items-center justify-between">
-                        <Text className={cn(DS_TYPOGRAPHY.caption, 'font-mono text-gray-400')} suppressHydrationWarning>
+                        <Text className={cn(DS_TYPOGRAPHY.caption, 'font-mono', DS_TEXT.muted)} suppressHydrationWarning>
                           {post.author} · {post.time}
                         </Text>
                         <Badge color={badgeColor}>{post.category}</Badge>
                       </div>
-                      <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'mt-3 font-semibold text-gray-950 sm:text-sm/6')}>
+                      <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'mt-3 font-semibold sm:text-sm/6', DS_TEXT.primary)}>
                         {post.title}
                       </Subheading>
-                      <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2 text-gray-600 dark:text-gray-400')}>
+                      <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2', DS_TEXT.secondary)}>
                         {post.preview}
                       </Text>
-                      <div className={cn(DS_TYPOGRAPHY.caption, 'mt-3 flex items-center gap-4 text-gray-400')}>
+                      <div className={cn(DS_TYPOGRAPHY.caption, 'mt-3 flex items-center gap-4', DS_TEXT.muted)}>
                         <span className="inline-flex items-center gap-1">
                           <Heart className="h-3 w-3" /> {post.likes}
                         </span>

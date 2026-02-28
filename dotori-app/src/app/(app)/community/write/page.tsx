@@ -168,7 +168,7 @@ export default function CommunityWritePage() {
                     <Text className={cn(
                       DS_TYPOGRAPHY.caption,
                       content.length > MAX_CONTENT_LENGTH * 0.9
-                        ? 'text-red-500'
+                        ? 'text-red-500 dark:text-red-400'
                         : '',
                     )}>
                       {content.length}/{MAX_CONTENT_LENGTH}

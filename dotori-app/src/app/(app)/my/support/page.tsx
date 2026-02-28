@@ -92,7 +92,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       'rounded-2xl transition-all',
       open
         ? 'bg-dotori-50/80 ring-1 ring-dotori-200/50 dark:bg-dotori-900/40 dark:ring-dotori-700/40'
-        : 'bg-dotori-950/[0.02] ring-1 ring-dotori-200/30 dark:bg-white/[0.02] dark:ring-dotori-800/30',
+        : 'bg-dotori-950/[0.02] ring-1 ring-dotori-200/30 dark:bg-white/[0.02] dark:ring-dotori-700/40',
     )}>
       <button
         id={triggerId}

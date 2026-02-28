@@ -161,11 +161,12 @@ export default function NotificationsPage() {
             return (
               <FadeIn key={notif.id}>
                 <div
-                  className={`group/card flex items-start gap-3 rounded-2xl p-4 transition-colors ring-1 ${
+                  className={cn(
+                    'group/card flex items-start gap-3 rounded-2xl p-4 transition-colors ring-1',
                     notif.read
                       ? 'bg-white/60 ring-dotori-100/60 dark:bg-white/[0.02] dark:ring-dotori-800/30'
-                      : 'bg-dotori-50/60 ring-dotori-200/40 shadow-sm dark:bg-dotori-950/40 dark:ring-dotori-700/30'
-                  }`}
+                      : 'bg-dotori-50/60 ring-dotori-200/40 shadow-sm dark:bg-dotori-950/40 dark:ring-dotori-700/30',
+                  )}
                 >
                   {/* Unread dot */}
                   <div className="mt-2 shrink-0">
