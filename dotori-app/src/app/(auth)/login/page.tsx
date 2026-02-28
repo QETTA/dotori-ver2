@@ -43,7 +43,7 @@ export default function LoginPage() {
             <p className={cn('relative mt-3', DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
               로그인
             </p>
-            <h1 className={cn('relative mt-3 font-wordmark text-3xl/10 font-bold tracking-tight', gradientText)}>
+            <h1 className={cn('relative mt-3 font-wordmark text-3xl/10 font-extrabold tracking-tight', gradientText)}>
               {copy.auth.login.titleMain}
             </h1>
             <Text className={cn('relative mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
