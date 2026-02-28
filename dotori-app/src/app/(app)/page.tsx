@@ -10,7 +10,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
-import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
+import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
@@ -149,30 +149,30 @@ export default function HomePage() {
               </FadeIn>
               <FadeInStagger faster className="mt-5 grid grid-cols-3 gap-2 border-t border-dotori-100/80 pt-4 dark:border-dotori-900/40">
                 <FadeIn>
-                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
                     <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>분석 시설</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
                     </p>
-                  </div>
+                  </motion.div>
                 </FadeIn>
                 <FadeIn>
-                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
                     <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>관심 시설</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       {dashboard?.interestCount ?? 0}
                       <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
                     </p>
-                  </div>
+                  </motion.div>
                 </FadeIn>
                 <FadeIn>
-                  <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
                     <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
                     <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
                       {dashboard?.waitlistCount ?? 0}
                       <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
                     </p>
-                  </div>
+                  </motion.div>
                 </FadeIn>
               </FadeInStagger>
             </div>
@@ -217,31 +217,31 @@ export default function HomePage() {
         </FadeIn>
         <FadeInStagger faster className={cn('grid grid-cols-3', DS_SPACING.md)}>
           <FadeIn>
-            <div className={cn(CARD_SM, 'group/card relative overflow-hidden shadow-micro')}>
-              <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
-              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
+            <motion.div {...hoverLift} className={cn(CARD_SM, 'group/card relative overflow-hidden shadow-micro')}>
+              <div className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-dotori-400/60" />
+              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-extrabold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
               </div>
               <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>분석 시설</p>
-            </div>
+            </motion.div>
           </FadeIn>
           <FadeIn>
-            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
-              <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
-              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-dotori-600 dark:text-dotori-400')}>
+            <motion.div {...hoverLift} className={cn(CARD_SM, 'relative overflow-hidden')}>
+              <div className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-dotori-400/60" />
+              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-extrabold tabular-nums text-dotori-600 dark:text-dotori-400')}>
                 {dashboard?.interestCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>
               <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>관심 시설</p>
-            </div>
+            </motion.div>
           </FadeIn>
           <FadeIn>
-            <div className={cn(CARD_SM, 'relative overflow-hidden')}>
-              <div className="absolute left-0 top-0 h-full w-0.5 bg-forest-400/60" />
-              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums text-forest-600 dark:text-forest-400')}>
+            <motion.div {...hoverLift} className={cn(CARD_SM, 'relative overflow-hidden')}>
+              <div className="absolute left-0 top-0 h-full w-1 rounded-r-full bg-forest-400/60" />
+              <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-extrabold tabular-nums text-forest-600 dark:text-forest-400')}>
                 {dashboard?.waitlistCount ?? 0}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.disabled)}>건</span>
               </div>
               <p className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>대기 중</p>
-            </div>
+            </motion.div>
           </FadeIn>
         </FadeInStagger>
 

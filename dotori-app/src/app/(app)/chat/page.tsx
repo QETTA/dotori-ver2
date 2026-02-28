@@ -11,7 +11,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Sparkles } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
-import { hoverLift, gradientTextHero } from '@/lib/motion'
+import { liquidReveal, gradientTextHero } from '@/lib/motion'
 import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Navbar, NavbarSection, NavbarItem, NavbarSpacer } from '@/components/catalyst/navbar'
@@ -179,13 +179,13 @@ export default function ChatPage() {
             {/* Empty state card — glass + gradient mesh cool */}
             <FadeIn>
               <motion.div
-                {...hoverLift}
+                {...liquidReveal}
                 className={cn('relative overflow-hidden gradient-mesh-cool', DS_CARD.glass.base, DS_CARD.glass.dark)}
               >
                 <NoiseTexture />
                 <div className="h-1.5 bg-gradient-to-r from-violet-500 via-dotori-500 to-amber-400" />
                 <div className="flex flex-col items-center gap-3 p-6 text-center">
-                  <Sparkles className="h-8 w-8 text-dotori-400" />
+                  <Sparkles className="h-10 w-10 text-dotori-400" />
                   <Subheading level={2} className={cn(DS_EMPTY_STATE.title, 'sm:text-sm/6')}>
                     {copy.chat.emptyGuide}
                   </Subheading>

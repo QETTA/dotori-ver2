@@ -24,9 +24,9 @@ import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { Skeleton } from '@/components/dotori/Skeleton'
 import { ErrorState } from '@/components/dotori/ErrorState'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
-import { hoverLift, gradientTextHero } from '@/lib/motion'
+import { hoverLift, scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_CHIP } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
@@ -77,9 +77,9 @@ export default function CommunityPage() {
       {/* ══════ TRENDING ══════ */}
       {posts.length > 0 && (
         <FadeIn>
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden bg-amber-50/80 dark:bg-amber-950/20 ring-amber-200/40 dark:ring-amber-800/20')}>
+          <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden bg-amber-50/80 dark:bg-amber-950/20 ring-amber-200/40 dark:ring-amber-800/20')}>
             <NoiseTexture opacity={0.02} />
-            <div className="h-0.5 bg-gradient-to-r from-amber-400 via-amber-500 to-dotori-400" />
+            <div className="h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-dotori-400" />
             <div className="flex items-center gap-3 px-4 py-3">
               <TrendingUp className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
               <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-gray-950 dark:text-white')}>
@@ -103,6 +103,7 @@ export default function CommunityPage() {
               <motion.div key={cat} whileTap={{ scale: 0.975 }} className="snap-start shrink-0">
                 <BadgeButton
                   color={activeCategory === cat ? 'dotori' : 'zinc'}
+                  className={activeCategory === cat ? DS_CHIP.active : DS_CHIP.inactive}
                   onClick={() => setActiveCategory(cat)}
                 >
                   {cat}
@@ -124,7 +125,7 @@ export default function CommunityPage() {
         />
       ) : posts.length === 0 ? (
         <FadeIn>
-          <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden py-14 text-center')}>
+          <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative overflow-hidden py-14 text-center')}>
             <NoiseTexture opacity={0.03} />
             <div className="h-1 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-400/60 via-amber-400/40 to-violet-400/60" />
             <p className={DS_EMPTY_STATE.title}>
@@ -140,6 +141,7 @@ export default function CommunityPage() {
           </div>
         </FadeIn>
       ) : (
+        <motion.div {...scrollFadeIn}>
         <FadeInStagger className="space-y-2">
           {posts.map((post, i) => {
             const badgeColor = CATEGORY_BADGE[post.category] ?? 'zinc'
@@ -151,7 +153,7 @@ export default function CommunityPage() {
                   {/* z-10: content */}
                   <motion.article {...hoverLift} className={cn('relative z-10 overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
                     {/* Brand-tinted accent line */}
-                    <div className="h-0.5 bg-gradient-to-r from-dotori-200/60 via-dotori-300/80 to-dotori-200/60 dark:from-dotori-700/40 dark:via-dotori-600/60 dark:to-dotori-700/40" />
+                    <div className="h-1 bg-gradient-to-r from-dotori-200/60 via-dotori-400/80 to-dotori-200/60 dark:from-dotori-700/40 dark:via-dotori-600/60 dark:to-dotori-700/40" />
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <Text className={cn(DS_TYPOGRAPHY.caption, 'font-mono text-gray-400')} suppressHydrationWarning>
@@ -183,6 +185,7 @@ export default function CommunityPage() {
             )
           })}
         </FadeInStagger>
+        </motion.div>
       )}
     </div>
   )

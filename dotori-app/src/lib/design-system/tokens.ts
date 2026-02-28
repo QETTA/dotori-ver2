@@ -299,6 +299,12 @@ export const DS_INTERACTIVE = {
   },
 } as const
 
+/* ── Chip (filter/category selection) ── */
+export const DS_CHIP = {
+  active: 'bg-dotori-100 text-dotori-800 ring-1 ring-dotori-400/60 shadow-sm shadow-dotori-500/10 dark:bg-dotori-900/60 dark:text-dotori-200 dark:ring-dotori-600/40',
+  inactive: 'bg-white text-dotori-700 ring-1 ring-dotori-200/50 hover:ring-dotori-300/70 hover:bg-dotori-50/50 dark:bg-dotori-900/30 dark:text-dotori-300 dark:ring-dotori-700/40',
+} as const
+
 /* ── Z-Index Scale ── */
 export const DS_ZINDEX = {
   base: 'z-10',

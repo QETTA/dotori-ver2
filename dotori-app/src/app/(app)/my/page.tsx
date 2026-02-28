@@ -8,6 +8,7 @@
  */
 import Link from 'next/link'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { motion } from 'motion/react'
 import {
   ArrowRight,
   FileText,
@@ -28,13 +29,14 @@ import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
+import { AnimatedNumber } from '@/components/dotori/AnimatedNumber'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { gradientTextHero } from '@/lib/motion'
+import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
 
 type MenuItem = {
   href: string
@@ -96,7 +98,7 @@ export default function MyPage() {
             <div className="h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
             <div className="p-5">
               <div className="flex items-center gap-4">
-                <Avatar initials="도" className="h-14 w-14 bg-dotori-50 text-dotori-600 ring-2 ring-dotori-200/50 dark:bg-dotori-950/30 dark:text-dotori-400 dark:ring-dotori-800/30" square />
+                <Avatar initials="도" className="h-14 w-14 bg-dotori-50 text-dotori-600 ring-2 ring-dotori-400/30 shadow-[0_4px_12px_rgba(176,122,74,0.12)] dark:bg-dotori-950/30 dark:text-dotori-400 dark:ring-dotori-700/40" square />
                 <div className="min-w-0 flex-1">
                   <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>게스트</Subheading>
                   <Text className={cn('mt-0.5', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>로그인하면 맞춤 서비스를 받아요</Text>
@@ -140,41 +142,45 @@ export default function MyPage() {
           ].map((action) => (
             <FadeIn key={action.href}>
               <Link href={action.href} className="group/card block">
-                <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 text-center transition group-hover/card:bg-dotori-50/50 dark:group-hover/card:bg-white/5')}>
-                  <div className={cn('mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl', ICON_TINT[action.tint])}>
-                    <action.icon className={DS_ICON.md} />
+                <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden p-4 text-center transition group-hover/card:ring-dotori-300/70')}>
+                  <NoiseTexture opacity={0.02} />
+                  <div className={cn('mx-auto mb-2 grid h-11 w-11 place-items-center rounded-xl', ICON_TINT[action.tint])}>
+                    <action.icon className={DS_ICON.lg} />
                   </div>
                   <p className={cn(DS_TYPOGRAPHY.caption, 'font-medium', DS_TEXT.secondary)}>{action.label}</p>
-                </div>
+                </motion.div>
               </Link>
             </FadeIn>
           ))}
         </FadeInStagger>
         </>
       ) : (
-        <FadeInStagger faster className="grid grid-cols-3 gap-3">
-          {statItems.map((item) => {
-            const count = dashboard?.[item.key] ?? 0
-            return (
-              <FadeIn key={item.href}>
-                <Link href={item.href} className="group/card block">
-                  <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'p-4 transition group-hover/card:bg-dotori-50/50 dark:group-hover/card:bg-white/5')}>
-                    <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums tracking-tight', item.color)}>
-                      {count}<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.muted)}>건</span>
-                    </div>
-                    <p className={cn('mt-1', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>{item.label}</p>
-                  </div>
-                </Link>
-              </FadeIn>
-            )
-          })}
-        </FadeInStagger>
+        <motion.div {...scrollFadeIn}>
+          <FadeInStagger faster className="grid grid-cols-3 gap-3">
+            {statItems.map((item) => {
+              const count = dashboard?.[item.key] ?? 0
+              return (
+                <FadeIn key={item.href}>
+                  <Link href={item.href} className="group/card block">
+                    <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden p-4 transition group-hover/card:ring-dotori-300/70')}>
+                      <div className="absolute left-0 top-0 h-full w-0.5 bg-dotori-400/60" />
+                      <div className={cn(DS_TYPOGRAPHY.h2, 'font-wordmark font-bold tabular-nums tracking-tight', item.color)}>
+                        <AnimatedNumber end={count} suffix="" className="" /><span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.muted)}>건</span>
+                      </div>
+                      <p className={cn('mt-1', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>{item.label}</p>
+                    </motion.div>
+                  </Link>
+                </FadeIn>
+              )
+            })}
+          </FadeInStagger>
+        </motion.div>
       )}
 
       <Divider soft />
 
       {/* ══════ MENU LIST — 3-layer hover + icon tint ══════ */}
-      <div ref={menuRef}>
+      <motion.div {...scrollFadeIn} ref={menuRef}>
       <FadeInStagger faster className="space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon
@@ -206,7 +212,7 @@ export default function MyPage() {
           )
         })}
       </FadeInStagger>
-      </div>
+      </motion.div>
 
       {/* ══════ APP INFO ══════ */}
       <FadeIn>
