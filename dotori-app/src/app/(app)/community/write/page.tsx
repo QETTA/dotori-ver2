@@ -29,6 +29,7 @@ import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { cn } from '@/lib/utils'
 import { tap, scrollFadeIn } from '@/lib/motion'
 import { apiFetch } from '@/lib/api'
+import { useToast } from '@/components/dotori/ToastProvider'
 
 const CATEGORIES = ['이동 후기', '시설 정보', '유보통합', '자유글']
 const CATEGORY_ICONS = ['💬', '🏫', '🤝', '✍️']
@@ -51,6 +52,7 @@ export default function CommunityWritePage() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
+  const { addToast } = useToast()
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -74,6 +76,7 @@ export default function CommunityWritePage() {
           anonymous,
         }),
       })
+      addToast({ type: 'success', message: '글이 게시되었어요' })
       router.push('/community')
     } catch (err) {
       setError(err instanceof Error ? err.message : '게시에 실패했어요. 다시 시도해주세요.')

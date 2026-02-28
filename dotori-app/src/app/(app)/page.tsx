@@ -108,18 +108,13 @@ export default function HomePage() {
             href: `/community/${post.id}`,
             actionLabel: '글 보기',
           }))
-        : [
-            { title: '우리 동네 어린이집 이동 후기', meta: '좋아요 24 · 댓글 8' },
-            { title: '유보통합 대비 — 부모가 알아야 할 5가지', meta: '좋아요 41 · 댓글 15' },
-            { title: '대기 신청부터 입소까지 2주 경험담', meta: '좋아요 33 · 댓글 12' },
-          ].map((item, index) => ({
-            id: `home-hot-post-fallback-${index}`,
-            title: item.title,
-            description: item.meta,
-            badge: '추천',
-            href: '/community',
-            actionLabel: '글 보기',
-          })),
+        : [{
+            id: 'home-hot-post-empty',
+            title: '아직 인기 글이 없어요',
+            description: '첫 번째 이동 후기를 작성해보세요',
+            href: '/community/write',
+            actionLabel: '글쓰기',
+          }],
   }
 
   return (

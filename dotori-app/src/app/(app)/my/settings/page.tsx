@@ -8,6 +8,7 @@
  * Motion:   FadeIn + spring
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { signOut } from 'next-auth/react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   ChevronDown,
@@ -114,6 +115,7 @@ export default function SettingsPage() {
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const initializedRef = useRef(false)
 
   // Load profile on mount (client-only)
@@ -249,6 +251,7 @@ export default function SettingsPage() {
                 variant="secondary"
                 fullWidth
                 className="justify-start gap-3 rounded-xl"
+                onClick={() => signOut({ callbackUrl: '/login' })}
               >
                 <LogOut className="h-4 w-4" />
                 로그아웃
@@ -281,9 +284,21 @@ export default function SettingsPage() {
           </DsButton>
           <DsButton
             color="red"
-            onClick={() => setDeleteAlertOpen(false)}
+            disabled={isDeleting}
+            onClick={async () => {
+              setIsDeleting(true)
+              try {
+                await apiFetch('/api/users/me/delete', { method: 'DELETE' })
+                addToast({ type: 'success', message: '계정이 삭제되었어요' })
+                setDeleteAlertOpen(false)
+                signOut({ callbackUrl: '/login' })
+              } catch {
+                addToast({ type: 'error', message: '계정 삭제에 실패했어요' })
+                setIsDeleting(false)
+              }
+            }}
           >
-            탈퇴하기
+            {isDeleting ? '처리 중...' : '탈퇴하기'}
           </DsButton>
         </AlertActions>
       </Alert>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { useToast } from "@/components/dotori/ToastProvider";
 
@@ -10,9 +11,10 @@ import { useToast } from "@/components/dotori/ToastProvider";
  */
 export function useFacilityActions() {
 	const { addToast } = useToast();
+	const router = useRouter();
 	const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-	async function registerInterest(facilityId: string) {
+	async function registerInterest(facilityId: string, onSuccess?: () => void) {
 		setLoadingAction(`interest-${facilityId}`);
 		try {
 			await apiFetch("/api/users/me/interests", {
@@ -20,6 +22,7 @@ export function useFacilityActions() {
 				body: JSON.stringify({ facilityId }),
 			});
 			addToast({ type: "success", message: "관심 목록에 추가했어요" });
+			onSuccess?.();
 		} catch {
 			addToast({ type: "error", message: "관심 등록에 실패했어요" });
 		} finally {
@@ -53,7 +56,7 @@ export function useFacilityActions() {
 				addToast({
 					type: "success",
 					message: "대기 신청이 완료되었어요",
-					action: { label: "확인하기", onClick: () => window.location.assign("/my/waitlist") },
+					action: { label: "확인하기", onClick: () => router.push("/my/waitlist") },
 				});
 			} else {
 				addToast({

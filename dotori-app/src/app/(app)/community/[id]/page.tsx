@@ -27,6 +27,7 @@ import { scrollFadeIn } from '@/lib/motion'
 import { useCommunityDetail } from '@/hooks/use-community-detail'
 import { useComments } from '@/hooks/use-comments'
 import { apiFetch } from '@/lib/api'
+import { useToast } from '@/components/dotori/ToastProvider'
 
 export default function CommunityDetailPage({
   params,
@@ -36,19 +37,22 @@ export default function CommunityDetailPage({
   const { id } = use(params)
   const { post, isLoading: postLoading, error: postError, refetch: refetchPost } = useCommunityDetail(id)
   const { comments, total: commentTotal, isLoading: commentsLoading, postComment } = useComments(id)
+  const { addToast } = useToast()
   const [comment, setComment] = useState('')
   const [liked, setLiked] = useState(false)
   const [submittingComment, setSubmittingComment] = useState(false)
 
   const handleLikeToggle = async () => {
+    const prevLiked = liked
+    setLiked(!liked) // optimistic: 즉시 UI 반영
     try {
       await apiFetch(`/api/community/posts/${id}/like`, {
-        method: liked ? 'DELETE' : 'POST',
+        method: prevLiked ? 'DELETE' : 'POST',
       })
-      setLiked(!liked)
       refetchPost()
     } catch {
-      // silently fail
+      setLiked(prevLiked) // rollback on failure
+      addToast({ type: 'error', message: '좋아요에 실패했어요' })
     }
   }
 
@@ -58,8 +62,9 @@ export default function CommunityDetailPage({
     try {
       await postComment(comment.trim())
       setComment('')
+      addToast({ type: 'success', message: '댓글이 등록되었어요' })
     } catch {
-      // handled by hook
+      addToast({ type: 'error', message: '댓글 등록에 실패했어요' })
     } finally {
       setSubmittingComment(false)
     }
@@ -134,6 +139,7 @@ export default function CommunityDetailPage({
           <button
             type="button"
             onClick={handleLikeToggle}
+            aria-label={liked ? '좋아요 취소' : '좋아요'}
             className="inline-flex min-h-11 items-center gap-1.5 text-sm/6 text-dotori-500 transition-colors hover:text-dotori-700"
           >
             <Heart className={`h-5 w-5 ${liked ? 'fill-red-400 text-red-400' : ''}`} />

@@ -7,6 +7,7 @@
  * Studio:   FadeIn
  * Motion:   scrollFadeIn
  */
+import { signIn } from 'next-auth/react'
 import { motion } from 'motion/react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
@@ -59,11 +60,9 @@ export default function LoginPage() {
                 transition={{ ...spring.card, delay: 0.3 }}
                 className="space-y-3"
               >
-                <DsButton tone="amber" fullWidth className="rounded-2xl shadow-sm">
+                <DsButton tone="amber" fullWidth className="rounded-2xl shadow-sm"
+                  onClick={() => signIn('kakao', { callbackUrl: '/' })}>
                   카카오 로그인
-                </DsButton>
-                <DsButton variant="secondary" fullWidth className="rounded-2xl">
-                  이메일 로그인
                 </DsButton>
               </motion.div>
               <DsButton variant="ghost" fullWidth href="/" className="rounded-2xl">

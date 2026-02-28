@@ -8,7 +8,7 @@
  * Studio:   FadeIn/FadeInStagger
  * Motion:   scrollFadeIn, hoverLift
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
@@ -44,6 +44,7 @@ import { scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { useToast } from '@/components/dotori/ToastProvider'
 import { useNotifications } from '@/hooks/use-notifications'
 import { ToBadge } from '@/components/dotori/ToBadge'
 
@@ -58,18 +59,38 @@ const categoryBadgeColor = {
 export default function NotificationsPage() {
   const [activeCategory, setActiveCategory] = useState('전체')
   const { notifications, isLoading, error, refetch } = useNotifications()
+  const { addToast } = useToast()
   const [notifListRef] = useAutoAnimate({ duration: 200 })
+  const [readIds, setReadIds] = useState<Set<string>>(new Set())
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set())
+
+  const handleMarkAllRead = useCallback(() => {
+    setReadIds(new Set(notifications.map(n => n.id)))
+    addToast({ type: 'success', message: '모든 알림을 읽음 처리했어요' })
+  }, [notifications, addToast])
+
+  const handleMarkRead = useCallback((id: string) => {
+    setReadIds(prev => new Set(prev).add(id))
+  }, [])
+
+  const handleDismiss = useCallback((id: string) => {
+    setDismissedIds(prev => new Set(prev).add(id))
+    addToast({ type: 'success', message: '알림을 삭제했어요' })
+  }, [addToast])
 
   // Priority sort: 빈자리 > 서류 > 커뮤니티, unread first
   const sorted = useMemo(() => {
     const priorityMap: Record<string, number> = { '빈자리': 0, '서류': 1, '커뮤니티': 2 }
-    return [...notifications].sort((a, b) => {
-      if (a.read !== b.read) return a.read ? 1 : -1
-      const pa = priorityMap[a.category] ?? 3
-      const pb = priorityMap[b.category] ?? 3
-      return pa - pb
-    })
-  }, [notifications])
+    return [...notifications]
+      .filter(n => !dismissedIds.has(n.id))
+      .map(n => ({ ...n, read: n.read || readIds.has(n.id) }))
+      .sort((a, b) => {
+        if (a.read !== b.read) return a.read ? 1 : -1
+        const pa = priorityMap[a.category] ?? 3
+        const pb = priorityMap[b.category] ?? 3
+        return pa - pb
+      })
+  }, [notifications, readIds, dismissedIds])
 
   const filtered = useMemo(
     () =>
@@ -86,7 +107,7 @@ export default function NotificationsPage() {
         parent={{ label: '마이페이지', href: '/my' }}
         current="알림"
         action={
-          <DsButton variant="ghost" className={DS_TYPOGRAPHY.bodySm}>
+          <DsButton variant="ghost" className={DS_TYPOGRAPHY.bodySm} onClick={handleMarkAllRead}>
             <Check className="h-4 w-4" />
             전체 읽음
           </DsButton>
@@ -211,11 +232,11 @@ export default function NotificationsPage() {
                       <MoreHorizontal className="h-5 w-5" />
                     </DropdownButton>
                     <DropdownMenu anchor="bottom end">
-                      <DropdownItem>
+                      <DropdownItem onClick={() => handleMarkRead(notif.id)}>
                         <Check className="h-4 w-4" data-slot="icon" />
                         <DropdownLabel>읽음 처리</DropdownLabel>
                       </DropdownItem>
-                      <DropdownItem>
+                      <DropdownItem onClick={() => handleDismiss(notif.id)}>
                         <Trash2 className="h-4 w-4" data-slot="icon" />
                         <DropdownLabel>삭제</DropdownLabel>
                       </DropdownItem>
