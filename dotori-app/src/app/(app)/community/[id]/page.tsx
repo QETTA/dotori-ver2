@@ -40,9 +40,12 @@ export default function CommunityDetailPage({
   const { addToast } = useToast()
   const [comment, setComment] = useState('')
   const [liked, setLiked] = useState(false)
+  const [isLiking, setIsLiking] = useState(false)
   const [submittingComment, setSubmittingComment] = useState(false)
 
   const handleLikeToggle = async () => {
+    if (isLiking) return
+    setIsLiking(true)
     const prevLiked = liked
     setLiked(!liked) // optimistic: 즉시 UI 반영
     try {
@@ -53,6 +56,8 @@ export default function CommunityDetailPage({
     } catch {
       setLiked(prevLiked) // rollback on failure
       addToast({ type: 'error', message: '좋아요에 실패했어요' })
+    } finally {
+      setIsLiking(false)
     }
   }
 

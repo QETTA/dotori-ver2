@@ -1,17 +1,19 @@
 'use client'
 
 /**
- * Explore Page — TP Studio editorial pattern
+ * Explore Page — Premium editorial with hero + 3-layer hover
  *
- * Design: Typography-driven, ring-1 ring-black/5, no ambient glows
+ * TP5: Pattern 1 (3-layer hover), Pattern 2 (gradient text),
+ *       Pattern 3 (card.eyebrow compound), Pattern 5 (border accent + noise)
  */
 import { Suspense, useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { scrollFadeIn } from '@/lib/motion'
-import { DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
+import { DS_SURFACE, DS_HERO, DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
+import { DS_GRADIENT } from '@/lib/design-system/tokens'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
@@ -33,9 +35,27 @@ function ExploreContent() {
 
   return (
     <div className={cn(DS_SURFACE.primary, 'relative min-h-screen')}>
-      {/* Warm gradient background */}
-      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-dotori-50/80 via-dotori-50/40 to-transparent dark:from-dotori-950/40 dark:via-transparent" />
       <BrandWatermark className="opacity-20" />
+
+      {/* ══════ HERO — TP5 Pattern 2 (gradient text) + Pattern 3 (eyebrow compound) ══════ */}
+      <div className={cn(DS_HERO.container, DS_HERO.dark, 'rounded-b-3xl border-b border-dotori-200/70 ring-1 ring-dotori-100/70 dark:border-dotori-900/60 dark:ring-dotori-900/40')}>
+        <NoiseTexture opacity={0.03} />
+        <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
+        <FadeIn>
+          <p className={DS_PAGE_HEADER.eyebrow}>EXPLORE</p>
+        </FadeIn>
+        <FadeIn>
+          <h1 className={cn('mt-3 font-wordmark text-4xl/[1.1] font-extrabold tracking-tight sm:text-5xl/[1.06]', gradientTextHero)}>
+            시설 탐색
+          </h1>
+        </FadeIn>
+        <FadeIn>
+          <p className={cn(DS_HERO.subtitle, 'mt-3')}>
+            우리 아이에게 딱 맞는 시설을 찾아보세요
+          </p>
+        </FadeIn>
+      </div>
+
       {/* ══════ SEARCH HEADER ══════ */}
       <ExploreSearchHeader state={headerState} actions={headerActions} />
 
@@ -44,7 +64,7 @@ function ExploreContent() {
         <ExploreMapToggle view={view} onToggle={setView} />
       </FadeIn>
 
-      {/* ── Section accent divider ── */}
+      {/* ── Section accent divider — TP5 Pattern 5 ── */}
       <div className="mx-4 h-1 rounded-full bg-gradient-to-r from-dotori-500/0 via-dotori-400/80 to-dotori-500/0" />
 
       {/* ══════ ToRI FAB ══════ */}
@@ -60,15 +80,26 @@ function ExploreContent() {
           />
         ) : (
           <FadeIn className="px-4 pb-28">
-            <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden p-1')}>
-              <NoiseTexture opacity={0.02} />
-              <MapEmbed
-                facilities={mapState.facilities}
-                center={mapState.center}
-                height="h-72"
-                onMarkerClick={handleMarkerClick}
-                userLocation={mapState.userLocation}
-              />
+            {/* TP5 Pattern 1: 3-layer hover on map card */}
+            <div className="group/card relative">
+              {/* z-0 — hover background */}
+              <div className={cn(
+                'absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-200 group-hover/card:opacity-100',
+                DS_SURFACE.sunken,
+              )} />
+              {/* z-10 — content */}
+              <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative z-10 overflow-hidden p-1')}>
+                <NoiseTexture opacity={0.03} />
+                <div className={cn('absolute inset-x-0 top-0 h-1', DS_GRADIENT.accentBar)} />
+                <MapEmbed
+                  facilities={mapState.facilities}
+                  center={mapState.center}
+                  height="h-72"
+                  onMarkerClick={handleMarkerClick}
+                  userLocation={mapState.userLocation}
+                />
+              </motion.div>
+              {/* z-20 — click zone (map is interactive, so no overlay link) */}
             </div>
           </FadeIn>
         )}

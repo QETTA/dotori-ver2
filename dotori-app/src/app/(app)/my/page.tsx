@@ -28,12 +28,13 @@ import { Avatar } from '@/components/catalyst/avatar'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
+import { ErrorState } from '@/components/dotori/ErrorState'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { AnimatedNumber } from '@/components/dotori/AnimatedNumber'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_GRADIENT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
@@ -68,9 +69,22 @@ const statItems = [
 ]
 
 export default function MyPage() {
-  const { dashboard } = useHomeDashboard()
+  const { dashboard, isLoading, error, refetch } = useHomeDashboard()
   const funnelStep = dashboard?.funnelStep ?? 0
   const [menuRef] = useAutoAnimate({ duration: 200 })
+
+  if (error) {
+    return (
+      <div className="relative space-y-8">
+        <BrandWatermark className="opacity-20" />
+        <ErrorState
+          message="프로필을 불러오지 못했어요"
+          variant="network"
+          action={{ label: '다시 시도', onClick: refetch }}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="relative space-y-8">
@@ -95,7 +109,7 @@ export default function MyPage() {
           <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative mt-5 overflow-hidden')}>
             <NoiseTexture />
             {/* Gradient accent bar */}
-            <div className="h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
+            <div className={cn('h-1.5', DS_GRADIENT.accentBar)} />
             <div className="p-5">
               <div className="flex items-center gap-4">
                 <Avatar initials="도" className="h-14 w-14 bg-dotori-50 text-dotori-600 ring-2 ring-dotori-400/30 shadow-[0_4px_12px_rgba(176,122,74,0.12)] dark:bg-dotori-950/30 dark:text-dotori-400 dark:ring-dotori-700/40" square />
@@ -113,7 +127,18 @@ export default function MyPage() {
       </div>
 
       {/* ══════ STATS — colored accent numbers ══════ */}
-      {(dashboard?.interestCount ?? 0) + (dashboard?.waitlistCount ?? 0) + (dashboard?.alertCount ?? 0) === 0 ? (
+      {isLoading && !dashboard ? (
+        <FadeInStagger faster className="grid grid-cols-3 gap-3">
+          {[0, 1, 2].map((i) => (
+            <FadeIn key={i}>
+              <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden p-4')}>
+                <div className="h-7 w-10 animate-pulse rounded bg-dotori-200/40 dark:bg-dotori-800/40" />
+                <div className="mt-2 h-3 w-14 animate-pulse rounded bg-dotori-200/40 dark:bg-dotori-800/40" />
+              </div>
+            </FadeIn>
+          ))}
+        </FadeInStagger>
+      ) : (dashboard?.interestCount ?? 0) + (dashboard?.waitlistCount ?? 0) + (dashboard?.alertCount ?? 0) === 0 ? (
         <>
         <FadeIn>
           <Link href="/explore" className="group block">

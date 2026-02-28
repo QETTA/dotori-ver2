@@ -45,6 +45,7 @@ const CATEGORY_BADGE: Record<string, 'dotori' | 'lime' | 'violet' | 'zinc'> = {
 
 export default function CommunityPage() {
   const [activeCategory, setActiveCategory] = useState('전체')
+  const [visibleCount, setVisibleCount] = useState(10)
   const { posts, isLoading, error, refetch } = useCommunityPosts(activeCategory)
 
   return (
@@ -104,7 +105,7 @@ export default function CommunityPage() {
                 <BadgeButton
                   color={activeCategory === cat ? 'dotori' : 'zinc'}
                   className={activeCategory === cat ? DS_CHIP.active : DS_CHIP.inactive}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => { setActiveCategory(cat); setVisibleCount(10) }}
                 >
                   {cat}
                 </BadgeButton>
@@ -143,7 +144,7 @@ export default function CommunityPage() {
       ) : (
         <motion.div {...scrollFadeIn}>
         <FadeInStagger className="space-y-2">
-          {posts.map((post, i) => {
+          {posts.slice(0, visibleCount).map((post, i) => {
             const badgeColor = CATEGORY_BADGE[post.category] ?? 'zinc'
             return (
               <FadeIn key={post.id}>
@@ -180,11 +181,23 @@ export default function CommunityPage() {
                   {/* z-20: click zone */}
                   <Link href={`/community/${post.id}`} className="absolute inset-0 z-20" aria-label={post.title} />
                 </div>
-                {i < posts.length - 1 && <Divider soft className="mt-2" />}
+                {i < Math.min(posts.length, visibleCount) - 1 && <Divider soft className="mt-2" />}
               </FadeIn>
             )
           })}
         </FadeInStagger>
+        {visibleCount < posts.length && (
+          <FadeIn>
+            <div className="pt-2 text-center">
+              <DsButton
+                variant="ghost"
+                onClick={() => setVisibleCount(prev => prev + 10)}
+              >
+                더 보기 ({posts.length - visibleCount}건 남음)
+              </DsButton>
+            </div>
+          </FadeIn>
+        )}
         </motion.div>
       )}
     </div>

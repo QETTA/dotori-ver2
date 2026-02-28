@@ -278,6 +278,8 @@ export const DS_GRADIENT = {
   subtle: 'bg-gradient-to-br from-dotori-50 via-white to-amber-50/30',
   /** Mesh: warm radial overlay (use with gradient-mesh-warm utility) */
   mesh: 'gradient-mesh-warm',
+  /** Accent bar: 카드 상단 h-1 gradient divider */
+  accentBar: 'bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400',
 } as const
 
 /* ── Interactive Color Pairs ── */

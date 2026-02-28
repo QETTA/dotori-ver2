@@ -27,11 +27,6 @@ import {
   DropdownItem,
   DropdownLabel,
 } from '@/components/catalyst/dropdown'
-import {
-  Pagination,
-  PaginationPrevious,
-  PaginationNext,
-} from '@/components/catalyst/pagination'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
@@ -250,15 +245,6 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* ══════ PAGINATION ══════ */}
-      {filtered.length > 10 && (
-        <FadeIn>
-          <Pagination aria-label="알림 페이지">
-            <PaginationPrevious href={undefined}>이전</PaginationPrevious>
-            <PaginationNext href={undefined}>다음</PaginationNext>
-          </Pagination>
-        </FadeIn>
-      )}
     </div>
   )
 }

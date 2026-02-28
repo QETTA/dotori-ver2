@@ -23,10 +23,11 @@ import { RecentFacilities } from '@/components/dotori/RecentFacilities'
 import { SeasonalBriefing } from '@/components/dotori/SeasonalBriefing'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { ActionCard } from '@/components/dotori/ActionCard'
+import { ErrorState } from '@/components/dotori/ErrorState'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_SPACING } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_SPACING, DS_GRADIENT } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER, DS_SECTION_RHYTHM, DS_HERO } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import type { UiBlock as UiBlockType } from '@/types/dotori'
@@ -54,7 +55,7 @@ function getGreeting(date: Date): string {
 export default function HomePage() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [greeting, setGreeting] = useState(DEFAULT_GREETING)
-  const { dashboard, refetch } = useHomeDashboard()
+  const { dashboard, isLoading, error, refetch } = useHomeDashboard()
 
   useEffect(() => {
     const greetingUpdateTimer = window.setTimeout(() => {
@@ -117,6 +118,20 @@ export default function HomePage() {
           }],
   }
 
+  if (error) {
+    return (
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className={DS_SECTION_RHYTHM.generous}>
+          <ErrorState
+            message="대시보드를 불러오지 못했어요"
+            variant="network"
+            action={{ label: '다시 시도', onClick: refetch }}
+          />
+        </div>
+      </PullToRefresh>
+    )
+  }
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className={DS_SECTION_RHYTHM.generous} key={refreshKey}>
@@ -126,7 +141,7 @@ export default function HomePage() {
             <div className={cn('relative overflow-hidden rounded-3xl border border-dotori-200/70 gradient-mesh-warm px-5 pb-5 pt-4 ring-1 ring-dotori-100/70', DS_HERO.dark, 'dark:border-dotori-900/60 dark:ring-dotori-900/40')}>
               <NoiseTexture opacity={0.02} />
               <BrandWatermark className="pointer-events-none opacity-25" />
-              <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-dotori-500 via-dotori-400 to-amber-400" />
+              <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
               <FadeIn>
                 <p className={DS_PAGE_HEADER.eyebrow} suppressHydrationWarning>
                   {greeting}
@@ -143,32 +158,47 @@ export default function HomePage() {
                 </Text>
               </FadeIn>
               <FadeInStagger faster className="mt-5 grid grid-cols-3 gap-2 border-t border-dotori-100/80 pt-4 dark:border-dotori-900/40">
-                <FadeIn>
-                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
-                    <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>분석 시설</p>
-                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                      <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
-                    </p>
-                  </motion.div>
-                </FadeIn>
-                <FadeIn>
-                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
-                    <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>관심 시설</p>
-                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                      {dashboard?.interestCount ?? 0}
-                      <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
-                    </p>
-                  </motion.div>
-                </FadeIn>
-                <FadeIn>
-                  <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
-                    <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
-                    <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                      {dashboard?.waitlistCount ?? 0}
-                      <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
-                    </p>
-                  </motion.div>
-                </FadeIn>
+                {isLoading && !dashboard ? (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <FadeIn key={i}>
+                        <div className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                          <div className="h-3 w-12 animate-pulse rounded bg-dotori-200/40 dark:bg-dotori-800/40" />
+                          <div className="mt-2 h-5 w-16 animate-pulse rounded bg-dotori-200/40 dark:bg-dotori-800/40" />
+                        </div>
+                      </FadeIn>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <FadeIn>
+                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>분석 시설</p>
+                        <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                          <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
+                        </p>
+                      </motion.div>
+                    </FadeIn>
+                    <FadeIn>
+                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>관심 시설</p>
+                        <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                          {dashboard?.interestCount ?? 0}
+                          <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
+                        </p>
+                      </motion.div>
+                    </FadeIn>
+                    <FadeIn>
+                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                        <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
+                        <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
+                          {dashboard?.waitlistCount ?? 0}
+                          <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
+                        </p>
+                      </motion.div>
+                    </FadeIn>
+                  </>
+                )}
               </FadeInStagger>
             </div>
           </motion.div>
@@ -185,7 +215,7 @@ export default function HomePage() {
           <div className={cn(PREMIUM, 'relative overflow-hidden')}>
             <NoiseTexture />
             {/* Subtle gradient accent bar */}
-            <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-dotori-500 via-amber-400 to-dotori-400" />
+            <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
             <div className="flex items-center gap-5 pt-1">
               <DonutGauge
                 value={funnelPct}

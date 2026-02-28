@@ -65,12 +65,15 @@ function ExpandableSection({
   children: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  const panelId = `section-${title.replace(/\s/g, '-')}`
 
   return (
     <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'group/card rounded-2xl ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={panelId}
         className="flex w-full min-h-12 items-center justify-between rounded-2xl px-5 py-4 text-left transition-colors hover:bg-dotori-950/[0.03] dark:hover:bg-white/[0.03]"
       >
         <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
@@ -92,7 +95,7 @@ function ExpandableSection({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-5 pb-5">{children}</div>
+            <div id={panelId} className="px-5 pb-5">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>

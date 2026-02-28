@@ -63,7 +63,7 @@ export interface HomeDashboard {
   funnelStep: FunnelStep
 }
 
-function computeFunnelStep(data: ApiHomeData): FunnelStep {
+export function computeFunnelStep(data: ApiHomeData): FunnelStep {
   const interests = data.user?.interests?.length ?? 0
   const waitlist = data.waitlistCount ?? 0
   const documents = data.documentCount ?? 0
@@ -77,7 +77,7 @@ function computeFunnelStep(data: ApiHomeData): FunnelStep {
   return 0
 }
 
-function toDashboard(data: ApiHomeData): HomeDashboard {
+export function toDashboard(data: ApiHomeData): HomeDashboard {
   return {
     nickname: data.user?.nickname ?? '사용자',
     totalFacilities: data.totalFacilities ?? 20027,
