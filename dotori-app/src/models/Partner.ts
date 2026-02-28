@@ -41,7 +41,7 @@ const CPAConfigSchema = new Schema(
 const PartnerSchema = new Schema<IPartner>(
 	{
 		name: { type: String, required: true, trim: true },
-		contactEmail: { type: String, required: true, trim: true, lowercase: true },
+		contactEmail: { type: String, required: true, trim: true, lowercase: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
 		contactPhone: { type: String, trim: true },
 		tier: { type: String, enum: PARTNER_TIERS, default: "free", required: true },
 		apiKeyHash: { type: String, required: true },

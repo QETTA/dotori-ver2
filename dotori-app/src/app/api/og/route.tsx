@@ -7,17 +7,32 @@ const SITE_NAME = "도토리";
 const BRAND_COLOR = "#c8956a";
 const DARK_BG = "#2d2418";
 
+/** Escape HTML entities and strip dangerous patterns for OG image text */
+function escapeOgText(input: string, maxLength = 200): string {
+	return input
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#x27;")
+		.replace(/on\w+\s*=/gi, "")
+		.replace(/javascript:/gi, "")
+		.slice(0, maxLength);
+}
+
 /**
  * 동적 OG 이미지 생성 (1200x630)
  * /api/og?title=시설명&desc=설명&type=facility|briefing|default
  */
 export async function GET(request: NextRequest) {
 	const { searchParams } = request.nextUrl;
-	const title = searchParams.get("title") || SITE_NAME;
-	const desc =
+	const title = escapeOgText(searchParams.get("title") || SITE_NAME);
+	const desc = escapeOgText(
 		searchParams.get("desc") ||
-		"AI가 찾아주는 어린이집·유치원";
-	const type = searchParams.get("type") || "default";
+		"AI가 찾아주는 어린이집·유치원",
+	);
+	const rawType = searchParams.get("type") || "default";
+	const type = ["facility", "briefing", "default"].includes(rawType) ? rawType : "default";
 
 	const bgColor = type === "briefing" ? DARK_BG : "#FDF8F3";
 	const textColor = type === "briefing" ? "#FDF8F3" : DARK_BG;

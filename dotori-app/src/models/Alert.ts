@@ -45,7 +45,7 @@ const AlertSchema = new Schema<IAlert>(
 		condition: {
 			type: new Schema(
 				{
-					minVacancy: Number,
+					minVacancy: { type: Number, min: 0 },
 					facilityTypes: { type: [String], default: undefined },
 					classAge: { type: [String], default: undefined },
 				},
@@ -68,6 +68,7 @@ AlertSchema.index({ active: 1, type: 1 });
 AlertSchema.index({ facilityId: 1, active: 1 });
 AlertSchema.index({ userId: 1, active: 1 });
 AlertSchema.index({ userId: 1, active: 1, lastTriggeredAt: -1 });
+AlertSchema.index({ lastTriggeredAt: 1 }, { sparse: true });
 
 const Alert: Model<IAlert> =
 	mongoose.models.Alert || mongoose.model<IAlert>("Alert", AlertSchema);

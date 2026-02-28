@@ -72,7 +72,7 @@ const RegionSchema = new Schema(
 const UserSchema = new Schema<IUser>(
 	{
 		name: { type: String, required: true },
-		email: { type: String },
+		email: { type: String, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
 		emailVerified: Date,
 		image: String,
 		nickname: { type: String, default: "" },

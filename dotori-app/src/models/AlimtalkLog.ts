@@ -45,6 +45,7 @@ const AlimtalkLogSchema = new Schema<IAlimtalkLog>(
 AlimtalkLogSchema.index({ userId: 1, createdAt: -1 });
 AlimtalkLogSchema.index({ status: 1 });
 AlimtalkLogSchema.index({ templateId: 1 });
+AlimtalkLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 180 * 24 * 60 * 60 });
 
 const AlimtalkLog: Model<IAlimtalkLog> =
 	mongoose.models.AlimtalkLog ||

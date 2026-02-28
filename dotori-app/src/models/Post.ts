@@ -33,7 +33,7 @@ const PostSchema = new Schema<IPost>(
 		authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
 		author: { type: AuthorSubSchema, required: true },
 		title: { type: String, maxlength: 120 },
-		content: { type: String, required: true },
+		content: { type: String, required: true, minlength: 1, maxlength: 5000 },
 		category: {
 			type: String,
 			enum: ["question", "review", "info", "feedback"],
@@ -49,6 +49,7 @@ const PostSchema = new Schema<IPost>(
 );
 
 PostSchema.index({ category: 1, createdAt: -1 });
+PostSchema.index({ category: 1, likes: -1 });
 PostSchema.index({ likes: -1, createdAt: -1 });
 PostSchema.index({ facilityTags: 1 });
 PostSchema.index({ createdAt: -1 });

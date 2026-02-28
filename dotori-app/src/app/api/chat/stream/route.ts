@@ -112,7 +112,11 @@ type DoneEvent = {
 
 type ErrorEvent = {
   type: 'error'
-  error: string
+  error: {
+    code: string
+    message: string
+    requestId: string
+  }
 }
 
 type StreamEvent = StartEvent | BlockEvent | TextEvent | DoneEvent | ErrorEvent
@@ -466,9 +470,12 @@ export const POST = async (req: NextRequest) => {
         log.error('Chat stream 처리 실패', { requestId, error: errorMessage })
         emitEvent(controller, encoder, {
           type: 'error',
-          error: '채팅을 생성하지 못했어요. 잠시 후 다시 시도해주세요.',
-          requestId,
-        } as ErrorEvent & { requestId: string })
+          error: {
+            code: 'INTERNAL_ERROR',
+            message: '채팅을 생성하지 못했어요. 잠시 후 다시 시도해주세요.',
+            requestId,
+          },
+        })
         emitEvent(controller, encoder, {
           type: 'done',
           timestamp: new Date().toISOString(),

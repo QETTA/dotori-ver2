@@ -1,6 +1,7 @@
+import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withApiHandler } from "@/lib/api-handler";
+import { withApiHandler, ApiError } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 import CPAEvent from "@/models/CPAEvent";
 
@@ -12,8 +13,29 @@ const webhookSchema = z.object({
 	metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
+/** Verify HMAC-SHA256 signature from X-Dotori-Signature header */
+function verifyWebhookSignature(payload: string, signature: string | null): boolean {
+	const secret = process.env.WEBHOOK_SECRET;
+	if (!secret) return false;
+	if (!signature) return false;
+
+	const expected = createHmac("sha256", secret).update(payload).digest("hex");
+	const sigBuffer = Buffer.from(signature, "hex");
+	const expectedBuffer = Buffer.from(expected, "hex");
+
+	if (sigBuffer.length !== expectedBuffer.length) return false;
+	return timingSafeEqual(sigBuffer, expectedBuffer);
+}
+
 /** POST /api/partners/webhook — Receive CPA event webhook */
-export const POST = withApiHandler(async (_req, { body }) => {
+export const POST = withApiHandler(async (req, { body }) => {
+	const signature = req.headers.get("x-dotori-signature");
+	const rawBody = JSON.stringify(body);
+
+	if (!verifyWebhookSignature(rawBody, signature)) {
+		throw new ApiError("유효하지 않은 웹훅 서명입니다", 401, { code: "UNAUTHENTICATED" });
+	}
+
 	const event = await CPAEvent.create({
 		eventType: body.eventType,
 		userId: body.userId,
