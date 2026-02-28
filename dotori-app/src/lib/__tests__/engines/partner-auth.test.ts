@@ -215,6 +215,12 @@ describe("partner-auth engine", () => {
 			expect(result.limit).toBe(100);
 			expect(result.remaining).toBe(50);
 			expect(result.resetAt).toBeInstanceOf(Date);
+
+			// Verify filter includes partnerId and timestamp range
+			const filter = mockUsageLogCountDocuments.mock.calls[0][0];
+			expect(filter.partnerId).toBe("partner1");
+			expect(filter.timestamp.$gte).toBeInstanceOf(Date);
+			expect(filter.timestamp.$lt).toBeInstanceOf(Date);
 		});
 
 		it("blocks at exact limit (ENG-PA-BND-003)", async () => {

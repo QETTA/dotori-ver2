@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { TRIGGER_DESCRIPTIONS } from "@/lib/engines/trigger-engine";
 
 /* ─── Mocks ─── */
@@ -65,6 +65,10 @@ vi.mock("@/models/CampaignEvent", () => ({
 
 beforeEach(() => {
 	vi.clearAllMocks();
+});
+
+afterEach(() => {
+	vi.useRealTimers();
 });
 
 /* ─── Lazy imports ─── */
@@ -533,6 +537,20 @@ describe("campaign/trigger engine", () => {
 				campaignId: "camp1",
 				userId: "u3",
 				action: "sent",
+			});
+
+			expect(mockEventCreate).toHaveBeenCalledTimes(1);
+			expect(mockCampaignFindByIdAndUpdate).not.toHaveBeenCalled();
+		});
+
+		it("records failed event without KPI update (ENG-CT-OK-014)", async () => {
+			const { recordCampaignEvent } = await importCampaign();
+			mockEventCreate.mockResolvedValue({});
+
+			await recordCampaignEvent({
+				campaignId: "camp1",
+				userId: "u4",
+				action: "failed",
 			});
 
 			expect(mockEventCreate).toHaveBeenCalledTimes(1);
