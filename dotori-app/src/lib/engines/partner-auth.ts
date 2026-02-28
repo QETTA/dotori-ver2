@@ -5,9 +5,17 @@
  * No Redis dependency — uses TTL-indexed ApiUsageLog for daily counts.
  */
 import crypto from "node:crypto";
+import mongoose from "mongoose";
 import Partner, { type IPartner, TIER_RATE_LIMITS } from "@/models/Partner";
 import ApiUsageLog from "@/models/ApiUsageLog";
 import { API_CONFIG } from "@/lib/config/api";
+
+export class PartnerNotFoundError extends Error {
+	constructor(message = "파트너를 찾을 수 없습니다") {
+		super(message);
+		this.name = "PartnerNotFoundError";
+	}
+}
 
 /* ─── API Key Generation ─── */
 
@@ -112,9 +120,11 @@ export async function getUsageStats(
 	const since = new Date();
 	since.setDate(since.getDate() - days);
 
+	const partnerObjectId = new mongoose.Types.ObjectId(partnerId);
+
 	const [dailyAgg, monthlyAgg, totalAgg] = await Promise.all([
 		ApiUsageLog.aggregate([
-			{ $match: { partnerId: partnerId, timestamp: { $gte: since } } },
+			{ $match: { partnerId: partnerObjectId, timestamp: { $gte: since } } },
 			{
 				$group: {
 					_id: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
@@ -124,7 +134,7 @@ export async function getUsageStats(
 			{ $sort: { _id: 1 } },
 		]),
 		ApiUsageLog.aggregate([
-			{ $match: { partnerId: partnerId, timestamp: { $gte: since } } },
+			{ $match: { partnerId: partnerObjectId, timestamp: { $gte: since } } },
 			{
 				$group: {
 					_id: { $dateToString: { format: "%Y-%m", date: "$timestamp" } },
@@ -134,7 +144,7 @@ export async function getUsageStats(
 			{ $sort: { _id: 1 } },
 		]),
 		ApiUsageLog.aggregate([
-			{ $match: { partnerId: partnerId, timestamp: { $gte: since } } },
+			{ $match: { partnerId: partnerObjectId, timestamp: { $gte: since } } },
 			{
 				$group: {
 					_id: null,
@@ -197,7 +207,7 @@ export async function regenerateApiKey(
 	);
 
 	if (!updated) {
-		throw new Error("Partner not found");
+		throw new PartnerNotFoundError();
 	}
 
 	return { rawApiKey: rawKey, prefix };

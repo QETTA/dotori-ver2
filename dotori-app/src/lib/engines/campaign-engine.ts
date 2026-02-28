@@ -101,25 +101,14 @@ export async function getCampaignAnalytics(
 	const campaign = await Campaign.findById(campaignId).lean<ICampaign>();
 	if (!campaign) return null;
 
-	const [actionCounts] = await CampaignEvent.aggregate([
+	const rawCounts = await CampaignEvent.aggregate([
 		{ $match: { campaignId } },
-		{
-			$group: {
-				_id: "$action",
-				count: { $sum: 1 },
-			},
-		},
+		{ $group: { _id: "$action", count: { $sum: 1 } } },
 	]);
 
 	const counts: Record<string, number> = {};
-	if (actionCounts) {
-		const rawCounts = await CampaignEvent.aggregate([
-			{ $match: { campaignId } },
-			{ $group: { _id: "$action", count: { $sum: 1 } } },
-		]);
-		for (const r of rawCounts) {
-			counts[r._id as string] = r.count as number;
-		}
+	for (const r of rawCounts) {
+		counts[r._id as string] = r.count as number;
 	}
 
 	const reach = campaign.kpi?.reach ?? 0;

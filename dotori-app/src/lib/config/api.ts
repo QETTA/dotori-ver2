@@ -140,6 +140,8 @@ export const API_CONFIG = {
 		defaultMonths: 6,
 		/** 포화도 임계값 */
 		saturationThreshold: 0.9,
+		/** 공급 부족 지역 빈자리 임계값 */
+		underservedVacancyThreshold: 5,
 	},
 } as const;
 

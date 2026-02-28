@@ -199,7 +199,7 @@ export async function generateMarketReport(): Promise<MarketReport> {
 		.slice(0, 10);
 
 	const underservedRegions = allStats
-		.filter((r) => r.totalFacilities > 0 && r.vacancy <= 5)
+		.filter((r) => r.totalFacilities > 0 && r.vacancy <= API_CONFIG.REGIONAL_ANALYTICS.underservedVacancyThreshold)
 		.sort((a, b) => a.vacancy - b.vacancy)
 		.slice(0, 10);
 
