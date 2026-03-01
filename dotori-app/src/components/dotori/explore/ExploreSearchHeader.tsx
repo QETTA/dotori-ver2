@@ -1,12 +1,10 @@
 "use client";
 
 /**
- * ExploreSearchHeader — Hero + search bar + filter controls
+ * ExploreSearchHeader — search bar + filter controls
  *
- * hasDesignTokens: true  — DS_STATUS, DS_PAGE_HEADER, DS_SURFACE, DS_TYPOGRAPHY
- * hasBrandSignal:  true  — DS_STATUS (filter pills), DS_PAGE_HEADER (hero), DS_SURFACE (sticky header)
+ * hasDesignTokens: true  — DS_STATUS (filter pills), DS_GLASS (sticky header)
  */
-import { motion } from "motion/react";
 import {
 	memo,
 	type FormEvent,
@@ -15,19 +13,15 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Fieldset } from "@/components/catalyst/fieldset";
-import { Text } from "@/components/catalyst/text";
-import { BRAND_GUIDE } from "@/lib/brand-assets";
-import { DS_STATUS, DS_TYPOGRAPHY, DS_GLASS } from '@/lib/design-system/tokens'
-import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
-import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { NoiseTexture } from "@/components/dotori/NoiseTexture";
-import { stagger, gradientTextHero } from "@/lib/motion";
+import { DsButton } from "@/components/ds/DsButton";
+import { DS_GLASS, DS_STATUS } from "@/lib/design-system/tokens";
+import { spring, tap } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ExploreFilterPanel } from "./ExploreFilterPanel";
 import { ExploreFilterToolbar } from "./ExploreFilterToolbar";
 import { ExploreSearchInput } from "./ExploreSearchInput";
-import { ExploreToOnlyToggle } from "./ExploreToOnlyToggle";
 import { ExploreSuggestionPanel } from "./ExploreSuggestionPanel";
 import { POPULAR_SEARCHES } from "./explore-constants";
 import type {
@@ -38,6 +32,48 @@ import type {
 interface ExploreSearchHeaderProps {
 	state: ExploreSearchHeaderState;
 	actions: ExploreSearchHeaderActions;
+}
+
+function areExploreSearchHeaderPropsEqual(
+	prev: Readonly<ExploreSearchHeaderProps>,
+	next: Readonly<ExploreSearchHeaderProps>,
+) {
+	const prevState = prev.state;
+	const nextState = next.state;
+	const prevActions = prev.actions;
+	const nextActions = next.actions;
+
+	return (
+		prevState.searchInput === nextState.searchInput &&
+		prevState.toOnly === nextState.toOnly &&
+		prevState.sortBy === nextState.sortBy &&
+		prevState.selectedTypes === nextState.selectedTypes &&
+		prevState.selectedSido === nextState.selectedSido &&
+		prevState.selectedSigungu === nextState.selectedSigungu &&
+		prevState.showFilters === nextState.showFilters &&
+		prevState.resultLabel === nextState.resultLabel &&
+		prevState.activeFilterCount === nextState.activeFilterCount &&
+		prevState.toCount === nextState.toCount &&
+		prevState.recentSearches === nextState.recentSearches &&
+		prevState.sidoOptions === nextState.sidoOptions &&
+		prevState.sigunguOptions === nextState.sigunguOptions &&
+		prevState.isLoadingSido === nextState.isLoadingSido &&
+		prevState.isLoadingSigungu === nextState.isLoadingSigungu &&
+		prevState.isGpsLoading === nextState.isGpsLoading &&
+		prevActions.onSearchInputChange === nextActions.onSearchInputChange &&
+		prevActions.onSubmitSearch === nextActions.onSubmitSearch &&
+		prevActions.onApplySearch === nextActions.onApplySearch &&
+		prevActions.onClearSearch === nextActions.onClearSearch &&
+		prevActions.onClearRecentSearches === nextActions.onClearRecentSearches &&
+		prevActions.onToggleFilters === nextActions.onToggleFilters &&
+		prevActions.onToggleType === nextActions.onToggleType &&
+		prevActions.onToggleToOnly === nextActions.onToggleToOnly &&
+		prevActions.onSortChange === nextActions.onSortChange &&
+		prevActions.onSidoChange === nextActions.onSidoChange &&
+		prevActions.onSigunguChange === nextActions.onSigunguChange &&
+		prevActions.onUseCurrentLocation === nextActions.onUseCurrentLocation &&
+		prevActions.onResetFilters === nextActions.onResetFilters
+	);
 }
 
 export const ExploreSearchHeader = memo(function ExploreSearchHeader({
@@ -52,7 +88,6 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 		selectedSido,
 		selectedSigungu,
 		showFilters,
-		showMap,
 		resultLabel,
 		activeFilterCount,
 		toCount,
@@ -62,8 +97,6 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 		isLoadingSido,
 		isLoadingSigungu,
 		isGpsLoading,
-		isMapAvailable,
-		mapDisabledReason,
 	} = state;
 	const {
 		onSearchInputChange,
@@ -72,7 +105,6 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 		onClearSearch,
 		onClearRecentSearches,
 		onToggleFilters,
-		onToggleMap,
 		onToggleType,
 		onToggleToOnly,
 		onSortChange,
@@ -85,14 +117,14 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const searchContainerRef = useRef<HTMLDivElement>(null);
 	const activeFilterPillClass = cn(
-		'text-xs/5 font-semibold',
+		"text-caption font-semibold",
 		DS_STATUS.available.pill,
-		'ring-1 ring-gray-300/70',
+		"ring-1 ring-gray-300/70",
 	);
 	const inactiveFilterPillClass = cn(
-		'text-xs/5',
+		"text-caption",
 		DS_STATUS.full.pill,
-		'ring-1 ring-gray-200/70 dark:ring-gray-700/45',
+		"ring-1 ring-gray-200/70 dark:ring-gray-700/45",
 	);
 
 	useEffect(() => {
@@ -136,31 +168,6 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 
 	return (
 		<>
-			{/* ── Hero (scrolls away) ── */}
-			<div className="px-4 pb-4 pt-2">
-				<div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'relative overflow-hidden p-5')}>
-					<NoiseTexture opacity={0.02} />
-					<motion.div {...stagger.container} className="space-y-3">
-						<motion.div {...stagger.item} className="flex items-center gap-3">
-							{/* eslint-disable-next-line @next/next/no-img-element */}
-							<img
-								src={BRAND_GUIDE.header}
-								alt="도토리"
-								className="h-5 w-auto opacity-90"
-							/>
-						</motion.div>
-						<motion.div {...stagger.item}>
-							<h1 className={cn("font-wordmark text-3xl/[1.2] font-extrabold tracking-tight", gradientTextHero)}>
-								시설 탐색
-							</h1>
-							<Text className={cn('mt-2', DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.body)}>
-								어린이집·유치원 2만+ 시설을 검색하세요
-							</Text>
-						</motion.div>
-					</motion.div>
-				</div>
-			</div>
-
 			{/* ── Sticky: ONLY search bar ── */}
 			<header
 				className={cn(
@@ -198,23 +205,42 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 					<ExploreFilterToolbar
 						resultLabel={resultLabel}
 						showFilters={showFilters}
-						showMap={showMap}
 						activeFilterCount={activeFilterCount}
-						isMapAvailable={isMapAvailable}
-						mapDisabledReason={mapDisabledReason}
 						activeFilterPillClass={activeFilterPillClass}
 						inactiveFilterPillClass={inactiveFilterPillClass}
 						onToggleFilters={onToggleFilters}
-						onToggleMap={onToggleMap}
 					/>
 
-					<ExploreToOnlyToggle
-						toOnly={toOnly}
-						toCount={toCount}
-						activeFilterPillClass={activeFilterPillClass}
-						inactiveFilterPillClass={inactiveFilterPillClass}
-						onToggleToOnly={onToggleToOnly}
-					/>
+					<motion.div {...tap.chip}>
+						<DsButton
+							type="button"
+							variant="ghost"
+							onClick={onToggleToOnly}
+							aria-pressed={toOnly}
+								className={cn(
+									"inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5",
+									"text-label font-medium transition-all duration-200",
+									toOnly
+										? "!bg-dotori-500 font-semibold !text-white shadow-sm ring-1 ring-dotori-400/60 dark:ring-dotori-300/50"
+										: "!bg-dotori-50 !text-dotori-700 ring-1 ring-dotori-200 hover:bg-dotori-100/70 dark:!bg-white/[0.03] dark:!text-dotori-100 dark:ring-dotori-700/50 dark:hover:bg-dotori-900/40",
+								)}
+						>
+							<AnimatePresence mode="wait" initial={false}>
+								<motion.span
+									key={`toOnly-indicator-${toOnly ? "on" : "off"}`}
+									className={cn(
+										"h-2 w-2 rounded-full",
+										toOnly ? "bg-white" : "bg-dotori-500",
+									)}
+									initial={{ scale: 0.5, opacity: 0.4 }}
+									animate={{ scale: 1, opacity: 1 }}
+									exit={{ scale: 0.5, opacity: 0.4 }}
+									transition={spring.chip}
+								/>
+							</AnimatePresence>
+							이동 가능 시설만 보기{toCount > 0 ? ` ${toCount}` : ""}
+						</DsButton>
+					</motion.div>
 				</Fieldset>
 
 				<ExploreFilterPanel
@@ -239,4 +265,4 @@ export const ExploreSearchHeader = memo(function ExploreSearchHeader({
 			</div>
 		</>
 	);
-});
+}, areExploreSearchHeaderPropsEqual);

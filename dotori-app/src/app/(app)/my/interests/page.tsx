@@ -3,14 +3,14 @@
 /**
  * Interests Page — 관심 시설 (Wave 10 polish)
  *
- * Catalyst: Badge, Heading, Text, DsButton
+ * Catalyst: Badge, Text, DsButton
  * Studio:   FadeIn/FadeInStagger
  * Motion:   hoverLift, scrollFadeIn
  */
+import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { Badge } from '@/components/catalyst/badge'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
@@ -20,6 +20,7 @@ import { ErrorState } from '@/components/dotori/ErrorState'
 import {
   Search,
   Clock,
+  Trash2,
 } from 'lucide-react'
 import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustration'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
@@ -31,14 +32,49 @@ import { cn } from '@/lib/utils'
 import { useInterests } from '@/hooks/use-interests'
 import { ToBadge } from '@/components/dotori/ToBadge'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
+import { apiFetch } from '@/lib/api'
+import { useToast } from '@/components/dotori/ToastProvider'
 
 const statusConfig = {
-  available: { label: '빈자리 있음', color: 'green' as const, accent: 'bg-forest-500' },
-  full: { label: '마감', color: 'zinc' as const, accent: 'bg-dotori-300' },
+  available: { label: '빈자리 있음', color: 'forest' as const, accent: 'bg-forest-500' },
+  full: { label: '마감', color: 'dotori' as const, accent: 'bg-dotori-300' },
 }
 
 export default function InterestsPage() {
   const { interests, isLoading, error, refetch } = useInterests()
+  const { addToast } = useToast()
+  const [removingId, setRemovingId] = useState<string | null>(null)
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
+
+  const visibleInterests = useMemo(
+    () => interests.filter((facility) => !removedIds.has(facility.id)),
+    [interests, removedIds],
+  )
+
+  const handleRemoveInterest = useCallback(async (facilityId: string) => {
+    if (removingId) return
+    const ok = window.confirm('관심 시설에서 삭제할까요?')
+    if (!ok) return
+
+    setRemovingId(facilityId)
+    try {
+      await apiFetch('/api/users/me/interests', {
+        method: 'DELETE',
+        body: JSON.stringify({ facilityId }),
+      })
+      setRemovedIds(prev => {
+        const next = new Set(prev)
+        next.add(facilityId)
+        return next
+      })
+      addToast({ type: 'success', message: '관심 시설에서 삭제했어요' })
+      refetch()
+    } catch (err) {
+      addToast({ type: 'error', message: err instanceof Error ? err.message : '삭제에 실패했어요' })
+    } finally {
+      setRemovingId(null)
+    }
+  }, [addToast, refetch, removingId])
 
   return (
     <div className="relative space-y-6">
@@ -54,17 +90,17 @@ export default function InterestsPage() {
           <p className={DS_PAGE_HEADER.eyebrow}>
             관심 시설
           </p>
-          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
+          <h1 className={cn(DS_PAGE_HEADER.title, DS_TYPOGRAPHY.h2, 'mt-3 font-wordmark')}>
             찜한 시설
-          </Heading>
-          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
+          </h1>
+          <Text className={cn(DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.bodySm, 'mt-2')}>
             관심 시설의 빈자리 현황을 한눈에 확인하세요.
           </Text>
         </div>
       </FadeIn>
 
       {/* ══════ FUNNEL PROGRESS ══════ */}
-      <FunnelProgressWidget step={interests.length > 0 ? 1 : 0} />
+      <FunnelProgressWidget step={visibleInterests.length > 0 ? 1 : 0} />
 
       {/* ══════ CONTENT ══════ */}
       {isLoading ? (
@@ -75,7 +111,7 @@ export default function InterestsPage() {
           variant="network"
           action={{ label: '다시 시도', onClick: refetch }}
         />
-      ) : interests.length === 0 ? (
+      ) : visibleInterests.length === 0 ? (
         <motion.div {...scrollFadeIn}>
           <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, DS_EMPTY_STATE.container, 'rounded-2xl')}>
             <BrandEmptyIllustration variant="empty" size={96} className={DS_EMPTY_STATE.illustration} />
@@ -92,8 +128,8 @@ export default function InterestsPage() {
           </div>
         </motion.div>
       ) : (
-        <FadeInStagger faster className="space-y-3">
-          {interests.map((facility) => {
+        <FadeInStagger faster className="space-y-6">
+          {visibleInterests.map((facility) => {
             const config = statusConfig[facility.status]
             const occupancyPct = facility.capacity > 0
               ? Math.round((facility.current / facility.capacity) * 100)
@@ -102,19 +138,23 @@ export default function InterestsPage() {
             return (
               <FadeIn key={facility.id}>
                 <motion.div {...hoverLift}>
-                  <Link
-                    href={`/facility/${facility.id}`}
-                    className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover, 'block overflow-hidden')}
+                  <div
+                    className={cn(
+                      'group/card relative overflow-hidden',
+                      DS_CARD.raised.base,
+                      DS_CARD.raised.dark,
+                      DS_CARD.raised.hover,
+                    )}
                   >
                     {/* Status accent bar */}
                     <div className={cn('h-1', config.accent)} />
 
-                    <div className="px-4 py-4">
+                    <div className="relative z-10 px-4 py-4">
                       {/* Header row */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+                            <Text className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                               {facility.name}
                             </Text>
                             <ToBadge status={facility.status} vacancy={available} compact />
@@ -123,7 +163,22 @@ export default function InterestsPage() {
                             {facility.type} · {facility.address}
                           </Text>
                         </div>
-                        <Badge color={config.color}>{config.label}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge color={config.color}>{config.label}</Badge>
+                          <DsButton
+                            variant="ghost"
+                            aria-label="관심 삭제"
+                            className="relative z-30 min-h-11 min-w-11 items-center justify-center p-0"
+                            disabled={removingId === facility.id}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleRemoveInterest(facility.id)
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </DsButton>
+                        </div>
                       </div>
 
                       {/* Stats row */}
@@ -145,7 +200,7 @@ export default function InterestsPage() {
                       </div>
 
                       {/* 1-tap 대기 신청 */}
-                      <div className="mt-3 border-t border-dotori-100 pt-3 dark:border-dotori-800">
+                      <div className="relative z-30 mt-3 border-t border-dotori-100 pt-3 dark:border-dotori-800">
                         <DsButton
                           variant="secondary"
                           className="w-full"
@@ -156,7 +211,15 @@ export default function InterestsPage() {
                         </DsButton>
                       </div>
                     </div>
-                  </Link>
+
+                    <Link
+                      href={`/facility/${facility.id}`}
+                      aria-label={`${facility.name} 상세보기`}
+                      className="absolute inset-0 z-20"
+                    >
+                      <span className="sr-only">{facility.name} 상세보기</span>
+                    </Link>
+                  </div>
                 </motion.div>
               </FadeIn>
             )

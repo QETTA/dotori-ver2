@@ -25,6 +25,7 @@ import { Text } from "@/components/catalyst/text";
 import { DS_TYPOGRAPHY } from "@/lib/design-system/tokens";
 import { DS_CARD } from "@/lib/design-system/card-tokens";
 import { DS_SURFACE } from "@/lib/design-system/page-tokens";
+import { copy as COPY } from "@/lib/brand-copy";
 import { tap, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { MOVE_SCENARIO_CHIPS } from "./explore-constants";
@@ -92,7 +93,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 					value={searchInput}
 					onChange={(event) => onSearchInputChange(event.target.value)}
 					onFocus={onFocus}
-					placeholder="시설명·지역으로 빠르게 검색"
+					placeholder={COPY.explore.searchPlaceholder}
 					className={cn(
 						'min-h-12 w-full rounded-2xl',
 						DS_TYPOGRAPHY.body,
@@ -115,7 +116,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 						variant="ghost"
 						onClick={onClearSearch}
 						aria-label="검색어 지우기"
-						className="absolute right-2 top-1/2 inline-flex min-h-9 min-w-9 -translate-y-1/2 items-center justify-center rounded-full text-dotori-400 hover:text-dotori-700 dark:hover:text-dotori-200"
+						className="absolute right-2 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full text-dotori-400 hover:text-dotori-700 dark:hover:text-dotori-200"
 					>
 						<X className="h-4.5 w-4.5" />
 					</DsButton>
@@ -131,7 +132,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 							onClick={onUseCurrentLocation}
 							disabled={isGpsLoading}
 							className={cn(
-								'inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 py-1.5',
+								'inline-flex min-h-11 items-center gap-1.5 rounded-full px-3.5 py-1.5',
 								'font-medium transition-all duration-150',
 								DS_TYPOGRAPHY.bodySm,
 								DS_SURFACE.sunken,
@@ -173,7 +174,7 @@ export const ExploreSearchInput = memo(function ExploreSearchInput({
 										whileTap={{ scale: 0.96 }}
 										transition={spring.chip}
 										className={cn(
-											'inline-flex items-center gap-1.5 rounded-xl px-3 py-2',
+											'inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 py-2',
 											'font-medium transition-all duration-150',
 											DS_TYPOGRAPHY.bodySm,
 											meta?.bg ?? cn(DS_CARD.flat.base, DS_CARD.flat.dark),

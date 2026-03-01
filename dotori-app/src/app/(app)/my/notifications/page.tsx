@@ -18,7 +18,6 @@ import {
   Trash2,
 } from 'lucide-react'
 import { Badge, BadgeButton } from '@/components/catalyst/badge'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import {
   Dropdown,
@@ -46,9 +45,9 @@ import { ToBadge } from '@/components/dotori/ToBadge'
 const categories = ['전체', '빈자리', '서류', '커뮤니티']
 
 const categoryBadgeColor = {
-  빈자리: 'green' as const,
-  서류: 'amber' as const,
-  커뮤니티: 'zinc' as const,
+  빈자리: 'forest' as const,
+  서류: 'dotori' as const,
+  커뮤니티: 'dotori' as const,
 }
 
 export default function NotificationsPage() {
@@ -115,10 +114,10 @@ export default function NotificationsPage() {
           <p className={DS_PAGE_HEADER.eyebrow}>
             알림
           </p>
-          <Heading className={cn('mt-3 font-wordmark font-bold', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('mt-3 font-wordmark font-bold', DS_PAGE_HEADER.title, DS_TYPOGRAPHY.h2)}>
             알림 센터
-          </Heading>
-          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
+          </h1>
+          <Text className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
             빈자리 발생, 서류 마감 등 중요 소식을 확인하세요.
           </Text>
         </div>
@@ -127,15 +126,25 @@ export default function NotificationsPage() {
       {/* ══════ CATEGORY CHIPS ══════ */}
       <FadeIn>
         <div className="hide-scrollbar flex gap-2 overflow-x-auto">
-          {categories.map((cat) => (
-            <BadgeButton
-              key={cat}
-              color={activeCategory === cat ? 'dotori' : 'zinc'}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </BadgeButton>
-          ))}
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat
+            return (
+              <BadgeButton
+                key={cat}
+                color="dotori"
+                aria-pressed={isActive}
+                className={cn(
+                  'ring-1 transition-opacity',
+                  isActive
+                    ? 'opacity-100 ring-dotori-300/70'
+                    : 'opacity-70 ring-dotori-100/70 hover:opacity-100',
+                )}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </BadgeButton>
+            )
+          })}
         </div>
       </FadeIn>
 
@@ -173,24 +182,17 @@ export default function NotificationsPage() {
         <FadeInStagger faster className="space-y-2">
           {filtered.map((notif) => {
             const badgeColor =
-              categoryBadgeColor[notif.category as keyof typeof categoryBadgeColor] ?? ('zinc' as const)
+              categoryBadgeColor[notif.category as keyof typeof categoryBadgeColor] ?? ('dotori' as const)
             return (
               <FadeIn key={notif.id}>
                 <div
                   className={cn(
-                    'group/card flex items-start gap-3 rounded-2xl p-4 transition-colors ring-1',
+                    'group/card flex items-start gap-3 rounded-2xl border-l-2 p-4 transition-colors ring-1',
                     notif.read
-                      ? 'bg-white/60 ring-dotori-100/60 dark:bg-white/[0.02] dark:ring-dotori-800/30'
-                      : 'bg-dotori-50/60 ring-dotori-200/40 shadow-sm dark:bg-dotori-950/40 dark:ring-dotori-700/30',
+                      ? 'border-l-transparent bg-white/60 ring-dotori-100/60 dark:bg-white/[0.02] dark:ring-dotori-800/30'
+                      : 'border-l-dotori-400 bg-dotori-50/60 ring-dotori-200/40 shadow-sm dark:border-l-dotori-400 dark:bg-dotori-950/40 dark:ring-dotori-700/30',
                   )}
                 >
-                  {/* Unread dot */}
-                  <div className="mt-2 shrink-0">
-                    {!notif.read && (
-                      <span className="block h-2 w-2 rounded-full bg-dotori-500" />
-                    )}
-                  </div>
-
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Badge color={badgeColor}>{notif.category}</Badge>
@@ -198,7 +200,7 @@ export default function NotificationsPage() {
                         {notif.time}
                       </Text>
                     </div>
-                    <p className={cn('mt-1 font-semibold text-dotori-950 dark:text-dotori-50', DS_TYPOGRAPHY.bodySm)}>
+                    <p className={cn('mt-1 font-semibold text-dotori-950 dark:text-dotori-50', DS_TYPOGRAPHY.h3)}>
                       {notif.title}
                       {notif.category === '빈자리' && (
                         <ToBadge status="available" compact className="ml-2" />

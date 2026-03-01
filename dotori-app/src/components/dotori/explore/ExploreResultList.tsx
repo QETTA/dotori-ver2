@@ -115,16 +115,20 @@ export const ExploreResultList = memo(function ExploreResultList({
 	};
 
 	return (
-		<div ref={resultListRef} className="relative min-h-[50vh] px-4 pt-3 pb-28">
+		<div
+			ref={resultListRef}
+			className="relative min-h-[50vh] px-4 pt-3 pb-28"
+			aria-busy={isLoading || isLoadingMore}
+		>
 
 			{/* ── Loading state ── */}
-			{isLoading && !isTimeout ? (
-				<div className="pb-4">
-					<div className={cn('mb-4 flex items-center gap-2 rounded-xl px-4 py-3', DS_CARD.raised.base, DS_CARD.raised.dark)}>
-						<div className="h-2 w-2 animate-pulse rounded-full bg-dotori-500" />
-						<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.secondary)}>
-							시설을 찾고 있어요...
-						</span>
+				{isLoading && !isTimeout ? (
+					<div className="pb-4" role="status" aria-live="polite" aria-atomic="true">
+						<div className={cn('mb-4 flex items-center gap-2 rounded-xl px-4 py-3', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+							<div className="h-2 w-2 animate-pulse rounded-full bg-dotori-500" />
+							<span className={cn(DS_TYPOGRAPHY.bodySm, 'font-medium', DS_TEXT.secondary)}>
+								시설을 찾고 있어요...
+							</span>
 					</div>
 					<Skeleton variant="facility-card" count={6} />
 				</div>
@@ -143,22 +147,27 @@ export const ExploreResultList = memo(function ExploreResultList({
 			) : null}
 
 			{/* ── Loading more indicator ── */}
-			{isLoadingMore ? (
-				<div className="pb-4">
-					<Skeleton variant="facility-card" count={2} />
-				</div>
-			) : null}
+				{isLoadingMore ? (
+					<div className="pb-4" role="status" aria-live="polite">
+						<span className="sr-only">시설을 더 불러오는 중이에요.</span>
+						<Skeleton variant="facility-card" count={2} />
+					</div>
+				) : null}
 
 			{/* ── Results ── */}
-			{!isLoading && !error && hasResults ? (
-				<motion.ul {...stagger.fast.container} className="relative space-y-4 pb-4">
+				{!isLoading && !error && hasResults ? (
+					<motion.ul
+						{...stagger.fast.container}
+						className="relative space-y-4 pb-4"
+						aria-label="어린이집 검색 결과"
+					>
 					{/* ── Insight banner ── */}
 					<motion.li {...stagger.fast.item}>
 						<div className={cn('relative overflow-hidden', DS_CARD.premium.base, DS_CARD.premium.dark)}>
-						<div className="h-1.5 bg-gradient-to-r from-violet-400 via-dotori-400 to-amber-400" />
+						<div className="h-1.5 bg-gradient-to-r from-dotori-400 via-forest-400 to-amber-400" />
 						<NoiseTexture opacity={0.02} />
 						<div className="flex items-start gap-3 px-4 py-3">
-							<MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
+								<MessageCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-dotori-400" />
 							<div>
 								<p className={cn(DS_TYPOGRAPHY.bodySm, DS_TEXT.secondary)}>
 									{hasSearchInput
@@ -252,7 +261,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 											<span className={DS_TEXT.muted}>입소률 </span>
 											<span className={cn('font-semibold', DS_TEXT.primary)}>{occupancyRate}%</span>
 										</div>
-										<span className={DS_TEXT.disabled}>|</span>
+											<span aria-hidden="true" className={DS_TEXT.disabled}>|</span>
 										<div>
 											<span className={DS_TEXT.muted}>가용 </span>
 											<span className={cn(
@@ -262,7 +271,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 												{isAvailable ? `${availableSeats}석` : `대기 ${facility.capacity.waiting}명`}
 											</span>
 										</div>
-										<span className={DS_TEXT.disabled}>|</span>
+											<span aria-hidden="true" className={DS_TEXT.disabled}>|</span>
 										<div>
 											<span className={DS_TEXT.muted}>리뷰 </span>
 											<span className={cn('font-semibold', DS_TEXT.primary)}>{reviewLabel}</span>
@@ -272,29 +281,35 @@ export const ExploreResultList = memo(function ExploreResultList({
 
 								{/* ── Actions — z-30 above click zone ── */}
 								<div className="relative z-30 flex items-center justify-end gap-2 border-t border-dotori-200/40 px-4 py-2.5 dark:border-dotori-800/40">
-									<motion.div {...tap.chip}>
-										<DsButton
-											variant="ghost"
-											type="button"
-											disabled={isActionLoading}
-											onClick={() => onRegisterInterest(facility.id)}
-											className={cn(
-												'inline-flex min-h-9 items-center gap-1 rounded-full px-3 font-medium transition-colors',
-												DS_TYPOGRAPHY.caption,
+										<motion.div {...tap.chip}>
+											<DsButton
+												variant="ghost"
+												type="button"
+												disabled={isActionLoading}
+												aria-label={`${facility.name} 관심 등록`}
+												onClick={() => onRegisterInterest(facility.id)}
+												className={cn(
+													'inline-flex min-h-11 items-center gap-1 rounded-full px-3 font-medium transition-colors',
+													DS_TYPOGRAPHY.caption,
 												DS_STATUS.full.pill,
 												'hover:bg-dotori-200 dark:hover:bg-dotori-700',
 											)}
 										>
-											<Heart className="h-3.5 w-3.5" />
-											관심
-										</DsButton>
-									</motion.div>
+												<Heart aria-hidden="true" className="h-3.5 w-3.5" />
+												관심
+											</DsButton>
+										</motion.div>
 									<motion.div {...tap.chip}>
 										<DsButton
 											type="button"
+											tone="dotori"
 											disabled={isActionLoading}
+											aria-label={`${facility.name} ${isAvailable ? "입소신청" : "대기신청"}`}
 											onClick={() => onApplyWaiting(facility.id)}
-											className="min-h-9 inline-flex items-center gap-1 rounded-full px-4 text-caption font-semibold"
+											className={cn(
+												'min-h-11 inline-flex items-center gap-1 rounded-full px-4 font-semibold',
+												DS_TYPOGRAPHY.caption,
+											)}
 										>
 											{isAvailable ? "입소신청" : "대기신청"}
 										</DsButton>
@@ -303,8 +318,12 @@ export const ExploreResultList = memo(function ExploreResultList({
 								</div>{/* close z-10 content */}
 								</div>{/* close outer wrapper */}
 								{/* Layer 2: Click zone — z-20 */}
-								<Link href={`/facility/${facility.id}`} className="absolute inset-0 z-20 rounded-2xl" aria-label={facility.name} />
-							</motion.li>
+									<Link
+										href={`/facility/${facility.id}`}
+										className="absolute inset-0 z-20 rounded-2xl"
+										aria-label={`${facility.name} 상세 보기`}
+									/>
+								</motion.li>
 						);
 					})}
 

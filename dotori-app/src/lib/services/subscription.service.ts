@@ -20,10 +20,13 @@ export type SubscriptionRecord = Omit<
 
 export interface CreateSubscriptionInput {
 	userId: string;
+	targetUserId?: string;
 	plan: SubscriptionPlan;
 	paymentMethod?: string;
 	amount?: number;
 }
+
+const createQueueByUserId = new Map<string, Promise<void>>();
 
 function validateObjectId(id: string, label: string): void {
 	if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -37,6 +40,109 @@ function addMonths(date: Date, months: number): Date {
 	return result;
 }
 
+function isDuplicateKeyError(error: unknown): boolean {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+	return (error as { code?: number }).code === 11000;
+}
+
+function isTransactionNotSupportedError(error: unknown): boolean {
+	if (!(error instanceof Error)) {
+		return false;
+	}
+	const message = error.message.toLowerCase();
+	return (
+		message.includes("transaction numbers are only allowed") ||
+		message.includes("transactions are not supported")
+	);
+}
+
+function createSubscriptionPayload(
+	input: CreateSubscriptionInput,
+	subscriptionUserId: string,
+) {
+	const startedAt = new Date();
+	return {
+		userId: subscriptionUserId,
+		plan: input.plan,
+		status: "active" as SubscriptionStatus,
+		startedAt,
+		expiresAt: addMonths(startedAt, API_CONFIG.SUBSCRIPTION.defaultPeriodMonths),
+		paymentMethod: input.paymentMethod,
+		amount: input.amount ?? 0,
+	};
+}
+
+function mapCreateError(error: unknown): never {
+	if (isDuplicateKeyError(error)) {
+		throw new ApiError("이미 활성 구독이 존재합니다. 잠시 후 다시 시도해주세요", 409);
+	}
+	throw error;
+}
+
+async function performCreate(
+	input: CreateSubscriptionInput,
+	subscriptionUserId: string,
+	session?: mongoose.ClientSession,
+): Promise<SubscriptionRecord> {
+	// 기존 active 구독 만료
+	if (session) {
+		await Subscription.updateMany(
+			{ userId: subscriptionUserId, status: "active" },
+			{ $set: { status: "expired" } },
+			{ session },
+		);
+	} else {
+		await Subscription.updateMany(
+			{ userId: subscriptionUserId, status: "active" },
+			{ $set: { status: "expired" } },
+		);
+	}
+
+	const payload = createSubscriptionPayload(input, subscriptionUserId);
+
+	const subscription = session
+		? (await Subscription.create([payload], { session }))[0]
+		: await Subscription.create(payload);
+
+	// User plan 동기화
+	const syncedUser = await User.findByIdAndUpdate(
+		subscriptionUserId,
+		{ $set: { plan: input.plan } },
+		session ? { runValidators: false, session } : { runValidators: false },
+	);
+	if (!syncedUser) {
+		throw new NotFoundError("구독 대상 사용자를 찾을 수 없습니다");
+	}
+
+	return subscription.toObject() as SubscriptionRecord;
+}
+
+async function withCreateQueue<T>(
+	userId: string,
+	task: () => Promise<T>,
+): Promise<T> {
+	const previous = createQueueByUserId.get(userId) ?? Promise.resolve();
+	let releaseCurrent!: () => void;
+	const current = new Promise<void>((resolve) => {
+		releaseCurrent = resolve;
+	});
+	const next = previous.then(() => current, () => current);
+	createQueueByUserId.set(userId, next);
+
+	await previous.catch(() => undefined);
+
+	try {
+		return await task();
+	} finally {
+		releaseCurrent();
+		if (createQueueByUserId.get(userId) === next) {
+			createQueueByUserId.delete(userId);
+		}
+	}
+}
+
 /**
  * 구독 생성 — 기존 active 구독 자동 만료
  * TODO: Toss Payments 연동 시 결제 검증 추가
@@ -44,38 +150,95 @@ function addMonths(date: Date, months: number): Date {
 export async function create(
 	input: CreateSubscriptionInput,
 ): Promise<SubscriptionRecord> {
+	// 요청자 ID는 항상 검증하여 기존 계약(잘못된 userId는 400)을 유지한다.
 	validateObjectId(input.userId, "사용자 ID");
+	if (input.targetUserId !== undefined) {
+		validateObjectId(input.targetUserId, "대상 사용자 ID");
+	}
+	const subscriptionUserId = input.targetUserId ?? input.userId;
 
-	// 기존 active 구독 만료
-	await Subscription.updateMany(
-		{ userId: input.userId, status: "active" },
-		{ $set: { status: "expired" } },
-	);
+	return withCreateQueue(subscriptionUserId, async () => {
+		const createWithoutTransaction = async () => {
+			const previousActiveSubscriptions = await Subscription.find({
+				userId: subscriptionUserId,
+				status: "active",
+			})
+				.select("_id")
+				.lean<{ _id: mongoose.Types.ObjectId }[]>();
+			const previousActiveIds = previousActiveSubscriptions.map((sub) => sub._id);
+			let createdSubscriptionId: mongoose.Types.ObjectId | null = null;
 
-	const startedAt = new Date();
-	const expiresAt = addMonths(
-		startedAt,
-		API_CONFIG.SUBSCRIPTION.defaultPeriodMonths,
-	);
+			try {
+				await Subscription.updateMany(
+					{ userId: subscriptionUserId, status: "active" },
+					{ $set: { status: "expired" } },
+				);
 
-	const subscription = await Subscription.create({
-		userId: input.userId,
-		plan: input.plan,
-		status: "active" as SubscriptionStatus,
-		startedAt,
-		expiresAt,
-		paymentMethod: input.paymentMethod,
-		amount: input.amount ?? 0,
+				const createdSubscription = await Subscription.create(
+					createSubscriptionPayload(input, subscriptionUserId),
+				);
+				createdSubscriptionId = createdSubscription._id as mongoose.Types.ObjectId;
+
+				const syncedUser = await User.findByIdAndUpdate(
+					subscriptionUserId,
+					{ $set: { plan: input.plan } },
+					{ runValidators: false },
+				);
+				if (!syncedUser) {
+					throw new NotFoundError("구독 대상 사용자를 찾을 수 없습니다");
+				}
+
+				return createdSubscription.toObject() as SubscriptionRecord;
+			} catch (error) {
+				const rollbackTasks: Promise<unknown>[] = [];
+				if (createdSubscriptionId) {
+					rollbackTasks.push(Subscription.deleteOne({ _id: createdSubscriptionId }));
+				}
+				if (previousActiveIds.length > 0) {
+					rollbackTasks.push(
+						Subscription.updateMany(
+							{ _id: { $in: previousActiveIds }, status: "expired" },
+							{ $set: { status: "active" } },
+						),
+					);
+				}
+				if (rollbackTasks.length > 0) {
+					const rollbackResults = await Promise.allSettled(rollbackTasks);
+					if (rollbackResults.some((result) => result.status === "rejected")) {
+						throw new ApiError("구독 롤백 처리에 실패했습니다. 잠시 후 다시 시도해주세요", 500);
+					}
+				}
+				mapCreateError(error);
+			}
+		};
+
+		if (mongoose.connection.readyState !== 1) {
+			return createWithoutTransaction();
+		}
+
+		let session: mongoose.ClientSession | null = null;
+		try {
+			session = await mongoose.startSession();
+			const activeSession = session;
+			let created: SubscriptionRecord | null = null;
+			await activeSession.withTransaction(async () => {
+				created = await performCreate(input, subscriptionUserId, activeSession);
+			});
+			if (!created) {
+				throw new ApiError("구독 생성에 실패했습니다", 500);
+			}
+			return created;
+		} catch (error) {
+			if (isTransactionNotSupportedError(error)) {
+				return createWithoutTransaction();
+			}
+			mapCreateError(error);
+		} finally {
+			if (session) {
+				await session.endSession();
+			}
+		}
 	});
-
-	// User plan 동기화
-	await User.findByIdAndUpdate(
-		input.userId,
-		{ $set: { plan: input.plan } },
-		{ runValidators: false },
-	);
-
-	return subscription.toObject() as SubscriptionRecord;
 }
 
 /**
@@ -145,12 +308,18 @@ export async function cancel(
 		throw new NotFoundError("구독을 찾을 수 없습니다");
 	}
 
-	// User plan을 free로 다운그레이드
-	await User.findByIdAndUpdate(
+	const hasOtherActive = await Subscription.exists({
 		userId,
-		{ $set: { plan: "free" } },
-		{ runValidators: false },
-	);
+		status: "active",
+	});
+	if (!hasOtherActive) {
+		// User plan을 free로 다운그레이드
+		await User.findByIdAndUpdate(
+			userId,
+			{ $set: { plan: "free" } },
+			{ runValidators: false },
+		);
+	}
 
 	return updated;
 }

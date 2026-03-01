@@ -12,13 +12,11 @@ import { motion } from 'motion/react'
 import {
   PenSquare,
   Heart,
-  MessageCircle,
   TrendingUp,
 } from 'lucide-react'
 import { Subheading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
-import { Divider } from '@/components/catalyst/divider'
-import { Badge, BadgeButton } from '@/components/catalyst/badge'
+import { Badge } from '@/components/catalyst/badge'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
 import { Skeleton } from '@/components/dotori/Skeleton'
@@ -27,7 +25,7 @@ import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { hoverLift, scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { DS_TYPOGRAPHY, DS_CHIP, DS_TEXT } from '@/lib/design-system/tokens'
-import { DS_PAGE_HEADER, DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { useCommunityPosts } from '@/hooks/use-community-posts'
@@ -36,11 +34,11 @@ import { ToRiFAB } from '@/components/dotori/ToRiFAB'
 
 const categoryFilters = ['전체', '이동 후기', '시설 정보', '유보통합', '자유글']
 
-const CATEGORY_BADGE: Record<string, 'dotori' | 'lime' | 'violet' | 'zinc'> = {
+const CATEGORY_BADGE: Record<string, 'dotori' | 'forest'> = {
   '이동 후기': 'dotori',
-  '시설 정보': 'lime',
-  '유보통합': 'violet',
-  '자유글': 'zinc',
+  '시설 정보': 'forest',
+  '유보통합': 'forest',
+  '자유글': 'dotori',
 }
 
 export default function CommunityPage() {
@@ -62,7 +60,7 @@ export default function CommunityPage() {
             </p>
           </FadeIn>
           <FadeIn>
-            <h1 className={cn('mt-3 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
+            <h1 className={cn('mt-3 font-wordmark font-extrabold tracking-tight', DS_TYPOGRAPHY.display, gradientTextHero)}>
               이웃 이야기
             </h1>
           </FadeIn>
@@ -101,15 +99,19 @@ export default function CommunityPage() {
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-white to-transparent dark:from-dotori-950" />
           <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-0.5 py-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {categoryFilters.map((cat) => (
-              <motion.div key={cat} whileTap={{ scale: 0.975 }} className="snap-start shrink-0">
-                <BadgeButton
-                  color={activeCategory === cat ? 'dotori' : 'zinc'}
-                  className={activeCategory === cat ? DS_CHIP.active : DS_CHIP.inactive}
-                  onClick={() => { setActiveCategory(cat); setVisibleCount(10) }}
-                >
-                  {cat}
-                </BadgeButton>
-              </motion.div>
+              <motion.button
+                key={cat}
+                type="button"
+                whileTap={{ scale: 0.975 }}
+                className={cn(
+                  'snap-start shrink-0 min-h-11 whitespace-nowrap rounded-full px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-500/40',
+                  DS_TYPOGRAPHY.bodySm,
+                  activeCategory === cat ? DS_CHIP.active : DS_CHIP.inactive,
+                )}
+                onClick={() => { setActiveCategory(cat); setVisibleCount(10) }}
+              >
+                {cat}
+              </motion.button>
             ))}
           </div>
         </div>
@@ -143,45 +145,48 @@ export default function CommunityPage() {
         </FadeIn>
       ) : (
         <motion.div {...scrollFadeIn}>
-        <FadeInStagger className="space-y-2">
-          {posts.slice(0, visibleCount).map((post, i) => {
-            const badgeColor = CATEGORY_BADGE[post.category] ?? 'zinc'
+        <FadeInStagger className="space-y-3">
+          {posts.slice(0, visibleCount).map((post) => {
+            const badgeColor = CATEGORY_BADGE[post.category] ?? 'dotori'
             return (
               <FadeIn key={post.id}>
-                <div className="group/card relative">
+                <Link
+                  href={`/community/${post.id}`}
+                  aria-label={post.title}
+                  className="group/card relative block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-dotori-950"
+                >
                   {/* z-0: hover background (Spotlight pattern) */}
-                  <div className={cn("absolute -inset-px rounded-2xl opacity-0 transition duration-200 group-hover/card:opacity-100", DS_SURFACE.sunken)} />
+                  <div className="absolute -inset-px rounded-2xl bg-dotori-50/80 opacity-0 transition duration-200 group-hover/card:opacity-100 dark:bg-dotori-900/30" />
                   {/* z-10: content */}
-                  <motion.article {...hoverLift} className={cn('relative z-10 overflow-hidden', DS_CARD.raised.base, DS_CARD.raised.dark)}>
+                  <motion.article
+                    {...hoverLift}
+                    className="relative z-10 overflow-hidden rounded-2xl bg-white ring-1 ring-dotori-100/70 shadow-sm dark:bg-dotori-950/40 dark:ring-dotori-800/40"
+                  >
                     {/* Brand-tinted accent line */}
                     <div className="h-1 bg-gradient-to-r from-dotori-200/60 via-dotori-400/80 to-dotori-200/60 dark:from-dotori-700/40 dark:via-dotori-600/60 dark:to-dotori-700/40" />
                     <div className="p-5">
-                      <div className="flex items-center justify-between">
-                        <Text className={cn(DS_TYPOGRAPHY.caption, 'font-mono', DS_TEXT.muted)} suppressHydrationWarning>
-                          {post.author} · {post.time}
-                        </Text>
-                        <Badge color={badgeColor}>{post.category}</Badge>
+                      <div className="flex items-start gap-2">
+                        <Badge color={badgeColor} className="shrink-0">
+                          {post.category}
+                        </Badge>
+                        <Subheading level={3} className={cn(DS_TYPOGRAPHY.h3, 'min-w-0 flex-1 line-clamp-1 font-semibold', DS_TEXT.primary)}>
+                          {post.title}
+                        </Subheading>
                       </div>
-                      <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'mt-3 font-semibold sm:text-sm/6', DS_TEXT.primary)}>
-                        {post.title}
-                      </Subheading>
-                      <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 line-clamp-2', DS_TEXT.secondary)}>
+                      <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2 line-clamp-2', DS_TEXT.secondary)}>
                         {post.preview}
                       </Text>
-                      <div className={cn(DS_TYPOGRAPHY.caption, 'mt-3 flex items-center gap-4', DS_TEXT.muted)}>
-                        <span className="inline-flex items-center gap-1">
-                          <Heart className="h-3 w-3" /> {post.likes}
+                      <div className={cn(DS_TYPOGRAPHY.caption, 'mt-3 flex items-center justify-between', DS_TEXT.muted)}>
+                        <span suppressHydrationWarning>
+                          {post.author} · {post.time}
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <MessageCircle className="h-3 w-3" /> {post.comments}
+                          <Heart className="h-3 w-3" /> {post.likes}
                         </span>
                       </div>
                     </div>
                   </motion.article>
-                  {/* z-20: click zone */}
-                  <Link href={`/community/${post.id}`} className="absolute inset-0 z-20" aria-label={post.title} />
-                </div>
-                {i < Math.min(posts.length, visibleCount) - 1 && <Divider soft className="mt-2" />}
+                </Link>
               </FadeIn>
             )
           })}

@@ -8,7 +8,6 @@ import { trackEvent } from "@/lib/analytics";
 import {
 	buildExploreSyncQueryString,
 	buildMapFocusQueryString,
-	buildMapViewQueryString,
 	readExploreInitialQueryState,
 } from "./explore-query";
 import { useExploreFilters } from "./useExploreFilters";
@@ -87,6 +86,11 @@ export function useExploreSearch(): UseExploreSearchReturn {
 	// --- URL sync ---
 	const isInitialMount = useRef(true);
 	const hasHandledFocusRadiusRef = useRef(false);
+	const showMapRef = useRef(m.showMap);
+
+	useEffect(() => {
+		showMapRef.current = m.showMap;
+	}, [m.showMap]);
 
 	const syncUrl = useCallback(() => {
 		if (isInitialMount.current) { isInitialMount.current = false; return; }
@@ -100,15 +104,42 @@ export function useExploreSearch(): UseExploreSearchReturn {
 
 	useEffect(() => { syncUrl(); }, [syncUrl]);
 
+	useEffect(() => {
+		const urlWantsMapView = searchParams.get("view") === "map";
+		if (urlWantsMapView === showMapRef.current) {
+			return;
+		}
+		void m.setMapView(urlWantsMapView ? "map" : "list");
+	}, [m, searchParams]);
+
 	// --- Focus radius ---
+	useEffect(() => {
+		if (!initialQueryState.shouldFocusMapRadius) {
+			hasHandledFocusRadiusRef.current = false;
+		}
+	}, [initialQueryState.shouldFocusMapRadius]);
+
 	useEffect(() => {
 		if (!initialQueryState.shouldFocusMapRadius || hasHandledFocusRadiusRef.current) return;
 		hasHandledFocusRadiusRef.current = true;
-		m.setShowMap(true);
-		addToast({ type: "info", message: "반경을 넓히면 후보가 더 많이 보여요" });
-		trackEvent("filter_open", "explore", { entry_point: "explore_empty_map", funnel_step: "map_radius_focus", map_view: true });
-		const query = buildMapViewQueryString(searchParams);
-		router.replace(`/explore${query ? `?${query}` : ""}`, { scroll: false });
+		let isActive = true;
+		void (async () => {
+			const openedMap = await m.setMapView("map");
+			if (!isActive || !openedMap) {
+				return;
+			}
+			addToast({ type: "info", message: "반경을 넓히면 후보가 더 많이 보여요" });
+			trackEvent("filter_open", "explore", { entry_point: "explore_empty_map", funnel_step: "map_radius_focus", map_view: true });
+			const nextParams = new URLSearchParams(
+				typeof window === "undefined" ? searchParams.toString() : window.location.search,
+			);
+			nextParams.delete("focusRadius");
+			const query = nextParams.toString();
+			router.replace(`/explore${query ? `?${query}` : ""}`, { scroll: false });
+		})();
+		return () => {
+			isActive = false;
+		};
 	}, [addToast, m, router, searchParams, initialQueryState.shouldFocusMapRadius]);
 
 	// --- Geolocation wiring ---
@@ -139,7 +170,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		onSearchInputChange: f.setSearchInput, onSubmitSearch: f.submitSearch,
 		onApplySearch: f.applySearch, onClearSearch: f.clearSearch,
 		onClearRecentSearches: f.clearRecentSearchHistory, onToggleFilters: f.toggleFilters,
-		onToggleMap: m.toggleMap, onToggleType: f.toggleType,
+		onToggleMap: m.toggleMap, onSetMapView: m.setMapView, onToggleType: f.toggleType,
 		onToggleToOnly: f.toggleToOnly, onSortChange: f.changeSortBy,
 		onSidoChange: f.changeSido, onSigunguChange: f.changeSigungu,
 		onUseCurrentLocation: handleUseCurrentLocation, onResetFilters: f.resetFilters,
@@ -147,7 +178,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		f.applySearch, f.changeSido, f.changeSigungu, f.changeSortBy,
 		f.clearRecentSearchHistory, f.clearSearch, handleUseCurrentLocation,
 		f.resetFilters, f.setSearchInput, f.submitSearch, f.toggleFilters,
-		m.toggleMap, f.toggleToOnly, f.toggleType,
+		m.setMapView, m.toggleMap, f.toggleToOnly, f.toggleType,
 	]);
 
 	// --- Assemble results ---
@@ -169,17 +200,11 @@ export function useExploreSearch(): UseExploreSearchReturn {
 		onResetSearch: f.clearSearch, onResetFilters: f.resetFilters,
 		onOpenFilters: f.openFilters,
 		onOpenMap: () => {
-			void m.checkMapAvailability().then((available) => {
-				if (!available) {
-					addToast({ type: "error", message: m.mapDisabledReason || "지도 기능이 비활성화되어 있어요. 운영 설정을 확인해주세요." });
-					return;
-				}
-				const query = buildMapFocusQueryString(searchParams);
-				router.replace(`/explore${query ? `?${query}` : ""}`, { scroll: false });
-				m.setShowMap(true);
-			});
+			const query = buildMapFocusQueryString(searchParams);
+			router.replace(`/explore${query ? `?${query}` : ""}`, { scroll: false });
+			m.setMapView("map");
 		},
-	}), [addToast, m, f.clearSearch, fac.loadMore, f.openFilters, f.resetFilters, fac.retry, router, searchParams]);
+	}), [m, f.clearSearch, fac.loadMore, f.openFilters, f.resetFilters, fac.retry, router, searchParams]);
 
 	// --- Assemble map ---
 	const mapState = useMemo<ExploreMapState>(() => ({

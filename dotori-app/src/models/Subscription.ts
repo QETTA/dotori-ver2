@@ -37,7 +37,10 @@ const SubscriptionSchema = new Schema<ISubscription>(
 	{ timestamps: true },
 );
 
-SubscriptionSchema.index({ userId: 1, status: 1 });
+SubscriptionSchema.index(
+	{ userId: 1, status: 1 },
+	{ unique: true, partialFilterExpression: { status: "active" } },
+);
 SubscriptionSchema.index({ userId: 1, startedAt: -1 });
 SubscriptionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 31536000 }); // TTL 365일 (만료 후 정리)
 

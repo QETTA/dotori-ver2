@@ -45,6 +45,7 @@ export interface ExploreSearchHeaderActions {
 	onClearRecentSearches: () => void;
 	onToggleFilters: () => void;
 	onToggleMap: () => void;
+	onSetMapView: (view: "list" | "map") => void;
 	onToggleType: (type: string) => void;
 	onToggleToOnly: () => void;
 	onSortChange: (nextSort: ExploreSortKey) => void;

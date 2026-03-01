@@ -14,8 +14,8 @@ import { motion } from 'motion/react'
 import { Zap, Filter, MessageCircle, Check } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON } from '@/lib/design-system/tokens'
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_GLASS } from '@/lib/design-system/tokens'
 import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Subheading } from '@/components/catalyst/heading'
@@ -27,7 +27,7 @@ import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { DonutGauge } from '@/components/dotori/charts/DonutGauge'
-import type { UiBlock as UiBlockType } from '@/types/dotori'
+import type { ChildProfile, UiBlock as UiBlockType } from '@/types/dotori'
 
 const steps = [
   '아이 연령 + 시설 형태',
@@ -61,14 +61,23 @@ const quickLinksBlock: UiBlockType = {
 
 const facilityTypes = ['어린이집', '유치원', '둘 다'] as const
 
+const childGenderOptions: Array<{ value: ChildProfile['gender']; label: string }> = [
+  { value: 'female', label: '여아' },
+  { value: 'male', label: '남아' },
+  { value: 'unspecified', label: '상관없음' },
+]
+
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [selectedType, setSelectedType] = useState<(typeof facilityTypes)[number] | null>(null)
+  const [selectedGender, setSelectedGender] = useState<ChildProfile['gender'] | null>(null)
   const totalSteps = 3
   const [stepsRef] = useAutoAnimate({ duration: 250 })
 
   // Progress bar percentage
   const progressPct = Math.round(((currentStep + 1) / totalSteps) * 100)
+  const canContinue = currentStep !== 0 || Boolean(selectedType && selectedGender)
+  const isFinalStep = currentStep === totalSteps - 1
 
   return (
     <div className="container-app relative space-y-8 pb-8">
@@ -98,13 +107,13 @@ export default function OnboardingPage() {
       {/* ══════ WELCOME ══════ */}
       <FadeIn>
         <div className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, 'rounded-3xl p-7')}>
-          <p className={cn(DS_PAGE_HEADER.eyebrow, 'text-forest-600')}>
+          <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono font-semibold uppercase tracking-widest text-forest-600')}>
             온보딩
           </p>
-          <h1 className={cn('mt-3 font-wordmark text-fluid-xl font-extrabold tracking-tight', gradientTextHero)}>
+          <h1 className={cn(DS_TYPOGRAPHY.h1, 'mt-3 font-wordmark font-extrabold tracking-tight', gradientTextHero)}>
             {copy.onboarding.welcome}
           </h1>
-          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-fluid-base')}>
+          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-2', DS_TEXT.secondary)}>
             {copy.onboarding.welcomeSub}
           </Text>
         </div>
@@ -112,7 +121,7 @@ export default function OnboardingPage() {
 
       {/* ══════ FACILITY TYPE SELECTION ══════ */}
       <motion.div {...scrollFadeIn}>
-        <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'mb-3 font-semibold text-dotori-950')}>
+        <Subheading level={2} className={cn(DS_TYPOGRAPHY.h2, 'mb-3 font-semibold', DS_TEXT.primary)}>
           {copy.onboarding.categoryPrompt}
         </Subheading>
         <div className="grid grid-cols-3 gap-2">
@@ -122,17 +131,43 @@ export default function OnboardingPage() {
               type="button"
               className={cn(
                 DS_TYPOGRAPHY.bodySm,
-                'flex items-center justify-center gap-1.5 rounded-xl px-3 py-3 font-medium ring-2 transition-all',
+                'flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 py-3 font-medium ring-2 transition-all',
                 selectedType === type
                   ? 'ring-dotori-500 bg-dotori-50 text-dotori-700 dark:bg-dotori-900/30 dark:text-dotori-200'
                   : 'ring-dotori-100/70 bg-white text-dotori-600 hover:ring-dotori-200 dark:ring-dotori-800/50 dark:bg-dotori-950 dark:text-dotori-400'
               )}
-              onClick={() => { setSelectedType(type); setCurrentStep(1) }}
+              aria-pressed={selectedType === type}
+              onClick={() => setSelectedType(type)}
             >
               {selectedType === type && <Check className={cn(DS_ICON.sm, 'text-dotori-500')} />}
               {type}
             </button>
           ))}
+        </div>
+        <div className="mt-5 border-t border-dotori-100/60 pt-5 dark:border-dotori-800/40">
+          <Subheading level={2} className={cn(DS_TYPOGRAPHY.h2, 'mb-3 font-semibold', DS_TEXT.primary)}>
+            아이 성별은요?
+          </Subheading>
+          <div className="grid grid-cols-3 gap-2">
+            {childGenderOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={cn(
+                  DS_TYPOGRAPHY.bodySm,
+                  'flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 py-3 font-medium transition-all',
+                  selectedGender === option.value
+                    ? 'bg-dotori-50 text-dotori-900 ring-2 ring-dotori-400 dark:bg-dotori-900/30 dark:text-dotori-100'
+                    : 'bg-white text-dotori-600 ring-1 ring-dotori-100/70 hover:ring-dotori-200 dark:bg-dotori-950 dark:text-dotori-400 dark:ring-dotori-800/50'
+                )}
+                aria-pressed={selectedGender === option.value}
+                onClick={() => setSelectedGender(option.value)}
+              >
+                {selectedGender === option.value && <Check className={cn(DS_ICON.sm, 'text-dotori-500')} />}
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -152,8 +187,8 @@ export default function OnboardingPage() {
             )}
           >
             <div className="flex items-center gap-3">
-              <Badge color={index <= currentStep ? 'forest' : 'zinc'}>{index + 1}</Badge>
-              <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>{step}</Subheading>
+              <Badge color={index <= currentStep ? 'forest' : 'dotori'}>{index + 1}</Badge>
+              <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary)}>{step}</Subheading>
             </div>
           </motion.div>
         ))}
@@ -164,7 +199,7 @@ export default function OnboardingPage() {
       {/* ══════ PRIORITY CHECK ══════ */}
       <FadeIn>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'rounded-2xl p-5 ring-1 ring-dotori-200/30 dark:ring-dotori-800/30')}>
-          <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>우선순위 체크</Subheading>
+          <Subheading level={2} className={cn(DS_TYPOGRAPHY.h2, 'font-semibold', DS_TEXT.primary)}>우선순위 체크</Subheading>
           <ul className="mt-3 space-y-3">
             <li className="flex items-start gap-3">
               <Zap className={cn('mt-0.5 shrink-0 text-dotori-500', DS_ICON.sm)} />
@@ -194,7 +229,7 @@ export default function OnboardingPage() {
               label="맞춤 매칭률"
             />
             <div className="flex-1">
-              <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
+              <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary)}>
                 예상 맞춤도
               </Subheading>
               <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>
@@ -218,6 +253,31 @@ export default function OnboardingPage() {
       <FadeIn>
         <UiBlockCard block={quickLinksBlock} />
       </FadeIn>
+
+      {/* ══════ STICKY NEXT ══════ */}
+      <div
+        className={cn(
+          DS_GLASS.nav,
+          DS_GLASS.dark.nav,
+          'sticky bottom-0 z-40 -mx-4 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]',
+          'hairline-border-t',
+        )}
+      >
+        {isFinalStep ? (
+          <DsButton tone="dotori" href="/explore" fullWidth>
+            시작하기
+          </DsButton>
+        ) : (
+          <DsButton
+            tone="dotori"
+            fullWidth
+            disabled={!canContinue}
+            onClick={() => setCurrentStep((step) => Math.min(step + 1, totalSteps - 1))}
+          >
+            다음
+          </DsButton>
+        )}
+      </div>
     </div>
   )
 }

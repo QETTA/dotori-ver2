@@ -3,14 +3,13 @@
 /**
  * Waitlist Page — Card-based layout (Wave 10 polish)
  *
- * Catalyst: Badge, Heading, Text, DsButton
+ * Catalyst: Badge, Text, DsButton
  * Studio:   FadeIn/FadeInStagger
  * Motion:   hoverLift, scrollFadeIn
  */
 import Link from 'next/link'
 import { motion } from 'motion/react'
 import { Badge } from '@/components/catalyst/badge'
-import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
@@ -21,7 +20,7 @@ import { BrandEmptyIllustration } from '@/components/dotori/BrandEmptyIllustrati
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_EMPTY_STATE } from '@/lib/design-system/page-tokens'
-import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
 import { hoverLift, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useWaitlist } from '@/hooks/use-waitlist'
@@ -29,9 +28,9 @@ import { ToBadge } from '@/components/dotori/ToBadge'
 import { AnimatedNumber } from '@/components/dotori/AnimatedNumber'
 
 const statusConfig = {
-  waiting: { label: '대기 중', color: 'zinc' as const, accent: 'bg-amber-500' },
-  accepted: { label: '입소 확정', color: 'green' as const, accent: 'bg-forest-500' },
-  cancelled: { label: '취소', color: 'red' as const, accent: 'bg-dotori-300' },
+  waiting: { label: '대기 중', color: 'dotori' as const, accent: 'bg-amber-500' },
+  accepted: { label: '입소 확정', color: 'forest' as const, accent: 'bg-forest-500' },
+  cancelled: { label: '취소', color: 'dotori' as const, accent: 'bg-dotori-300' },
 }
 
 export default function WaitlistPage() {
@@ -51,10 +50,10 @@ export default function WaitlistPage() {
           <p className={DS_PAGE_HEADER.eyebrow}>
             대기 현황
           </p>
-          <Heading className={cn(DS_PAGE_HEADER.title, 'mt-3 font-wordmark text-3xl/10')}>
+          <h1 className={cn(DS_PAGE_HEADER.title, DS_TYPOGRAPHY.h2, 'mt-3 font-wordmark')}>
             입소 대기 목록
-          </Heading>
-          <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-2 text-base/7')}>
+          </h1>
+          <Text className={cn(DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.bodySm, 'mt-2')}>
             신청한 시설의 대기 순위와 진행 상태를 확인하세요.
           </Text>
         </div>
@@ -92,7 +91,7 @@ export default function WaitlistPage() {
               <FadeIn key={item.id}>
                 <motion.div {...hoverLift}>
                   <Link
-                    href={`/facility/${item.id}`}
+                    href={`/my/waitlist/${item.id}`}
                     className={cn(DS_CARD.raised.base, DS_CARD.raised.dark, DS_CARD.raised.hover, 'block overflow-hidden')}
                   >
                     {/* Status accent bar */}
@@ -102,25 +101,49 @@ export default function WaitlistPage() {
                       {/* Header row */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+                          <Text className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
                             {item.facilityName}
                           </Text>
                           <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-0.5 text-dotori-500 dark:text-dotori-400')}>
                             {item.type}
                           </Text>
                         </div>
-                        <Badge color={config.color}>{config.label}</Badge>
+                        <Badge color={config.color} className="shrink-0 self-start">
+                          {config.label}
+                        </Badge>
+                      </div>
+
+                      {/* Rank surface */}
+                      <div
+                        className={cn(
+                          'mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl px-3 py-2 ring-1 ring-dotori-100/70',
+                          DS_GLASS.card,
+                          DS_GLASS.dark.card,
+                          'dark:ring-dotori-800/60',
+                          item.rank <= 3 && 'motion-safe:animate-pulse',
+                        )}
+                      >
+                        <div className="flex items-baseline gap-2">
+                          <span className={cn(DS_TYPOGRAPHY.caption, 'font-semibold text-dotori-500 dark:text-dotori-300')}>
+                            대기 순위
+                          </span>
+                          <span className={cn(DS_TYPOGRAPHY.h2, 'font-extrabold tabular-nums text-dotori-950 dark:text-dotori-50')}>
+                            <AnimatedNumber end={item.rank} className="tabular-nums" />
+                          </span>
+                          <span className={cn(DS_TYPOGRAPHY.caption, 'font-semibold text-dotori-500 dark:text-dotori-300')}>
+                            번째
+                          </span>
+                        </div>
+
+                        <ToBadge
+                          status={item.status === 'accepted' ? 'available' : 'waiting'}
+                          compact
+                          className="shrink-0"
+                        />
                       </div>
 
                       {/* Stats row */}
                       <div className={cn('mt-3 flex items-center gap-4', DS_TYPOGRAPHY.caption)}>
-                        <div className={item.rank <= 3 ? 'motion-safe:animate-pulse' : ''}>
-                          <span className="text-dotori-500">순위 </span>
-                          <span className="font-semibold text-dotori-900 dark:text-dotori-50">
-                            <AnimatedNumber end={item.rank} className="tabular-nums" />번째
-                          </span>
-                        </div>
-                        <span className="text-dotori-200 dark:text-dotori-700">|</span>
                         <div>
                           <span className="text-dotori-500">신청일 </span>
                           <span className="font-medium text-dotori-700 dark:text-dotori-200">{item.appliedAt}</span>
@@ -133,11 +156,6 @@ export default function WaitlistPage() {
                             </div>
                           </>
                         )}
-                      </div>
-
-                      {/* TO Badge */}
-                      <div className="mt-2">
-                        <ToBadge status={item.status === 'accepted' ? 'available' : 'waiting'} compact />
                       </div>
                     </div>
                   </Link>

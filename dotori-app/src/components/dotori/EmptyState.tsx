@@ -9,7 +9,7 @@ import { DS_EMPTY_STATE, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { spring, tap } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { motion } from 'motion/react'
-import type { ReactNode } from 'react'
+import { cloneElement, isValidElement, type ReactNode } from 'react'
 
 export type DotoriEmptyStateVariant = 'search' | 'transfer' | 'default'
 export type DotoriErrorStateVariant = 'default' | 'network' | 'notfound'
@@ -116,19 +116,21 @@ export default function EmptyStateFallback({
           <motion.div className={DS_EMPTY_STATE.illustration} variants={DOTORI_STATE_ITEM_MOTION.variants}>
             <div className={cn(DS_SURFACE.sunken, 'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={baseMeta.media} alt="" aria-hidden="true" className="h-10 w-10 object-contain opacity-80" />
+              <img src={baseMeta.media} alt="" aria-hidden="true" className="h-14 w-14 object-contain opacity-80" />
             </div>
           </motion.div>
           <motion.div className="space-y-2" variants={DOTORI_STATE_ITEM_MOTION.variants}>
-            <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest text-dotori-500')}>
+            <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest', DS_TEXT.muted)}>
               {baseMeta.eyebrow}
             </p>
-            <h3 className={cn(DS_TEXT.gradient, 'text-h3 font-bold')}>
-              {title}
-            </h3>
-            <p className={cn(DS_EMPTY_STATE.description)}>
-              {resolvedMessage}
-            </p>
+            <div className="flex flex-col gap-2">
+              <h3 className={cn(DS_TEXT.gradient, DS_TYPOGRAPHY.h3, 'font-bold')}>
+                {title}
+              </h3>
+              <p className={cn(DS_EMPTY_STATE.description, 'mt-0')}>
+                {resolvedMessage}
+              </p>
+            </div>
           </motion.div>
           {actionLabel && onAction ? (
             <motion.div className={cn(DS_EMPTY_STATE.action, 'w-full')} variants={DOTORI_STATE_ITEM_MOTION.variants}>
@@ -168,6 +170,9 @@ export function EmptyState({
 }) {
   const variantMeta = DOTORI_STATE_META.empty[variant]
   const resolvedDescription = description ?? variantMeta.description
+  const sizedIcon = icon && isValidElement<{ className?: string }>(icon)
+    ? cloneElement(icon, { className: cn(icon.props.className, 'h-14 w-14') })
+    : icon
 
   return (
     <motion.section
@@ -181,31 +186,35 @@ export function EmptyState({
         <div className="h-1 w-full bg-gradient-to-r from-dotori-200 via-dotori-400/60 to-dotori-200 dark:from-dotori-700 dark:via-dotori-500/30 dark:to-dotori-700" />
         <div className="flex flex-col items-center gap-4 px-6 pb-6">
           <motion.div className={DS_EMPTY_STATE.illustration} variants={DOTORI_STATE_ITEM_MOTION.variants}>
-            <div className={cn(
-              DS_SURFACE.sunken,
-              'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl',
-              icon ? 'text-dotori-600 dark:text-dotori-300' : undefined,
-            )}>
-              {icon ? (
-                icon
+            <div
+              className={cn(
+                DS_SURFACE.sunken,
+                'mx-auto flex h-16 w-16 items-center justify-center rounded-2xl',
+                sizedIcon ? 'text-dotori-600 dark:text-dotori-300' : undefined,
+              )}
+            >
+              {sizedIcon ? (
+                sizedIcon
               ) : (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={variantMeta.media} alt="" aria-hidden="true" className="h-10 w-10 object-contain opacity-80" />
+                <img src={variantMeta.media} alt="" aria-hidden="true" className="h-14 w-14 object-contain opacity-80" />
               )}
             </div>
           </motion.div>
           <motion.div className="space-y-2" variants={DOTORI_STATE_ITEM_MOTION.variants}>
-            <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest text-dotori-500')}>
+            <p className={cn(DS_TYPOGRAPHY.caption, 'font-mono leading-5 font-semibold uppercase tracking-widest', DS_TEXT.muted)}>
               {variantMeta.eyebrow}
             </p>
-            <h3 className={cn(DS_TEXT.gradient, 'text-h3 font-bold')}>
-              {title}
-            </h3>
-            {resolvedDescription ? (
-              <p className={cn(DS_EMPTY_STATE.description)}>
-                {resolvedDescription}
-              </p>
-            ) : null}
+            <div className="flex flex-col gap-2">
+              <h3 className={cn(DS_TEXT.gradient, DS_TYPOGRAPHY.h3, 'font-bold')}>
+                {title}
+              </h3>
+              {resolvedDescription ? (
+                <p className={cn(DS_EMPTY_STATE.description, 'mt-0')}>
+                  {resolvedDescription}
+                </p>
+              ) : null}
+            </div>
           </motion.div>
           {actionLabel || (secondaryLabel && secondaryHref) ? (
             <motion.div className={cn(DS_EMPTY_STATE.action, 'flex w-full flex-col gap-2')} variants={DOTORI_STATE_ITEM_MOTION.variants}>

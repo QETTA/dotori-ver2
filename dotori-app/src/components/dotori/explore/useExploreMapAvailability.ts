@@ -11,6 +11,11 @@ interface KakaoMapSdkStatusResponse {
 	};
 }
 
+interface MapAvailabilityResult {
+	available: boolean;
+	reason: string | null;
+}
+
 function isHardBlockedStatus(status: KakaoMapSdkStatus): boolean {
 	return status === "missing_key" || status === "unauthorized" || status === "invalid_key";
 }
@@ -18,9 +23,9 @@ function isHardBlockedStatus(status: KakaoMapSdkStatus): boolean {
 export function useExploreMapAvailability() {
 	const [isMapAvailable, setIsMapAvailable] = useState(true);
 	const [mapDisabledReason, setMapDisabledReason] = useState<string | null>(null);
-	const mapAvailabilityCheckRef = useRef<Promise<boolean> | null>(null);
+	const mapAvailabilityCheckRef = useRef<Promise<MapAvailabilityResult> | null>(null);
 
-	const checkMapAvailability = useCallback(async () => {
+	const checkMapAvailabilityDetailed = useCallback(async (): Promise<MapAvailabilityResult> => {
 		if (mapAvailabilityCheckRef.current) {
 			return mapAvailabilityCheckRef.current;
 		}
@@ -32,12 +37,18 @@ export function useExploreMapAvailability() {
 
 				setIsMapAvailable(!blocked);
 				setMapDisabledReason(blocked ? response.data.message : null);
-				return !blocked;
+				return {
+					available: !blocked,
+					reason: blocked ? response.data.message : null,
+				};
 			} catch {
 				// 네트워크 일시 오류는 지도 노출을 막지 않는다.
 				setIsMapAvailable(true);
 				setMapDisabledReason(null);
-				return true;
+				return {
+					available: true,
+					reason: null,
+				};
 			} finally {
 				mapAvailabilityCheckRef.current = null;
 			}
@@ -47,6 +58,11 @@ export function useExploreMapAvailability() {
 		return checkPromise;
 	}, []);
 
+	const checkMapAvailability = useCallback(async () => {
+		const result = await checkMapAvailabilityDetailed();
+		return result.available;
+	}, [checkMapAvailabilityDetailed]);
+
 	useEffect(() => {
 		void checkMapAvailability();
 	}, [checkMapAvailability]);
@@ -55,5 +71,6 @@ export function useExploreMapAvailability() {
 		isMapAvailable,
 		mapDisabledReason,
 		checkMapAvailability,
+		checkMapAvailabilityDetailed,
 	};
 }

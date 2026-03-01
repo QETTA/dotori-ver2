@@ -21,9 +21,9 @@ import { cn } from '@/lib/utils'
 import type { ActionStatus, Facility } from '@/types/dotori'
 
 const CLS = {
-  sectionCard: cn('relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100/80 px-3 py-3 ring-1 ring-dotori-100/70 dark:border-dotori-800', DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm),
+  sectionCard: cn('relative overflow-hidden rounded-2xl px-3 py-6 ring-1 ring-dotori-100/70 dark:ring-dotori-800/70', DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm),
   contactLink: cn('flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-dotori-100 px-3 transition-all hover:bg-dotori-50 dark:border-dotori-800 dark:hover:bg-dotori-900'),
-  sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary),
+  sectionTitle: cn(DS_TYPOGRAPHY.h3, 'font-semibold', DS_TEXT.primary),
 } as const
 
 type FacilityContactSectionProps = {
@@ -93,7 +93,7 @@ export function FacilityContactSection({
         aria-controls="facility-contact-details"
         whileTap={tap.button.whileTap}
         transition={tap.button.transition}
-        className={'flex w-full min-h-10 items-center justify-between gap-3 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200'}
+        className={'flex w-full min-h-11 items-center justify-between gap-3 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200'}
         >
         <h2
           className={CLS.sectionTitle}
@@ -467,29 +467,39 @@ export function FacilityContactMapSections({
   lng,
   status,
 }: FacilityContactMapSectionsProps) {
+  const sectionDividerClassName =
+    'border-b border-dotori-100 py-6 dark:border-dotori-800 last:border-b-0'
+
   return (
-    <div className={DS_LAYOUT.SAFE_AREA_BOTTOM}>
-      <FacilityContactSection
-        phone={phone}
-        address={address}
-        kakaoMapUrl={kakaoMapUrl}
-        websiteUrl={websiteUrl}
-        copyablePhone={copyablePhone}
-        copyingPhone={copyingPhone}
-        onCopyPhone={onCopyPhone}
-        copyableAddress={copyableAddress}
-        copyingAddress={copyingAddress}
-        onCopyAddress={onCopyAddress}
-      />
-      <FacilityLocationMapSection
-        hasMapLocation={hasMapLocation}
-        facilityId={facilityId}
-        facilityName={facilityName}
-        lat={lat}
-        lng={lng}
-        status={status}
-        kakaoMapUrl={kakaoMapUrl}
-      />
+    <div className={cn(DS_LAYOUT.SAFE_AREA_BOTTOM)}>
+      <div className={sectionDividerClassName}>
+        <FacilityContactSection
+          phone={phone}
+          address={address}
+          kakaoMapUrl={kakaoMapUrl}
+          websiteUrl={websiteUrl}
+          copyablePhone={copyablePhone}
+          copyingPhone={copyingPhone}
+          onCopyPhone={onCopyPhone}
+          copyableAddress={copyableAddress}
+          copyingAddress={copyingAddress}
+          onCopyAddress={onCopyAddress}
+        />
+      </div>
+
+      {hasMapLocation ? (
+        <div className={sectionDividerClassName}>
+          <FacilityLocationMapSection
+            hasMapLocation={hasMapLocation}
+            facilityId={facilityId}
+            facilityName={facilityName}
+            lat={lat}
+            lng={lng}
+            status={status}
+            kakaoMapUrl={kakaoMapUrl}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }

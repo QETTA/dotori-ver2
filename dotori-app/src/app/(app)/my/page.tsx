@@ -21,8 +21,6 @@ import {
   Sparkles,
   BookOpen,
 } from 'lucide-react'
-import { Subheading } from '@/components/catalyst/heading'
-import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { Avatar } from '@/components/catalyst/avatar'
 import { DsButton } from '@/components/ds/DsButton'
@@ -34,7 +32,7 @@ import { AnimatedNumber } from '@/components/dotori/AnimatedNumber'
 import { FunnelProgressWidget } from '@/components/dotori/FunnelProgressWidget'
 import { useHomeDashboard } from '@/hooks/use-home-dashboard'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_GRADIENT } from '@/lib/design-system/tokens'
+import { DS_GLASS, DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_GRADIENT } from '@/lib/design-system/tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
@@ -47,13 +45,29 @@ type MenuItem = {
   tint: string
 }
 
-const menuItems: MenuItem[] = [
-  { href: '/my/documents', label: '서류함', desc: '입소 서류 관리', icon: FileText, tint: 'dotori' },
-  { href: '/my/waitlist', label: '입소 대기', desc: '대기 현황 확인', icon: Clock, tint: 'amber' },
-  { href: '/my/interests', label: '관심 시설', desc: '찜한 시설 목록', icon: Heart, tint: 'dotori' },
-  { href: '/my/notifications', label: '알림', desc: '빈자리·서류 알림', icon: Bell, tint: 'forest' },
-  { href: '/my/settings', label: '설정', desc: '계정·알림 관리', icon: Settings, tint: 'dotori' },
-  { href: '/my/support', label: '고객 지원', desc: 'FAQ·1:1 문의', icon: MessageSquare, tint: 'forest' },
+const menuGroups: Array<{ title: string; items: MenuItem[] }> = [
+  {
+    title: '계정',
+    items: [
+      { href: '/my/documents', label: '서류함', desc: '입소 서류 관리', icon: FileText, tint: 'dotori' },
+      { href: '/my/waitlist', label: '입소 대기', desc: '대기 현황 확인', icon: Clock, tint: 'amber' },
+      { href: '/my/interests', label: '관심 시설', desc: '찜한 시설 목록', icon: Heart, tint: 'dotori' },
+      { href: '/my/notifications', label: '알림', desc: '빈자리·서류 알림', icon: Bell, tint: 'forest' },
+    ],
+  },
+  {
+    title: '앱 설정',
+    items: [
+      { href: '/my/settings', label: '설정', desc: '계정·알림 관리', icon: Settings, tint: 'dotori' },
+      { href: '/my/app-info', label: '앱 정보', desc: '버전·정책·라이선스', icon: FileText, tint: 'dotori' },
+    ],
+  },
+  {
+    title: '지원',
+    items: [
+      { href: '/my/support', label: '고객 지원', desc: 'FAQ·1:1 문의', icon: MessageSquare, tint: 'forest' },
+    ],
+  },
 ]
 
 const ICON_TINT: Record<string, string> = {
@@ -101,7 +115,7 @@ export default function MyPage() {
           </p>
         </FadeIn>
         <FadeIn>
-          <h1 className={cn('mt-3 font-wordmark text-3xl/[1.2] font-extrabold tracking-tight', gradientTextHero)}>
+          <h1 className={cn('mt-3 font-wordmark font-extrabold tracking-tight', DS_TYPOGRAPHY.display, gradientTextHero)}>
             나의 도토리
           </h1>
         </FadeIn>
@@ -114,8 +128,8 @@ export default function MyPage() {
               <div className="flex items-center gap-4">
                 <Avatar initials="도" className="h-14 w-14 bg-dotori-50 text-dotori-600 ring-2 ring-dotori-400/30 shadow-[0_4px_12px_rgba(176,122,74,0.12)] dark:bg-dotori-950/30 dark:text-dotori-400 dark:ring-dotori-700/40" square />
                 <div className="min-w-0 flex-1">
-                  <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>게스트</Subheading>
-                  <Text className={cn('mt-0.5', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>로그인하면 맞춤 서비스를 받아요</Text>
+                  <p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary)}>게스트</p>
+                  <p className={cn('mt-0.5', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>로그인하면 맞춤 서비스를 받아요</p>
                 </div>
                 <DsButton href="/login" className="shrink-0">
                   로그인
@@ -145,12 +159,12 @@ export default function MyPage() {
             <div className={cn(DS_CARD.premium.base, DS_CARD.premium.dark, 'relative overflow-hidden p-6 text-center transition hover:bg-dotori-50/30 dark:hover:bg-white/5')}>
               <NoiseTexture />
               <div className="h-1.5 absolute inset-x-0 top-0 bg-gradient-to-r from-dotori-500 via-amber-400 to-forest-500" />
-              <h2 className={cn('font-wordmark text-xl/[1.2] font-bold tracking-tight text-dotori-800 dark:text-dotori-100')}>
+              <h2 className={cn('font-wordmark font-bold tracking-tight text-dotori-800 dark:text-dotori-100', DS_TYPOGRAPHY.h2)}>
                 아직 탐색 중이에요
               </h2>
-              <Text className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_TEXT.muted)}>
+              <p className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_TEXT.muted)}>
                 관심 시설을 등록하면 대기 현황과 알림을 한눈에 볼 수 있어요
-              </Text>
+              </p>
               <div className={cn('mt-4 inline-flex items-center gap-1.5 rounded-full bg-dotori-50 px-3 py-1.5 font-semibold text-dotori-600 transition group-hover:bg-dotori-100 dark:bg-dotori-950/30 dark:text-dotori-400', DS_TYPOGRAPHY.caption)}>
                 시설 탐색하기
                 <ArrowRight className={cn(DS_ICON.xs, 'transition-transform group-hover:translate-x-0.5')} />
@@ -204,49 +218,53 @@ export default function MyPage() {
 
       <Divider soft />
 
-      {/* ══════ MENU LIST — 3-layer hover + icon tint ══════ */}
+      {/* ══════ MENU LIST — grouped surface cards ══════ */}
       <motion.div {...scrollFadeIn} ref={menuRef}>
-      <FadeInStagger faster className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon
-          return (
-            <FadeIn key={item.href}>
-              <div className="group/card relative">
-                {/* z-0 — hover background layer */}
-                <div className={cn(
-                  'absolute inset-0 rounded-xl opacity-0 transition-opacity duration-200 group-hover/card:opacity-100',
-                  DS_SURFACE.sunken,
-                )} />
-                {/* z-10 — content layer (resting ring + shadow for depth in static view) */}
-                <div className="relative z-10 flex items-center gap-3.5 rounded-xl bg-white px-3.5 py-3.5 ring-1 ring-dotori-300/50 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.16),0_6px_18px_rgba(176,122,74,0.12)] transition-all duration-200 group-hover/card:-translate-y-1 group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.18),0_14px_32px_rgba(176,122,74,0.18)] group-hover/card:ring-dotori-400/60 dark:bg-dotori-950/50 dark:ring-dotori-700/40 dark:shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_1px_3px_rgba(0,0,0,0.4),0_6px_18px_rgba(0,0,0,0.4)] dark:group-hover/card:shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.4),0_14px_32px_rgba(0,0,0,0.5)]">
-                  <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-lg', ICON_TINT[item.tint])}>
-                    <Icon className={DS_ICON.md} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold', DS_TEXT.primary)}>{item.label}</p>
-                    <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>{item.desc}</p>
-                  </div>
-                  <ArrowRight className={cn(DS_ICON.sm, 'shrink-0 transition-transform duration-200 group-hover/card:translate-x-0.5', DS_TEXT.muted)} />
+        <FadeInStagger faster className="space-y-4">
+          {menuGroups.map((group) => (
+            <FadeIn key={group.title}>
+              <div className="space-y-2">
+                <p className={cn(DS_TYPOGRAPHY.caption, 'px-1 font-semibold text-dotori-700 dark:text-dotori-200')}>
+                  {group.title}
+                </p>
+                <div
+                  className={cn(
+                    DS_SURFACE.elevated,
+                    DS_GLASS.card,
+                    DS_GLASS.dark.card,
+                    'overflow-hidden divide-y divide-dotori-100 dark:divide-dotori-800/60',
+                  )}
+                >
+                  {group.items.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'group flex min-h-11 items-center gap-3.5 px-4 py-3.5 transition-colors',
+                          'hover:bg-dotori-50/70 active:bg-dotori-100/60 dark:hover:bg-white/5 dark:active:bg-white/10',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-dotori-400/70',
+                        )}
+                        aria-label={item.label}
+                      >
+                        <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-xl', ICON_TINT[item.tint])}>
+                          <Icon className={DS_ICON.md} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold', DS_TEXT.primary)}>{item.label}</p>
+                          <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>{item.desc}</p>
+                        </div>
+                        <ArrowRight className={cn(DS_ICON.sm, 'shrink-0 transition-transform duration-200 group-hover:translate-x-0.5', DS_TEXT.muted)} />
+                      </Link>
+                    )
+                  })}
                 </div>
-                {/* z-20 — click zone */}
-                <Link href={item.href} className="absolute inset-0 z-20" aria-label={item.label}>
-                  <span className="sr-only">{item.label} 열기</span>
-                </Link>
               </div>
             </FadeIn>
-          )
-        })}
-      </FadeInStagger>
+          ))}
+        </FadeInStagger>
       </motion.div>
-
-      {/* ══════ APP INFO ══════ */}
-      <FadeIn>
-        <div className="pb-4 text-center">
-          <Link href="/my/app-info" className={cn('font-mono transition-colors hover:text-dotori-600 dark:hover:text-dotori-300', DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>
-            도토리 v2.0 · 앱 정보
-          </Link>
-        </div>
-      </FadeIn>
     </div>
   )
 }

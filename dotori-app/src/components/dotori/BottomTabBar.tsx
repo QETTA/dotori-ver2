@@ -131,12 +131,12 @@ export const BottomTabBar = memo(function BottomTabBar({ badges }: BottomTabBarP
                     ),
                   )}
                 >
-                <Icon
+                  <Icon
                     className={cn(
                       'h-4 w-4 transition-colors duration-200',
                       active
-                        ? 'text-dotori-900 dark:text-dotori-50'
-                        : 'text-dotori-600 dark:text-dotori-400',
+                        ? 'text-dotori-500'
+                        : 'text-dotori-400/55 dark:text-dotori-500/35',
                     )}
                     fill={active ? 'currentColor' : 'none'}
                     strokeWidth={active ? 1.5 : 2}
@@ -168,7 +168,7 @@ export const BottomTabBar = memo(function BottomTabBar({ badges }: BottomTabBarP
                     'relative z-10 tracking-tight transition-colors duration-200',
                     active
                       ? 'font-semibold text-dotori-900 dark:text-dotori-50'
-                      : 'font-medium text-dotori-600 dark:text-dotori-400',
+                      : 'font-normal text-dotori-600 dark:text-dotori-400',
                   )}
                 >
                   {tab.label}

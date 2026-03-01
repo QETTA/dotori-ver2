@@ -6,8 +6,17 @@ import { ApiError, withApiHandler } from "@/lib/api-handler";
 import { standardLimiter } from "@/lib/rate-limit";
 import { subscriptionService } from "@/lib/services/subscription.service";
 
+const objectIdSchema = z.string()
+	.trim()
+	.regex(/^[a-f\d]{24}$/i, "유효하지 않은 대상 사용자 ID입니다");
+
+const actorUserIdSchema = z.string()
+	.trim()
+	.regex(/^[a-f\d]{24}$/i, "유효하지 않은 사용자 ID입니다");
+
 const subscriptionCreateSchema = z.object({
 	plan: z.enum(["premium", "partner"]),
+	targetUserId: objectIdSchema.optional(),
 });
 
 export const GET = withApiHandler(async (_req, { userId }) => {
@@ -41,13 +50,26 @@ export const GET = withApiHandler(async (_req, { userId }) => {
 
 export const POST = withApiHandler(async (_req, { userId, body }) => {
 	// TODO: Toss Payments 결제 검증으로 교체 예정
-	const currentUser = await User.findById(userId).select("role").lean<{ role?: string }>();
+	const parsedActorUserId = actorUserIdSchema.safeParse(userId);
+	if (!parsedActorUserId.success) {
+		throw new ApiError("유효하지 않은 사용자 ID입니다", 400);
+	}
+	const actorUserId = parsedActorUserId.data;
+
+	const currentUser = await User.findById(actorUserId).select("role").lean<{ role?: string }>();
 	if (currentUser?.role !== "admin") {
 		throw new ApiError("관리자만 구독을 생성할 수 있습니다", 403);
 	}
 
+	const targetUserId = body.targetUserId ?? actorUserId;
+	const targetUser = await User.findById(targetUserId).select("_id").lean();
+	if (!targetUser) {
+		throw new ApiError("구독 대상 사용자를 찾을 수 없습니다", 404);
+	}
+
 	const subscription = await subscriptionService.create({
-		userId,
+		userId: actorUserId,
+		targetUserId,
 		plan: body.plan,
 	});
 

@@ -6,7 +6,7 @@
  * TP5: Pattern 1 (3-layer hover), Pattern 2 (gradient text),
  *       Pattern 3 (card.eyebrow compound), Pattern 5 (border accent + noise)
  */
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
@@ -27,11 +27,19 @@ import { useExploreSearch } from '@/components/dotori/explore/useExploreSearch'
 function ExploreContent() {
   const { headerState, resultState, headerActions, resultActions, resultInteraction, mapState } =
     useExploreSearch()
-  const [view, setView] = useState<'list' | 'map'>('list')
   const router = useRouter()
   const handleMarkerClick = useCallback((id: string) => {
     router.push(`/facility/${id}`)
   }, [router])
+  const handleViewToggle = useCallback((nextView: 'list' | 'map') => {
+    if (nextView === 'map' && !headerState.isMapAvailable) {
+      return
+    }
+    headerActions.onSetMapView(nextView)
+  }, [headerActions, headerState.isMapAvailable])
+  const handleRetryMapAvailability = useCallback(() => {
+    void headerActions.onSetMapView('map')
+  }, [headerActions])
 
   return (
     <div className={cn(DS_SURFACE.primary, 'relative min-h-screen')}>
@@ -45,7 +53,7 @@ function ExploreContent() {
           <p className={DS_PAGE_HEADER.eyebrow}>EXPLORE</p>
         </FadeIn>
         <FadeIn>
-          <h1 className={cn('mt-3 font-wordmark text-4xl/[1.1] font-extrabold tracking-tight sm:text-5xl/[1.06]', gradientTextHero)}>
+          <h1 className={cn('mt-3 font-wordmark text-fluid-xl font-extrabold tracking-tight', gradientTextHero)}>
             시설 탐색
           </h1>
         </FadeIn>
@@ -61,7 +69,13 @@ function ExploreContent() {
 
       {/* ══════ VIEW TOGGLE ══════ */}
       <FadeIn className="px-4 py-3">
-        <ExploreMapToggle view={view} onToggle={setView} />
+        <ExploreMapToggle
+          view={mapState.showMap ? 'map' : 'list'}
+          onToggle={handleViewToggle}
+          isMapAvailable={headerState.isMapAvailable}
+          mapDisabledReason={headerState.mapDisabledReason}
+          onRetryMapAvailability={handleRetryMapAvailability}
+        />
       </FadeIn>
 
       {/* ── Section accent divider — TP5 Pattern 5 ── */}
@@ -72,7 +86,7 @@ function ExploreContent() {
 
       {/* ══════ RESULTS / MAP ══════ */}
       <motion.div {...scrollFadeIn} className="space-y-6">
-        {view === 'list' ? (
+        {!mapState.showMap ? (
           <ExploreResultList
             state={resultState}
             actions={resultActions}

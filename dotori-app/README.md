@@ -54,6 +54,12 @@ BASE_URL=http://127.0.0.1:3002 npm run check-console:chrome
 # ㄱㄱ trigger cycle (style-guard -> tsc -> test -> check-console -> screenshot)
 npm run gg:trigger
 
+# ㄱ 멀티에이전트 풀가동 트리거 (기본값)
+npm run ㄱ
+
+# 단일/저부하 모드로 임시 실행 (멀티에이전트 OFF)
+npm run ㄱ:single
+
 # ㄱㄱ fast cycle (20 routes)
 npm run gg:trigger:fast
 

@@ -51,27 +51,27 @@ const getMetricValueClass = (tone: keyof typeof DS_STATUS) =>
 
 const getRateValueToneClass = (occupancyTone: keyof typeof DS_STATUS) =>
 	occupancyTone === "available"
-		? 'text-forest-700'
-		: 'font-bold leading-none text-dotori-700 dark:text-dotori-200';
+		? 'text-forest-700 dark:text-forest-200'
+		: 'text-dotori-700 dark:text-dotori-200';
 
 const CLS = {
 	sectionInsight: cn(
-		'relative mb-4 overflow-hidden rounded-2xl border-b border-dotori-100 p-3 ring-1 ring-dotori-100/70',
+		'relative overflow-hidden rounded-2xl px-3 py-6 ring-1 ring-dotori-100/70',
 		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
-		'dark:border-dotori-800 dark:ring-dotori-800/70',
+		'dark:ring-dotori-800/70',
 	),
 	section: cn(
-		'mb-4 rounded-2xl border-b border-dotori-100 px-3 py-3 ring-1 ring-dotori-100/70',
+		'rounded-2xl px-3 py-6 ring-1 ring-dotori-100/70',
 		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
-		'dark:border-dotori-800 dark:ring-dotori-800/70',
+		'dark:ring-dotori-800/70',
 	),
 	sectionLg: cn(
-		'mb-5 rounded-2xl border-b border-dotori-100 p-4 pb-5 ring-1 ring-dotori-100/70',
+		'rounded-2xl px-4 py-6 ring-1 ring-dotori-100/70',
 		DS_GLASS.card, DS_GLASS.dark.card, DS_SHADOW.sm, DS_SHADOW.dark.sm,
-		'dark:border-dotori-800 dark:ring-dotori-800/70',
+		'dark:ring-dotori-800/70',
 	),
 	metricCell: 'rounded-xl border border-dotori-100 bg-white/80 px-2 py-2 text-center dark:border-dotori-800 dark:bg-dotori-950',
-	sectionTitle: cn(DS_TYPOGRAPHY.bodySm, 'font-semibold', DS_TEXT.primary),
+	sectionTitle: cn(DS_TYPOGRAPHY.h3, 'font-semibold', DS_TEXT.primary),
 } as const;
 
 export type FacilityKeyStat = {
@@ -204,7 +204,7 @@ export function FacilityInsightSection({
 								<p className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>
 									{metric.label}
 								</p>
-								<p className={cn('mt-0.5 leading-none', DS_TYPOGRAPHY.h3, getMetricValueClass(metric.tone))}>
+								<p className={cn('mt-0.5 text-h1 font-bold leading-none tabular-nums', getMetricValueClass(metric.tone))}>
 									{metric.value}
 									<span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5 font-medium text-dotori-500')}>명</span>
 								</p>
@@ -235,21 +235,21 @@ export function FacilityCapacitySection({
 	const capacityBarColor = getCapacityColor(occupancyRate / 100);
 
 	return (
-		<>
+		<div className={'space-y-4'}>
 				<motion.section
 					variants={capacityReveal}
 					initial="hidden"
 					animate="show"
 					className={CLS.section}
 			>
-						<motion.button
+				<motion.button
 							type="button"
 							onClick={() => setIsExpanded((prev) => !prev)}
 						aria-expanded={isExpanded}
 							aria-controls="facility-capacity-details"
 							whileTap={tap.button.whileTap}
 							transition={tap.button.transition}
-						className={'flex w-full min-h-10 items-center justify-between gap-2 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200'}
+						className={'flex w-full min-h-11 items-center justify-between gap-2 rounded-xl px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-200'}
 					>
 						<div className={'flex min-w-0 items-baseline gap-2'}>
 							<h2
@@ -259,9 +259,9 @@ export function FacilityCapacitySection({
 							</h2>
 							<span
 								className={cn(
-									DS_TYPOGRAPHY.h2,
+									DS_TYPOGRAPHY.h1,
 									getRateValueToneClass(occupancyTone),
-									'font-bold leading-none text-dotori-700 dark:text-dotori-200',
+									'font-bold leading-none tabular-nums',
 								)}
 							>
 								{occupancyRate}%
@@ -277,7 +277,8 @@ export function FacilityCapacitySection({
 							/>
 						<span
 							className={cn(
-								'text-caption min-h-6 items-center rounded-full px-2.5 py-1',
+								'inline-flex min-h-6 items-center rounded-full px-2.5 py-1 font-semibold',
+								DS_TYPOGRAPHY.caption,
 								occupancyMeta.pill,
 							)}
 						>
@@ -302,36 +303,39 @@ export function FacilityCapacitySection({
 							/>
 							<div className={'mt-3 grid grid-cols-3 gap-2'}>
 								<div className={CLS.metricCell}>
-									<p className={cn(DS_TYPOGRAPHY.caption, 'text-caption font-medium text-dotori-500')}>정원</p>
+									<p className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>정원</p>
 									<p
 										className={cn(
-											'font-semibold text-dotori-900 dark:text-dotori-50',
+											'text-h1 font-bold leading-none tabular-nums',
 											availableTone,
 										)}
 									>
 										{totalCapacity}
+										<span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5 font-medium text-dotori-500')}>명</span>
 									</p>
 								</div>
 								<div className={CLS.metricCell}>
-									<p className={cn(DS_TYPOGRAPHY.caption, 'text-caption font-medium text-dotori-500')}>현원</p>
+									<p className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>현원</p>
 									<p
 										className={cn(
-											'font-semibold text-dotori-900 dark:text-dotori-50',
+											'text-h1 font-bold leading-none tabular-nums',
 											currentRateTone,
 										)}
 									>
 										{currentCapacity}
+										<span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5 font-medium text-dotori-500')}>명</span>
 									</p>
 								</div>
 								<div className={CLS.metricCell}>
-									<p className={cn(DS_TYPOGRAPHY.caption, 'text-caption font-medium text-dotori-500')}>대기</p>
+									<p className={cn(DS_TYPOGRAPHY.caption, 'font-medium text-dotori-500')}>대기</p>
 									<p
 										className={cn(
-											'font-semibold text-dotori-900 dark:text-dotori-50',
+											'text-h1 font-bold leading-none tabular-nums',
 											waitingTone,
 										)}
 									>
 										{waitingCapacity}
+										<span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5 font-medium text-dotori-500')}>명</span>
 									</p>
 								</div>
 							</div>
@@ -374,7 +378,7 @@ export function FacilityCapacitySection({
 						</motion.div>
 				</motion.section>
 			) : null}
-		</>
+		</div>
 	);
 }
 
@@ -390,7 +394,7 @@ export function FacilityFeatureSection({ features }: FacilityFeatureSectionProps
 			animate="show"
 			className={CLS.sectionLg}
 		>
-			<h2 className={'text-body-sm font-semibold text-dotori-900 dark:text-dotori-50'}>특징</h2>
+			<h2 className={CLS.sectionTitle}>특징</h2>
 			{activeFeatures.length > 0 ? (
 				<div className={'mt-3 flex flex-wrap gap-2'}>
 					{activeFeatures.map((feature) => (
@@ -421,9 +425,7 @@ export function FacilityAdmissionGuideSection() {
 			animate="show"
 			className={CLS.sectionLg}
 		>
-			<h2 className={'text-body-sm font-semibold text-dotori-900 dark:text-dotori-50'}>
-				입소 설명회 안내
-			</h2>
+			<h2 className={CLS.sectionTitle}>입소 설명회 안내</h2>
 			<p className={'mt-3 text-body-sm leading-relaxed text-dotori-500 dark:text-dotori-300'}>
 				이 시설의 입소 설명회 일정은 아직 등록되지 않았어요.
 				시설에 직접 문의하거나 아이사랑포털에서 확인해 보세요.
@@ -455,7 +457,7 @@ export function FacilityCoreInfoSections({
 	features,
 }: FacilityCoreInfoSectionsProps) {
 	return (
-		<>
+		<div className={'space-y-4'}>
 			<FacilityInsightSection
 				status={status}
 				qualityScore={qualityScore}
@@ -473,6 +475,6 @@ export function FacilityCoreInfoSections({
 				keyStats={keyStats}
 			/>
 			<FacilityFeatureSection features={features} />
-		</>
+		</div>
 	);
 }

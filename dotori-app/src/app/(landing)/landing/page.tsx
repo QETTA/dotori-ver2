@@ -9,9 +9,11 @@
  * This ensures content is ALWAYS visible — critical for Playwright screenshots + SSR.
  */
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { useId, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import {
   ArrowRight,
+  ChevronDown,
   MessageCircle,
   Search,
   BarChart3,
@@ -24,7 +26,7 @@ import { getSeasonalHero } from '@/lib/seasonal-config'
 import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY, DS_TEXT, DS_GLASS } from '@/lib/design-system/tokens'
-import { gradientTextHero } from '@/lib/motion'
+import { gradientTextHero, spring } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
@@ -93,6 +95,82 @@ const HERO_METRICS = [
   { value: '10분', label: '풀퍼널 완결' },
 ] as const
 
+const FAQ_ITEMS = [
+  {
+    question: '도토리는 학부모에게 정말 무료인가요?',
+    answer:
+      '네. 학부모 개인 사용은 영구 무료예요. 필요하시면 빈자리 알림을 설정하고, 토리톡으로 이동 루트까지 같이 정리해드려요.',
+  },
+  {
+    question: '빈자리 알림은 어떻게 받을 수 있나요?',
+    answer:
+      '관심 시설을 등록하면, 변화가 감지될 때 알림으로 알려드려요. 여러 시설을 한 번에 관리할 수 있어서 “기다리기만” 하는 시간을 줄여줘요.',
+  },
+  {
+    question: '시설 프리미엄은 누가 쓰나요?',
+    answer:
+      '어린이집·유치원 원장님을 위한 기능이에요. 시설 프로필 강화, 대기자 관리, 전자서명 계약을 하나의 흐름으로 묶어 운영 부담을 줄여요.',
+  },
+] as const
+
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false)
+  const triggerId = useId()
+  const panelId = useId()
+
+  return (
+    <div
+      className={cn(
+        'rounded-2xl ring-1 shadow-sm transition-all',
+        DS_GLASS.card,
+        DS_GLASS.dark.card,
+        open
+          ? 'ring-dotori-300/60'
+          : 'ring-dotori-200/40 hover:ring-dotori-300/50 dark:hover:ring-dotori-600/40',
+      )}
+    >
+      <motion.button
+        id={triggerId}
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        whileTap={{ scale: 0.97 }}
+        transition={spring.chip}
+        className="flex w-full min-h-12 items-center justify-between rounded-2xl px-5 py-4 text-left transition-colors hover:bg-dotori-950/[0.03] dark:hover:bg-white/[0.03]"
+      >
+        <span className={cn('pr-4 font-semibold text-dotori-950 dark:text-dotori-50', DS_TYPOGRAPHY.bodySm)}>
+          {question}
+        </span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={spring.chip}>
+          <ChevronDown className="h-4 w-4 shrink-0 text-dotori-400" />
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={panelId}
+            role="region"
+            aria-labelledby={triggerId}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-5">
+              <p className={cn(DS_TYPOGRAPHY.bodySm, 'leading-relaxed text-dotori-600 dark:text-dotori-300')}>
+                {answer}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* ═══════ Pricing Data — Salient 2-tier ═══════ */
 const PRICING_TIERS = [
   {
@@ -136,7 +214,7 @@ export default function LandingPage() {
           HERO — Wallpaper cream + CircleBackground
           FadeIn OK here (in initial viewport)
           ═══════════════════════════════════════════ */}
-      <Wallpaper color="cream" className="overflow-hidden gradient-mesh-warm pb-20 pt-12 sm:pt-16 lg:pb-24">
+      <Wallpaper color="cream" className="overflow-hidden gradient-mesh-warm py-10 sm:pb-20 sm:pt-16 lg:pb-24">
         <CircleBackground
           color="var(--color-dotori-400)"
           className="absolute right-[-12%] top-[-14%] h-[40rem] w-[40rem] opacity-20"
@@ -169,23 +247,35 @@ export default function LandingPage() {
               </motion.div>
 
               <motion.div variants={staggerItem}>
-                <h1 className={cn('mt-6 whitespace-pre-line font-wordmark text-5xl/[1.08] font-bold tracking-tight text-balance sm:text-6xl/[1.04] lg:text-7xl/[1.02]', gradientTextHero)}>
+                <h1
+                  className={cn(
+                    'mt-4 whitespace-pre-line font-wordmark font-bold tracking-tight text-balance sm:mt-6 sm:text-display',
+                    DS_TYPOGRAPHY.h1,
+                    gradientTextHero,
+                  )}
+                >
                   {seasonalHero.title}
                 </h1>
               </motion.div>
 
               <motion.div variants={staggerItem}>
-                <p className={cn(DS_PAGE_HEADER.subtitle, 'mt-6 max-w-xl text-base/8 text-pretty sm:text-lg/8')}>
+                <p
+                  className={cn(
+                    DS_PAGE_HEADER.subtitle,
+                    DS_TYPOGRAPHY.body,
+                    'mt-4 max-w-xl leading-8 text-pretty sm:mt-6',
+                  )}
+                >
                   {seasonalHero.subtitle}
                 </p>
               </motion.div>
 
               <motion.div variants={staggerItem}>
-                <SocialProofBadge count={20000} className="mt-6 w-fit" />
+                <SocialProofBadge count={20000} className="mt-4 w-fit sm:mt-6" />
               </motion.div>
 
               <motion.div variants={staggerItem}>
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-6 flex flex-wrap gap-3 sm:mt-8">
                   <Link href="/onboarding" className={CTA_PRIMARY}>
                     {seasonalHero.cta}
                     <ArrowRight className="h-4 w-4" />
@@ -211,7 +301,13 @@ export default function LandingPage() {
                 <p className="relative font-mono text-xs/5 font-semibold uppercase tracking-widest text-dotori-500">
                   10분 완결 루트
                 </p>
-                <h2 className="relative mt-3 font-wordmark text-2xl/9 font-bold text-dotori-900 dark:text-dotori-50">
+                <h2
+                  className={cn(
+                    'relative mt-3 font-wordmark font-bold leading-9',
+                    DS_TYPOGRAPHY.h1,
+                    'text-dotori-900 dark:text-dotori-50',
+                  )}
+                >
                   탐색부터 서류까지<br />지금 바로 시작
                 </h2>
                 <div className="relative mt-6 space-y-4">
@@ -219,10 +315,20 @@ export default function LandingPage() {
                     <div key={beat.title} className="flex items-start gap-3 rounded-2xl border border-dotori-200/70 bg-white/75 p-3.5 ring-1 ring-dotori-100/60 dark:border-dotori-700/50 dark:bg-dotori-900/70 dark:ring-dotori-700/40">
                       <beat.icon className="mt-0.5 h-5 w-5 shrink-0 text-dotori-500" />
                       <div>
-                        <p className="text-sm/6 font-semibold text-dotori-900 dark:text-dotori-50">
+                        <p
+                          className={cn(
+                            DS_TYPOGRAPHY.bodySm,
+                            'font-semibold leading-6 text-dotori-900 dark:text-dotori-50',
+                          )}
+                        >
                           {beat.title}
                         </p>
-                        <p className="mt-0.5 text-sm/6 text-dotori-700 dark:text-dotori-300">
+                        <p
+                          className={cn(
+                            DS_TYPOGRAPHY.bodySm,
+                            'mt-0.5 leading-6 text-dotori-700 dark:text-dotori-300',
+                          )}
+                        >
                           {beat.description}
                         </p>
                       </div>
@@ -238,13 +344,16 @@ export default function LandingPage() {
             transition={{ ...reveal.transition, delay: 0.25 }}
             className="mt-10 rounded-3xl border border-dotori-200/80 bg-white/90 p-5 shadow-sm ring-1 ring-dotori-100/70 backdrop-blur-sm sm:p-6"
           >
-            <dl className="grid gap-4 sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {HERO_METRICS.map((metric) => (
-                <div key={metric.label} className="rounded-2xl border border-dotori-200/70 bg-dotori-50/70 px-4 py-3 text-left">
-                  <dt className="text-xs/5 font-semibold tracking-wide text-dotori-500">
+                <div
+                  key={metric.label}
+                  className="rounded-2xl border border-dotori-200/70 bg-dotori-50/70 p-3 text-left"
+                >
+                  <dt className={cn(DS_TYPOGRAPHY.caption, 'font-semibold leading-5 tracking-wide text-dotori-500')}>
                     {metric.label}
                   </dt>
-                  <dd className="mt-1 font-wordmark text-xl/8 font-bold text-dotori-900">
+                  <dd className={cn(DS_TYPOGRAPHY.h2, 'mt-1 font-wordmark font-bold leading-8 text-dotori-900')}>
                     {metric.value}
                   </dd>
                 </div>
@@ -283,7 +392,12 @@ export default function LandingPage() {
                 </p>
               </motion.div>
               <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.3 }}>
-                <p className="mt-6 border-l-2 border-dotori-300/70 pl-4 text-sm/6 text-dotori-600 dark:text-dotori-300">
+                <p
+                  className={cn(
+                    DS_TYPOGRAPHY.bodySm,
+                    'mt-6 border-l-2 border-dotori-300/70 pl-4 leading-6 text-dotori-600 dark:text-dotori-300',
+                  )}
+                >
                   관심 등록 → TO 예측 확인 → 견학 신청 → 전자서명까지
                   <br />
                   하나의 흐름으로 끊김 없이 연결됩니다.
@@ -294,7 +408,7 @@ export default function LandingPage() {
             <motion.div
               {...reveal}
               transition={{ ...reveal.transition, delay: 0.25 }}
-              className="rounded-3xl border border-dotori-200/80 bg-dotori-50/55 p-4 shadow-sm ring-1 ring-dotori-100/70 sm:p-6"
+              className="rounded-3xl border border-dotori-200/80 bg-dotori-50/55 p-3 shadow-sm ring-1 ring-dotori-100/70 sm:p-6"
             >
               <FunnelSteps currentStep={0} />
             </motion.div>
@@ -382,6 +496,42 @@ export default function LandingPage() {
             <div className="mt-8">
               <ReviewMarquee fadeBg="white" />
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          FAQ — Landing quick answers
+          ═══════════════════════════════════════════ */}
+      <section className="relative bg-dotori-50/80 px-6 py-16 dark:bg-dotori-950/20">
+        <div className="mx-auto max-w-2xl">
+          <motion.div {...reveal}>
+            <p className={DS_PAGE_HEADER.eyebrow}>
+              FAQ
+            </p>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }}>
+            <h2 className={cn('mt-3 font-wordmark font-bold', DS_TYPOGRAPHY.h2, DS_PAGE_HEADER.title)}>
+              자주 묻는 질문
+            </h2>
+          </motion.div>
+          <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.2 }}>
+            <p className={cn('mt-2', DS_TYPOGRAPHY.bodySm, DS_PAGE_HEADER.subtitle)}>
+              빠르게 확인하고, 첫 CTA까지 바로 이어지도록 정리했어요.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={staggerContainer}
+            className="mt-8 space-y-2"
+          >
+            {FAQ_ITEMS.map((item) => (
+              <motion.div key={item.question} {...staggerItem}>
+                <FaqItem question={item.question} answer={item.answer} />
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>

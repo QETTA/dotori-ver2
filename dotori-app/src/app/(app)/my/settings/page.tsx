@@ -14,10 +14,11 @@ import {
   ChevronDown,
   LogOut,
   Save,
+  Sun,
+  Moon,
+  Monitor,
   Trash2,
 } from 'lucide-react'
-import { Heading, Subheading } from '@/components/catalyst/heading'
-import { Text } from '@/components/catalyst/text'
 import { Avatar } from '@/components/catalyst/avatar'
 import { Listbox, ListboxOption } from '@/components/catalyst/listbox'
 import {
@@ -35,6 +36,7 @@ import { useToast } from '@/components/dotori/ToastProvider'
 import { Field, Label } from '@/components/catalyst/fieldset'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import { DS_TYPOGRAPHY } from '@/lib/design-system/tokens'
+import { useTheme } from '@/hooks/useTheme'
 import { apiFetch } from '@/lib/api'
 import { spring, scrollFadeIn } from '@/lib/motion'
 import { cn } from '@/lib/utils'
@@ -76,9 +78,9 @@ function ExpandableSection({
         aria-controls={panelId}
         className="flex w-full min-h-12 items-center justify-between rounded-2xl px-5 py-4 text-left transition-colors hover:bg-dotori-950/[0.03] dark:hover:bg-white/[0.03]"
       >
-        <Subheading level={2} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950')}>
+        <span className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
           {title}
-        </Subheading>
+        </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={spring.chip}
@@ -114,6 +116,7 @@ export default function SettingsPage() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const isAuthenticated = user !== null
   const { addToast } = useToast()
+  const { mode: themeMode, resolved: themeResolved, setMode: setThemeMode } = useTheme()
   const [region, setRegion] = useState<string>(SIDO_LIST[0])
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
@@ -190,15 +193,74 @@ export default function SettingsPage() {
             className="h-14 w-14 bg-dotori-100 text-dotori-700 dark:bg-dotori-900 dark:text-dotori-300"
             square
           />
-          <div>
-            <Heading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950')}>
+          <div className="min-w-0 flex-1">
+            <p className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
               {user?.nickname || '게스트'}
-            </Heading>
-            <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
+            </p>
+            <p className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
               {isAuthenticated ? '프로필 설정을 관리하세요' : '로그인하면 맞춤 서비스를 받아요'}
-            </Text>
+            </p>
           </div>
         </div>
+      </FadeIn>
+
+      {/* ══════ THEME ══════ */}
+      <FadeIn>
+        <ExpandableSection title="테마" defaultOpen>
+          <div className="space-y-3">
+            <p className={cn(DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+              {themeMode === 'system'
+                ? `기기 설정을 따라가요 (현재 ${themeResolved === 'dark' ? '다크' : '라이트'})`
+                : `현재 ${themeMode === 'dark' ? '다크' : '라이트'} 모드예요`}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'light' as const, label: '라이트', desc: '항상 밝게', icon: Sun },
+                { id: 'dark' as const, label: '다크', desc: '항상 어둡게', icon: Moon },
+                { id: 'system' as const, label: '자동', desc: '기기 설정', icon: Monitor },
+              ].map((option) => {
+                const selected = themeMode === option.id
+                const Icon = option.icon
+                return (
+                  <motion.button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setThemeMode(option.id)}
+                    aria-pressed={selected}
+                    whileTap={{ scale: 0.98 }}
+                    transition={spring.chip}
+                    className={cn(
+                      'flex min-h-11 flex-col justify-between rounded-2xl px-4 py-3 text-left transition-colors',
+                      selected
+                        ? 'bg-white/70 ring-2 ring-dotori-400 shadow-[0_2px_12px_rgba(176,122,74,0.14)] dark:bg-dotori-950/40'
+                        : 'bg-dotori-50/60 ring-1 ring-dotori-200/40 hover:bg-dotori-50/90 dark:bg-white/[0.06] dark:ring-dotori-800/40 dark:hover:bg-white/[0.10]',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dotori-400',
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={cn(
+                          'grid h-9 w-9 place-items-center rounded-xl ring-1',
+                          selected
+                            ? 'bg-dotori-100 text-dotori-700 ring-dotori-200/60 dark:bg-dotori-900/40 dark:text-dotori-200 dark:ring-dotori-700/40'
+                            : 'bg-white/60 text-dotori-600 ring-dotori-200/40 dark:bg-dotori-950/30 dark:text-dotori-300 dark:ring-dotori-800/30',
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+                        {option.label}
+                      </span>
+                    </div>
+                    <span className={cn(DS_TYPOGRAPHY.caption, 'mt-2 text-dotori-500 dark:text-dotori-400')}>
+                      {option.desc}
+                    </span>
+                  </motion.button>
+                )
+              })}
+            </div>
+          </div>
+        </ExpandableSection>
       </FadeIn>
 
       {/* ══════ NOTIFICATION SETTINGS ══════ */}
@@ -264,7 +326,7 @@ export default function SettingsPage() {
               <DsButton
                 variant="ghost"
                 fullWidth
-                className="justify-start gap-3 rounded-xl text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
+                className="justify-start gap-3 rounded-xl !text-danger hover:!bg-danger/5 dark:hover:!bg-danger/10"
                 onClick={() => setDeleteAlertOpen(true)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -286,7 +348,8 @@ export default function SettingsPage() {
             취소
           </DsButton>
           <DsButton
-            color="red"
+            variant="secondary"
+            className="!border-danger/30 !text-danger hover:!bg-danger/5 dark:hover:!bg-danger/10"
             disabled={isDeleting}
             onClick={async () => {
               setIsDeleting(true)

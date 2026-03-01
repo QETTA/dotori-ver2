@@ -20,8 +20,7 @@ const ACTION_LABEL_DEFAULTS: Record<string, string> = {
 
 const ACTION_BUTTON_BASE_CLASS = cn(
 	DS_TYPOGRAPHY.bodySm,
-	'min-h-10 rounded-2xl px-3.5',
-	'w-full min-h-11',
+	'w-full min-h-11 rounded-2xl px-3.5',
 );
 
 const ACTION_BUTTON_VARIANT_CLASS = {

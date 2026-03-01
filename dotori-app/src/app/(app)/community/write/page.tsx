@@ -33,6 +33,12 @@ import { useToast } from '@/components/dotori/ToastProvider'
 
 const CATEGORIES = ['이동 후기', '시설 정보', '유보통합', '자유글']
 const CATEGORY_ICONS = ['💬', '🏫', '🤝', '✍️']
+const CATEGORY_TONE: Record<string, 'dotori' | 'forest'> = {
+  '이동 후기': 'dotori',
+  '시설 정보': 'forest',
+  '유보통합': 'forest',
+  '자유글': 'dotori',
+}
 
 const CATEGORY_MAP: Record<string, string> = {
   '이동 후기': 'review',
@@ -102,7 +108,7 @@ export default function CommunityWritePage() {
         <BrandWatermark className="opacity-50" />
         <FadeIn>
           <p className={DS_PAGE_HEADER.eyebrow}>글쓰기</p>
-          <h1 className={cn('mt-3 font-wordmark text-3xl/10', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('mt-3 font-wordmark', DS_TYPOGRAPHY.display, DS_PAGE_HEADER.title)}>
             이야기 나누기
           </h1>
           <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
@@ -120,17 +126,28 @@ export default function CommunityWritePage() {
             onChange={setCategory}
             className="mt-3 flex flex-wrap gap-2"
           >
-            {CATEGORIES.map((cat, i) => (
+            {CATEGORIES.map((cat, i) => {
+              const tone = CATEGORY_TONE[cat] ?? 'dotori'
+              return (
               <RadioField key={cat} className="contents">
                 <Radio value={cat} className="peer sr-only" />
                 <motion.div {...tap.chip}>
-                  <Label className="flex cursor-pointer items-center gap-1 rounded-full border border-dotori-200 px-3 py-1.5 text-xs/5 font-medium text-dotori-600 transition-all peer-data-checked:border-dotori-500 peer-data-checked:bg-dotori-500 peer-data-checked:text-white peer-data-checked:shadow-sm peer-data-checked:shadow-dotori-500/25 dark:border-dotori-700 dark:text-dotori-400 dark:peer-data-checked:border-dotori-400 dark:peer-data-checked:bg-dotori-500 dark:peer-data-checked:text-white">
+                  <Label
+                    className={cn(
+                      'flex min-h-11 cursor-pointer select-none items-center gap-1 rounded-full border px-4 py-2 font-medium transition-all peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-dotori-500/40',
+                      DS_TYPOGRAPHY.bodySm,
+                      tone === 'forest'
+                        ? 'border-forest-200 text-forest-700 peer-data-checked:border-forest-500 peer-data-checked:bg-forest-500 peer-data-checked:text-white peer-data-checked:shadow-sm peer-data-checked:shadow-forest-500/25 dark:border-forest-800/60 dark:text-forest-300 dark:peer-data-checked:border-forest-400 dark:peer-data-checked:bg-forest-500'
+                        : 'border-dotori-200 text-dotori-700 peer-data-checked:border-dotori-500 peer-data-checked:bg-dotori-500 peer-data-checked:text-white peer-data-checked:shadow-sm peer-data-checked:shadow-dotori-500/25 dark:border-dotori-700 dark:text-dotori-300 dark:peer-data-checked:border-dotori-400 dark:peer-data-checked:bg-dotori-500',
+                    )}
+                  >
                     <span>{CATEGORY_ICONS[i]}</span>
                     {cat}
                   </Label>
                 </motion.div>
               </RadioField>
-            ))}
+              )
+            })}
           </RadioGroup>
         </div>
       </FadeIn>
@@ -171,7 +188,7 @@ export default function CommunityWritePage() {
                     <Text className={cn(
                       DS_TYPOGRAPHY.caption,
                       content.length > MAX_CONTENT_LENGTH * 0.9
-                        ? 'text-red-500 dark:text-red-400'
+                        ? 'text-warning'
                         : '',
                     )}>
                       {content.length}/{MAX_CONTENT_LENGTH}

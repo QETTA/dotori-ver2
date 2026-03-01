@@ -9,7 +9,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { ArrowRight } from 'lucide-react'
-import { copy } from '@/lib/brand-copy'
+import { copy as COPY } from '@/lib/brand-copy'
 import { scrollFadeIn, hoverLift, gradientTextHero } from '@/lib/motion'
 import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
@@ -27,7 +27,7 @@ import { ErrorState } from '@/components/dotori/ErrorState'
 import { NoiseTexture } from '@/components/dotori/NoiseTexture'
 import { UiBlock as UiBlockCard } from '@/components/dotori/blocks/UiBlock'
 import { cn } from '@/lib/utils'
-import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_SPACING, DS_GRADIENT } from '@/lib/design-system/tokens'
+import { DS_TYPOGRAPHY, DS_TEXT, DS_ICON, DS_SPACING, DS_GRADIENT, DS_SHADOW } from '@/lib/design-system/tokens'
 import { DS_PAGE_HEADER, DS_SECTION_RHYTHM, DS_HERO } from '@/lib/design-system/page-tokens'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
 import type { UiBlock as UiBlockType } from '@/types/dotori'
@@ -44,6 +44,10 @@ const quickActions = [
 ]
 
 const DEFAULT_GREETING = '오늘의 브리핑'
+const EYEBROW = cn(
+  DS_TYPOGRAPHY.caption,
+  'font-mono font-semibold uppercase tracking-widest leading-5 text-dotori-500',
+)
 
 function getGreeting(date: Date): string {
   const hour = date.getHours()
@@ -73,6 +77,11 @@ export default function HomePage() {
   const currentStep = funnelStep
   const funnelPct = [10, 35, 65, 90][currentStep] ?? 10
   const hotPosts = dashboard?.hotPosts ?? []
+  const interestCount = dashboard?.interestCount ?? 0
+  const waitlistCount = dashboard?.waitlistCount ?? 0
+  const nearbyVacancyCount = dashboard?.nearbyFacilities?.filter((facility) => facility.status === 'available').length ?? 0
+  const showFirstVisitGuide = !isLoading && interestCount === 0 && waitlistCount === 0 && nearbyVacancyCount === 0
+  const showVacancyZeroCta = !isLoading && !showFirstVisitGuide && nearbyVacancyCount === 0
   const quickActionsBlock: UiBlockType = {
     type: 'ui_block',
     title: '바로가기',
@@ -137,23 +146,45 @@ export default function HomePage() {
       <div className={DS_SECTION_RHYTHM.generous} key={refreshKey}>
         {/* ══════ HERO VIEWPORT ══════ */}
         <section className="space-y-4 pt-1">
+          {/* ══════ AI BRIEFING — featured at the top ══════ */}
+          <div className="relative">
+            <div className="pointer-events-none absolute -inset-12 rounded-3xl bg-gradient-to-br from-dotori-600/90 via-amber-200/80 to-dotori-200/70 blur-3xl saturate-150 dark:from-dotori-700/70 dark:via-amber-900/45 dark:to-dotori-950/30" />
+            <div
+              className={cn(
+                'relative overflow-hidden rounded-3xl border border-dotori-200/70 gradient-mesh-warm p-1.5 ring-1 ring-dotori-200/70',
+                DS_SHADOW.xl,
+                DS_SHADOW.dark.xl,
+                DS_HERO.dark,
+                'dark:border-dotori-900/60 dark:ring-dotori-900/40',
+              )}
+            >
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-dotori-50/95 via-white/35 to-amber-50/90 dark:from-dotori-950/60 dark:via-dotori-950/30 dark:to-amber-950/18" />
+              <NoiseTexture opacity={0.02} />
+              <div className={cn('pointer-events-none absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
+              <div className="relative">
+                <SeasonalBriefing />
+              </div>
+            </div>
+          </div>
+
           <motion.div {...scrollFadeIn}>
-            <div className={cn('relative overflow-hidden rounded-3xl border border-dotori-200/70 gradient-mesh-warm px-5 pb-5 pt-4 ring-1 ring-dotori-100/70', DS_HERO.dark, 'dark:border-dotori-900/60 dark:ring-dotori-900/40')}>
+            <div className={cn('relative overflow-hidden rounded-3xl border border-dotori-200/70 gradient-mesh-warm px-5 pb-5 pt-4 shadow-[0_8px_32px_rgba(176,122,74,0.08)] ring-1 ring-dotori-100/70 dark:shadow-[0_16px_48px_rgba(0,0,0,0.45)]', DS_HERO.dark, 'dark:border-dotori-900/60 dark:ring-dotori-900/40')}>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-dotori-50/85 via-white/20 to-amber-50/70 dark:from-dotori-950/55 dark:via-dotori-950/25 dark:to-amber-950/15" />
               <NoiseTexture opacity={0.02} />
               <BrandWatermark className="pointer-events-none opacity-25" />
               <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
               <FadeIn>
-                <p className={DS_PAGE_HEADER.eyebrow} suppressHydrationWarning>
+                <p className={EYEBROW} suppressHydrationWarning>
                   {greeting}
                 </p>
               </FadeIn>
               <FadeIn>
-                <h1 className={cn('mt-3 font-wordmark text-4xl/[1.1] font-extrabold tracking-tight sm:text-5xl/[1.06]', gradientTextHero)}>
-                  {copy.home.heroSubtitle}
+                <h1 className={cn('mt-3 font-wordmark font-extrabold tracking-tight leading-tight', DS_TYPOGRAPHY.display, gradientTextHero)}>
+                  {COPY.home.heroSubtitle}
                 </h1>
               </FadeIn>
               <FadeIn>
-                <Text className={cn(DS_PAGE_HEADER.subtitle, 'mt-3 text-base/7')}>
+                <Text className={cn(DS_PAGE_HEADER.subtitle, DS_TYPOGRAPHY.body, 'mt-3')}>
                   시설 현황과 이동 진행을 한눈에 확인하세요
                 </Text>
               </FadeIn>
@@ -170,45 +201,96 @@ export default function HomePage() {
                     ))}
                   </>
                 ) : (
-                  <>
-                    <FadeIn>
-                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
-                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>분석 시설</p>
-                        <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                          <AnimatedNumber end={dashboard?.totalFacilities ?? 20027} suffix="" className="" />
+                  showFirstVisitGuide ? (
+                    <FadeIn className="col-span-3">
+                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden shadow-micro px-4 py-3')}>
+                        <NoiseTexture opacity={0.015} />
+                        <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
+                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>첫 방문 가이드</p>
+                        <p className={cn(DS_TYPOGRAPHY.h2, 'mt-1 font-semibold tracking-tight', gradientTextHero)}>
+                          온보딩을 완료하면 주변 빈자리를 알려드려요
                         </p>
+                        <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1', DS_TEXT.secondary)}>
+                          아이 연령·시설 형태를 설정하면 탐색 결과가 더 정확해져요
+                        </Text>
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <DsButton tone="dotori" href="/onboarding" fullWidth>
+                            온보딩 시작
+                            <ArrowRight className={DS_ICON.xs} />
+                          </DsButton>
+                          <DsButton variant="secondary" tone="dotori" href="/explore" fullWidth>
+                            시설 탐색
+                          </DsButton>
+                        </div>
                       </motion.div>
                     </FadeIn>
+                  ) : (
+                    <>
                     <FadeIn>
                       <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
                         <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>관심 시설</p>
                         <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                          {dashboard?.interestCount ?? 0}
+                          {interestCount}
                           <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
                         </p>
                       </motion.div>
                     </FadeIn>
                     <FadeIn>
                       <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
-                        <p className={cn(DS_TYPOGRAPHY.caption, 'text-forest-500 dark:text-forest-300')}>대기 중</p>
+                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>주변 빈자리</p>
+                        <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', nearbyVacancyCount > 0 ? 'text-forest-600 dark:text-forest-300' : DS_TEXT.primary)}>
+                          {nearbyVacancyCount}
+                          <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>곳</span>
+                        </p>
+                      </motion.div>
+                    </FadeIn>
+                    <FadeIn>
+                      <motion.div {...hoverLift} className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'shadow-micro px-3 py-2')}>
+                        <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>대기 중</p>
                         <p className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1 font-semibold tabular-nums', DS_TEXT.primary)}>
-                          {dashboard?.waitlistCount ?? 0}
+                          {waitlistCount}
                           <span className={cn(DS_TYPOGRAPHY.caption, 'ml-0.5', DS_TEXT.disabled)}>건</span>
                         </p>
                       </motion.div>
                     </FadeIn>
-                  </>
+                    </>
+                  )
                 )}
               </FadeInStagger>
             </div>
           </motion.div>
 
+          {showVacancyZeroCta ? (
+            <motion.div {...scrollFadeIn}>
+              <motion.div
+                {...hoverLift}
+                className={cn(DS_CARD.glass.base, DS_CARD.glass.dark, 'relative overflow-hidden p-5 shadow-micro')}
+              >
+                <NoiseTexture opacity={0.015} />
+                <div className={cn('absolute inset-x-0 top-0 h-1.5', DS_GRADIENT.accentBar)} />
+                <p className={cn(DS_TYPOGRAPHY.caption, DS_TEXT.muted)}>주변 빈자리</p>
+                <p className={cn(DS_TYPOGRAPHY.h2, 'mt-1 font-semibold tracking-tight', gradientTextHero)}>
+                  오늘은 아직 빈자리가 0곳이에요
+                </p>
+                <Text className={cn(DS_TYPOGRAPHY.bodySm, 'mt-1', DS_TEXT.secondary)}>
+                  온보딩을 마치면 아이 조건에 맞춰 더 정확히 알려드려요
+                </Text>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <DsButton tone="dotori" href="/onboarding" fullWidth>
+                    온보딩 설정
+                    <ArrowRight className={DS_ICON.xs} />
+                  </DsButton>
+                  <DsButton variant="secondary" tone="dotori" href="/explore" fullWidth>
+                    시설 탐색
+                  </DsButton>
+                </div>
+              </motion.div>
+            </motion.div>
+          ) : null}
+
           {/* ══════ ACTION CARD ══════ */}
           <ActionCard step={funnelStep} />
         </section>
-
-        {/* ══════ SEASONAL BRIEFING ══════ */}
-        <SeasonalBriefing />
 
         {/* ══════ FUNNEL + DONUT — glassmorphism ══════ */}
         <motion.div {...scrollFadeIn}>
@@ -225,7 +307,7 @@ export default function HomePage() {
                 sublabel="진행률"
               />
               <div className="flex-1">
-                <p className={DS_PAGE_HEADER.eyebrow}>
+                <p className={EYEBROW}>
                   이동 진행 상황
                 </p>
                 <div className="mt-3">
@@ -238,7 +320,7 @@ export default function HomePage() {
 
         {/* ══════ STATS ══════ */}
         <FadeIn>
-          <p className={cn(DS_PAGE_HEADER.eyebrow, 'mb-3')}>실시간 현황</p>
+          <p className={cn(EYEBROW, 'mb-3')}>실시간 현황</p>
         </FadeIn>
         <FadeInStagger faster className={cn('grid grid-cols-3', DS_SPACING.md)}>
           <FadeIn>
@@ -292,7 +374,7 @@ export default function HomePage() {
             <Text className={cn(DS_TYPOGRAPHY.caption, 'mt-1', DS_TEXT.muted)}>
               관심 시설에 빈자리가 나면 바로 알려드려요
             </Text>
-            <DsButton tone="forest" href="/explore" className="mt-3">
+            <DsButton tone="dotori" href="/explore" className="mt-3">
               설정하기
               <ArrowRight className={DS_ICON.xs} />
             </DsButton>

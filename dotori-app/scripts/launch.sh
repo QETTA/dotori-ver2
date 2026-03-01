@@ -19,6 +19,7 @@ SERENA_HUB_PID=""
 MAX_PARALLEL=${MAX_PARALLEL:-6}          # 빌드 검증 병렬 수 (v5: 4 → v6: 6)
 WAVE_SIZE=${WAVE_SIZE:-4}                # wave 빌드: N개씩 끊어서 중간 검증
 TIMEOUT=${CODEX_TIMEOUT:-5400}           # 90분 (환경변수로 override 가능)
+FULL_THROTTLE=${FULL_THROTTLE:-1}        # 기본값 1: 멀티에이전트 풀가동 (0으로 끄기 가능)
 SKIP_BUILD=0
 
 ### ── 인수 파싱 ───────────────────────────────────────────────────────────
@@ -67,6 +68,36 @@ warn() { echo -e "${YELLOW}  ⚠️  $1${NC}"; }
 fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
 step() { echo -e "\n${BLUE}═══ $1 ═══${NC}"; }
 info() { echo "     $1"; }
+
+if [ "$FULL_THROTTLE" = "1" ]; then
+  AGENT_COUNT=${#AGENTS[@]}
+  WAVE_SIZE="$AGENT_COUNT"
+  MAX_PARALLEL="$AGENT_COUNT"
+  info "FULL_THROTTLE=1 감지 → wave=${WAVE_SIZE}, build병렬=${MAX_PARALLEL}"
+fi
+
+if ! [[ "$MAX_PARALLEL" =~ ^[1-9][0-9]*$ ]]; then
+  warn "MAX_PARALLEL 값이 비정상($MAX_PARALLEL)이라 1로 보정"
+  MAX_PARALLEL=1
+fi
+
+# .git 메타데이터가 읽기 전용이면 worktree/branch 생성이 불가능하므로 직접 실행 모드로 폴백
+DIRECT_MODE=0
+GIT_META_TEST="$REPO/.git/.launch-write-test.$$"
+if ! (: > "$GIT_META_TEST") 2>/dev/null; then
+  DIRECT_MODE=1
+else
+  rm -f "$GIT_META_TEST" 2>/dev/null || true
+fi
+if [ "$DIRECT_MODE" -eq 1 ]; then
+  warn ".git 쓰기 불가 환경 감지 — 워크트리 없이 직접 실행 모드로 전환"
+  if [ "$FULL_THROTTLE" = "1" ]; then
+    warn "직접 실행 모드에서도 풀가동 유지 (충돌 가능성은 launch가 관리)"
+  elif [ "$WAVE_SIZE" -gt 1 ]; then
+    warn "직접 실행 모드에서는 충돌 방지를 위해 wave=1로 강제"
+    WAVE_SIZE=1
+  fi
+fi
 
 ### ── 공통 컨텍스트 (R21 — DS 토큰 + 브랜드 에셋 강화) ──────────────────
 SHARED_RULES='## 공통 규칙 (필수)
@@ -254,8 +285,9 @@ for AGENT in "${AGENTS[@]}"; do
   if [ -d "$WT_BASE/$ROUND-$AGENT" ]; then
     warn "스테일 제거: $ROUND-$AGENT"
     git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
-    git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
   fi
+  # 디렉토리는 없고 브랜치만 남아있는 경우가 있어 항상 정리
+  git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
 done
 ok "워크트리 정리 완료"
 
@@ -268,7 +300,10 @@ step "PHASE 0.5: Serena HTTP Hub ($SERENA_HUB_URL)"
 lsof -ti :$SERENA_HUB_PORT 2>/dev/null | xargs kill -9 2>/dev/null || true
 sleep 1
 
-uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
+UVX_CACHE_DIR=${UVX_CACHE_DIR:-/tmp/uv-cache}
+mkdir -p "$UVX_CACHE_DIR"
+
+UV_CACHE_DIR="$UVX_CACHE_DIR" uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
   --project "$APP" \
   --transport streamable-http \
   --port "$SERENA_HUB_PORT" \
@@ -282,6 +317,8 @@ SERENA_READY=0
 for i in $(seq 1 20); do
   sleep 1
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    --connect-timeout 2 \
+    --max-time 4 \
     -X POST "$SERENA_HUB_URL/mcp" \
     -H "Content-Type: application/json" \
     -H "Accept: application/json, text/event-stream" \
@@ -326,41 +363,63 @@ for WAVE_IDX in $(seq 0 $((WAVE_COUNT - 1))); do
   WAVE_NUM=$((WAVE_IDX + 1))
   WAVE_START=$((WAVE_IDX * WAVE_SIZE))
   WAVE_AGENTS=("${AGENTS[@]:$WAVE_START:$WAVE_SIZE}")
+  WAVE_RUN_AGENTS=()
   WAVE_PIDS=()
 
   echo ""
   echo -e "${BLUE}──── Wave ${WAVE_NUM}/${WAVE_COUNT}: ${WAVE_AGENTS[*]} ────${NC}"
 
   ### ── Wave 워크트리 생성 ────────────────────────────────────────────
-  info "워크트리 생성 (${#WAVE_AGENTS[@]}개)..."
-  WT_PIDS=()
-  WT_IDX=0
-  for AGENT in "${WAVE_AGENTS[@]}"; do
-    sleep "0.$(printf '%02d' $((WT_IDX * 3 % 100)))"
-    (
-      if git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null; then
-        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
-        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
-        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
-        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
-      else
-        sleep 1
-        git -C "$REPO" worktree add "$WT_BASE/$ROUND-$AGENT" -b "codex/$ROUND-$AGENT" 2>/dev/null || true
-        WT_APP_DIR="$WT_BASE/$ROUND-$AGENT/dotori-app"
-        cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
-        cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
-        chmod -R 777 "$WT_BASE/$ROUND-$AGENT/" 2>/dev/null || true
-      fi
-    ) &
-    WT_PIDS+=($!)
-    WT_IDX=$((WT_IDX + 1))
-  done
-  wait "${WT_PIDS[@]}"
+  if [ "$DIRECT_MODE" -eq 1 ]; then
+    info "직접 실행 모드: 워크트리 생성 단계 생략"
+  else
+    info "워크트리 생성 (${#WAVE_AGENTS[@]}개)..."
+    WT_PIDS=()
+    WT_IDX=0
+    for AGENT in "${WAVE_AGENTS[@]}"; do
+      sleep "0.$(printf '%02d' $((WT_IDX * 3 % 100)))"
+      (
+        WT_DIR="$WT_BASE/$ROUND-$AGENT"
+        WT_APP_DIR="$WT_DIR/dotori-app"
+        WT_BRANCH="codex/$ROUND-$AGENT"
+
+        if git -C "$REPO" worktree add "$WT_DIR" -b "$WT_BRANCH" 2>/dev/null; then
+          :
+        else
+          sleep 1
+          if git -C "$REPO" show-ref --verify --quiet "refs/heads/$WT_BRANCH"; then
+            git -C "$REPO" worktree add "$WT_DIR" "$WT_BRANCH" 2>/dev/null || true
+          else
+            git -C "$REPO" branch -D "$WT_BRANCH" 2>/dev/null || true
+            git -C "$REPO" worktree add "$WT_DIR" -b "$WT_BRANCH" 2>/dev/null || true
+          fi
+        fi
+
+        if [ -d "$WT_APP_DIR" ]; then
+          cp "$APP/.env.local" "$WT_APP_DIR/.env.local" 2>/dev/null || true
+          cp -al "$APP/node_modules" "$WT_APP_DIR/node_modules" 2>/dev/null || true
+          chmod -R 777 "$WT_DIR/" 2>/dev/null || true
+        fi
+      ) &
+      WT_PIDS+=($!)
+      WT_IDX=$((WT_IDX + 1))
+    done
+    wait "${WT_PIDS[@]}"
+  fi
 
   ### ── Wave Codex 발사 ───────────────────────────────────────────────
   info "Codex 발사 (${#WAVE_AGENTS[@]}개)..."
   for AGENT in "${WAVE_AGENTS[@]}"; do
-    WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
+    if [ "$DIRECT_MODE" -eq 1 ]; then
+      WT_APP="$APP"
+    else
+      WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
+      if [ ! -d "$WT_APP" ]; then
+        warn "$AGENT 워크트리 생성 실패 — skip"
+        FAIL+=("$AGENT:worktree-missing")
+        continue
+      fi
+    fi
     TASK_TEXT=$(get_task "$AGENT")
 
     PROMPT="${MEMORY_HEADER}
@@ -384,8 +443,14 @@ ${SHARED_RULES}
       > "$LOGS/$AGENT.log" 2>&1 &
 
     WAVE_PIDS+=($!)
+    WAVE_RUN_AGENTS+=("$AGENT")
     echo -e "  🚀 ${GREEN}$ROUND-$AGENT${NC} (PID: ${WAVE_PIDS[-1]})"
   done
+
+  if [ "${#WAVE_PIDS[@]}" -eq 0 ]; then
+    warn "Wave ${WAVE_NUM}: 실행할 에이전트 없음"
+    continue
+  fi
 
   ### ── Wave 완료 대기 ────────────────────────────────────────────────
   info "Wave ${WAVE_NUM} 완료 대기..."
@@ -397,92 +462,147 @@ ${SHARED_RULES}
 
   for i in "${!WAVE_PIDS[@]}"; do
     wait "${WAVE_PIDS[$i]}" 2>/dev/null
-    echo "  ✓ ${WAVE_AGENTS[$i]}"
+    echo "  ✓ ${WAVE_RUN_AGENTS[$i]}"
   done
   kill "$WAVE_WATCHDOG" 2>/dev/null || true
   WAVE_ELAPSED=$(( $(date +%s) - WAVE_START_TS ))
   ok "Wave ${WAVE_NUM} 완료 (${WAVE_ELAPSED}s)"
 
   ### ── Wave 자동 커밋 ────────────────────────────────────────────────
-  info "변경사항 커밋..."
-  for AGENT in "${WAVE_AGENTS[@]}"; do
-    WT_DIR="$WT_BASE/$ROUND-$AGENT"
-    printf "  %-28s" "$AGENT"
-    CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l || echo "0")
-    if [[ "$CHANGES" -gt 0 ]]; then
-      git -C "$WT_DIR" add -A 2>/dev/null
-      git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 폴리싱" 2>/dev/null \
-        && echo "✅ (${CHANGES}파일)" || echo "❌ commit 실패"
-    else
-      echo "⚠️  변경없음"
-    fi
-  done
+  if [ "$DIRECT_MODE" -eq 1 ]; then
+    info "직접 실행 모드: wave별 브랜치 커밋 단계 생략"
+  else
+    info "변경사항 커밋..."
+    for AGENT in "${WAVE_RUN_AGENTS[@]}"; do
+      WT_DIR="$WT_BASE/$ROUND-$AGENT"
+      printf "  %-28s" "$AGENT"
+      CHANGES=0
+      if git -C "$WT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        CHANGES=$(git -C "$WT_DIR" status --porcelain 2>/dev/null | wc -l | tr -d '[:space:]')
+      fi
+      if [[ "$CHANGES" -gt 0 ]]; then
+        git -C "$WT_DIR" add -A 2>/dev/null
+        git -C "$WT_DIR" commit -m "feat($ROUND-$AGENT): 폴리싱" 2>/dev/null \
+          && echo "✅ (${CHANGES}파일)" || echo "❌ commit 실패"
+      else
+        echo "⚠️  변경없음"
+      fi
+    done
+  fi
 
   ### ── Wave 빌드 검증 (병렬) ─────────────────────────────────────────
-  info "빌드 검증 (Wave ${WAVE_NUM})..."
+  info "빌드 검증 (Wave ${WAVE_NUM}, 병렬 ${MAX_PARALLEL})..."
   WAVE_PASS=(); WAVE_FAIL=()
-  declare -A W_BUILD_PIDS W_BUILD_LOGS
-
-  for AGENT in "${WAVE_AGENTS[@]}"; do
-    WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
-    WT_BUILD_LOG=$(mktemp)
-    W_BUILD_LOGS[$AGENT]="$WT_BUILD_LOG"
-    (cd "$WT_APP" && env -u NODE_ENV npm run build > "$WT_BUILD_LOG" 2>&1; echo $? > "${WT_BUILD_LOG}.exit") &
-    W_BUILD_PIDS[$AGENT]=$!
-  done
-  wait
-
-  for AGENT in "${WAVE_AGENTS[@]}"; do
-    WT_BUILD_LOG="${W_BUILD_LOGS[$AGENT]}"
-    EXIT_CODE=$(cat "${WT_BUILD_LOG}.exit" 2>/dev/null || echo "1")
-    printf "  %-28s" "$AGENT"
-    if [ "$EXIT_CODE" -eq 0 ]; then
-      WAVE_PASS+=("$AGENT"); PASS+=("$AGENT"); echo "✅"
+  if [ "$DIRECT_MODE" -eq 1 ]; then
+    info "직접 실행 모드: 공용 빌드 검증 1회"
+    SHARED_BUILD_LOG=$(mktemp)
+    if (cd "$APP" && env -u NODE_ENV npm run build > "$SHARED_BUILD_LOG" 2>&1); then
+      SHARED_EXIT=0
     else
-      WAVE_FAIL+=("$AGENT"); FAIL+=("$AGENT"); echo "❌ → $LOGS/$AGENT.log"
+      SHARED_EXIT=1
     fi
-    rm -f "$WT_BUILD_LOG" "${WT_BUILD_LOG}.exit"
-  done
-  unset W_BUILD_PIDS W_BUILD_LOGS
+
+    for AGENT in "${WAVE_RUN_AGENTS[@]}"; do
+      printf "  %-28s" "$AGENT"
+      if [ "$SHARED_EXIT" -eq 0 ]; then
+        WAVE_PASS+=("$AGENT"); PASS+=("$AGENT"); echo "✅"
+      else
+        WAVE_FAIL+=("$AGENT"); FAIL+=("$AGENT"); echo "❌ → $SHARED_BUILD_LOG"
+      fi
+    done
+
+    if [ "$SHARED_EXIT" -eq 0 ]; then
+      rm -f "$SHARED_BUILD_LOG"
+    else
+      warn "공용 빌드 로그: $SHARED_BUILD_LOG"
+    fi
+  else
+    declare -A W_BUILD_PIDS W_BUILD_LOGS
+    W_BUILD_ACTIVE=()
+
+    for AGENT in "${WAVE_RUN_AGENTS[@]}"; do
+      while [ "${#W_BUILD_ACTIVE[@]}" -ge "$MAX_PARALLEL" ]; do
+        wait "${W_BUILD_ACTIVE[0]}" 2>/dev/null || true
+        W_BUILD_ACTIVE=("${W_BUILD_ACTIVE[@]:1}")
+      done
+
+      WT_APP="$WT_BASE/$ROUND-$AGENT/dotori-app"
+      WT_BUILD_LOG=$(mktemp)
+      W_BUILD_LOGS[$AGENT]="$WT_BUILD_LOG"
+      (cd "$WT_APP" && env -u NODE_ENV npm run build > "$WT_BUILD_LOG" 2>&1; echo $? > "${WT_BUILD_LOG}.exit") &
+      W_BUILD_PIDS[$AGENT]=$!
+      W_BUILD_ACTIVE+=("${W_BUILD_PIDS[$AGENT]}")
+    done
+
+    for BUILD_PID in "${W_BUILD_ACTIVE[@]}"; do
+      wait "$BUILD_PID" 2>/dev/null || true
+    done
+
+    for AGENT in "${WAVE_RUN_AGENTS[@]}"; do
+      WT_BUILD_LOG="${W_BUILD_LOGS[$AGENT]}"
+      EXIT_CODE=$(cat "${WT_BUILD_LOG}.exit" 2>/dev/null || echo "1")
+      printf "  %-28s" "$AGENT"
+      if [ "$EXIT_CODE" -eq 0 ]; then
+        WAVE_PASS+=("$AGENT"); PASS+=("$AGENT"); echo "✅"
+      else
+        WAVE_FAIL+=("$AGENT"); FAIL+=("$AGENT"); echo "❌ → $LOGS/$AGENT.log"
+      fi
+      rm -f "$WT_BUILD_LOG" "${WT_BUILD_LOG}.exit"
+    done
+    unset W_BUILD_PIDS W_BUILD_LOGS
+  fi
 
   ok "Wave ${WAVE_NUM} — Pass: ${#WAVE_PASS[@]} / Fail: ${#WAVE_FAIL[@]}"
 
   ### ── Wave Squash Merge ─────────────────────────────────────────────
-  info "Squash merge (Wave ${WAVE_NUM})..."
-  cd "$APP"
+  if [ "$DIRECT_MODE" -eq 1 ]; then
+    info "직접 실행 모드: squash merge 단계 생략"
+    for AGENT in "${WAVE_RUN_AGENTS[@]}"; do
+      if [[ " ${WAVE_FAIL[*]} " == *" $AGENT "* ]]; then
+        SKIPPED+=("$AGENT")
+      else
+        MERGED+=("$AGENT")
+      fi
+    done
+  else
+    info "Squash merge (Wave ${WAVE_NUM})..."
+    cd "$APP"
 
-  for AGENT in "${MERGE_ORDER[@]}"; do
-    # 이 wave에 없는 에이전트 건너뜀
-    [[ " ${WAVE_AGENTS[*]} " != *" $AGENT "* ]] && continue
-    printf "  %-28s" "Merging $ROUND-$AGENT..."
+    for AGENT in "${MERGE_ORDER[@]}"; do
+      # 이 wave에 없는 에이전트 건너뜀
+      [[ " ${WAVE_RUN_AGENTS[*]} " != *" $AGENT "* ]] && continue
+      printf "  %-28s" "Merging $ROUND-$AGENT..."
 
-    if [[ " ${WAVE_FAIL[*]} " == *" $AGENT "* ]]; then
-      SKIPPED+=("$AGENT"); echo "⏭️  skip (빌드 실패)"; continue
-    fi
+      if [[ " ${WAVE_FAIL[*]} " == *" $AGENT "* ]]; then
+        SKIPPED+=("$AGENT"); echo "⏭️  skip (빌드 실패)"; continue
+      fi
 
-    COMMIT_COUNT=$(git -C "$WT_BASE/$ROUND-$AGENT" log --oneline \
-      "HEAD...$(git -C "$REPO" rev-parse HEAD)" 2>/dev/null | wc -l || echo "0")
-    if [ "$COMMIT_COUNT" -eq 0 ]; then
-      SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
-    fi
+      COMMIT_COUNT=$(git -C "$WT_BASE/$ROUND-$AGENT" log --oneline \
+        "HEAD...$(git -C "$REPO" rev-parse HEAD)" 2>/dev/null | wc -l || echo "0")
+      if [ "$COMMIT_COUNT" -eq 0 ]; then
+        SKIPPED+=("$AGENT"); echo "⏭️  skip (커밋 없음)"; continue
+      fi
 
-    if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
-      git commit -m "feat($ROUND-$AGENT): 폴리싱
+      if git merge --squash "codex/$ROUND-$AGENT" 2>/dev/null; then
+        git commit -m "feat($ROUND-$AGENT): 폴리싱
 
 Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
-      MERGED+=("$AGENT"); echo "✅"
-    else
-      git merge --abort 2>/dev/null || true
-      git restore . 2>/dev/null || true
-      SKIPPED+=("$AGENT"); warn "Conflict — 수동 처리 필요"
-    fi
-  done
+        MERGED+=("$AGENT"); echo "✅"
+      else
+        git merge --abort 2>/dev/null || true
+        git restore . 2>/dev/null || true
+        SKIPPED+=("$AGENT"); warn "Conflict — 수동 처리 필요"
+      fi
+    done
+  fi
 
   ### ── Wave 워크트리 즉시 정리 (메모리 절약) ─────────────────────────
-  for AGENT in "${WAVE_AGENTS[@]}"; do
-    git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
-    git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
-  done
+  if [ "$DIRECT_MODE" -eq 0 ]; then
+    for AGENT in "${WAVE_AGENTS[@]}"; do
+      git -C "$REPO" worktree remove --force "$WT_BASE/$ROUND-$AGENT" 2>/dev/null || true
+      git -C "$REPO" branch -D "codex/$ROUND-$AGENT" 2>/dev/null || true
+    done
+  fi
 
   ### ── Inter-wave 검증 (마지막 wave 제외) ────────────────────────────
   if [ "$WAVE_NUM" -lt "$WAVE_COUNT" ] && [ "${#MERGED[@]}" -gt 0 ]; then

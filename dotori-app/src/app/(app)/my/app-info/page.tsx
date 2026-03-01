@@ -13,8 +13,6 @@ import {
   Smartphone,
   Heart,
 } from 'lucide-react'
-import { Heading, Subheading } from '@/components/catalyst/heading'
-import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
@@ -78,12 +76,12 @@ export default function AppInfoPage() {
               />
             </div>
           </motion.div>
-          <Heading level={2} className={cn('mt-5 font-wordmark font-bold', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('mt-5 font-wordmark font-bold', DS_TYPOGRAPHY.h1, DS_PAGE_HEADER.title)}>
             도토리
-          </Heading>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
+          </h1>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
             우리 아이 보육·교육 시설 찾기
-          </Text>
+          </p>
 
           <div className={cn('mt-4 flex items-center gap-3', DS_TYPOGRAPHY.caption)}>
             <motion.div
@@ -106,28 +104,28 @@ export default function AppInfoPage() {
 
       <section className="space-y-3" aria-label="정책 문서 요약">
         <div id="terms" className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')}>
-          <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             이용약관
-          </Subheading>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+          </h2>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
             서비스 이용 범위, 책임 제한, 계정 정책 등 기본 약관을 안내합니다.
-          </Text>
+          </p>
         </div>
         <div id="privacy" className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')}>
-          <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             개인정보 처리방침
-          </Subheading>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+          </h2>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
             수집 항목, 보관 기간, 이용 목적과 권리 행사 방법을 설명합니다.
-          </Text>
+          </p>
         </div>
         <div id="opensource" className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-4')}>
-          <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             오픈소스 라이선스
-          </Subheading>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+          </h2>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
             앱에 포함된 오픈소스 구성요소와 라이선스 고지 정보를 제공합니다.
-          </Text>
+          </p>
         </div>
       </section>
 
@@ -146,21 +144,21 @@ export default function AppInfoPage() {
             </motion.span>
             <span>in Korea</span>
           </div>
-          <Text className={cn('mt-2', DS_TYPOGRAPHY.caption, 'text-dotori-400 dark:text-dotori-500')}>
+          <p className={cn('mt-2', DS_TYPOGRAPHY.caption, 'text-dotori-400 dark:text-dotori-500')}>
             도토리는 부모님의 보육·교육 시설 이동을 돕기 위해 만들어졌습니다.
-          </Text>
+          </p>
         </div>
       </motion.div>
 
       {/* ══════ FEEDBACK ══════ */}
       <FadeIn>
         <div className="text-center pb-4">
-          <Subheading level={3} className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             의견을 들려주세요
-          </Subheading>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
+          </h2>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.caption, 'text-dotori-500 dark:text-dotori-400')}>
             더 나은 도토리를 만드는 데 도움이 됩니다
-          </Text>
+          </p>
           <DsButton variant="secondary" href="/my/support" className="mt-3">
             피드백 보내기
           </DsButton>

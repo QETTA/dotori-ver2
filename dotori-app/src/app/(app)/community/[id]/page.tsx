@@ -29,6 +29,13 @@ import { useComments } from '@/hooks/use-comments'
 import { apiFetch } from '@/lib/api'
 import { useToast } from '@/components/dotori/ToastProvider'
 
+const CATEGORY_BADGE: Record<string, 'dotori' | 'forest'> = {
+  '이동 후기': 'dotori',
+  '시설 정보': 'forest',
+  '유보통합': 'forest',
+  '자유글': 'dotori',
+}
+
 export default function CommunityDetailPage({
   params,
 }: {
@@ -97,6 +104,8 @@ export default function CommunityDetailPage({
     )
   }
 
+  const badgeColor = CATEGORY_BADGE[post.categoryLabel] ?? 'dotori'
+
   return (
     <div className="relative space-y-8">
       <BrandWatermark className="opacity-30" />
@@ -109,12 +118,12 @@ export default function CommunityDetailPage({
       <FadeIn>
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Badge color="zinc">{post.categoryLabel}</Badge>
+            <Badge color={badgeColor}>{post.categoryLabel}</Badge>
             <Text className={DS_TYPOGRAPHY.caption} suppressHydrationWarning>
               {post.author} · {post.time}
             </Text>
           </div>
-          <h1 className={cn('font-wordmark text-2xl/9', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('font-wordmark', DS_TYPOGRAPHY.h1, DS_PAGE_HEADER.title)}>
             {post.title}
           </h1>
         </div>
@@ -145,9 +154,13 @@ export default function CommunityDetailPage({
             type="button"
             onClick={handleLikeToggle}
             aria-label={liked ? '좋아요 취소' : '좋아요'}
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm/6 text-dotori-500 transition-colors hover:text-dotori-700"
+            className={cn(
+              'inline-flex min-h-11 items-center gap-1.5 transition-colors',
+              DS_TYPOGRAPHY.bodySm,
+              liked ? 'text-danger' : 'text-dotori-500 hover:text-dotori-700',
+            )}
           >
-            <Heart className={`h-5 w-5 ${liked ? 'fill-red-400 text-red-400' : ''}`} />
+            <Heart className={cn('h-5 w-5', liked ? 'fill-current' : '')} />
             <span>{post.likes + (liked ? 1 : 0)}</span>
           </button>
         </div>
@@ -166,13 +179,19 @@ export default function CommunityDetailPage({
         {commentsLoading ? (
           <Skeleton variant="card" count={2} />
         ) : (
-          <FadeInStagger className="space-y-4">
+          <FadeInStagger className="space-y-0">
             {comments.map((c) => (
-              <FadeIn key={c.id}>
+              <FadeIn
+                key={c.id}
+                className="border-b border-dotori-100 py-4 first:pt-0 last:border-b-0 last:pb-0 dark:border-dotori-800/40"
+              >
                 <div className="flex gap-3">
                   <Avatar
                     initials={c.initials}
-                    className="h-8 w-8 shrink-0 bg-dotori-100 text-xs text-dotori-700 dark:bg-dotori-900 dark:text-dotori-300"
+                    className={cn(
+                      'h-8 w-8 shrink-0 bg-dotori-100 text-dotori-700 dark:bg-dotori-900 dark:text-dotori-300',
+                      DS_TYPOGRAPHY.caption,
+                    )}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">

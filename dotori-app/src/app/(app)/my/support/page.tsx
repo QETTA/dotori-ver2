@@ -15,8 +15,6 @@ import {
   MessagesSquare,
   HelpCircle,
 } from 'lucide-react'
-import { Heading, Subheading } from '@/components/catalyst/heading'
-import { Text } from '@/components/catalyst/text'
 import { DsButton } from '@/components/ds/DsButton'
 import { BreadcrumbNav } from '@/components/dotori/BreadcrumbNav'
 import { FadeIn, FadeInStagger } from '@/components/dotori/FadeIn'
@@ -125,9 +123,9 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             className="overflow-hidden"
           >
             <div className="px-5 pb-5">
-              <Text className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-400 leading-relaxed')}>
+              <p className={cn(DS_TYPOGRAPHY.bodySm, 'text-dotori-600 dark:text-dotori-400 leading-relaxed')}>
                 {answer}
-              </Text>
+              </p>
             </div>
           </motion.div>
         )}
@@ -149,12 +147,12 @@ export default function SupportPage() {
         <BrandWatermark className="opacity-50" />
         <FadeIn>
           <p className={DS_PAGE_HEADER.eyebrow}>고객 지원</p>
-          <Heading className={cn('mt-3 font-wordmark font-bold', DS_PAGE_HEADER.title)}>
+          <h1 className={cn('mt-3 font-wordmark font-bold', DS_TYPOGRAPHY.h1, DS_PAGE_HEADER.title)}>
             도움이 필요하세요?
-          </Heading>
-          <Text className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
+          </h1>
+          <p className={cn('mt-2', DS_TYPOGRAPHY.body, DS_PAGE_HEADER.subtitle)}>
             자주 묻는 질문을 확인하거나 직접 문의해주세요.
-          </Text>
+          </p>
         </FadeIn>
       </div>
 
@@ -169,9 +167,9 @@ export default function SupportPage() {
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-dotori-100/60 dark:bg-dotori-800/30">
             <HelpCircle className="h-4 w-4 text-dotori-500" />
           </div>
-          <Subheading level={2} className={cn(DS_TYPOGRAPHY.body, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <h2 className={cn(DS_TYPOGRAPHY.h3, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             자주 묻는 질문
-          </Subheading>
+          </h2>
         </div>
       </motion.div>
       <FadeInStagger faster className="space-y-2">
@@ -185,12 +183,12 @@ export default function SupportPage() {
       {/* ══════ STILL NEED HELP ══════ */}
       <motion.div {...scrollFadeIn}>
         <div className={cn(DS_CARD.flat.base, DS_CARD.flat.dark, 'p-6 text-center')}>
-          <Text className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
+          <p className={cn(DS_TYPOGRAPHY.bodySm, 'font-semibold text-dotori-950 dark:text-dotori-50')}>
             원하는 답을 찾지 못하셨나요?
-          </Text>
-          <Text className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
+          </p>
+          <p className={cn('mt-1', DS_TYPOGRAPHY.bodySm, 'text-dotori-500 dark:text-dotori-400')}>
             아래 버튼을 눌러 상담을 시작해보세요
-          </Text>
+          </p>
           <DsButton href="/chat" className="mt-4">
             <MessagesSquare className="h-4 w-4" />
             상담 시작하기

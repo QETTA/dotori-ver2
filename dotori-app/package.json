@@ -54,6 +54,8 @@
     "multi-agent:next-wave:wide": "WAVE_SIZE=6 bash scripts/multi-agent-next-wave.sh",
     "multi-agent:overdrive": "bash scripts/multi-agent-overdrive.sh",
     "multi-agent:overdrive:max": "WAVE_SIZE=8 bash scripts/multi-agent-overdrive.sh",
+    "ㄱ": "bash scripts/launch.sh",
+    "ㄱ:single": "FULL_THROTTLE=0 bash scripts/launch.sh",
     "clean": "rm -rf .next node_modules/.cache",
     "test": "vitest run",
     "test:watch": "vitest",
