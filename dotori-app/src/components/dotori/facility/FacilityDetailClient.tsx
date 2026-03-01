@@ -3,7 +3,9 @@
 import { motion } from 'motion/react'
 import { useCallback, useMemo, useState } from 'react'
 
+import { DS_SURFACE } from '@/lib/design-system/page-tokens'
 import { stagger } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 import type { Facility } from '@/types/dotori'
 
 import {
@@ -43,7 +45,10 @@ export function FacilityDetailClient({ facility }: FacilityDetailClientProps) {
   const [copyingAddress, setCopyingAddress] = useState(false)
 
   const sectionDividerClassName =
-    'border-b border-dotori-100 py-6 dark:border-dotori-800 last:border-b-0'
+    cn(
+      DS_SURFACE.sunken,
+      'border-b border-dotori-100 py-6 dark:border-dotori-800 last:border-b-0',
+    )
 
   const kakaoMapUrl = useMemo(() => {
     if (facility.kakaoPlaceUrl) return facility.kakaoPlaceUrl
