@@ -87,5 +87,5 @@ jobs:
             /tmp/dotori-ux-guard
             /tmp/dotori-screenshots
             /tmp/dotori-audit-v3
-            /tmp/ux-dev3002.log
+            /tmp/ux-prod3002.log
           if-no-files-found: ignore
