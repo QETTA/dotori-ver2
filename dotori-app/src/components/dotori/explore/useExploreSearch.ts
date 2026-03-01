@@ -79,7 +79,7 @@ export function useExploreSearch(): UseExploreSearchReturn {
 
 	const m = useExploreMapState({
 		initialShowMap: initialQueryState.initialShowMap,
-		facilities: fac.facilities,
+		facilities: fac.sortedFacilities,
 		gpsState: geo.gpsState,
 	});
 

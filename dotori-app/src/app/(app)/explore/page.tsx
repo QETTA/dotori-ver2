@@ -29,7 +29,8 @@ function ExploreContent() {
     useExploreSearch()
   const router = useRouter()
   const handleMarkerClick = useCallback((id: string) => {
-    router.push(`/facility/${id}`)
+    const currentSearch = typeof window !== 'undefined' ? window.location.search : ''
+    router.push(`/facility/${id}?from=${encodeURIComponent('/explore' + currentSearch)}`)
   }, [router])
   const handleViewToggle = useCallback((nextView: 'list' | 'map') => {
     if (nextView === 'map' && !headerState.isMapAvailable) {

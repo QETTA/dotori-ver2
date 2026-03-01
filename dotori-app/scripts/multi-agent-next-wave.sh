@@ -9,7 +9,11 @@ WAVE_SIZE_DEFAULT="${WAVE_SIZE:-4}"
 CODEX_MODEL_DEFAULT="${CODEX_MODEL:-gpt-5.3-codex}"
 
 if [ ! -f "$TASKS_FILE_DEFAULT" ]; then
-  echo "Tasks file not found: $TASKS_FILE_DEFAULT"
+  echo "ERROR: Tasks file not found: $TASKS_FILE_DEFAULT"
+  echo ""
+  echo "This wrapper expects a task file at the path above."
+  echo "Create it with lines in format: agent_id|files|description"
+  echo "Or call codex-wave.sh directly: ./scripts/codex-wave.sh <your-tasks-file>"
   exit 1
 fi
 

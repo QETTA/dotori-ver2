@@ -319,7 +319,7 @@ export const ExploreResultList = memo(function ExploreResultList({
 								</div>{/* close outer wrapper */}
 								{/* Layer 2: Click zone — z-20 */}
 									<Link
-										href={`/facility/${facility.id}`}
+										href={`/facility/${facility.id}?from=${encodeURIComponent('/explore' + (typeof window !== 'undefined' ? window.location.search : ''))}`}
 										className="absolute inset-0 z-20 rounded-2xl"
 										aria-label={`${facility.name} 상세 보기`}
 									/>

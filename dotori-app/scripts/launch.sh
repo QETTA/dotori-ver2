@@ -91,11 +91,10 @@ else
 fi
 if [ "$DIRECT_MODE" -eq 1 ]; then
   warn ".git 쓰기 불가 환경 감지 — 워크트리 없이 직접 실행 모드로 전환"
-  if [ "$FULL_THROTTLE" = "1" ]; then
-    warn "직접 실행 모드에서도 풀가동 유지 (충돌 가능성은 launch가 관리)"
-  elif [ "$WAVE_SIZE" -gt 1 ]; then
-    warn "직접 실행 모드에서는 충돌 방지를 위해 wave=1로 강제"
+  if [ "$WAVE_SIZE" -gt 1 ] || [ "$FULL_THROTTLE" = "1" ]; then
+    warn "직접 실행 모드: 동일 워킹트리 병렬 수정 = race condition → wave=1 강제 (FULL_THROTTLE 무시)"
     WAVE_SIZE=1
+    FULL_THROTTLE=0
   fi
 fi
 
@@ -271,12 +270,20 @@ else
   rm -f "$BUILD_LOG"
 
   LINT_LOG=$(mktemp)
-  npm run lint > "$LINT_LOG" 2>&1 || true
-  LINT_ERR=$(grep -c " error " "$LINT_LOG" 2>/dev/null || echo "0")
+  if npm run lint > "$LINT_LOG" 2>&1; then
+    ok "ESLint clean"
+  else
+    LINT_ERR=$(grep -c " error " "$LINT_LOG" 2>/dev/null || echo "0")
+    [ "$LINT_ERR" -gt 0 ] && fail "ESLint errors: ${LINT_ERR}개 — launch 중단"
+    warn "ESLint 경고 있음 (에러 0개)"
+  fi
   rm -f "$LINT_LOG"
-  [ "$LINT_ERR" -gt 0 ] && warn "ESLint errors: ${LINT_ERR}개" || ok "ESLint clean"
 
-  npm test -- --run > /dev/null 2>&1 && ok "Tests passed" || warn "Tests 불안정"
+  if npm test -- --run > /dev/null 2>&1; then
+    ok "Tests passed"
+  else
+    fail "Tests 실패 — launch 중단"
+  fi
 fi
 
 echo "  [0b] 스테일 워크트리 정리..."
@@ -461,8 +468,14 @@ ${SHARED_RULES}
   WAVE_WATCHDOG=$!
 
   for i in "${!WAVE_PIDS[@]}"; do
-    wait "${WAVE_PIDS[$i]}" 2>/dev/null
-    echo "  ✓ ${WAVE_RUN_AGENTS[$i]}"
+    AGENT_EXIT=0
+    wait "${WAVE_PIDS[$i]}" 2>/dev/null || AGENT_EXIT=$?
+    if [ "$AGENT_EXIT" -ne 0 ]; then
+      echo "  ✗ ${WAVE_RUN_AGENTS[$i]} (exit $AGENT_EXIT)"
+      FAIL+=("${WAVE_RUN_AGENTS[$i]}:exit-${AGENT_EXIT}")
+    else
+      echo "  ✓ ${WAVE_RUN_AGENTS[$i]}"
+    fi
   done
   kill "$WAVE_WATCHDOG" 2>/dev/null || true
   WAVE_ELAPSED=$(( $(date +%s) - WAVE_START_TS ))
@@ -604,15 +617,15 @@ Co-Authored-By: Codex <noreply@openai.com>" 2>/dev/null || true
     done
   fi
 
-  ### ── Inter-wave 검증 (마지막 wave 제외) ────────────────────────────
-  if [ "$WAVE_NUM" -lt "$WAVE_COUNT" ] && [ "${#MERGED[@]}" -gt 0 ]; then
-    info "Inter-wave tsc 검증 (main 상태)..."
+  ### ── Inter-wave 검증 (모든 wave) ──────────────────────────────────
+  if [ "${#MERGED[@]}" -gt 0 ]; then
+    info "Wave ${WAVE_NUM} tsc 검증 (main 상태)..."
     TSC_LOG=$(mktemp)
     if (cd "$APP" && npx tsc --noEmit > "$TSC_LOG" 2>&1); then
-      ok "Inter-wave tsc ✅ — Wave $((WAVE_NUM + 1)) 진행"
+      ok "Wave ${WAVE_NUM} tsc ✅"
     else
       TSC_ERRORS=$(grep -c "error TS" "$TSC_LOG" 2>/dev/null || echo "?")
-      warn "Inter-wave tsc ❌ (${TSC_ERRORS} errors) — Wave ${WAVE_NUM} 머지가 타입 깨뜨림. 파이프라인 중단."
+      warn "Wave ${WAVE_NUM} tsc ❌ (${TSC_ERRORS} errors) — 머지가 타입 깨뜨림. 파이프라인 중단."
       FAIL+=("inter-wave-tsc:${WAVE_NUM}:${TSC_ERRORS}")
       warn "로그: $TSC_LOG"
       WAVE_ABORT=1

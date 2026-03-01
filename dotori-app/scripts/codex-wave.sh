@@ -147,11 +147,21 @@ ${SHARED_RULES}
 
   # ── 완료 대기 ──
   WAVE_TS=$(date +%s)
+  WAVE_AGENT_FAILS=()
   for j in "${!WAVE_PIDS[@]}"; do
-    wait "${WAVE_PIDS[$j]}" 2>/dev/null
+    AGENT_EXIT=0
+    wait "${WAVE_PIDS[$j]}" 2>/dev/null || AGENT_EXIT=$?
     AID_DONE="${WAVE_AIDS[$j]:-unknown-${j}}"
-    echo "  ✓ ${AID_DONE}"
+    if [ "$AGENT_EXIT" -ne 0 ]; then
+      echo "  ✗ ${AID_DONE} (exit $AGENT_EXIT)"
+      WAVE_AGENT_FAILS+=("$AID_DONE")
+    else
+      echo "  ✓ ${AID_DONE}"
+    fi
   done
+  if [ "${#WAVE_AGENT_FAILS[@]}" -gt 0 ]; then
+    warn "Wave ${WAVE_NUM}: 에이전트 실패 — ${WAVE_AGENT_FAILS[*]}"
+  fi
   WAVE_ELAPSED=$(( $(date +%s) - WAVE_TS ))
   ok "Wave ${WAVE_NUM} 완료 (${WAVE_ELAPSED}s)"
 
@@ -168,11 +178,9 @@ ${SHARED_RULES}
     echo "$TSC_OUT" | grep "error TS" | head -10
     for aid in "${WAVE_AIDS[@]}"; do FAIL+=("$aid"); done
 
-    if [ "$WAVE_NUM" -lt "$WAVE_COUNT" ]; then
-      warn "Wave ${WAVE_NUM}에서 타입 에러 → 나머지 wave 중단"
-      WAVE_ABORTED=1
-      break
-    fi
+    warn "Wave ${WAVE_NUM}에서 타입 에러 → 나머지 wave 중단"
+    WAVE_ABORTED=1
+    break
   fi
 
   echo ""

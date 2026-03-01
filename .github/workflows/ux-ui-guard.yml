@@ -1,6 +1,11 @@
 name: UX/UI Guard
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "dotori-app/**"
+      - ".github/workflows/ux-ui-guard.yml"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
@@ -42,10 +47,13 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Start dev server (3002)
+      - name: Build for production
+        run: npm run build
+
+      - name: Start production server (3002)
         run: |
-          nohup npm run dev:3002 > /tmp/ux-dev3002.log 2>&1 &
-          echo $! > /tmp/ux-dev3002.pid
+          nohup npx next start -p 3002 > /tmp/ux-prod3002.log 2>&1 &
+          echo $! > /tmp/ux-prod3002.pid
 
       - name: Wait for server
         run: |
@@ -57,17 +65,17 @@ jobs:
             sleep 1
           done
           echo "Server startup timeout"
-          tail -n 120 /tmp/ux-dev3002.log || true
+          tail -n 120 /tmp/ux-prod3002.log || true
           exit 1
 
       - name: Runtime UX/UI guard
         run: CHECK_CONSOLE_IGNORE_API_ERRORS=1 BASE_URL=http://127.0.0.1:3002 npm run ux:guard
 
-      - name: Stop dev server
+      - name: Stop production server
         if: always()
         run: |
-          if [ -f /tmp/ux-dev3002.pid ]; then
-            kill -TERM "$(cat /tmp/ux-dev3002.pid)" 2>/dev/null || true
+          if [ -f /tmp/ux-prod3002.pid ]; then
+            kill -TERM "$(cat /tmp/ux-prod3002.pid)" 2>/dev/null || true
           fi
 
       - name: Upload UX artifacts

@@ -74,7 +74,7 @@ export function useExploreFilters(
 
 	const [sidoOptions, setSidoOptions] = useState<string[]>([]);
 	const [sigunguOptions, setSigunguOptions] = useState<string[]>([]);
-	const [isLoadingSido, setIsLoadingSido] = useState(false);
+	const [isLoadingSido, setIsLoadingSido] = useState(true);
 	const [isLoadingSigungu, setIsLoadingSigungu] = useState(false);
 
 	const [recentSearches, setRecentSearches] = useState<string[]>(() =>
@@ -165,6 +165,8 @@ export function useExploreFilters(
 			};
 		}
 
+		// eslint-disable-next-line react-hooks/set-state-in-effect -- loading state before async fetch
+		setIsLoadingSigungu(true);
 		apiFetch<{ data: string[] }>(
 			`/api/regions/sigungu?sido=${encodeURIComponent(selectedSido)}`,
 		)

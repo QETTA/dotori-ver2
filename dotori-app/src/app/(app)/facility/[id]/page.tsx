@@ -1,14 +1,15 @@
 'use client'
 
 /**
- * Facility Detail — R49: Mock→Real + StickyBottomCTA + ToRiFAB
+ * Facility Detail — R73: Unified (FacilityDetailClient merged) + Back context
  *
- * Catalyst: Heading, Text, Divider, Badge, DsButton, DescriptionList
+ * Catalyst: Heading, Text, Divider, Badge, DsButton
  * Studio:   FadeIn, StatList
  * Charts:   DonutGauge, BarChart
  */
-import { use } from 'react'
+import { use, useCallback, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'motion/react'
 import {
   ArrowLeft,
@@ -21,13 +22,12 @@ import {
 } from 'lucide-react'
 import { copy } from '@/lib/brand-copy'
 import { DS_CARD } from '@/lib/design-system/card-tokens'
-import { DS_PAGE_HEADER, DS_SURFACE } from '@/lib/design-system/page-tokens'
+import { DS_PAGE_HEADER } from '@/lib/design-system/page-tokens'
 import { DS_TYPOGRAPHY, DS_TEXT } from '@/lib/design-system/tokens'
 import { scrollFadeIn, gradientTextHero } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { Text } from '@/components/catalyst/text'
 import { Divider } from '@/components/catalyst/divider'
-import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/catalyst/description-list'
 import { DsButton } from '@/components/ds/DsButton'
 import { FadeIn } from '@/components/dotori/FadeIn'
 import { BrandWatermark } from '@/components/dotori/BrandWatermark'
@@ -41,12 +41,37 @@ import { ToRiFAB } from '@/components/dotori/ToRiFAB'
 import { DonutGauge } from '@/components/dotori/charts/DonutGauge'
 import { BarChart } from '@/components/dotori/charts/BarChart'
 import { PhotoGallery } from '@/components/dotori/PhotoGallery'
+import { FacilityOperatingSection } from '@/components/dotori/facility/FacilityOperatingSection'
+import { FacilityCapacitySection, type FacilityKeyStat } from '@/components/dotori/facility/FacilityCapacitySection'
+import { FacilityContactMapSections } from '@/components/dotori/facility/FacilityContactSection'
 import { useFacilityDetail } from '@/hooks/use-facility-detail'
+import { useFacilityActions } from '@/hooks/use-facility-actions'
+import { useToast } from '@/components/dotori/ToastProvider'
 
 const amenityIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   CCTV: Video,
   통학버스: Truck,
   평가인증: Star,
+}
+
+async function copyToClipboard(text: string) {
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text)
+    return
+  }
+  if (typeof document === 'undefined') return
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'fixed'
+  textarea.style.top = '0'
+  textarea.style.left = '0'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+  document.execCommand('copy')
+  document.body.removeChild(textarea)
 }
 
 export default function FacilityDetailPage({
@@ -55,7 +80,47 @@ export default function FacilityDetailPage({
   params: Promise<{ id: string }>
 }) {
   const params = use(paramsPromise)
+  const urlSearchParams = useSearchParams()
+  const backHref = urlSearchParams?.get('from') ?? '/explore'
   const { facility, isLoading, error, refetch } = useFacilityDetail(params.id)
+  const { registerInterest, loadingAction } = useFacilityActions()
+  const { addToast } = useToast()
+  const [liked, setLiked] = useState(false)
+  const [copyingPhone, setCopyingPhone] = useState(false)
+  const [copyingAddress, setCopyingAddress] = useState(false)
+
+  const handleHeartClick = useCallback(async () => {
+    if (!facility) return
+    setLiked((prev) => !prev)
+    await registerInterest(facility.id)
+  }, [facility, registerInterest])
+
+  const handleShareClick = useCallback(async () => {
+    if (!facility) return
+    const shareData = { title: facility.name, text: `${facility.name} - ${facility.address}`, url: window.location.href }
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share(shareData) } catch { /* user cancelled */ }
+    } else {
+      await copyToClipboard(window.location.href)
+      addToast({ type: 'success', message: 'URL이 복사되었어요' })
+    }
+  }, [facility, addToast])
+
+  const handleCopyPhone = useCallback(async () => {
+    if (!facility?.phone) return
+    setCopyingPhone(true)
+    try { await copyToClipboard(facility.phone) } finally {
+      window.setTimeout(() => setCopyingPhone(false), 700)
+    }
+  }, [facility])
+
+  const handleCopyAddress = useCallback(async () => {
+    if (!facility?.address) return
+    setCopyingAddress(true)
+    try { await copyToClipboard(facility.address) } finally {
+      window.setTimeout(() => setCopyingAddress(false), 700)
+    }
+  }, [facility])
 
   if (isLoading) {
     return (
@@ -73,7 +138,7 @@ export default function FacilityDetailPage({
           message="시설 정보를 불러오지 못했어요"
           variant="network"
           action={{ label: '다시 시도', onClick: refetch }}
-          secondaryAction={{ label: '시설 탐색으로 이동', href: '/explore' }}
+          secondaryAction={{ label: '시설 탐색으로 이동', href: backHref }}
         />
       </div>
     )
@@ -88,6 +153,22 @@ export default function FacilityDetailPage({
 
   const features = facility.features ?? []
 
+  const occupancyRate = facility.capacity.total > 0
+    ? Math.round((facility.capacity.current / facility.capacity.total) * 100)
+    : 0
+
+  const kakaoMapUrl = facility.kakaoPlaceUrl
+    ?? `https://map.kakao.com/link/search/${encodeURIComponent(facility.name)}`
+
+  const websiteUrl = facility.website ?? facility.homepage ?? null
+
+  const keyStats: FacilityKeyStat[] = []
+  if (typeof facility.establishmentYear === 'number') keyStats.push({ label: '설립연도', value: `${facility.establishmentYear}년` })
+  if (typeof facility.roomCount === 'number') keyStats.push({ label: '반 수', value: `${facility.roomCount}개` })
+  if (typeof facility.teacherCount === 'number') keyStats.push({ label: '교사 수', value: `${facility.teacherCount}명` })
+
+  const hasMapLocation = Number.isFinite(facility.lat) && Number.isFinite(facility.lng)
+
   return (
     <div className="relative space-y-10 pb-24">
       <BrandWatermark className="opacity-30" />
@@ -95,16 +176,16 @@ export default function FacilityDetailPage({
       {/* ══════ NAV ══════ */}
       <FadeIn>
         <div className="flex items-center justify-between">
-          <Link href="/explore" className={cn('inline-flex items-center gap-2 text-sm/6 hover:text-dotori-950 dark:hover:text-white', DS_TEXT.secondary)}>
+          <Link href={backHref} className={cn('inline-flex items-center gap-2 text-sm/6 hover:text-dotori-950 dark:hover:text-white', DS_TEXT.secondary)}>
             <ArrowLeft className="h-4 w-4" />
             목록으로
           </Link>
           <div className="flex gap-2">
-            <DsButton variant="ghost" aria-label="공유하기" className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
+            <DsButton variant="ghost" aria-label="공유하기" onClick={handleShareClick} className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
               <Share className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
             </DsButton>
-            <DsButton variant="ghost" aria-label="관심 등록" className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
-              <Heart className="h-4 w-4 text-dotori-600 dark:text-dotori-400" />
+            <DsButton variant="ghost" aria-label="관심 등록" onClick={handleHeartClick} disabled={loadingAction === `interest-${facility.id}`} className={cn('grid h-9 w-9 place-items-center rounded-lg p-0', DS_CARD.flat.base, DS_CARD.flat.dark)}>
+              <Heart className={cn('h-4 w-4', liked ? 'fill-dotori-500 text-dotori-500' : 'text-dotori-600 dark:text-dotori-400')} />
             </DsButton>
           </div>
         </div>
@@ -188,31 +269,25 @@ export default function FacilityDetailPage({
 
       <Divider soft />
 
-      {/* ══════ DESCRIPTION LIST ══════ */}
+      {/* ══════ OPERATING INFO (rich sub-component) ══════ */}
       <motion.div {...scrollFadeIn}>
-        <h2 className={cn(DS_TYPOGRAPHY.h3, 'mb-4')}>시설 정보</h2>
-        <DescriptionList>
-          {facility.establishmentYear && (
-            <>
-              <DescriptionTerm>설립연도</DescriptionTerm>
-              <DescriptionDetails>{facility.establishmentYear}년</DescriptionDetails>
-            </>
-          )}
-          {facility.operatingHours && (
-            <>
-              <DescriptionTerm>운영시간</DescriptionTerm>
-              <DescriptionDetails>{facility.operatingHours.open} ~ {facility.operatingHours.close}</DescriptionDetails>
-            </>
-          )}
-          {facility.phone && (
-            <>
-              <DescriptionTerm>전화</DescriptionTerm>
-              <DescriptionDetails>{facility.phone}</DescriptionDetails>
-            </>
-          )}
-          <DescriptionTerm>주소</DescriptionTerm>
-          <DescriptionDetails>{facility.address}</DescriptionDetails>
-        </DescriptionList>
+        <FacilityOperatingSection
+          operatingHours={facility.operatingHours}
+          establishmentYear={facility.establishmentYear}
+          roomCount={facility.roomCount}
+          teacherCount={facility.teacherCount}
+        />
+      </motion.div>
+
+      {/* ══════ CAPACITY (rich sub-component) ══════ */}
+      <motion.div {...scrollFadeIn}>
+        <FacilityCapacitySection
+          occupancyRate={occupancyRate}
+          currentCapacity={facility.capacity.current}
+          totalCapacity={facility.capacity.total}
+          waitingCapacity={facility.capacity.waiting}
+          keyStats={keyStats}
+        />
       </motion.div>
 
       {/* ══════ FEATURES / AMENITIES ══════ */}
@@ -240,17 +315,26 @@ export default function FacilityDetailPage({
         </motion.div>
       )}
 
-      {/* ══════ LOCATION ══════ */}
+      {/* ══════ CONTACT + MAP (rich sub-component) ══════ */}
       <motion.div {...scrollFadeIn}>
-        <h2 className={cn(DS_TYPOGRAPHY.h3, 'mb-3')}>
-          위치
-        </h2>
-        <div className={cn('flex h-36 items-center justify-center overflow-hidden rounded-xl', DS_SURFACE.sunken)}>
-          <div className="text-center">
-            <MapPin className="mx-auto h-8 w-8 text-dotori-400" />
-            <Text className={cn('mt-2', DS_TYPOGRAPHY.caption)}>지도 준비 중</Text>
-          </div>
-        </div>
+        <FacilityContactMapSections
+          phone={facility.phone}
+          address={facility.address}
+          kakaoMapUrl={kakaoMapUrl}
+          websiteUrl={websiteUrl}
+          copyablePhone={facility.phone}
+          copyingPhone={copyingPhone}
+          onCopyPhone={handleCopyPhone}
+          copyableAddress={facility.address}
+          copyingAddress={copyingAddress}
+          onCopyAddress={handleCopyAddress}
+          hasMapLocation={hasMapLocation}
+          facilityId={facility.id}
+          facilityName={facility.name}
+          lat={facility.lat}
+          lng={facility.lng}
+          status={facility.status}
+        />
       </motion.div>
 
       {/* ══════ REVIEWS ══════ */}

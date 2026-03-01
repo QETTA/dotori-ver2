@@ -63,8 +63,41 @@ jobs:
           done
           echo "::error::CI did not complete in 5 minutes"; exit 1
 
+  # ── Gate: UX/UI Guard must pass before deploy ──
+  ux-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for UX/UI Guard and verify pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Waiting for UX/UI Guard on ${GITHUB_SHA::7}..."
+          for attempt in $(seq 1 30); do
+            RESULT="$(gh run list --repo "${{ github.repository }}" --workflow "UX/UI Guard" --branch main --limit 10 --json headSha,status,conclusion)"
+            STATUS="$(echo "$RESULT" | python3 -c "
+          import json,sys
+          runs = json.load(sys.stdin)
+          target = next((r for r in runs if r.get('headSha','').strip() == '${GITHUB_SHA}'.strip()), None)
+          if not target: print('MISSING'); sys.exit(0)
+          if target.get('status') != 'completed': print('PENDING'); sys.exit(0)
+          print(target.get('conclusion','unknown'))
+          ")"
+            case "$STATUS" in
+              success) echo "UX/UI Guard passed (attempt $attempt)"; exit 0 ;;
+              PENDING) echo "UX Guard pending... (attempt $attempt/30, wait 10s)"; sleep 10 ;;
+              MISSING)
+                if [ "$attempt" -ge 30 ]; then
+                  echo "::error::No UX/UI Guard run found after 5 minutes"
+                  exit 1
+                fi
+                echo "UX Guard not found yet... (attempt $attempt/30, wait 10s)"; sleep 10 ;;
+              *) echo "::error::UX/UI Guard failed ($STATUS)"; exit 1 ;;
+            esac
+          done
+          echo "::error::UX/UI Guard did not complete in 5 minutes"; exit 1
+
   deploy:
-    needs: [ci-gate]
+    needs: [ci-gate, ux-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
